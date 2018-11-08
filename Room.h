@@ -57,8 +57,12 @@ public:
         Room::travel = travel;
     }
 
+    inline bool operator<(const Room &rhs) const {
+        return id < rhs.id;
+    }
+
     Room(int i, int i1, std::map<int, int> map, std::vector<Unavailability, std::allocator<Unavailability>> vector)
-            : capacity(i1), id(i), travel(map),slots(vector) {
+            : id(i), capacity(i1), travel(map), slots(vector) {
 
     }
 };

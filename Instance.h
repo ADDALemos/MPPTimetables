@@ -148,6 +148,11 @@ public:
         rooms.insert(*p);
 
     }
+
+    Room getRoom(int roomID) {
+        return rooms.at(roomID);
+
+    }
 };
 
 

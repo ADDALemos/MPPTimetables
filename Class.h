@@ -15,17 +15,12 @@ class Class {
     int limit;//limit number of students
     Class *parent;
     std::vector<Lecture> lectures;
-    std::vector<std::pair<Room,int>> possibleRooms;
+    std::map<Room, int> possibleRooms;
 
 public:
     Class(int id, int limit, const std::vector<Lecture, std::allocator<Lecture>> &lectures,
-          const std::vector<std::pair<Room, int>, std::allocator<std::pair<Room, int>>> &possibleRooms) : id(id),
-                                                                                                          limit(limit),
-                                                                                                          lectures(
-                                                                                                                  lectures),
-                                                                                                          possibleRooms(
-                                                                                                                  possibleRooms),
-                                                                                                            parent(nullptr){}
+          std::map<Room, int> possibleRooms) : id(id), limit(limit), lectures(lectures), possibleRooms(possibleRooms),
+                                               parent(nullptr) {}
 
 
     friend std::ostream &operator<<(std::ostream &os, const Class &aClass) {
@@ -57,12 +52,12 @@ public:
         Class::lectures = lectures;
     }
 
-    const std::vector<std::pair<Room, int>, std::allocator<std::pair<Room, int>>> &getPossibleRooms() const {
+    const std::map<Room, int> &getPossibleRooms() const {
         return possibleRooms;
     }
 
     void
-    setPossibleRooms(const std::vector<std::pair<Room, int>, std::allocator<std::pair<Room, int>>> &possibleRooms) {
+    setPossibleRooms(const std::map<Room, int> &possibleRooms) {
         Class::possibleRooms = possibleRooms;
     }
 

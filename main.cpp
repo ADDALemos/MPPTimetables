@@ -17,7 +17,7 @@ using namespace rapidxml;
 
 int main() {
     xml_document<> doc;
-    std::ifstream file("/Volumes/MAC/pu-c8-spr07.xml");
+    std::ifstream file("/Volumes/MAC/lums-sum17.xml");
     std::stringstream buffer;
     buffer << file.rdbuf();
     file.close();
@@ -106,6 +106,8 @@ int main() {
             }
 
         } else if(strcmp(n->name(), "courses")==0)   {
+
+
             for(const rapidxml::xml_node<>* s = n->first_node(); s; s = s->next_sibling()){
                 char *id;
                 for (const rapidxml::xml_attribute<> *a = s->first_attribute(); a; a = a->next_attribute()) {
@@ -123,6 +125,8 @@ int main() {
                         }
                         for(const rapidxml::xml_node<>* cla = sub->first_node(); cla; cla = cla->next_sibling()){
                             int idclass=-1,limit=-1;
+                            std::map<Room, int> roomsv;
+                            std::vector<Lecture> lecv;
                             for (const rapidxml::xml_attribute<> *a = cla->first_attribute(); a; a = a->next_attribute()) {
                                 if(strcmp(a->name(),"id")==0)
                                     idclass=atoi(a->value());
@@ -131,27 +135,41 @@ int main() {
                             }
                             for(const rapidxml::xml_node<>* lec = cla->first_node(); lec; lec = lec->next_sibling()){
                                 if(strcmp(lec->name(),"room")==0) {
+                                    int idRoom = -1, penalty = -1;
                                     for (const rapidxml::xml_attribute<> *a = lec->first_attribute(); a; a = a->next_attribute()) {
                                          //std::cout<<a->name()<<std::endl;
                                         if(strcmp(a->name(),"id")==0)
-                                            ;
+                                            idRoom = atoi(a->value());
                                         else if(strcmp(a->name(),"penalty")==0)
-                                            ;
+                                            penalty = atoi(a->value());
+
                                     }
+                                    roomsv.insert(std::pair<Room, int>(instance->getRoom(idRoom), penalty));
                                 }else if(strcmp(lec->name(),"time")==0){
+                                    int lenght = -1, start = -1, penalty = -1;
+                                    std::string weeks, days;
                                     for (const rapidxml::xml_attribute<> *a = lec->first_attribute(); a; a = a->next_attribute()) {
+
+
                                         if (strcmp(a->name(), "length") == 0) {
-                                           // if(atoi(a->value())!=22&&atoi(a->value())!=15&&atoi(a->value())!=10)
-                                                std::cout << a->value() << std::endl;
-                                        }
-                                        if (strcmp(a->name(), "start") == 0) {
-                                           ;//std::cout << a->value() << std::endl;
+                                            lenght = atoi(a->value());
+                                        } else if (strcmp(a->name(), "start") == 0) {
+                                            start = atoi(a->value());
+                                        } else if (strcmp(a->name(), "weeks") == 0) {
+                                            weeks = a->value();
+                                        } else if (strcmp(a->name(), "days") == 0) {
+                                            days = a->value();
+                                        } else if (strcmp(a->name(), "penalty") == 0) {
+                                            penalty = atoi(a->value());
                                         }
 
 
                                     }
-
+                                    Lecture *l = new Lecture(lenght, start, weeks, days, penalty);
+                                    lecv.push_back(*l);
                                 }
+                                Class *c = new Class(idclass, limit, lecv, roomsv);
+
 
                                      //limit=atoi(a->value());
 
@@ -170,9 +188,7 @@ int main() {
     }
     std::cout<<*instance<<std::endl;
 
-    Lecture *lecture = new Lecture();
     distribution c;
-    Room * i;
 
     return 0;
 }
