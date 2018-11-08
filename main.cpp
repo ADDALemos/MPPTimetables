@@ -17,7 +17,7 @@ using namespace rapidxml;
 
 int main() {
     xml_document<> doc;
-    std::ifstream file("/Volumes/MAC/lums-sum17.xml");
+    std::ifstream file("/Volumes/MAC/wbg-fal10.xml");
     std::stringstream buffer;
     buffer << file.rdbuf();
     file.close();
@@ -181,6 +181,24 @@ int main() {
                 }
 
             }
+
+        } else if (strcmp(n->name(), "students") == 0) {
+            std::map<int, Student> std;
+            for (const rapidxml::xml_node<> *sub = n->first_node(); sub; sub = sub->next_sibling()) {
+                int studentID = -1;
+                for (const rapidxml::xml_attribute<> *a = sub->first_attribute(); a; a = a->next_attribute()) {
+                    studentID = atoi(a->value());
+                }
+                std::vector<Course> c;
+                for (const rapidxml::xml_node<> *course = sub->first_node(); course; course = course->next_sibling()) {
+                    for (const rapidxml::xml_attribute<> *a = course->first_attribute(); a; a = a->next_attribute()) {
+
+                    }
+
+                }
+                std.insert(std::pair<int, Student>(studentID, Student(studentID, c)));
+            }
+            instance->setStudent(std);
 
         }
 
