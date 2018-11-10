@@ -18,15 +18,15 @@ class Instance {
     int nweek;
     int slotsperday;
     std::string name;
-    std::map<int, Course> courses;
-    std::map<int, distribution> dist;
+    std::map<std::string, Course *> courses;
+    std::vector<distribution *> dist;
     std::map<int, Room> rooms;
     std::map<int, Student> student;
     int timePen;
     int roomPen;
     int distributionPen;
 public:
-    const std::map<int, Course> &getCourses() const {
+    const std::map<std::string, Course *> &getCourses() const {
         return courses;
     }
 
@@ -38,15 +38,15 @@ public:
         return os;
     }
 
-    void setCourses(const std::map<int, Course> &courses) {
+    void setCourses(const std::map<std::string, Course *> &courses) {
         Instance::courses = courses;
     }
 
-    const std::map<int, distribution> &getDist() const {
+    const std::vector<distribution *> &getDist() const {
         return dist;
     }
 
-    void setDist(const std::map<int, distribution> &dist) {
+    void setDist(const std::vector<distribution *> &dist) {
         Instance::dist = dist;
     }
 
@@ -151,6 +151,22 @@ public:
 
     Room getRoom(int roomID) {
         return rooms.at(roomID);
+
+    }
+
+    void addCourse(Course *pCourse) {
+        std::pair<std::string, Course *> *p = new std::pair<std::string, Course *>(pCourse->getName(), pCourse);
+        courses.insert(*p);
+
+    }
+
+    void addDistribution(distribution *pConstraint) {
+        dist.push_back(pConstraint);
+    }
+
+    Course *getCourse(std::string courseID) {
+        return courses.at(courseID);
+
 
     }
 };

@@ -6,15 +6,27 @@
 #define PROJECT_WITHLIMIT_H
 
 
+#include <string>
+#include <map>
 #include "Constraint.h"
 
-const enum ConstraintType {
-    WorkDay;MinGap; MaxDays;MaxDayLoad;
-};
+
 
 class WithLimit: public Constraint {
     int limit;
     ConstraintType type;
+public:
+    WithLimit(int limit) : limit(limit) {}
+
+    void setType(std::string s) override {
+        static std::map<std::string, ConstraintType> theMap = {{"WorkDay",    WorkDay},
+                                                               {"MinGap",     MinGap},
+                                                               {"MaxDays",    MaxDays},
+                                                               {"MaxDayLoad", MaxDayLoad}};
+
+        type = theMap[s];
+
+    }
 
 
 };

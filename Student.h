@@ -11,10 +11,10 @@
 
 class Student {
     int id;
-    std::vector<Course> course;
+    std::vector<Course *> course;
 
 public:
-    Student(int id, std::vector<Course, std::allocator<Course>> courses) : id(id), course(courses) {
+    Student(int id, std::vector<Course *, std::allocator<Course *>> courses) : id(id), course(courses) {
 
     }
 };

@@ -11,7 +11,7 @@
 class Course {
 
     std::string name;
-    std::map<int, std::vector<Subpart>> configuratons;
+    std::map<int, std::vector<Subpart *>> configuration;
 
 public:
     const std::string &getName() const {
@@ -22,15 +22,19 @@ public:
         Course::name = name;
     }
 
-    const std::map<int, std::vector<Subpart>> &getConfiguratons() const {
-        return configuratons;
+    const std::map<int, std::vector<Subpart *>> &getConfiguratons() const {
+        return configuration;
     }
 
-    void setConfiguratons(const std::map<int, std::vector<Subpart>> &configuratons) {
-        Course::configuratons = configuratons;
+    void setConfiguratons(const std::map<int, std::vector<Subpart *>> &configuratons) {
+        Course::configuration = configuratons;
     }
 
 
+    Course(char *id, std::map<int, std::vector<Subpart *, std::allocator<Subpart *>>> config) : name(id),
+                                                                                                configuration(config) {
+
+    }
 };
 
 

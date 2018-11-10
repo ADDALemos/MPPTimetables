@@ -11,8 +11,12 @@
 
 class Subpart {
     std::string id;
-    std::vector<Class> classes;
+    std::vector<Class *> classes;
 
+public:
+    Subpart(std::string id, std::vector<Class *, std::allocator<Class *>> classV) : id(id), classes(classV) {
+
+    }
 };
 
 

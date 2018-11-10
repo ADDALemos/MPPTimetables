@@ -7,10 +7,14 @@
 
 
 #include "distribution.h"
+#include "NoLimit.h"
 
 class DistributionPenalty : public  distribution{
     int penalty;
 
+public:
+    DistributionPenalty(Constraint *pLimit, std::vector<int, std::allocator<int>> classes, int penalty) :
+            distribution(classes, *pLimit), penalty(penalty) {}
 };
 
 

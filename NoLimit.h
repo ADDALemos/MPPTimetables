@@ -5,12 +5,29 @@
 #ifndef PROJECT_NOLIMIT_H
 #define PROJECT_NOLIMIT_H
 
-const enum ConstraintType {
-    NotOverlap;Prencedence; SameAttendees;SameStart; SameTime;SameDays;SameWeeks;SameRoom;
-};
+#include <string>
+#include <map>
+#include <iostream>
+#include "Constraint.h"
 
-class NoLimit {
+
+class NoLimit : public Constraint {
     ConstraintType type;
+public:
+    void setType(std::string s) override {
+        static std::map<std::string, ConstraintType> theMap = {{"NotOverlap",    NotOverlap},
+                                                               {"Prencedence",   Prencedence},
+                                                               {"SameAttendees", SameAttendees},
+                                                               {"SameStart",     SameStart},
+                                                               {"SameTime",      SameTime},
+                                                               {"SameDays",      SameDays},
+                                                               {"SameStart",     SameStart},
+                                                               {"SameWeeks",     SameWeeks},
+                                                               {"SameRoom",      SameRoom}};
+
+        type = theMap[s];
+
+    }
 
 };
 
