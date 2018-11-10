@@ -14,8 +14,12 @@
 #include "Limits.h"
 #include "WithLimit.h"
 
-//#include <libxml++/libxml++.h>
-//#include <libxml++/parsers/textreader.h>
+#ifndef IL_STD
+#define IL_STD
+#endif
+
+#include <ilcplex/ilocplex.h>
+
 
 Instance *readXML(std::string filename);
 
@@ -24,6 +28,7 @@ using namespace rapidxml;
 int main() {
     clock_t tStart = clock();
     Instance *instance = readXML("/Volumes/MAC/ClionProjects/timetabler/data/pu-c8-spr07.xml");
+
     printf("Time taken: %.2fs\n", (double) (clock() - tStart) / CLOCKS_PER_SEC);
 
 
