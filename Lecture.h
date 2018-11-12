@@ -20,6 +20,30 @@ class Lecture {
                                                                                        weeks(weeks),
                                                                                        penalty(penalty) {}
 
+    const std::string &getDays() const {
+        return days;
+    }
+
+    void setDays(const std::string &days) {
+        Lecture::days = days;
+    }
+
+    int getStart() const {
+        return start;
+    }
+
+    void setStart(int start) {
+        Lecture::start = start;
+    }
+
+    int getLenght() {
+        return lenght;
+    }
+
+    void setLenght(int lenght) {
+        Lecture::lenght = lenght;
+    }
+
     friend std::ostream &operator<<(std::ostream &os, const Lecture &lecture) {
         os << "days: " << lecture.days << " start: " << lecture.start << " lenght: " << lecture.lenght << " weeks: "
            << lecture.weeks << " penalty: " << lecture.penalty;

@@ -8,17 +8,13 @@
 #include "Course.h"
 #include "distribution.h"
 #include "rapid/rapidxml.hpp"
-#include "Instance.h"
 #include "DistributionRequired.h"
 #include "DistributionPenalty.h"
 #include "Limits.h"
 #include "WithLimit.h"
+#include "ILP.h"
 
-#ifndef IL_STD
-#define IL_STD
-#endif
 
-#include <ilcplex/ilocplex.h>
 
 
 Instance *readXML(std::string filename);
@@ -27,7 +23,12 @@ using namespace rapidxml;
 
 int main() {
     clock_t tStart = clock();
-    Instance *instance = readXML("/Volumes/MAC/ClionProjects/timetabler/data/pu-c8-spr07.xml");
+    Instance *instance = readXML("/Volumes/MAC/ClionProjects/timetabler/data/wbg-fal10.xml");
+
+    definedRoomLecture(instance);
+    definedLectureTime(instance);
+    oneLectureRoom(instance);
+    run();
 
     printf("Time taken: %.2fs\n", (double) (clock() - tStart) / CLOCKS_PER_SEC);
 
@@ -35,10 +36,11 @@ int main() {
     return 0;
 }
 
-Instance *readXML(std::string filename) {
+
+Instance *readXML(std::string filename) {//parent flag missing
     xml_document<> doc;
-    std::__1::ifstream file(filename);
-    std::__1::stringstream buffer;
+    std::ifstream file(filename);
+    std::stringstream buffer;
     buffer << file.rdbuf();
     file.close();
     std::__1::string content(buffer.str());
@@ -78,8 +80,8 @@ Instance *readXML(std::string filename) {
                         id=atoi(a->value());
                     }
                 }
-                std::__1::map<int, int> travel;
-                std::__1::vector<Unavailability> una;
+                std::map<int, int> travel;
+                std::vector<Unavailability> una;
                 for (const xml_node<> *rs = s->first_node(); rs; rs = rs->next_sibling()) {
                     if (strcmp(rs->name(), "travel") == 0) {
                         int value=-1,room=-1;
@@ -144,8 +146,8 @@ Instance *readXML(std::string filename) {
                         }
                         for (const xml_node<> *cla = sub->first_node(); cla; cla = cla->next_sibling()) {
                             int idclass=-1,limit=-1;
-                            std::__1::map<Room, int> roomsv;
-                            std::__1::vector<Lecture> lecv;
+                            std::map<Room, int> roomsv;
+                            std::vector<Lecture *> lecv;
                             for (const xml_attribute<> *a = cla->first_attribute(); a; a = a->next_attribute()) {
                                 if (strcmp(a->name(), "id") == 0)
                                     idclass=atoi(a->value());
@@ -166,7 +168,7 @@ Instance *readXML(std::string filename) {
                                     roomsv.insert(std::pair<Room, int>(instance->getRoom(idRoom), penalty));
                                 } else if (strcmp(lec->name(), "time") == 0) {
                                     int lenght = -1, start = -1, penalty = -1;
-                                    std::__1::string weeks, days;
+                                    std::string weeks, days;
                                     for (const xml_attribute<> *a = lec->first_attribute(); a; a = a->next_attribute()) {
 
 
@@ -184,21 +186,24 @@ Instance *readXML(std::string filename) {
 
 
                                     }
+                                    //std::cout<<idclass<<" "<<lenght<<" "<<start<<std::endl;
                                     Lecture *l = new Lecture(lenght, start, weeks, days, penalty);
-                                    lecv.push_back(*l);
+                                    lecv.push_back(l);
                                 }
-                                Class *c = new Class(idclass, limit, lecv, roomsv);
-                                clasv.push_back(c);
+
                                 //limit=atoi(a->value());
 
 
                             }
-                            Subpart *subpart = new Subpart(idsub, clasv);
-                            subpartvec.push_back(subpart);
+                            Class *c = new Class(idclass, limit, lecv, roomsv);
+                            clasv.push_back(c);
+
                         }
-                        config.insert(std::pair<int, std::vector<Subpart *>>(idConf, subpartvec));
+                        Subpart *subpart = new Subpart(idsub, clasv);
+                        subpartvec.push_back(subpart);
 
                     }
+                    config.insert(std::pair<int, std::vector<Subpart *>>(idConf, subpartvec));
 
                 }
                 Course *course = new Course(id, config);

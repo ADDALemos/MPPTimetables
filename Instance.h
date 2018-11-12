@@ -166,7 +166,23 @@ public:
 
     Course *getCourse(std::string courseID) {
         return courses.at(courseID);
+    }
 
+    unsigned int getNumClasses() {
+        unsigned int size = 0;
+        for (std::map<std::string, Course *>::iterator i = courses.begin(); i != courses.end(); ++i) {
+            size += (*i).second->getNumClasses();
+        }
+        return size;
+    }
+
+    std::vector<Class *> getClasses() {
+        std::vector<Class *> result;
+        for (std::map<std::string, Course *>::iterator i = courses.begin(); i != courses.end(); ++i) {
+            std::vector<Class *> temp = (*i).second->getClasses();
+            result.insert(result.end(), temp.begin(), temp.end());
+        }
+        return result;
 
     }
 };

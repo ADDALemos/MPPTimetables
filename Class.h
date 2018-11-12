@@ -9,23 +9,37 @@
 #include <utility>
 #include <ostream>
 #include "Lecture.h"
+#include "Room.h"
 
 class Class {
     int id;
     int limit;//limit number of students
     Class *parent;
-    std::vector<Lecture> lectures;
+    std::vector<Lecture *> lectures;
     std::map<Room, int> possibleRooms;
 
 public:
-    Class(int id, int limit, const std::vector<Lecture, std::allocator<Lecture>> &lectures,
+    Class(int id, int limit, const std::vector<Lecture *, std::allocator<Lecture *>> &lectures,
           std::map<Room, int> possibleRooms) : id(id), limit(limit), lectures(lectures), possibleRooms(possibleRooms),
-                                               parent(nullptr) {}
+                                               parent(nullptr) {
+    }
 
 
     friend std::ostream &operator<<(std::ostream &os, const Class &aClass) {
         os << "id: " << aClass.id << " limit: " << aClass.limit ;
         return os;
+    }
+
+    int getLenght() const {
+        return lectures[0]->getLenght();
+    }
+
+    int getStart() const {
+        return lectures[0]->getStart();
+    }
+
+    std::string getDays() const {
+        return lectures[0]->getDays();
     }
 
     int getId() const {
@@ -44,11 +58,11 @@ public:
         Class::limit = limit;
     }
 
-    const std::vector<Lecture, std::allocator<Lecture>> &getLectures() const {
+    const std::vector<Lecture *, std::allocator<Lecture *>> &getLectures() const {
         return lectures;
     }
 
-    void setLectures(const std::vector<Lecture, std::allocator<Lecture>> &lectures) {
+    void setLectures(const std::vector<Lecture *, std::allocator<Lecture *>> &lectures) {
         Class::lectures = lectures;
     }
 
