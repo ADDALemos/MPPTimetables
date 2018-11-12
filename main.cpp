@@ -29,6 +29,7 @@ int main() {
     definedLectureTime(instance);
     oneLectureSlot(instance);
     oneLectureRoom(instance);
+    oneLectureRoomConflict(instance);
 
     run();
 

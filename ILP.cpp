@@ -78,6 +78,25 @@ void oneLectureRoom(Instance *instance) {
     }
 
 }
+
+void oneLectureRoomConflict(Instance *instance) {
+    try {
+        for (int i = 0; i < instance->getRooms().size(); i++) {
+            for (int d = 0; d < instance->getNdays(); d++) {
+                for (int k = 0; k < instance->getSlotsperday(); k++) {
+                    IloNumExpr temp = IloNumExpr(env);
+                    for (int j = 0; j < instance->getClasses().size(); j++) {
+                        temp += lectureTime[d][k][j] * roomLecture[i][j];
+                    }
+                    model.add(1 <= temp);
+                }
+            }
+        }
+    } catch (IloCplex::Exception &e) {
+        std::cout << e.getMessage() << std::endl;
+    }
+
+}
 void run() {
     IloCplex cplex(model);
     cplex.setParam(IloCplex::TiLim, 100.000);
