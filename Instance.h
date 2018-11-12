@@ -15,6 +15,7 @@
 
 class Instance {
     int ndays;
+    double alfa = 0.1;
     int nweek;
     int slotsperday;
     std::string name;
@@ -184,6 +185,10 @@ public:
         }
         return result;
 
+    }
+
+    double getAlfa() {
+        return alfa;
     }
 };
 

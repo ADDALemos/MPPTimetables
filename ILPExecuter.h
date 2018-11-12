@@ -175,6 +175,29 @@ public:
 
     }
 
+    void slackStudent(Instance *instance) {
+        for (int l = 0; l <
+                        instance->getClasses().size(); l++) {
+            int j = 0;
+            for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
+                 it != instance->getRooms().end(); it++) {
+                for (int d = 0; d < instance->getClasses()[l]->getDays().length(); d++) {
+                    if (atoi(&instance->getClasses()[l]->getDays()[d]) != 0) {
+                        for (int i = 0; i < instance->getClasses()[l]->getLenght(); i++) {
+                            model.add(it->second.getCapacity() <=
+                                      (instance->getClasses()[l]->getLimit() -
+                                       (instance->getClasses()[l]->getLimit() * instance->getAlfa()),
+                                              roomLecture[j][l] *
+                                              lectureTime[d][instance->getClasses()[l]->getStart() + i][l]));
+
+                        }
+                    }
+                }
+                j++;
+            }
+        }
+    }
+
 };
 
 
