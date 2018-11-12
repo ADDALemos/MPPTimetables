@@ -42,7 +42,7 @@ void definedLectureTime(Instance *instance) {
 
 }
 
-void oneLectureRoom(Instance *instance) {
+void oneLectureSlot(Instance *instance) {
     try {
         for (int j = 0; j <
                         instance->getClasses().size(); j++) {
@@ -63,7 +63,21 @@ void oneLectureRoom(Instance *instance) {
 
 }
 
+void oneLectureRoom(Instance *instance) {
+    try {
+        for (int j = 0; j <
+                        instance->getClasses().size(); j++) {
+            IloNumExpr temp = IloNumExpr(env);
+            for (int i = 0; i < instance->getRooms().size(); i++) {
+                temp += roomLecture[i][j];
+            }
+            model.add(temp == 1);
+        }
+    } catch (IloCplex::Exception &e) {
+        std::cout << e.getMessage() << std::endl;
+    }
 
+}
 void run() {
     IloCplex cplex(model);
     cplex.setParam(IloCplex::TiLim, 100.000);

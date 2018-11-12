@@ -27,6 +27,7 @@ void definedRoomLecture(Instance *instance);
 
 void definedLectureTime(Instance *instance);
 
+void oneLectureSlot(Instance *instance);
 void oneLectureRoom(Instance *instance);
 
 #endif //PROJECT_ILP_H
