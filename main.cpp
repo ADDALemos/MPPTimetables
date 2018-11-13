@@ -30,8 +30,8 @@ int main() {
     runner->definedLectureTime(instance);
     runner->oneLectureSlot(instance);
     runner->oneLectureRoom(instance);
-    //runner->slackStudent(instance);
-    //runner->doneLectureRoomConflict(instance);
+    runner->slackStudent(instance);
+    //runner->oneLectureRoomConflict(instance);
     runner->optimizeSeatedStudents(instance);
 
 
@@ -41,6 +41,7 @@ int main() {
     runner->definedLectureTime(instance);
     runner->oneLectureSlot(instance);
     runner->oneLectureRoom(instance);
+    runner->slackStudent(instance);
     //runner->constraintSeatedStudents(instance,v);
     runner->run();
 
