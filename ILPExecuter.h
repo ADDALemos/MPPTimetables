@@ -18,6 +18,7 @@
 class ILPExecuter {
     IloEnv env; //CPLEX execution
     IloModel model = IloModel(env);
+    Instance *instance;
 
     typedef IloArray<IloBoolVarArray> NumVarMatrix;// Matrix
     typedef IloArray<NumVarMatrix> NumVar3Matrix;// 3d Matrix
@@ -30,7 +31,7 @@ class ILPExecuter {
 
 public:
 
-    void definedRoomLecture(Instance *instance) {
+    void definedRoomLecture() {
         try {
             int size = instance->getNumClasses();
             for (auto i = 0; i < instance->getRooms().size(); i++) {
@@ -44,7 +45,7 @@ public:
 
     }
 
-    int ***staticTime(Instance *instance) {
+    int ***staticTime() {
         int size = instance->getClasses().size();
         lectureTime = new int **[instance->getNdays()];
         for (auto i = 0; i < instance->getNdays(); i++) {
@@ -60,8 +61,8 @@ public:
 
     }
 
-    void definedLectureTime(Instance *instance) {
-        staticTime(instance);
+    void definedLectureTime() {
+        staticTime();
         int size = instance->getClasses().size();
         //lectureTime = NumVar3Matrix(env, instance->getNdays());
         for (auto i = 0; i < instance->getNdays(); i++) {
@@ -74,7 +75,7 @@ public:
 
     }
 
-    void oneLectureSlot(Instance *instance) {
+    void oneLectureSlot() {
         try {
             for (int j = 0; j <
                             instance->getClasses().size(); j++) {
@@ -97,7 +98,7 @@ public:
 
     }
 
-    void oneLectureRoom(Instance *instance) {
+    void oneLectureRoom() {
         try {
             for (int j = 0; j <
                             instance->getClasses().size(); j++) {
@@ -113,7 +114,7 @@ public:
 
     }
 
-    void oneLectureRoomConflict(Instance *instance) {
+    void oneLectureRoomConflict() {
         try {
             for (int i = 0; i < instance->getRooms().size(); i++) {
                 for (int d = 0; d < instance->getNdays(); d++) {
@@ -134,7 +135,7 @@ public:
 
 private:
 //Number of seated students for optimization or constraint
-    IloExpr numberSeatedStudents(Instance *instance) {
+    IloExpr numberSeatedStudents() {
         IloExpr temp(env);
         for (int l = 0; l < instance->getClasses().size(); l++) {
             int j = 0;
@@ -164,9 +165,9 @@ private:
     }
 
 public:
-    void constraintSeatedStudents(Instance *instance, double students) {
+    void constraintSeatedStudents(double students) {
         try {
-            model.add(numberSeatedStudents(instance) == students);
+            model.add(numberSeatedStudents() == students);
         } catch (IloAlgorithm::CannotExtractException &e) {
             // based on the ILOG CPLEX 10.0 User’s Manual / Languages and APIs / Handling Errors
             std::cout << e << std::endl;
@@ -175,8 +176,8 @@ public:
 
     }
 
-    void optimizeSeatedStudents(Instance *instance) {
-        model.add(IloMaximize(env, numberSeatedStudents(instance)));
+    void optimizeSeatedStudents() {
+        model.add(IloMaximize(env, numberSeatedStudents()));
 
     }
 
@@ -188,13 +189,14 @@ public:
             std::cout << "solved" << std::endl;
             double value = cplex.getObjValue();
             std::cout << value << std::endl;
+            solution(cplex);
             return value;
 
         }
 
     }
 
-    void slackStudent(Instance *instance) {
+    void slackStudent() {
         for (int l = 0; l <
                         instance->getClasses().size(); l++) {
             int j = 0;
@@ -208,6 +210,54 @@ public:
 
                 j++;
             }
+        }
+    }
+
+    Instance *getInstance() const {
+        return instance;
+    }
+
+    void setInstance(Instance *instance) {
+        ILPExecuter::instance = instance;
+    }
+
+    void distanceToSolution(int **oldRoom) {
+        IloExpr temp(env);
+        for (int i = 0; i < instance->getRooms().size(); i++) {
+            for (int j = 0; j < instance->getClasses().size(); ++j) {
+                temp += (oldRoom[i][j] != roomLecture[i][j]);
+            }
+
+        }
+        model.add(IloMinimize(env, temp));
+
+    }
+
+public:
+
+    int **getSolutionRoom() const {
+        return solutionRoom;
+    }
+
+private:
+    int **solutionRoom;
+
+    void solution(IloCplex cplex) {
+        solutionRoom = new int *[instance->getRooms().size()];
+        for (int i = 0; i < instance->getRooms().size(); i++) {
+            solutionRoom[i] = new int[instance->getClasses().size()];
+            for (int j = 0; j < instance->getClasses().size(); ++j) {
+                solutionRoom[i][j] = 0;
+            }
+
+        }
+        for (int i = 0; i < instance->getRooms().size(); i++) {
+            for (int j = 0; j < instance->getClasses().size(); ++j) {
+                solutionRoom[i][j] = cplex.getValue(roomLecture[i][j]);
+                if (solutionRoom[i][j] != 0)
+                    std::cout << i << " " << j << " " << solutionRoom[i][j] << std::endl;
+            }
+
         }
     }
 

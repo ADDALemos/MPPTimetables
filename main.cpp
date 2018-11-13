@@ -25,24 +25,28 @@ int main() {
     Instance *instance = readXML("/Volumes/MAC/ClionProjects/timetabler/data/wbg-fal10.xml");
 
     ILPExecuter *runner = new ILPExecuter();
+    runner->setInstance(instance);
 
-    runner->definedRoomLecture(instance);
-    runner->definedLectureTime(instance);
-    runner->oneLectureSlot(instance);
-    runner->oneLectureRoom(instance);
-    runner->slackStudent(instance);
-    runner->oneLectureRoomConflict(instance);
-    runner->optimizeSeatedStudents(instance);
+    runner->definedRoomLecture();
+    runner->definedLectureTime();
+    runner->oneLectureSlot();
+    runner->oneLectureRoom();
+    // runner->slackStudent();
+    // runner->oneLectureRoomConflict();
+    runner->optimizeSeatedStudents();
 
 
     double v = runner->run();
+    int **sol = runner->getSolutionRoom();
     runner = new ILPExecuter();
-    runner->definedRoomLecture(instance);
-    runner->definedLectureTime(instance);
-    runner->oneLectureSlot(instance);
-    runner->oneLectureRoom(instance);
-    runner->slackStudent(instance);
-    //runner->constraintSeatedStudents(instance,v);
+    runner->setInstance(instance);
+    runner->definedRoomLecture();
+    runner->definedLectureTime();
+    runner->oneLectureSlot();
+    runner->oneLectureRoom();
+    // runner->slackStudent();
+    runner->constraintSeatedStudents(v);
+    runner->distanceToSolution(sol);
     runner->run();
 
 
