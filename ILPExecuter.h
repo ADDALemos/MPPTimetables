@@ -25,8 +25,8 @@ class ILPExecuter {
     //Lectures
     NumVarMatrix roomLecture = NumVarMatrix(env);
     //Time
-    NumVar3Matrix lectureTime = NumVar3Matrix(env);
-
+    //NumVar3Matrix lectureTime = NumVar3Matrix(env);
+    int ***lectureTime;
 
 public:
 
@@ -44,13 +44,30 @@ public:
 
     }
 
-    void definedLectureTime(Instance *instance) {
+    int ***staticTime(Instance *instance) {
         int size = instance->getClasses().size();
-        lectureTime = NumVar3Matrix(env, instance->getNdays());
+        lectureTime = new int **[instance->getNdays()];
         for (auto i = 0; i < instance->getNdays(); i++) {
-            lectureTime[i] = NumVarMatrix(env, instance->getSlotsperday());
+            lectureTime[i] = new int *[instance->getSlotsperday()];
             for (int j = 0; j < instance->getSlotsperday(); ++j) {
-                lectureTime[i][j] = IloBoolVarArray(env, size);
+                lectureTime[i][j] = new int[size];
+                for (int k = 0; k < size; ++k) {
+                    lectureTime[i][j][k] = 0;
+                }
+            }
+        }
+        return lectureTime;
+
+    }
+
+    void definedLectureTime(Instance *instance) {
+        staticTime(instance);
+        int size = instance->getClasses().size();
+        //lectureTime = NumVar3Matrix(env, instance->getNdays());
+        for (auto i = 0; i < instance->getNdays(); i++) {
+            //lectureTime[i] = NumVarMatrix(env, instance->getSlotsperday());
+            for (int j = 0; j < instance->getSlotsperday(); ++j) {
+                //  lectureTime[i][j] = IloBoolVarArray(env, size);
             }
         }
 
@@ -64,9 +81,11 @@ public:
                 for (int i = 0; i < instance->getClasses()[j]->getLenght(); i++) {
                     for (int k = 0; k < instance->getClasses()[j]->getDays().length(); ++k) {
                         if (atoi(&instance->getClasses()[j]->getDays()[k]) != 0)
-                            model.add(lectureTime[k][instance->getClasses()[j]->getStart() + i][j] == 1);
+                            lectureTime[k][instance->getClasses()[j]->getStart() + i][j] = 1;
+                            // model.add(lectureTime[k][instance->getClasses()[j]->getStart() + i][j] == 1);
                         else
-                            model.add(lectureTime[k][instance->getClasses()[j]->getStart() + i][j] == 0);
+                            lectureTime[k][instance->getClasses()[j]->getStart() + i][j] = 0;
+                        // model.add(lectureTime[k][instance->getClasses()[j]->getStart() + i][j] == 0);
 
                     }
                 }

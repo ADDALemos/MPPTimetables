@@ -31,7 +31,7 @@ int main() {
     runner->oneLectureSlot(instance);
     runner->oneLectureRoom(instance);
     runner->slackStudent(instance);
-    //runner->oneLectureRoomConflict(instance);
+    runner->oneLectureRoomConflict(instance);
     runner->optimizeSeatedStudents(instance);
 
 
