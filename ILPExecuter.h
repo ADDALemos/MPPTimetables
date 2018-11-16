@@ -26,8 +26,8 @@ class ILPExecuter {
     //Lectures
     NumVarMatrix roomLecture = NumVarMatrix(env);
     //Time
-    //NumVar3Matrix lectureTime = NumVar3Matrix(env);
-    int ***lectureTime;
+    NumVar3Matrix lectureTime = NumVar3Matrix(env);
+    //int ***lectureTime;
 
 public:
 
@@ -45,7 +45,7 @@ public:
 
     }
 
-    int ***staticTime() {
+    /*int ***staticTime() {
         int size = instance->getClasses().size();
         lectureTime = new int **[instance->getNdays()];
         for (auto i = 0; i < instance->getNdays(); i++) {
@@ -59,16 +59,16 @@ public:
         }
         return lectureTime;
 
-    }
+    }*/
 
     void definedLectureTime() {
-        staticTime();
+        //staticTime();
         int size = instance->getClasses().size();
-        //lectureTime = NumVar3Matrix(env, instance->getNdays());
+        lectureTime = NumVar3Matrix(env, instance->getNdays());
         for (auto i = 0; i < instance->getNdays(); i++) {
-            //lectureTime[i] = NumVarMatrix(env, instance->getSlotsperday());
+            lectureTime[i] = NumVarMatrix(env, instance->getSlotsperday());
             for (int j = 0; j < instance->getSlotsperday(); ++j) {
-                //  lectureTime[i][j] = IloBoolVarArray(env, size);
+                lectureTime[i][j] = IloBoolVarArray(env, size);
             }
         }
 
@@ -82,11 +82,11 @@ public:
                 for (int i = 0; i < instance->getClasses()[j]->getLenght(); i++) {
                     for (int k = 0; k < instance->getClasses()[j]->getDays().length(); ++k) {
                         if (atoi(&instance->getClasses()[j]->getDays()[k]) != 0)
-                            lectureTime[k][instance->getClasses()[j]->getStart() + i][j] = 1;
-                            // model.add(lectureTime[k][instance->getClasses()[j]->getStart() + i][j] == 1);
+                            // lectureTime[k][instance->getClasses()[j]->getStart() + i][j] = 1;
+                            model.add(lectureTime[k][instance->getClasses()[j]->getStart() + i][j] == 1);
                         else
-                            lectureTime[k][instance->getClasses()[j]->getStart() + i][j] = 0;
-                        // model.add(lectureTime[k][instance->getClasses()[j]->getStart() + i][j] == 0);
+                            //lectureTime[k][instance->getClasses()[j]->getStart() + i][j] = 0;
+                            model.add(lectureTime[k][instance->getClasses()[j]->getStart() + i][j] == 0);
 
                     }
                 }
@@ -133,6 +133,22 @@ public:
 
     }
 
+    void studentConflict() {
+        for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
+             it != instance->getStudent().end(); it++) {
+            for (int d = 0; d < instance->getNdays(); ++d) {
+                for (int t = 0; t < instance->getSlotsperday(); ++t) {
+                    IloExpr conflict = IloExpr(env);
+                    for (int c = 0; c < it->second.getClasses().size(); ++c) {
+                        conflict += lectureTime[d][t][c];
+                    }
+                    model.add(conflict <= 1);
+                }
+
+            }
+        }
+    }
+
 private:
 //Number of seated students for optimization or constraint
     IloExpr numberSeatedStudents() {
@@ -165,12 +181,14 @@ private:
     }
 
 public:
+
+
     void constraintSeatedStudents(double students) {
         try {
-            model.add(numberSeatedStudents() == students);
+            model.add(numberSeatedStudents() >= students);
+            model.add(numberSeatedStudents() <= students);
         } catch (IloAlgorithm::CannotExtractException &e) {
-            // based on the ILOG CPLEX 10.0 User’s Manual / Languages and APIs / Handling Errors
-            std::cout << e << std::endl;
+            std::cout << e.getExtractables() << std::endl;
             e.end();
         }
 
@@ -192,6 +210,8 @@ public:
             solution(cplex);
             return value;
 
+        } else {
+            std::cout << "false" << std::endl;
         }
 
     }
@@ -202,7 +222,7 @@ public:
             int j = 0;
             for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
                  it != instance->getRooms().end(); it++) {
-                model.add(it->second.getCapacity() <=
+                model.add(it->second.getCapacity() >=
                           ((instance->getClasses()[l]->getLimit() -
                             (instance->getClasses()[l]->getLimit() * instance->getAlfa())) *
                            roomLecture[j][l]));
