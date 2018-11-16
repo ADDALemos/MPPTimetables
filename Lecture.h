@@ -40,6 +40,14 @@ class Lecture {
         return lenght;
     }
 
+    const std::string &getWeeks() const {
+        return weeks;
+    }
+
+    void setWeeks(const std::string &weeks) {
+        Lecture::weeks = weeks;
+    }
+
     void setLenght(int lenght) {
         Lecture::lenght = lenght;
     }

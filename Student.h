@@ -40,6 +40,10 @@ public:
         Student::course = course;
     }
 
+    void addClass(Class *c) {
+        Student::classes.push_back(c);
+    }
+
 public:
     Student(int id, std::vector<Course *, std::allocator<Course *>> courses) : id(id), course(courses) {
 

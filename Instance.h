@@ -15,10 +15,12 @@
 
 class Instance {
     int ndays;
-    double alfa = 0.1;
+    double alfa = 1;
     int nweek;
     int slotsperday;
     std::string name;
+
+private:
     std::map<std::string, Course *> courses;
     std::vector<distribution *> dist;
     std::map<int, Room> rooms;
@@ -189,6 +191,21 @@ public:
 
     double getAlfa() {
         return alfa;
+    }
+
+    Class *getClass(int id) {
+        for (std::map<std::string, Course *>::iterator i = courses.begin(); i != courses.end(); ++i) {
+            std::vector<Class *> temp = (*i).second->getClasses();
+            for (int j = 0; j < temp.size(); ++j) {
+                if (temp[j]->getId() == id)
+                    return temp[j];
+            }
+        }
+        return nullptr;
+    }
+
+    Student &getStudent(int id) {
+        return student.at(id);
     }
 };
 

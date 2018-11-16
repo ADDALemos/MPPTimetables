@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<solution name="wbg-fal10"
+          runtime="1.4" cores="4" technique="TBA"
+          author="TBN" institution="IST" country="Portugal">
+    <class id="1" days="1010100" start="90" weeks="1111111111111" room="1">
+        <student id="1"/>
+        <student id="3"/>
+    </class>
+    <class id="2" days="0100000" start="86" weeks="0101010101010" room="4">
+        <student id="2"/>
+        <student id="4"/>
+    </class>
+    <class id="3" days="0010000" start="108" weeks="0100000000000">
+        <student id="1"/>
+    </class>
+</solution>

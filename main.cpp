@@ -16,13 +16,21 @@
 #include "ILPExecuter.h"
 
 
-Instance *readXML(std::string filename);
+Instance *readInputXML(std::string filename);
+
+void readOutputXML(std::string filename, Instance *instance);
+
+void writeOutputXML(std::string filename, Instance *instance, double time);
 
 using namespace rapidxml;
 
 int main() {
     clock_t tStart = clock();
-    Instance *instance = readXML("/Volumes/MAC/ClionProjects/timetabler/data/wbg-fal10.xml");
+    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/wbg-fal10.xml");
+    writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10Out.xml", instance,
+                   (double) (clock() - tStart) / CLOCKS_PER_SEC);
+    readOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10.xml", instance);
+
 
     ILPExecuter *runner = new ILPExecuter();
     runner->setInstance(instance);
@@ -31,8 +39,9 @@ int main() {
     runner->definedLectureTime();
     runner->oneLectureSlot();
     runner->oneLectureRoom();
-    // runner->slackStudent();
-    // runner->oneLectureRoomConflict();
+    runner->slackStudent();
+    runner->studentConflict();
+    runner->oneLectureRoomConflict();
     runner->optimizeSeatedStudents();
 
 
@@ -44,7 +53,8 @@ int main() {
     runner->definedLectureTime();
     runner->oneLectureSlot();
     runner->oneLectureRoom();
-    // runner->slackStudent();
+    runner->slackStudent();
+    runner->studentConflict();
     runner->constraintSeatedStudents(v);
     runner->distanceToSolution(sol);
     runner->run();
@@ -57,7 +67,99 @@ int main() {
 }
 
 
-Instance *readXML(std::string filename) {//parent flag missing
+void writeOutputXML(std::string filename, Instance *instance, double time) {
+    xml_document<> doc;
+    xml_node<> *decl = doc.allocate_node(node_declaration);
+    decl->append_attribute(doc.allocate_attribute("version", "1.0"));
+    decl->append_attribute(doc.allocate_attribute("encoding", "utf-8"));
+    doc.append_node(decl);
+
+    xml_node<> *root = doc.allocate_node(node_element, "solution");
+    root->append_attribute(doc.allocate_attribute("name", instance->getName().c_str()));
+    root->append_attribute(doc.allocate_attribute("runtime", std::to_string(time).c_str()));
+    root->append_attribute(doc.allocate_attribute("cores", "4"));
+    root->append_attribute(doc.allocate_attribute("technique", "ILP"));
+    root->append_attribute(doc.allocate_attribute("author", "Alexandre Lemos"));
+    root->append_attribute(doc.allocate_attribute("institution", "INESC-ID"));
+    root->append_attribute(doc.allocate_attribute("country", "Portugal"));
+    doc.append_node(root);
+    xml_node<> *child;
+    for (int c = 0; c < instance->getClasses().size(); c++) {
+        child = doc.allocate_node(node_element, "class");
+        child->append_attribute(doc.allocate_attribute("id", doc.allocate_string(
+                std::to_string(instance->getClasses()[c]->getId()).c_str())));
+        child->append_attribute(
+                doc.allocate_attribute("days", doc.allocate_string(instance->getClasses()[c]->getSolDays())));
+        child->append_attribute(doc.allocate_attribute("start", doc.allocate_string(
+                std::to_string(instance->getClasses()[c]->getSolStart()).c_str())));
+        child->append_attribute(
+                doc.allocate_attribute("weeks", doc.allocate_string(instance->getClasses()[c]->getSolWeek())));
+        child->append_attribute(doc.allocate_attribute("room", doc.allocate_string(
+                std::to_string(instance->getClasses()[c]->getSolRoom()).c_str())));
+        for (int s = 0; s < instance->getClasses()[c]->getStudent().size(); ++s) {
+            xml_node<> *student = doc.allocate_node(node_element, "student");
+            student->append_attribute(doc.allocate_attribute("id", doc.allocate_string(
+                    std::to_string(instance->getClasses()[c]->getStudent()[s]).c_str())));
+            child->append_node(student);
+        }
+        root->append_node(child);
+
+    }
+
+    std::ofstream file_stored(filename);
+    //print(std::cout, doc, 0);
+    file_stored << doc;
+
+    file_stored.close();
+    doc.clear();
+
+}
+
+void readOutputXML(std::string filename, Instance *instance) {
+    xml_document<> doc;
+    std::ifstream file(filename);
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    file.close();
+    std::__1::string content(buffer.str());
+    doc.parse<0>(&content[0]);
+    xml_node<> *pRoot = doc.first_node();
+    for (const xml_attribute<> *a = pRoot->first_attribute(); a; a = a->next_attribute()) {
+        if (strcmp(a->name(), "name") == 0 && strcmp(a->value(), instance->getName().c_str()) != 0) {
+            std::cerr << "Instance and Solution do not match" << std::endl;
+        }
+    }
+    for (const xml_node<> *n = pRoot->first_node(); n; n = n->next_sibling()) {
+        char *weeks, *days;
+        int id = -1, start = -1, room = -1;
+        for (const xml_attribute<> *a = n->first_attribute(); a; a = a->next_attribute()) {
+            if (strcmp(a->name(), "id") == 0) {
+                id = atoi(a->value());
+            } else if (strcmp(a->name(), "start") == 0) {
+                start = atoi(a->value());
+            } else if (strcmp(a->name(), "room") == 0) {
+                room = atoi(a->value());
+            } else if (strcmp(a->name(), "weeks") == 0) {
+                weeks = a->value();
+            } else if (strcmp(a->name(), "days") == 0) {
+                days = a->value();
+            }
+        }
+        Class *s = instance->getClass(id);
+        s->setSolution(start, room, weeks, days);
+        std::vector<int> student;
+        for (const xml_node<> *stu = n->first_node(); stu; stu = stu->next_sibling()) {
+            for (const xml_attribute<> *a = stu->first_attribute(); a; a = a->next_attribute()) {
+                student.push_back(atoi(a->value()));
+                instance->getStudent(atoi(a->value())).addClass(s);
+            }
+        }
+        s->addStudents(student);
+    }
+
+}
+
+Instance *readInputXML(std::string filename) {//parent flag missing
     xml_document<> doc;
     std::ifstream file(filename);
     std::stringstream buffer;
