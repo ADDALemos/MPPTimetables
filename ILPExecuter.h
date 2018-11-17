@@ -272,6 +272,31 @@ public:
 
     }
 
+    void warmStart(IloCplex cplex) {
+        IloNumVarArray startVar(env);
+        IloNumArray startVal(env);
+        int idx = 0;
+        for (int k = 0; k < instance->getNdays(); k++) {
+            for (int i = 0; i < instance->getSlotsperday(); i++) {
+                for (int j = 0; j < instance->getClasses().size(); j++) {
+                    startVar[idx] = lectureTime[k][i][j];
+                    startVal[idx] = solutionTime[k][i][j];
+                    ++idx;
+                }
+            }
+        }
+        for (int r = 0; r < instance->getRooms().size(); ++r) {
+            for (int l = 0; l < instance->getClasses().size(); ++l) {
+                startVar[idx] = roomLecture[r][l];
+                startVal[idx] = solutionRoom[r][l];
+                ++idx;
+
+            }
+
+        }
+        cplex.addMIPStart(startVar, startVal);
+    }
+
 public:
 
     int **getSolutionRoom() const {
