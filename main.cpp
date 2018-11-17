@@ -8,6 +8,7 @@
 #include "Course.h"
 #include "distribution.h"
 #include "rapid/rapidxml.hpp"
+#include "rapid/rapidxml_print.hpp"
 #include "DistributionRequired.h"
 #include "DistributionPenalty.h"
 #include "Limits.h"
@@ -27,9 +28,8 @@ using namespace rapidxml;
 int main() {
     clock_t tStart = clock();
     Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/wbg-fal10.xml");
-    writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10Out.xml", instance,
-                   (double) (clock() - tStart) / CLOCKS_PER_SEC);
-    readOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10.xml", instance);
+
+    //readOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10.xml", instance);
 
 
     ILPExecuter *runner = new ILPExecuter();
@@ -39,24 +39,26 @@ int main() {
     runner->definedLectureTime();
     runner->oneLectureSlot();
     runner->oneLectureRoom();
-    runner->slackStudent();
+    //runner->slackStudent();
     runner->studentConflict();
-    runner->oneLectureRoomConflict();
-    runner->optimizeSeatedStudents();
+    //  runner->oneLectureRoomConflict();
+    //  runner->optimizeSeatedStudents();
 
 
     double v = runner->run();
     int **sol = runner->getSolutionRoom();
+    writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10Out.xml", instance,
+                   (double) (clock() - tStart) / CLOCKS_PER_SEC);
     runner = new ILPExecuter();
     runner->setInstance(instance);
     runner->definedRoomLecture();
     runner->definedLectureTime();
     runner->oneLectureSlot();
     runner->oneLectureRoom();
-    runner->slackStudent();
+    //runner->slackStudent();
     runner->studentConflict();
-    runner->constraintSeatedStudents(v);
-    runner->distanceToSolution(sol);
+    //runner->constraintSeatedStudents(v);
+    runner->distanceToSolution(sol, nullptr);
     runner->run();
 
 

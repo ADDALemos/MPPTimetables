@@ -207,7 +207,8 @@ public:
             std::cout << "solved" << std::endl;
             double value = cplex.getObjValue();
             std::cout << value << std::endl;
-            solution(cplex);
+            solutionReader(cplex);
+            solutionTimeReader(cplex);
             return value;
 
         } else {
@@ -241,7 +242,7 @@ public:
         ILPExecuter::instance = instance;
     }
 
-    void distanceToSolution(int **oldRoom) {
+    IloExpr distanceToSolutionRooms(int **oldRoom) {
         IloExpr temp(env);
         for (int i = 0; i < instance->getRooms().size(); i++) {
             for (int j = 0; j < instance->getClasses().size(); ++j) {
@@ -249,7 +250,25 @@ public:
             }
 
         }
-        model.add(IloMinimize(env, temp));
+        return temp;
+    }
+
+    IloExpr distanceToSolutionLectures(int ***oldTime) {
+        IloExpr temp(env);
+        for (int i = 0; i < instance->getNdays(); i++) {
+            for (int t = 0; t < instance->getSlotsperday(); t++) {
+                for (int j = 0; j < instance->getClasses().size(); ++j) {
+                    temp += (oldTime[i][t][j] != lectureTime[i][t][j]);
+                }
+
+            }
+        }
+        return temp;
+    }
+
+    void distanceToSolution(int **oldRoom, int ***oldTime) {
+
+        model.add(IloMinimize(env, distanceToSolutionRooms(oldRoom)));
 
     }
 
@@ -259,10 +278,53 @@ public:
         return solutionRoom;
     }
 
+    int ***getSolutionTime() const {
+        return solutionTime;
+    }
+
+
 private:
     int **solutionRoom;
+    int ***solutionTime;
 
-    void solution(IloCplex cplex) {
+private:
+
+    void solutionTimeReader(IloCplex cplex) {
+        solutionTime = new int **[instance->getNdays()];
+        for (int i = 0; i < instance->getNdays(); i++) {
+            solutionTime[i] = new int *[instance->getSlotsperday()];
+            for (int k = 0; k < instance->getSlotsperday(); ++k) {
+                solutionTime[i][k] = new int[instance->getClasses().size()];
+                for (int j = 0; j < instance->getClasses().size(); ++j) {
+                    solutionTime[i][k][j] = 0;
+                }
+
+            }
+
+        }
+
+        for (int i = 0; i < instance->getClasses().size(); i++) {
+            for (int k = 0; k < instance->getClasses()[i]->getDays().length(); ++k) {
+                if (instance->getClasses()[i]->getDays()[k] != 0)
+                    for (int j = 0; j < instance->getClasses()[i]->getLenght(); ++j) {
+                        solutionTime[k][instance->getClasses()[i]->getStart() + j][i] = cplex.getValue(
+                                lectureTime[k][instance->getClasses()[i]->getStart() + j][i]);
+                        if (solutionTime[k][instance->getClasses()[i]->getStart() + j][i] != 0) {
+                            instance->getClass(j + 1)->setSolution(instance->getClasses()[i]->getStart(),
+                                                                   strdup(std::to_string(k).c_str()));
+                        }
+
+                    }
+
+            }
+
+        }
+
+
+    }
+
+
+    void solutionReader(IloCplex cplex) {
         solutionRoom = new int *[instance->getRooms().size()];
         for (int i = 0; i < instance->getRooms().size(); i++) {
             solutionRoom[i] = new int[instance->getClasses().size()];
@@ -274,8 +336,10 @@ private:
         for (int i = 0; i < instance->getRooms().size(); i++) {
             for (int j = 0; j < instance->getClasses().size(); ++j) {
                 solutionRoom[i][j] = cplex.getValue(roomLecture[i][j]);
-                if (solutionRoom[i][j] != 0)
+                if (solutionRoom[i][j] != 0) {
                     std::cout << i << " " << j << " " << solutionRoom[i][j] << std::endl;
+                    instance->getClass(j + 1)->setSolRoom(i + 1);
+                }
             }
 
         }

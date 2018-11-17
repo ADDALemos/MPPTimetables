@@ -18,7 +18,7 @@ class Class {
     //Solution
     int roomID = -1;
     int start = -1;
-    char *week = "0";
+    char *week = "1";
     char *days = "0";
     std::vector<int> student;
 
@@ -119,16 +119,21 @@ public:
     }
 
 
-    void setSolution(int start, int room, char *weeks, char *days) {
-        Class::roomID = room;
+    void setSolution(int start, char *days) {
         Class::start = start;
-        Class::week = weeks;
         Class::days = days;
-
     }
 
     void addStudents(std::vector<int, std::allocator<int>> student) {
         Class::student = student;
+    }
+
+    void setSolution(int start, int room, char *week, char *day) {
+        Class::start = start;
+        Class::roomID = room;
+        Class::week = week;
+        Class::days = day;
+
     }
 };
 
