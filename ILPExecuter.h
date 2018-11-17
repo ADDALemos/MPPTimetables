@@ -242,23 +242,23 @@ public:
         ILPExecuter::instance = instance;
     }
 
-    IloExpr distanceToSolutionRooms(int **oldRoom) {
+    IloExpr distanceToSolutionRooms(int **oldRoom, bool weighted) {
         IloExpr temp(env);
         for (int i = 0; i < instance->getRooms().size(); i++) {
             for (int j = 0; j < instance->getClasses().size(); ++j) {
-                temp += (oldRoom[i][j] != roomLecture[i][j]);
+                temp += instance->getClasses()[j]->getLimit() * (oldRoom[i][j] != roomLecture[i][j]);
             }
 
         }
         return temp;
     }
 
-    IloExpr distanceToSolutionLectures(int ***oldTime) {
+    IloExpr distanceToSolutionLectures(int ***oldTime, bool weighted) {
         IloExpr temp(env);
         for (int i = 0; i < instance->getNdays(); i++) {
             for (int t = 0; t < instance->getSlotsperday(); t++) {
                 for (int j = 0; j < instance->getClasses().size(); ++j) {
-                    temp += (oldTime[i][t][j] != lectureTime[i][t][j]);
+                    temp += instance->getClasses()[j]->getLimit() * (oldTime[i][t][j] != lectureTime[i][t][j]);
                 }
 
             }
@@ -266,9 +266,9 @@ public:
         return temp;
     }
 
-    void distanceToSolution(int **oldRoom, int ***oldTime) {
+    void distanceToSolution(int **oldRoom, int ***oldTime, bool weighted) {
 
-        model.add(IloMinimize(env, distanceToSolutionRooms(oldRoom)));
+        model.add(IloMinimize(env, distanceToSolutionRooms(oldRoom, weighted)));
 
     }
 

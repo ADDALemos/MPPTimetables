@@ -58,7 +58,7 @@ int main() {
     //runner->slackStudent();
     runner->studentConflict();
     //runner->constraintSeatedStudents(v);
-    runner->distanceToSolution(sol, nullptr);
+    runner->distanceToSolution(sol, nullptr, false);
     runner->run();
 
 
