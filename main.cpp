@@ -28,13 +28,12 @@ using namespace rapidxml;
 int main() {
     clock_t tStart = clock();
     Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/wbg-fal10.xml");
-
-    //readOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10.xml", instance);
-
+    readOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10.xml", instance);
 
     ILPExecuter *runner = new ILPExecuter();
     runner->setInstance(instance);
-
+    runner->createSol();
+    runner->loadOutput();
     runner->definedRoomLecture();
     runner->definedLectureTime();
     runner->oneLectureSlot();
@@ -131,6 +130,7 @@ void readOutputXML(std::string filename, Instance *instance) {
             std::cerr << "Instance and Solution do not match" << std::endl;
         }
     }
+    int total = 0;
     for (const xml_node<> *n = pRoot->first_node(); n; n = n->next_sibling()) {
         char *weeks, *days;
         int id = -1, start = -1, room = -1;
@@ -157,7 +157,10 @@ void readOutputXML(std::string filename, Instance *instance) {
             }
         }
         s->addStudents(student);
+        total += s->getSteatedStudents();
     }
+    instance->setTotalNumberSteatedStudent(total);
+
 
 }
 

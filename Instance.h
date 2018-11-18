@@ -14,11 +14,13 @@
 #include "Student.h"
 
 class Instance {
-    int ndays;
+    int ndays = -1;
     double alfa = 1;
     int nweek;
     int slotsperday;
     std::string name;
+    int totalNumberSteatedStudent = -1;
+
 
 private:
     std::map<std::string, Course *> courses;
@@ -29,6 +31,13 @@ private:
     int roomPen;
     int distributionPen;
 public:
+    int getTotalNumberSteatedStudent() const {
+        return totalNumberSteatedStudent;
+    }
+
+    void setTotalNumberSteatedStudent(int totalNumberSteatedStudent) {
+        Instance::totalNumberSteatedStudent = totalNumberSteatedStudent;
+    }
     const std::map<std::string, Course *> &getCourses() const {
         return courses;
     }
@@ -113,7 +122,7 @@ public:
     Instance(int ndays, int nweek, int slotsperday, const std::string &name) : ndays(ndays), nweek(nweek),
                                                                                slotsperday(slotsperday), name(name) {}
 
-        int getNdays() const {
+    int getNdays() const {
         return ndays;
     }
 

@@ -23,6 +23,9 @@ class Class {
     std::vector<int> student;
 
 public:
+    int getSteatedStudents() {
+        return (limit > student.size() ? student.size() : limit);
+    }
 
     const std::vector<int, std::allocator<int>> &getStudent() const {
         return student;
@@ -133,7 +136,6 @@ public:
         Class::roomID = room;
         Class::week = week;
         Class::days = day;
-
     }
 };
 

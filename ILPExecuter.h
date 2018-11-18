@@ -149,6 +149,38 @@ public:
         }
     }
 
+    void loadOutput() {
+        for (int i = 0; i < instance->getNdays(); ++i) {
+            for (int j = 0; j < instance->getSlotsperday(); ++j) {
+                for (int k = 0; k < instance->getClasses().size(); ++k) {
+                    if (atoi(&instance->getClasses()[k]->getSolDays()[i]) != 0 &&
+                        instance->getClasses()[k]->getSolStart() >= j &&
+                        (instance->getClasses()[k]->getSolStart() + instance->getClasses()[k]->getLenght() <= j))
+                        solutionTime[i][j][k] = 1;
+                    else
+                        solutionTime[i][j][k] = 0;
+
+
+                }
+
+            }
+
+        }
+        for (int i = 0; i < instance->getRooms().size(); ++i) {
+            for (int k = 0; k < instance->getClasses().size(); ++k) {
+                if (instance->getClasses()[k]->getSolRoom() == i)
+                    solutionRoom[i][k] = 1;
+                else
+                    solutionRoom[i][k] = 0;
+
+            }
+
+        }
+
+    }
+
+
+
 private:
 //Number of seated students for optimization or constraint
     IloExpr numberSeatedStudents() {
@@ -196,8 +228,8 @@ public:
 
     void optimizeSeatedStudents() {
         model.add(IloMaximize(env, numberSeatedStudents()));
-
     }
+
 
     double run() {
         IloCplex cplex(model);
@@ -272,6 +304,10 @@ public:
 
     }
 
+    void minimizeDifferenceSeatedStudents() {
+        model.add(IloMinimize(env, IloAbs(numberSeatedStudents() - instance->getTotalNumberSteatedStudent())));
+    }
+
     void warmStart(IloCplex cplex) {
         IloNumVarArray startVar(env);
         IloNumArray startVal(env);
@@ -307,14 +343,7 @@ public:
         return solutionTime;
     }
 
-
-private:
-    int **solutionRoom;
-    int ***solutionTime;
-
-private:
-
-    void solutionTimeReader(IloCplex cplex) {
+    void createSol() {
         solutionTime = new int **[instance->getNdays()];
         for (int i = 0; i < instance->getNdays(); i++) {
             solutionTime[i] = new int *[instance->getSlotsperday()];
@@ -327,6 +356,24 @@ private:
             }
 
         }
+        solutionRoom = new int *[instance->getRooms().size()];
+        for (int i = 0; i < instance->getRooms().size(); i++) {
+            solutionRoom[i] = new int[instance->getClasses().size()];
+            for (int j = 0; j < instance->getClasses().size(); ++j) {
+                solutionRoom[i][j] = 0;
+            }
+
+        }
+    }
+
+
+private:
+    int **solutionRoom;
+    int ***solutionTime;
+
+
+    void solutionTimeReader(IloCplex cplex) {
+
 
         for (int i = 0; i < instance->getClasses().size(); i++) {
             for (int k = 0; k < instance->getClasses()[i]->getDays().length(); ++k) {
@@ -350,14 +397,7 @@ private:
 
 
     void solutionReader(IloCplex cplex) {
-        solutionRoom = new int *[instance->getRooms().size()];
-        for (int i = 0; i < instance->getRooms().size(); i++) {
-            solutionRoom[i] = new int[instance->getClasses().size()];
-            for (int j = 0; j < instance->getClasses().size(); ++j) {
-                solutionRoom[i][j] = 0;
-            }
 
-        }
         for (int i = 0; i < instance->getRooms().size(); i++) {
             for (int j = 0; j < instance->getClasses().size(); ++j) {
                 solutionRoom[i][j] = cplex.getValue(roomLecture[i][j]);
