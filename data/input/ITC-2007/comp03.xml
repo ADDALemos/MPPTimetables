@@ -1,0 +1,1234 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE instance SYSTEM "http://tabu.diegm.uniud.it/ctt/cb_ctt.dtd">
+<instance name="Ing0304-1">
+    <descriptor>
+        <days value="5"/>
+        <periods_per_day value="5"/>
+        <daily_lectures min="2" max="4"/>
+    </descriptor>
+    <courses>
+        <course id="ChiGenAn" teacher="t000" lectures="3" min_days="3" students="150" double_lectures="no"/>
+        <course id="GeoAn" teacher="t001" lectures="3" min_days="3" students="160" double_lectures="no"/>
+        <course id="CamEleAn" teacher="t002" lectures="3" min_days="3" students="24" double_lectures="no"/>
+        <course id="FonChiAn" teacher="t003" lectures="3" min_days="3" students="49" double_lectures="no"/>
+        <course id="IngConAn" teacher="t004" lectures="3" min_days="3" students="100" double_lectures="no"/>
+        <course id="StrIndAn" teacher="t005" lectures="3" min_days="3" students="24" double_lectures="no"/>
+        <course id="TecCosAn" teacher="t006" lectures="3" min_days="3" students="20" double_lectures="no"/>
+        <course id="Mat1Cn" teacher="t007" lectures="5" min_days="4" students="170" double_lectures="no"/>
+        <course id="MecRazCn" teacher="t008" lectures="3" min_days="3" students="150" double_lectures="no"/>
+        <course id="DisCn" teacher="t009" lectures="3" min_days="3" students="150" double_lectures="no"/>
+        <course id="TecMatCn" teacher="t010" lectures="3" min_days="3" students="110" double_lectures="no"/>
+        <course id="ArcTecCn" teacher="t011" lectures="3" min_days="3" students="80" double_lectures="no"/>
+        <course id="DisEdiCn" teacher="t009" lectures="3" min_days="3" students="44" double_lectures="no"/>
+        <course id="Idr2Cn" teacher="t012" lectures="3" min_days="3" students="64" double_lectures="no"/>
+        <course id="Mat1En" teacher="t013" lectures="5" min_days="4" students="100" double_lectures="no"/>
+        <course id="ChiStaEn" teacher="t014" lectures="3" min_days="3" students="130" double_lectures="no"/>
+        <course id="ConAutEn" teacher="t015" lectures="3" min_days="3" students="130" double_lectures="no"/>
+        <course id="RetLogEn" teacher="t016" lectures="3" min_days="2" students="92" double_lectures="no"/>
+        <course id="TeoRetEn" teacher="t017" lectures="3" min_days="3" students="130" double_lectures="no"/>
+        <course id="ComEleEn" teacher="t018" lectures="3" min_days="3" students="130" double_lectures="no"/>
+        <course id="EleSis1En" teacher="t019" lectures="3" min_days="2" students="105" double_lectures="yes"/>
+        <course id="MetMatEn" teacher="t008" lectures="3" min_days="3" students="32" double_lectures="no"/>
+        <course id="RetCal1G1n" teacher="t020" lectures="3" min_days="3" students="205" double_lectures="no"/>
+        <course id="Mat1G2n" teacher="t021" lectures="5" min_days="4" students="170" double_lectures="no"/>
+        <course id="ChiG2n" teacher="t000" lectures="3" min_days="3" students="210" double_lectures="no"/>
+        <course id="DisComEsG2n" teacher="t022" lectures="1" min_days="1" students="100" double_lectures="no"/>
+        <course id="FonMecG2n" teacher="t023" lectures="3" min_days="3" students="210" double_lectures="no"/>
+        <course id="TerAppG2n" teacher="t024" lectures="3" min_days="3" students="100" double_lectures="no"/>
+        <course id="CalProG2n" teacher="t025" lectures="3" min_days="3" students="48" double_lectures="no"/>
+        <course id="Mat1Mn" teacher="t026" lectures="5" min_days="4" students="100" double_lectures="no"/>
+        <course id="DisIndMn" teacher="t022" lectures="2" min_days="2" students="210" double_lectures="no"/>
+        <course id="DisIndEsMn" teacher="t022" lectures="1" min_days="1" students="110" double_lectures="no"/>
+        <course id="FluMn" teacher="t027" lectures="3" min_days="3" students="110" double_lectures="no"/>
+        <course id="ComMecMn" teacher="t028" lectures="3" min_days="3" students="110" double_lectures="no"/>
+        <course id="CosMacMn" teacher="t029" lectures="3" min_days="3" students="110" double_lectures="no"/>
+        <course id="TecMec1Mn" teacher="t030" lectures="3" min_days="3" students="325" double_lectures="no"/>
+        <course id="Mat1Ar" teacher="t031" lectures="3" min_days="3" students="150" double_lectures="no"/>
+        <course id="FonInfAr" teacher="t032" lectures="3" min_days="3" students="150" double_lectures="no"/>
+        <course id="LabEle1Ar" teacher="t033" lectures="7" min_days="1" students="50" double_lectures="no"/>
+        <course id="LabEle2Ar" teacher="t034" lectures="7" min_days="1" students="50" double_lectures="no"/>
+        <course id="LabEle3Ar" teacher="t035" lectures="7" min_days="1" students="50" double_lectures="no"/>
+        <course id="GeoAppAns" teacher="t036" lectures="3" min_days="3" students="12" double_lectures="no"/>
+        <course id="IdrNumAns" teacher="t037" lectures="3" min_days="3" students="12" double_lectures="no"/>
+        <course id="MecSuoAns" teacher="t001" lectures="3" min_days="3" students="4" double_lectures="no"/>
+        <course id="PriIngAns" teacher="t038" lectures="3" min_days="3" students="4" double_lectures="no"/>
+        <course id="StaPenAns" teacher="t004" lectures="3" min_days="3" students="8" double_lectures="no"/>
+        <course id="StaAns" teacher="t025" lectures="3" min_days="3" students="12" double_lectures="no"/>
+        <course id="ArcTecCns" teacher="t011" lectures="3" min_days="3" students="16" double_lectures="no"/>
+        <course id="EleTel1Ens" teacher="t039" lectures="3" min_days="3" students="73" double_lectures="no"/>
+        <course id="SisTel1Ens" teacher="t040" lectures="3" min_days="3" students="23" double_lectures="no"/>
+        <course id="AppIndGns" teacher="t041" lectures="3" min_days="3" students="122" double_lectures="no"/>
+        <course id="RetCal2Gns" teacher="t020" lectures="3" min_days="2" students="12" double_lectures="no"/>
+        <course id="TecCos1Cv" teacher="t042" lectures="3" min_days="3" students="180" double_lectures="no"/>
+        <course id="StoArcCv" teacher="t043" lectures="5" min_days="4" students="48" double_lectures="yes"/>
+        <course id="TeoStr1Cv" teacher="t044" lectures="3" min_days="3" students="28" double_lectures="no"/>
+        <course id="MecCom1Cv" teacher="t045" lectures="3" min_days="3" students="32" double_lectures="no"/>
+        <course id="ArcComCv" teacher="t046" lectures="3" min_days="3" students="70" double_lectures="no"/>
+        <course id="CalAut1Cv" teacher="t047" lectures="3" min_days="3" students="35" double_lectures="no"/>
+        <course id="CosZonCv" teacher="t042" lectures="3" min_days="3" students="30" double_lectures="no"/>
+        <course id="ImpTec1Cv" teacher="t048" lectures="3" min_days="3" students="98" double_lectures="no"/>
+        <course id="IdrAppCv" teacher="t049" lectures="5" min_days="4" students="30" double_lectures="no"/>
+        <course id="RivSpeCv" teacher="t050" lectures="5" min_days="4" students="30" double_lectures="yes"/>
+        <course id="CalEle1Ev" teacher="t051" lectures="3" min_days="3" students="93" double_lectures="no"/>
+        <course id="CamEle1Ev" teacher="t052" lectures="3" min_days="3" students="110" double_lectures="no"/>
+        <course id="EleIndEv" teacher="t053" lectures="5" min_days="4" students="82" double_lectures="no"/>
+        <course id="GesAziGv" teacher="t054" lectures="5" min_days="4" students="224" double_lectures="no"/>
+        <course id="ChiInd1Gv" teacher="t055" lectures="5" min_days="4" students="44" double_lectures="yes"/>
+        <course id="OrgPro1Gv" teacher="t056" lectures="3" min_days="2" students="210" double_lectures="no"/>
+        <course id="Mac1Mv" teacher="t057" lectures="5" min_days="4" students="120" double_lectures="no"/>
+        <course id="TerAppMv" teacher="t058" lectures="5" min_days="4" students="64" double_lectures="no"/>
+        <course id="DisAssMv" teacher="t059" lectures="5" min_days="4" students="65" double_lectures="yes"/>
+        <course id="MecVibMn" teacher="t060" lectures="5" min_days="5" students="65" double_lectures="yes"/>
+    </courses>
+    <rooms>
+        <room id="r36" size="42" building="1"/>
+        <room id="r37" size="42" building="1"/>
+        <room id="r38" size="48" building="1"/>
+        <room id="r31" size="50" building="1"/>
+        <room id="r27" size="100" building="0"/>
+        <room id="rB" size="216" building="0"/>
+        <room id="rD" size="216" building="0"/>
+        <room id="rE" size="216" building="1"/>
+        <room id="rF" size="216" building="1"/>
+        <room id="rG" size="216" building="0"/>
+        <room id="rA" size="312" building="0"/>
+        <room id="rL" size="336" building="1"/>
+        <room id="r50" size="80" building="2"/>
+        <room id="r52" size="90" building="2"/>
+        <room id="rDS1" size="90" building="3"/>
+        <room id="rDS2" size="90" building="3"/>
+    </rooms>
+    <curricula>
+        <curriculum id="q000">
+            <course ref="Mat1Ar"/>
+            <course ref="FonInfAr"/>
+            <course ref="LabEle1Ar"/>
+        </curriculum>
+        <curriculum id="q001">
+            <course ref="Mat1Ar"/>
+            <course ref="FonInfAr"/>
+            <course ref="LabEle2Ar"/>
+        </curriculum>
+        <curriculum id="q002">
+            <course ref="Mat1Ar"/>
+            <course ref="FonInfAr"/>
+            <course ref="LabEle3Ar"/>
+        </curriculum>
+        <curriculum id="q003">
+            <course ref="Mat1Cn"/>
+        </curriculum>
+        <curriculum id="q004">
+            <course ref="ChiGenAn"/>
+            <course ref="DisCn"/>
+            <course ref="GeoAn"/>
+            <course ref="MecRazCn"/>
+        </curriculum>
+        <curriculum id="q005">
+            <course ref="TecCosAn"/>
+            <course ref="FonChiAn"/>
+            <course ref="StrIndAn"/>
+            <course ref="ChiInd1Gv"/>
+            <course ref="CamEleAn"/>
+        </curriculum>
+        <curriculum id="q006">
+            <course ref="TecCos1Cv"/>
+            <course ref="Idr2Cn"/>
+            <course ref="IngConAn"/>
+        </curriculum>
+        <curriculum id="q008">
+            <course ref="ChiGenAn"/>
+            <course ref="MecRazCn"/>
+            <course ref="DisCn"/>
+            <course ref="TecMatCn"/>
+        </curriculum>
+        <curriculum id="q009">
+            <course ref="TecCos1Cv"/>
+            <course ref="ArcTecCn"/>
+            <course ref="Idr2Cn"/>
+            <course ref="GeoAn"/>
+        </curriculum>
+        <curriculum id="q010">
+            <course ref="TecCos1Cv"/>
+            <course ref="ArcTecCn"/>
+            <course ref="DisEdiCn"/>
+            <course ref="ArcComCv"/>
+        </curriculum>
+        <curriculum id="q011">
+            <course ref="Mat1En"/>
+        </curriculum>
+        <curriculum id="q012">
+            <course ref="ChiStaEn"/>
+            <course ref="RetLogEn"/>
+            <course ref="TeoRetEn"/>
+            <course ref="ConAutEn"/>
+        </curriculum>
+        <curriculum id="q013">
+            <course ref="CamEle1Ev"/>
+            <course ref="ComEleEn"/>
+            <course ref="EleSis1En"/>
+            <course ref="EleIndEv"/>
+        </curriculum>
+        <curriculum id="q014">
+            <course ref="CamEle1Ev"/>
+            <course ref="ComEleEn"/>
+            <course ref="EleSis1En"/>
+            <course ref="RetCal1G1n"/>
+        </curriculum>
+        <curriculum id="q015">
+            <course ref="CamEle1Ev"/>
+            <course ref="ComEleEn"/>
+            <course ref="EleSis1En"/>
+            <course ref="MetMatEn"/>
+        </curriculum>
+        <curriculum id="q016">
+            <course ref="Mat1G2n"/>
+        </curriculum>
+        <curriculum id="q017">
+            <course ref="TeoRetEn"/>
+            <course ref="ChiStaEn"/>
+            <course ref="ConAutEn"/>
+        </curriculum>
+        <curriculum id="q018">
+            <course ref="GesAziGv"/>
+            <course ref="RetCal1G1n"/>
+            <course ref="OrgPro1Gv"/>
+            <course ref="CalEle1Ev"/>
+        </curriculum>
+        <curriculum id="q019">
+            <course ref="GesAziGv"/>
+            <course ref="RetCal1G1n"/>
+            <course ref="OrgPro1Gv"/>
+            <course ref="EleTel1Ens"/>
+        </curriculum>
+        <curriculum id="q020">
+            <course ref="GesAziGv"/>
+            <course ref="RetCal1G1n"/>
+            <course ref="OrgPro1Gv"/>
+            <course ref="CalProG2n"/>
+        </curriculum>
+        <curriculum id="q022">
+            <course ref="ChiG2n"/>
+            <course ref="DisIndMn"/>
+            <course ref="DisComEsG2n"/>
+            <course ref="FonMecG2n"/>
+            <course ref="TerAppG2n"/>
+        </curriculum>
+        <curriculum id="q023">
+            <course ref="GesAziGv"/>
+            <course ref="TecMec1Mn"/>
+            <course ref="OrgPro1Gv"/>
+            <course ref="FonChiAn"/>
+        </curriculum>
+        <curriculum id="q024">
+            <course ref="GesAziGv"/>
+            <course ref="TecMec1Mn"/>
+            <course ref="OrgPro1Gv"/>
+            <course ref="ImpTec1Cv"/>
+        </curriculum>
+        <curriculum id="q025">
+            <course ref="GesAziGv"/>
+            <course ref="TecMec1Mn"/>
+            <course ref="OrgPro1Gv"/>
+            <course ref="CalProG2n"/>
+        </curriculum>
+        <curriculum id="q026">
+            <course ref="Mat1Mn"/>
+        </curriculum>
+        <curriculum id="q027">
+            <course ref="ChiG2n"/>
+            <course ref="FonMecG2n"/>
+            <course ref="FluMn"/>
+            <course ref="DisIndMn"/>
+            <course ref="DisIndEsMn"/>
+        </curriculum>
+        <curriculum id="q028">
+            <course ref="ComMecMn"/>
+            <course ref="CosMacMn"/>
+            <course ref="TecMec1Mn"/>
+            <course ref="AppIndGns"/>
+        </curriculum>
+        <curriculum id="q029">
+            <course ref="GeoAppAns"/>
+            <course ref="IdrNumAns"/>
+            <course ref="StaAns"/>
+            <course ref="StaPenAns"/>
+        </curriculum>
+        <curriculum id="q030">
+            <course ref="GeoAppAns"/>
+            <course ref="MecSuoAns"/>
+            <course ref="StaAns"/>
+            <course ref="IdrNumAns"/>
+            <course ref="StaPenAns"/>
+        </curriculum>
+        <curriculum id="q031">
+            <course ref="IdrNumAns"/>
+            <course ref="PriIngAns"/>
+            <course ref="StaAns"/>
+            <course ref="CamEleAn"/>
+            <course ref="StrIndAn"/>
+            <course ref="ChiInd1Gv"/>
+            <course ref="GeoAppAns"/>
+        </curriculum>
+        <curriculum id="q032">
+            <course ref="MecCom1Cv"/>
+            <course ref="TeoStr1Cv"/>
+            <course ref="DisEdiCn"/>
+        </curriculum>
+        <curriculum id="q033">
+            <course ref="MecCom1Cv"/>
+            <course ref="TeoStr1Cv"/>
+            <course ref="CalAut1Cv"/>
+        </curriculum>
+        <curriculum id="q034">
+            <course ref="ArcTecCns"/>
+            <course ref="CalAut1Cv"/>
+            <course ref="Idr2Cn"/>
+        </curriculum>
+        <curriculum id="q035">
+            <course ref="ArcTecCns"/>
+            <course ref="CalAut1Cv"/>
+            <course ref="MecCom1Cv"/>
+        </curriculum>
+        <curriculum id="q036">
+            <course ref="ArcTecCns"/>
+            <course ref="CalAut1Cv"/>
+            <course ref="StoArcCv"/>
+        </curriculum>
+        <curriculum id="q038">
+            <course ref="EleTel1Ens"/>
+            <course ref="CalEle1Ev"/>
+            <course ref="EleIndEv"/>
+        </curriculum>
+        <curriculum id="q039">
+            <course ref="EleTel1Ens"/>
+            <course ref="CalEle1Ev"/>
+            <course ref="MetMatEn"/>
+        </curriculum>
+        <curriculum id="q040">
+            <course ref="EleTel1Ens"/>
+            <course ref="CalEle1Ev"/>
+            <course ref="EleIndEv"/>
+            <course ref="MetMatEn"/>
+        </curriculum>
+        <curriculum id="q041">
+            <course ref="EleTel1Ens"/>
+            <course ref="CalEle1Ev"/>
+            <course ref="EleIndEv"/>
+            <course ref="RetCal1G1n"/>
+        </curriculum>
+        <curriculum id="q042">
+            <course ref="EleTel1Ens"/>
+            <course ref="CalEle1Ev"/>
+            <course ref="SisTel1Ens"/>
+            <course ref="RetCal1G1n"/>
+        </curriculum>
+        <curriculum id="q043">
+            <course ref="EleTel1Ens"/>
+            <course ref="CalEle1Ev"/>
+            <course ref="SisTel1Ens"/>
+            <course ref="MetMatEn"/>
+        </curriculum>
+        <curriculum id="q044">
+            <course ref="GesAziGv"/>
+            <course ref="RetLogEn"/>
+            <course ref="RetCal2Gns"/>
+            <course ref="EleTel1Ens"/>
+        </curriculum>
+        <curriculum id="q045">
+            <course ref="GesAziGv"/>
+            <course ref="RetLogEn"/>
+            <course ref="RetCal2Gns"/>
+            <course ref="CalEle1Ev"/>
+        </curriculum>
+        <curriculum id="q046">
+            <course ref="GesAziGv"/>
+            <course ref="RetLogEn"/>
+            <course ref="RetCal2Gns"/>
+            <course ref="CalProG2n"/>
+        </curriculum>
+        <curriculum id="q047">
+            <course ref="AppIndGns"/>
+            <course ref="GesAziGv"/>
+            <course ref="RetCal1G1n"/>
+            <course ref="ImpTec1Cv"/>
+        </curriculum>
+        <curriculum id="q048">
+            <course ref="AppIndGns"/>
+            <course ref="GesAziGv"/>
+            <course ref="RetCal1G1n"/>
+            <course ref="FonChiAn"/>
+        </curriculum>
+        <curriculum id="q049">
+            <course ref="AppIndGns"/>
+            <course ref="GesAziGv"/>
+            <course ref="RetCal1G1n"/>
+            <course ref="CalProG2n"/>
+        </curriculum>
+        <curriculum id="q050">
+            <course ref="TerAppMv"/>
+            <course ref="ImpTec1Cv"/>
+        </curriculum>
+        <curriculum id="q051">
+            <course ref="TecCos1Cv"/>
+            <course ref="GeoAn"/>
+            <course ref="IngConAn"/>
+            <course ref="StoArcCv"/>
+            <course ref="TeoStr1Cv"/>
+            <course ref="MecCom1Cv"/>
+        </curriculum>
+        <curriculum id="q052">
+            <course ref="TecCos1Cv"/>
+            <course ref="GeoAn"/>
+            <course ref="IngConAn"/>
+            <course ref="StoArcCv"/>
+        </curriculum>
+        <curriculum id="q053">
+            <course ref="TecCos1Cv"/>
+            <course ref="GeoAn"/>
+            <course ref="IngConAn"/>
+        </curriculum>
+        <curriculum id="q054">
+            <course ref="CalAut1Cv"/>
+            <course ref="CosZonCv"/>
+            <course ref="ArcComCv"/>
+        </curriculum>
+        <curriculum id="q055">
+            <course ref="ArcComCv"/>
+            <course ref="ImpTec1Cv"/>
+        </curriculum>
+        <curriculum id="q056">
+            <course ref="RivSpeCv"/>
+            <course ref="IdrAppCv"/>
+            <course ref="CosZonCv"/>
+        </curriculum>
+        <curriculum id="q057">
+            <course ref="IdrAppCv"/>
+            <course ref="RivSpeCv"/>
+            <course ref="ImpTec1Cv"/>
+        </curriculum>
+        <curriculum id="q058">
+            <course ref="CalEle1Ev"/>
+            <course ref="ComEleEn"/>
+            <course ref="CamEle1Ev"/>
+        </curriculum>
+        <curriculum id="q059">
+            <course ref="EleSis1En"/>
+            <course ref="EleIndEv"/>
+        </curriculum>
+        <curriculum id="q060">
+            <course ref="EleSis1En"/>
+            <course ref="EleIndEv"/>
+            <course ref="EleTel1Ens"/>
+            <course ref="RetCal1G1n"/>
+        </curriculum>
+        <curriculum id="q061">
+            <course ref="EleSis1En"/>
+            <course ref="EleTel1Ens"/>
+            <course ref="SisTel1Ens"/>
+            <course ref="RetCal1G1n"/>
+        </curriculum>
+        <curriculum id="q062">
+            <course ref="GesAziGv"/>
+            <course ref="TecMec1Mn"/>
+            <course ref="Mac1Mv"/>
+            <course ref="ChiInd1Gv"/>
+        </curriculum>
+        <curriculum id="q063">
+            <course ref="GesAziGv"/>
+            <course ref="TecMec1Mn"/>
+            <course ref="Mac1Mv"/>
+        </curriculum>
+        <curriculum id="q064">
+            <course ref="GesAziGv"/>
+            <course ref="TecMec1Mn"/>
+            <course ref="ComEleEn"/>
+        </curriculum>
+        <curriculum id="q065">
+            <course ref="OrgPro1Gv"/>
+            <course ref="RetCal1G1n"/>
+        </curriculum>
+        <curriculum id="q066">
+            <course ref="OrgPro1Gv"/>
+            <course ref="RetCal1G1n"/>
+            <course ref="ImpTec1Cv"/>
+        </curriculum>
+        <curriculum id="q067">
+            <course ref="OrgPro1Gv"/>
+            <course ref="RetCal1G1n"/>
+            <course ref="EleIndEv"/>
+        </curriculum>
+        <curriculum id="q068">
+            <course ref="Mac1Mv"/>
+            <course ref="TerAppMv"/>
+            <course ref="TecMec1Mn"/>
+        </curriculum>
+        <curriculum id="q069">
+            <course ref="DisAssMv"/>
+            <course ref="MecVibMn"/>
+        </curriculum>
+        <curriculum id="q070">
+            <course ref="DisAssMv"/>
+            <course ref="MecVibMn"/>
+            <course ref="ImpTec1Cv"/>
+        </curriculum>
+    </curricula>
+    <constraints>
+        <constraint type="period" course="ChiGenAn">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="CamEleAn">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="FonChiAn">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="StrIndAn">
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="2"/>
+        </constraint>
+        <constraint type="period" course="TecCosAn">
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="Mat1Cn">
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="MecRazCn">
+            <timeslot day="0" period="4"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="TecMatCn">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="4"/>
+        </constraint>
+        <constraint type="period" course="ArcTecCn">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="Idr2Cn">
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="2"/>
+        </constraint>
+        <constraint type="period" course="Mat1En">
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="RetLogEn">
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="ComEleEn">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="EleSis1En">
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+        </constraint>
+        <constraint type="period" course="MetMatEn">
+            <timeslot day="0" period="4"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="RetCal1G1n">
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="Mat1G2n">
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="ChiG2n">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="TerAppG2n">
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="CalProG2n">
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="Mat1Mn">
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="DisIndMn">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="ComMecMn">
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="CosMacMn">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="TecMec1Mn">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="IdrNumAns">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+        </constraint>
+        <constraint type="period" course="PriIngAns">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="4" period="0"/>
+        </constraint>
+        <constraint type="period" course="StaAns">
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="ArcTecCns">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="EleTel1Ens">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="AppIndGns">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="RetCal2Gns">
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="TecCos1Cv">
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="2"/>
+        </constraint>
+        <constraint type="period" course="StoArcCv">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+        </constraint>
+        <constraint type="period" course="TeoStr1Cv">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+        </constraint>
+        <constraint type="period" course="ArcComCv">
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="3" period="2"/>
+        </constraint>
+        <constraint type="period" course="CalAut1Cv">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+        </constraint>
+        <constraint type="period" course="CosZonCv">
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="ImpTec1Cv">
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="IdrAppCv">
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="CalEle1Ev">
+            <timeslot day="0" period="4"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="CamEle1Ev">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="EleIndEv">
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="GesAziGv">
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="ChiInd1Gv">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="OrgPro1Gv">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="Mac1Mv">
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="2"/>
+        </constraint>
+        <constraint type="period" course="TerAppMv">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="DisAssMv">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="MecVibMn">
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="2"/>
+        </constraint>
+        <constraint type="room" course="ChiGenAn">
+            <room ref="rE"/>
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="GeoAn">
+            <room ref="r50"/>
+        </constraint>
+        <constraint type="room" course="CamEleAn">
+            <room ref="r31"/>
+            <room ref="rA"/>
+        </constraint>
+        <constraint type="room" course="FonChiAn">
+            <room ref="rB"/>
+            <room ref="rA"/>
+        </constraint>
+        <constraint type="room" course="IngConAn">
+            <room ref="r52"/>
+        </constraint>
+        <constraint type="room" course="StrIndAn">
+            <room ref="rE"/>
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="TecCosAn">
+            <room ref="rB"/>
+            <room ref="rF"/>
+            <room ref="rDS1"/>
+        </constraint>
+        <constraint type="room" course="Mat1Cn">
+            <room ref="r36"/>
+            <room ref="rF"/>
+        </constraint>
+        <constraint type="room" course="MecRazCn">
+            <room ref="r38"/>
+            <room ref="r50"/>
+        </constraint>
+        <constraint type="room" course="DisCn">
+            <room ref="r31"/>
+            <room ref="rA"/>
+            <room ref="rL"/>
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="TecMatCn">
+            <room ref="r36"/>
+            <room ref="rF"/>
+        </constraint>
+        <constraint type="room" course="ArcTecCn">
+            <room ref="r27"/>
+            <room ref="rG"/>
+            <room ref="rDS1"/>
+        </constraint>
+        <constraint type="room" course="Idr2Cn">
+            <room ref="r37"/>
+            <room ref="r38"/>
+        </constraint>
+        <constraint type="room" course="Mat1En">
+            <room ref="r37"/>
+            <room ref="rE"/>
+            <room ref="rDS1"/>
+        </constraint>
+        <constraint type="room" course="ChiStaEn">
+            <room ref="r37"/>
+            <room ref="r27"/>
+            <room ref="rE"/>
+            <room ref="r52"/>
+        </constraint>
+        <constraint type="room" course="ConAutEn">
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="RetLogEn">
+            <room ref="r36"/>
+            <room ref="r50"/>
+        </constraint>
+        <constraint type="room" course="TeoRetEn">
+            <room ref="r37"/>
+            <room ref="rL"/>
+        </constraint>
+        <constraint type="room" course="ComEleEn">
+            <room ref="r37"/>
+            <room ref="r31"/>
+            <room ref="r27"/>
+            <room ref="rB"/>
+            <room ref="rL"/>
+        </constraint>
+        <constraint type="room" course="EleSis1En">
+            <room ref="rE"/>
+            <room ref="rF"/>
+        </constraint>
+        <constraint type="room" course="MetMatEn">
+            <room ref="r37"/>
+            <room ref="r27"/>
+            <room ref="rE"/>
+        </constraint>
+        <constraint type="room" course="RetCal1G1n">
+            <room ref="rG"/>
+            <room ref="rDS1"/>
+        </constraint>
+        <constraint type="room" course="Mat1G2n">
+            <room ref="r37"/>
+            <room ref="r27"/>
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="ChiG2n">
+            <room ref="r31"/>
+            <room ref="rL"/>
+            <room ref="r52"/>
+        </constraint>
+        <constraint type="room" course="DisComEsG2n">
+            <room ref="r36"/>
+            <room ref="rF"/>
+            <room ref="rG"/>
+            <room ref="rA"/>
+        </constraint>
+        <constraint type="room" course="FonMecG2n">
+            <room ref="r36"/>
+            <room ref="rB"/>
+            <room ref="rL"/>
+            <room ref="r50"/>
+            <room ref="r52"/>
+        </constraint>
+        <constraint type="room" course="CalProG2n">
+            <room ref="rD"/>
+        </constraint>
+        <constraint type="room" course="Mat1Mn">
+            <room ref="rG"/>
+            <room ref="rA"/>
+            <room ref="rL"/>
+        </constraint>
+        <constraint type="room" course="DisIndMn">
+            <room ref="r37"/>
+            <room ref="r38"/>
+        </constraint>
+        <constraint type="room" course="DisIndEsMn">
+            <room ref="r37"/>
+            <room ref="rDS1"/>
+        </constraint>
+        <constraint type="room" course="FluMn">
+            <room ref="rD"/>
+            <room ref="rL"/>
+        </constraint>
+        <constraint type="room" course="ComMecMn">
+            <room ref="rB"/>
+            <room ref="rG"/>
+            <room ref="rA"/>
+        </constraint>
+        <constraint type="room" course="CosMacMn">
+            <room ref="rA"/>
+            <room ref="r50"/>
+        </constraint>
+        <constraint type="room" course="TecMec1Mn">
+            <room ref="rA"/>
+            <room ref="rL"/>
+        </constraint>
+        <constraint type="room" course="FonInfAr">
+            <room ref="rDS1"/>
+        </constraint>
+        <constraint type="room" course="LabEle1Ar">
+            <room ref="r37"/>
+            <room ref="rB"/>
+            <room ref="rE"/>
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="LabEle3Ar">
+            <room ref="rF"/>
+        </constraint>
+        <constraint type="room" course="GeoAppAns">
+            <room ref="rB"/>
+            <room ref="r50"/>
+            <room ref="rDS1"/>
+        </constraint>
+        <constraint type="room" course="IdrNumAns">
+            <room ref="rD"/>
+            <room ref="r50"/>
+        </constraint>
+        <constraint type="room" course="MecSuoAns">
+            <room ref="rD"/>
+            <room ref="rA"/>
+        </constraint>
+        <constraint type="room" course="PriIngAns">
+            <room ref="r27"/>
+            <room ref="rE"/>
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="StaPenAns">
+            <room ref="r50"/>
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="StaAns">
+            <room ref="r27"/>
+            <room ref="rB"/>
+            <room ref="rF"/>
+        </constraint>
+        <constraint type="room" course="EleTel1Ens">
+            <room ref="r27"/>
+        </constraint>
+        <constraint type="room" course="SisTel1Ens">
+            <room ref="rD"/>
+            <room ref="rF"/>
+        </constraint>
+        <constraint type="room" course="AppIndGns">
+            <room ref="r37"/>
+            <room ref="rE"/>
+            <room ref="r52"/>
+        </constraint>
+        <constraint type="room" course="RetCal2Gns">
+            <room ref="rA"/>
+        </constraint>
+        <constraint type="room" course="TecCos1Cv">
+            <room ref="rD"/>
+            <room ref="rE"/>
+        </constraint>
+        <constraint type="room" course="StoArcCv">
+            <room ref="rA"/>
+        </constraint>
+        <constraint type="room" course="TeoStr1Cv">
+            <room ref="rF"/>
+            <room ref="rDS1"/>
+        </constraint>
+        <constraint type="room" course="ArcComCv">
+            <room ref="rL"/>
+            <room ref="rDS1"/>
+        </constraint>
+        <constraint type="room" course="CosZonCv">
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="ImpTec1Cv">
+            <room ref="rB"/>
+            <room ref="rD"/>
+            <room ref="rE"/>
+        </constraint>
+        <constraint type="room" course="RivSpeCv">
+            <room ref="r27"/>
+            <room ref="rB"/>
+            <room ref="rE"/>
+            <room ref="r52"/>
+        </constraint>
+        <constraint type="room" course="CalEle1Ev">
+            <room ref="r27"/>
+            <room ref="rE"/>
+            <room ref="r50"/>
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="CamEle1Ev">
+            <room ref="r31"/>
+            <room ref="rE"/>
+        </constraint>
+        <constraint type="room" course="EleIndEv">
+            <room ref="r38"/>
+            <room ref="r27"/>
+            <room ref="rG"/>
+            <room ref="r50"/>
+        </constraint>
+        <constraint type="room" course="GesAziGv">
+            <room ref="r36"/>
+            <room ref="rB"/>
+            <room ref="rA"/>
+        </constraint>
+        <constraint type="room" course="OrgPro1Gv">
+            <room ref="r52"/>
+        </constraint>
+        <constraint type="room" course="Mac1Mv">
+            <room ref="rL"/>
+            <room ref="r50"/>
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="TerAppMv">
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="DisAssMv">
+            <room ref="r37"/>
+            <room ref="r38"/>
+            <room ref="r50"/>
+        </constraint>
+        <constraint type="room" course="MecVibMn">
+            <room ref="rDS2"/>
+        </constraint>
+    </constraints>
+</instance>

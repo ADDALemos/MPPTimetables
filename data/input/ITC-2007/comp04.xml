@@ -1,0 +1,1198 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE instance SYSTEM "http://tabu.diegm.uniud.it/ctt/cb_ctt.dtd">
+<instance name="Ing0405-3">
+    <descriptor>
+        <days value="5"/>
+        <periods_per_day value="5"/>
+        <daily_lectures min="2" max="4"/>
+    </descriptor>
+    <courses>
+        <course id="c0012" teacher="t000" lectures="3" min_days="3" students="20" double_lectures="no"/>
+        <course id="c0013" teacher="t001" lectures="3" min_days="3" students="25" double_lectures="no"/>
+        <course id="c0014" teacher="t002" lectures="3" min_days="2" students="41" double_lectures="yes"/>
+        <course id="c0035" teacher="t003" lectures="3" min_days="3" students="13" double_lectures="no"/>
+        <course id="c0036" teacher="t004" lectures="3" min_days="3" students="13" double_lectures="no"/>
+        <course id="c0045" teacher="t005" lectures="3" min_days="3" students="76" double_lectures="no"/>
+        <course id="c0052" teacher="t006" lectures="3" min_days="3" students="119" double_lectures="no"/>
+        <course id="c0053" teacher="t007" lectures="3" min_days="3" students="63" double_lectures="no"/>
+        <course id="c0055" teacher="t008" lectures="3" min_days="3" students="63" double_lectures="no"/>
+        <course id="c0057" teacher="t009" lectures="3" min_days="3" students="76" double_lectures="no"/>
+        <course id="c0060" teacher="t010" lectures="3" min_days="3" students="89" double_lectures="no"/>
+        <course id="c0094" teacher="t011" lectures="3" min_days="3" students="70" double_lectures="no"/>
+        <course id="c0098" teacher="t012" lectures="3" min_days="3" students="92" double_lectures="no"/>
+        <course id="c0104" teacher="t013" lectures="3" min_days="3" students="92" double_lectures="no"/>
+        <course id="c0107" teacher="t014" lectures="3" min_days="3" students="70" double_lectures="no"/>
+        <course id="c0112" teacher="t015" lectures="3" min_days="3" students="70" double_lectures="no"/>
+        <course id="c0114" teacher="t016" lectures="3" min_days="3" students="92" double_lectures="no"/>
+        <course id="c0116" teacher="t006" lectures="3" min_days="3" students="120" double_lectures="no"/>
+        <course id="c0117" teacher="t017" lectures="3" min_days="3" students="120" double_lectures="no"/>
+        <course id="c0130" teacher="t018" lectures="3" min_days="2" students="124" double_lectures="no"/>
+        <course id="c0148" teacher="t019" lectures="3" min_days="3" students="121" double_lectures="no"/>
+        <course id="c0149" teacher="t020" lectures="3" min_days="3" students="121" double_lectures="no"/>
+        <course id="c0150" teacher="t021" lectures="3" min_days="3" students="121" double_lectures="no"/>
+        <course id="c0162" teacher="t022" lectures="3" min_days="3" students="130" double_lectures="no"/>
+        <course id="c0163" teacher="t023" lectures="3" min_days="2" students="145" double_lectures="yes"/>
+        <course id="c0177" teacher="t011" lectures="3" min_days="3" students="113" double_lectures="no"/>
+        <course id="c0179" teacher="t005" lectures="3" min_days="3" students="113" double_lectures="no"/>
+        <course id="c0181" teacher="t024" lectures="3" min_days="3" students="113" double_lectures="no"/>
+        <course id="c0198" teacher="t025" lectures="3" min_days="3" students="88" double_lectures="no"/>
+        <course id="c0210" teacher="t026" lectures="3" min_days="3" students="125" double_lectures="no"/>
+        <course id="c0214" teacher="t027" lectures="3" min_days="3" students="125" double_lectures="no"/>
+        <course id="c0218" teacher="t028" lectures="3" min_days="3" students="80" double_lectures="no"/>
+        <course id="c0223" teacher="t001" lectures="3" min_days="3" students="80" double_lectures="no"/>
+        <course id="c0224" teacher="t029" lectures="3" min_days="3" students="115" double_lectures="no"/>
+        <course id="c0226" teacher="t030" lectures="3" min_days="3" students="110" double_lectures="no"/>
+        <course id="c0227" teacher="t031" lectures="3" min_days="3" students="90" double_lectures="no"/>
+        <course id="c0233" teacher="t032" lectures="3" min_days="3" students="66" double_lectures="no"/>
+        <course id="c0249" teacher="t033" lectures="3" min_days="3" students="70" double_lectures="no"/>
+        <course id="c0254" teacher="t034" lectures="3" min_days="3" students="114" double_lectures="no"/>
+        <course id="c0271" teacher="t035" lectures="3" min_days="3" students="114" double_lectures="no"/>
+        <course id="c0409" teacher="t036" lectures="3" min_days="3" students="30" double_lectures="no"/>
+        <course id="c0416" teacher="t032" lectures="3" min_days="3" students="23" double_lectures="no"/>
+        <course id="c0420" teacher="t037" lectures="3" min_days="3" students="50" double_lectures="no"/>
+        <course id="c0441" teacher="t038" lectures="3" min_days="3" students="36" double_lectures="no"/>
+        <course id="c0447" teacher="t038" lectures="3" min_days="3" students="43" double_lectures="no"/>
+        <course id="c0456" teacher="t039" lectures="3" min_days="3" students="70" double_lectures="no"/>
+        <course id="c0457" teacher="t040" lectures="3" min_days="3" students="50" double_lectures="no"/>
+        <course id="c0465" teacher="t041" lectures="3" min_days="3" students="70" double_lectures="no"/>
+        <course id="c0486" teacher="t042" lectures="3" min_days="2" students="15" double_lectures="no"/>
+        <course id="c0491" teacher="t043" lectures="3" min_days="2" students="5" double_lectures="no"/>
+        <course id="c0498" teacher="t044" lectures="3" min_days="3" students="25" double_lectures="no"/>
+        <course id="c0501" teacher="t045" lectures="3" min_days="3" students="5" double_lectures="no"/>
+        <course id="c0506" teacher="t046" lectures="3" min_days="2" students="5" double_lectures="no"/>
+        <course id="c0510" teacher="t047" lectures="6" min_days="4" students="30" double_lectures="yes"/>
+        <course id="c0527" teacher="t048" lectures="3" min_days="3" students="13" double_lectures="no"/>
+        <course id="c0670" teacher="t020" lectures="3" min_days="3" students="30" double_lectures="no"/>
+        <course id="c0738" teacher="t049" lectures="3" min_days="2" students="10" double_lectures="no"/>
+        <course id="c0745" teacher="t050" lectures="3" min_days="3" students="30" double_lectures="no"/>
+        <course id="c0773" teacher="t051" lectures="3" min_days="2" students="15" double_lectures="yes"/>
+        <course id="c0814" teacher="t052" lectures="5" min_days="4" students="3" double_lectures="no"/>
+        <course id="c0825" teacher="t053" lectures="3" min_days="3" students="3" double_lectures="no"/>
+        <course id="c0882" teacher="t054" lectures="7" min_days="1" students="18" double_lectures="yes"/>
+        <course id="c0884" teacher="t055" lectures="7" min_days="1" students="53" double_lectures="yes"/>
+        <course id="c0899" teacher="t056" lectures="3" min_days="3" students="14" double_lectures="no"/>
+        <course id="c0901" teacher="t057" lectures="3" min_days="3" students="124" double_lectures="no"/>
+        <course id="c0933" teacher="t058" lectures="3" min_days="3" students="30" double_lectures="no"/>
+        <course id="c0947" teacher="t059" lectures="7" min_days="1" students="30" double_lectures="yes"/>
+        <course id="c0953" teacher="t060" lectures="7" min_days="1" students="46" double_lectures="yes"/>
+        <course id="c0969" teacher="t061" lectures="7" min_days="1" students="46" double_lectures="yes"/>
+        <course id="c0972" teacher="t062" lectures="7" min_days="1" students="18" double_lectures="no"/>
+        <course id="c0978" teacher="t063" lectures="7" min_days="1" students="60" double_lectures="no"/>
+        <course id="c0985" teacher="t064" lectures="7" min_days="1" students="40" double_lectures="no"/>
+        <course id="c0991" teacher="t001" lectures="3" min_days="3" students="6" double_lectures="no"/>
+        <course id="c1007" teacher="t065" lectures="3" min_days="3" students="76" double_lectures="no"/>
+        <course id="c1041" teacher="t066" lectures="3" min_days="2" students="130" double_lectures="no"/>
+        <course id="c1044" teacher="t066" lectures="7" min_days="1" students="60" double_lectures="yes"/>
+        <course id="c0741" teacher="t067" lectures="6" min_days="4" students="110" double_lectures="no"/>
+        <course id="c0196" teacher="t068" lectures="6" min_days="4" students="100" double_lectures="no"/>
+        <course id="c0798" teacher="t069" lectures="5" min_days="4" students="3" double_lectures="yes"/>
+    </courses>
+    <rooms>
+        <room id="r25" size="40" building="1"/>
+        <room id="r36" size="42" building="0"/>
+        <room id="r37" size="42" building="2"/>
+        <room id="r38" size="48" building="0"/>
+        <room id="r31" size="50" building="1"/>
+        <room id="r27" size="55" building="0"/>
+        <room id="r51" size="60" building="2"/>
+        <room id="rB" size="216" building="0"/>
+        <room id="rD" size="216" building="1"/>
+        <room id="rF" size="216" building="0"/>
+        <room id="rG" size="216" building="1"/>
+        <room id="rA" size="312" building="3"/>
+        <room id="rL" size="336" building="1"/>
+        <room id="r50" size="50" building="0"/>
+        <room id="r52" size="60" building="1"/>
+        <room id="rDS1" size="80" building="3"/>
+        <room id="rDS2" size="60" building="1"/>
+        <room id="rN" size="20" building="1"/>
+    </rooms>
+    <curricula>
+        <curriculum id="q000">
+            <course ref="c0094"/>
+            <course ref="c0107"/>
+            <course ref="c0112"/>
+        </curriculum>
+        <curriculum id="q001">
+            <course ref="c0098"/>
+            <course ref="c0104"/>
+            <course ref="c0114"/>
+        </curriculum>
+        <curriculum id="q002">
+            <course ref="c0116"/>
+            <course ref="c0117"/>
+        </curriculum>
+        <curriculum id="q003">
+            <course ref="c0210"/>
+            <course ref="c0214"/>
+            <course ref="c0226"/>
+        </curriculum>
+        <curriculum id="q004">
+            <course ref="c0210"/>
+            <course ref="c0214"/>
+            <course ref="c0163"/>
+        </curriculum>
+        <curriculum id="q005">
+            <course ref="c0224"/>
+            <course ref="c0012"/>
+            <course ref="c0013"/>
+            <course ref="c0014"/>
+        </curriculum>
+        <curriculum id="q006">
+            <course ref="c0224"/>
+            <course ref="c0012"/>
+            <course ref="c0223"/>
+            <course ref="c0218"/>
+        </curriculum>
+        <curriculum id="q007">
+            <course ref="c0224"/>
+            <course ref="c0773"/>
+            <course ref="c0013"/>
+            <course ref="c0014"/>
+        </curriculum>
+        <curriculum id="q008">
+            <course ref="c0035"/>
+            <course ref="c0036"/>
+        </curriculum>
+        <curriculum id="q009">
+            <course ref="c0441"/>
+            <course ref="c0014"/>
+        </curriculum>
+        <curriculum id="q010">
+            <course ref="c0045"/>
+            <course ref="c0057"/>
+            <course ref="c1007"/>
+        </curriculum>
+        <curriculum id="q011">
+            <course ref="c0052"/>
+            <course ref="c0053"/>
+            <course ref="c0055"/>
+            <course ref="c0060"/>
+        </curriculum>
+        <curriculum id="q012">
+            <course ref="c0741"/>
+        </curriculum>
+        <curriculum id="q015">
+            <course ref="c0218"/>
+            <course ref="c0223"/>
+            <course ref="c0224"/>
+        </curriculum>
+        <curriculum id="q016">
+            <course ref="c0224"/>
+            <course ref="c0899"/>
+            <course ref="c0773"/>
+        </curriculum>
+        <curriculum id="q017">
+            <course ref="c0227"/>
+            <course ref="c0233"/>
+        </curriculum>
+        <curriculum id="q018">
+            <course ref="c0227"/>
+            <course ref="c0249"/>
+        </curriculum>
+        <curriculum id="q019">
+            <course ref="c0177"/>
+            <course ref="c0179"/>
+            <course ref="c0181"/>
+        </curriculum>
+        <curriculum id="q020">
+            <course ref="c0254"/>
+            <course ref="c0271"/>
+            <course ref="c0198"/>
+        </curriculum>
+        <curriculum id="q021">
+            <course ref="c0196"/>
+        </curriculum>
+        <curriculum id="q022">
+            <course ref="c0130"/>
+            <course ref="c0901"/>
+            <course ref="c0972"/>
+        </curriculum>
+        <curriculum id="q023">
+            <course ref="c0130"/>
+            <course ref="c0901"/>
+            <course ref="c0953"/>
+        </curriculum>
+        <curriculum id="q024">
+            <course ref="c0130"/>
+            <course ref="c0901"/>
+            <course ref="c0978"/>
+        </curriculum>
+        <curriculum id="q025">
+            <course ref="c0148"/>
+            <course ref="c0149"/>
+            <course ref="c0150"/>
+            <course ref="c0882"/>
+        </curriculum>
+        <curriculum id="q026">
+            <course ref="c0148"/>
+            <course ref="c0149"/>
+            <course ref="c0150"/>
+            <course ref="c0969"/>
+        </curriculum>
+        <curriculum id="q027">
+            <course ref="c0148"/>
+            <course ref="c0149"/>
+            <course ref="c0150"/>
+            <course ref="c0899"/>
+        </curriculum>
+        <curriculum id="q028">
+            <course ref="c0148"/>
+            <course ref="c0149"/>
+            <course ref="c0150"/>
+            <course ref="c0884"/>
+        </curriculum>
+        <curriculum id="q029">
+            <course ref="c0162"/>
+            <course ref="c0163"/>
+            <course ref="c0947"/>
+            <course ref="c1041"/>
+        </curriculum>
+        <curriculum id="q030">
+            <course ref="c0162"/>
+            <course ref="c0163"/>
+            <course ref="c0985"/>
+            <course ref="c1041"/>
+        </curriculum>
+        <curriculum id="q031">
+            <course ref="c0162"/>
+            <course ref="c0163"/>
+            <course ref="c1041"/>
+            <course ref="c1044"/>
+        </curriculum>
+        <curriculum id="q033">
+            <course ref="c0254"/>
+            <course ref="c0060"/>
+            <course ref="c0052"/>
+            <course ref="c0271"/>
+        </curriculum>
+        <curriculum id="q035">
+            <course ref="c0745"/>
+        </curriculum>
+        <curriculum id="q036">
+            <course ref="c0456"/>
+            <course ref="c0741"/>
+            <course ref="c0745"/>
+        </curriculum>
+        <curriculum id="q037">
+            <course ref="c0456"/>
+            <course ref="c0741"/>
+        </curriculum>
+        <curriculum id="q038">
+            <course ref="c0456"/>
+            <course ref="c0465"/>
+            <course ref="c0498"/>
+        </curriculum>
+        <curriculum id="q039">
+            <course ref="c0456"/>
+            <course ref="c0457"/>
+            <course ref="c0196"/>
+        </curriculum>
+        <curriculum id="q040">
+            <course ref="c0465"/>
+        </curriculum>
+        <curriculum id="q041">
+            <course ref="c0465"/>
+            <course ref="c0498"/>
+        </curriculum>
+        <curriculum id="q043">
+            <course ref="c0409"/>
+            <course ref="c0670"/>
+            <course ref="c0416"/>
+            <course ref="c0420"/>
+            <course ref="c0249"/>
+        </curriculum>
+        <curriculum id="q044">
+            <course ref="c0409"/>
+            <course ref="c0670"/>
+            <course ref="c0233"/>
+            <course ref="c0227"/>
+        </curriculum>
+        <curriculum id="q045">
+            <course ref="c0420"/>
+            <course ref="c0933"/>
+            <course ref="c0233"/>
+            <course ref="c0441"/>
+        </curriculum>
+        <curriculum id="q046">
+            <course ref="c0420"/>
+            <course ref="c0933"/>
+            <course ref="c0249"/>
+            <course ref="c0227"/>
+        </curriculum>
+        <curriculum id="q047">
+            <course ref="c0447"/>
+        </curriculum>
+        <curriculum id="q048">
+            <course ref="c0486"/>
+            <course ref="c0738"/>
+            <course ref="c0745"/>
+            <course ref="c0741"/>
+        </curriculum>
+        <curriculum id="q049">
+            <course ref="c0486"/>
+            <course ref="c0745"/>
+            <course ref="c0741"/>
+        </curriculum>
+        <curriculum id="q050">
+            <course ref="c0486"/>
+            <course ref="c0506"/>
+            <course ref="c0745"/>
+            <course ref="c0741"/>
+        </curriculum>
+        <curriculum id="q051">
+            <course ref="c0491"/>
+            <course ref="c0457"/>
+        </curriculum>
+        <curriculum id="q052">
+            <course ref="c0498"/>
+            <course ref="c0738"/>
+        </curriculum>
+        <curriculum id="q053">
+            <course ref="c0501"/>
+            <course ref="c0457"/>
+        </curriculum>
+        <curriculum id="q054">
+            <course ref="c0052"/>
+            <course ref="c0510"/>
+            <course ref="c0117"/>
+            <course ref="c0116"/>
+        </curriculum>
+        <curriculum id="q055">
+            <course ref="c0052"/>
+            <course ref="c0510"/>
+            <course ref="c0527"/>
+            <course ref="c0117"/>
+            <course ref="c0116"/>
+        </curriculum>
+        <curriculum id="q056">
+            <course ref="c0798"/>
+            <course ref="c0036"/>
+            <course ref="c0035"/>
+        </curriculum>
+        <curriculum id="q057">
+            <course ref="c0814"/>
+            <course ref="c0441"/>
+            <course ref="c0014"/>
+        </curriculum>
+        <curriculum id="q058">
+            <course ref="c0447"/>
+            <course ref="c0991"/>
+            <course ref="c0441"/>
+            <course ref="c0014"/>
+        </curriculum>
+        <curriculum id="q059">
+            <course ref="c0527"/>
+        </curriculum>
+        <curriculum id="q060">
+            <course ref="c0233"/>
+            <course ref="c0991"/>
+        </curriculum>
+        <curriculum id="q061">
+            <course ref="c0233"/>
+            <course ref="c0825"/>
+            <course ref="c0416"/>
+        </curriculum>
+    </curricula>
+    <constraints>
+        <constraint type="period" course="c0012">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0013">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="2"/>
+        </constraint>
+        <constraint type="period" course="c0014">
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0045">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+        </constraint>
+        <constraint type="period" course="c0052">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0053">
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0057">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0060">
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0094">
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0107">
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0112">
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0114">
+            <timeslot day="0" period="0"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0116">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0117">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0130">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0148">
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0149">
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0150">
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0162">
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0163">
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0177">
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0198">
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0223">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="2"/>
+        </constraint>
+        <constraint type="period" course="c0224">
+            <timeslot day="1" period="4"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0227">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0254">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0441">
+            <timeslot day="0" period="4"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0456">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0457">
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0486">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0498">
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0501">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0506">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0510">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0527">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0745">
+            <timeslot day="0" period="0"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="4" period="0"/>
+        </constraint>
+        <constraint type="period" course="c0773">
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0814">
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0899">
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+        </constraint>
+        <constraint type="period" course="c0901">
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0991">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="2"/>
+        </constraint>
+        <constraint type="period" course="c1007">
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="4" period="2"/>
+        </constraint>
+        <constraint type="period" course="c1041">
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0741">
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0196">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+        </constraint>
+        <constraint type="period" course="c0798">
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="2"/>
+        </constraint>
+        <constraint type="room" course="c0012">
+            <room ref="rB"/>
+            <room ref="rDS1"/>
+        </constraint>
+        <constraint type="room" course="c0013">
+            <room ref="rG"/>
+            <room ref="rN"/>
+        </constraint>
+        <constraint type="room" course="c0014">
+            <room ref="r51"/>
+            <room ref="rN"/>
+        </constraint>
+        <constraint type="room" course="c0035">
+            <room ref="r31"/>
+        </constraint>
+        <constraint type="room" course="c0036">
+            <room ref="r27"/>
+            <room ref="rDS1"/>
+        </constraint>
+        <constraint type="room" course="c0045">
+            <room ref="r27"/>
+            <room ref="rA"/>
+            <room ref="r52"/>
+        </constraint>
+        <constraint type="room" course="c0052">
+            <room ref="r37"/>
+            <room ref="r31"/>
+            <room ref="rL"/>
+        </constraint>
+        <constraint type="room" course="c0053">
+            <room ref="r31"/>
+            <room ref="r52"/>
+        </constraint>
+        <constraint type="room" course="c0055">
+            <room ref="r38"/>
+            <room ref="rG"/>
+            <room ref="rA"/>
+            <room ref="rDS1"/>
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="c0057">
+            <room ref="r51"/>
+        </constraint>
+        <constraint type="room" course="c0060">
+            <room ref="r25"/>
+            <room ref="r27"/>
+            <room ref="rG"/>
+        </constraint>
+        <constraint type="room" course="c0094">
+            <room ref="rA"/>
+            <room ref="rL"/>
+        </constraint>
+        <constraint type="room" course="c0098">
+            <room ref="rF"/>
+            <room ref="rDS1"/>
+        </constraint>
+        <constraint type="room" course="c0104">
+            <room ref="r31"/>
+            <room ref="rB"/>
+            <room ref="rG"/>
+            <room ref="r50"/>
+        </constraint>
+        <constraint type="room" course="c0107">
+            <room ref="r36"/>
+        </constraint>
+        <constraint type="room" course="c0112">
+            <room ref="r36"/>
+            <room ref="r37"/>
+            <room ref="r52"/>
+        </constraint>
+        <constraint type="room" course="c0114">
+            <room ref="r36"/>
+            <room ref="rA"/>
+            <room ref="rN"/>
+        </constraint>
+        <constraint type="room" course="c0116">
+            <room ref="r36"/>
+            <room ref="r37"/>
+            <room ref="r38"/>
+            <room ref="rF"/>
+        </constraint>
+        <constraint type="room" course="c0117">
+            <room ref="r38"/>
+            <room ref="r31"/>
+            <room ref="r50"/>
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="c0130">
+            <room ref="r36"/>
+        </constraint>
+        <constraint type="room" course="c0148">
+            <room ref="r36"/>
+            <room ref="r51"/>
+            <room ref="rF"/>
+            <room ref="rL"/>
+        </constraint>
+        <constraint type="room" course="c0149">
+            <room ref="r27"/>
+            <room ref="rF"/>
+            <room ref="rN"/>
+        </constraint>
+        <constraint type="room" course="c0150">
+            <room ref="r36"/>
+            <room ref="r31"/>
+            <room ref="rL"/>
+            <room ref="r50"/>
+            <room ref="r52"/>
+        </constraint>
+        <constraint type="room" course="c0162">
+            <room ref="r37"/>
+            <room ref="rB"/>
+            <room ref="r50"/>
+            <room ref="r52"/>
+            <room ref="rDS1"/>
+        </constraint>
+        <constraint type="room" course="c0177">
+            <room ref="r31"/>
+        </constraint>
+        <constraint type="room" course="c0179">
+            <room ref="r27"/>
+            <room ref="r51"/>
+            <room ref="rB"/>
+            <room ref="r50"/>
+            <room ref="r52"/>
+        </constraint>
+        <constraint type="room" course="c0181">
+            <room ref="rA"/>
+        </constraint>
+        <constraint type="room" course="c0198">
+            <room ref="r51"/>
+            <room ref="r52"/>
+        </constraint>
+        <constraint type="room" course="c0210">
+            <room ref="r36"/>
+            <room ref="rA"/>
+            <room ref="rDS1"/>
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="c0214">
+            <room ref="r52"/>
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="c0218">
+            <room ref="rL"/>
+            <room ref="r50"/>
+        </constraint>
+        <constraint type="room" course="c0224">
+            <room ref="rL"/>
+            <room ref="rDS1"/>
+        </constraint>
+        <constraint type="room" course="c0226">
+            <room ref="r36"/>
+            <room ref="r38"/>
+            <room ref="rA"/>
+        </constraint>
+        <constraint type="room" course="c0233">
+            <room ref="r25"/>
+            <room ref="r50"/>
+        </constraint>
+        <constraint type="room" course="c0249">
+            <room ref="r37"/>
+            <room ref="r31"/>
+            <room ref="rL"/>
+        </constraint>
+        <constraint type="room" course="c0254">
+            <room ref="r25"/>
+            <room ref="rG"/>
+            <room ref="r52"/>
+        </constraint>
+        <constraint type="room" course="c0271">
+            <room ref="r51"/>
+            <room ref="rF"/>
+            <room ref="rN"/>
+        </constraint>
+        <constraint type="room" course="c0409">
+            <room ref="rL"/>
+            <room ref="rDS1"/>
+        </constraint>
+        <constraint type="room" course="c0416">
+            <room ref="r37"/>
+            <room ref="r38"/>
+            <room ref="r51"/>
+        </constraint>
+        <constraint type="room" course="c0420">
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="c0441">
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="c0447">
+            <room ref="r25"/>
+            <room ref="rF"/>
+            <room ref="rDS1"/>
+        </constraint>
+        <constraint type="room" course="c0456">
+            <room ref="r38"/>
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="c0457">
+            <room ref="rG"/>
+            <room ref="rA"/>
+        </constraint>
+        <constraint type="room" course="c0465">
+            <room ref="rL"/>
+        </constraint>
+        <constraint type="room" course="c0486">
+            <room ref="rD"/>
+            <room ref="r52"/>
+        </constraint>
+        <constraint type="room" course="c0498">
+            <room ref="rB"/>
+            <room ref="rG"/>
+        </constraint>
+        <constraint type="room" course="c0506">
+            <room ref="rB"/>
+            <room ref="r50"/>
+            <room ref="r52"/>
+            <room ref="rDS1"/>
+        </constraint>
+        <constraint type="room" course="c0527">
+            <room ref="rD"/>
+            <room ref="rF"/>
+            <room ref="rA"/>
+            <room ref="rN"/>
+        </constraint>
+        <constraint type="room" course="c0670">
+            <room ref="r51"/>
+            <room ref="rF"/>
+            <room ref="r52"/>
+            <room ref="rN"/>
+        </constraint>
+        <constraint type="room" course="c0738">
+            <room ref="r38"/>
+            <room ref="rB"/>
+        </constraint>
+        <constraint type="room" course="c0745">
+            <room ref="r25"/>
+            <room ref="r37"/>
+            <room ref="rB"/>
+            <room ref="rG"/>
+            <room ref="r52"/>
+        </constraint>
+        <constraint type="room" course="c0773">
+            <room ref="r36"/>
+            <room ref="r51"/>
+        </constraint>
+        <constraint type="room" course="c0825">
+            <room ref="r27"/>
+        </constraint>
+        <constraint type="room" course="c0882">
+            <room ref="r36"/>
+            <room ref="r37"/>
+            <room ref="r27"/>
+        </constraint>
+        <constraint type="room" course="c0884">
+            <room ref="r38"/>
+            <room ref="r27"/>
+            <room ref="r51"/>
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="c0899">
+            <room ref="rN"/>
+        </constraint>
+        <constraint type="room" course="c0901">
+            <room ref="r51"/>
+            <room ref="rDS2"/>
+        </constraint>
+        <constraint type="room" course="c0953">
+            <room ref="r25"/>
+            <room ref="r37"/>
+            <room ref="r31"/>
+            <room ref="rF"/>
+        </constraint>
+        <constraint type="room" course="c0969">
+            <room ref="r27"/>
+            <room ref="rB"/>
+            <room ref="rA"/>
+            <room ref="r52"/>
+            <room ref="rN"/>
+        </constraint>
+        <constraint type="room" course="c0972">
+            <room ref="rF"/>
+        </constraint>
+        <constraint type="room" course="c0985">
+            <room ref="rDS1"/>
+            <room ref="rN"/>
+        </constraint>
+        <constraint type="room" course="c0991">
+            <room ref="r38"/>
+            <room ref="r27"/>
+            <room ref="r51"/>
+            <room ref="rA"/>
+        </constraint>
+        <constraint type="room" course="c1007">
+            <room ref="r25"/>
+            <room ref="rF"/>
+            <room ref="rDS1"/>
+        </constraint>
+        <constraint type="room" course="c0741">
+            <room ref="r37"/>
+            <room ref="r31"/>
+            <room ref="rN"/>
+        </constraint>
+        <constraint type="room" course="c0196">
+            <room ref="rL"/>
+            <room ref="rDS1"/>
+        </constraint>
+        <constraint type="room" course="c0798">
+            <room ref="r52"/>
+            <room ref="rDS2"/>
+        </constraint>
+    </constraints>
+</instance>

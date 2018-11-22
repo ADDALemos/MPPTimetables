@@ -1,0 +1,2765 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE instance SYSTEM "http://tabu.diegm.uniud.it/ctt/cb_ctt.dtd">
+<instance name="Let0506-2">
+    <descriptor>
+        <days value="6"/>
+        <periods_per_day value="6"/>
+        <daily_lectures min="2" max="4"/>
+    </descriptor>
+    <courses>
+        <course id="AntCul" teacher="t000" lectures="2" min_days="2" students="170" double_lectures="no"/>
+        <course id="ArcClaCS" teacher="t001" lectures="2" min_days="2" students="4" double_lectures="no"/>
+        <course id="ArcCla1" teacher="t002" lectures="3" min_days="3" students="31" double_lectures="no"/>
+        <course id="ArcCla2" teacher="t001" lectures="2" min_days="2" students="16" double_lectures="no"/>
+        <course id="ArcCriMed" teacher="t003" lectures="2" min_days="2" students="24" double_lectures="no"/>
+        <course id="ArcVicOriAnt" teacher="t004" lectures="3" min_days="3" students="13" double_lectures="no"/>
+        <course id="ArcStoArtMus" teacher="t005" lectures="2" min_days="2" students="60" double_lectures="no"/>
+        <course id="ArcMedCS" teacher="t003" lectures="2" min_days="2" students="4" double_lectures="no"/>
+        <course id="Archiv" teacher="t006" lectures="3" min_days="3" students="36" double_lectures="no"/>
+        <course id="ArchivCS" teacher="t006" lectures="3" min_days="3" students="6" double_lectures="no"/>
+        <course id="BioarcCS" teacher="t007" lectures="2" min_days="2" students="8" double_lectures="no"/>
+        <course id="Cartog" teacher="t008" lectures="3" min_days="3" students="5" double_lectures="no"/>
+        <course id="ChiResCS" teacher="t009" lectures="2" min_days="2" students="4" double_lectures="no"/>
+        <course id="Codico" teacher="t010" lectures="3" min_days="3" students="8" double_lectures="no"/>
+        <course id="CodicoCS" teacher="t010" lectures="2" min_days="2" students="6" double_lectures="no"/>
+        <course id="EcoAzi" teacher="t011" lectures="3" min_days="3" students="104" double_lectures="no"/>
+        <course id="EleInfSciCatBenCulM2" teacher="t012" lectures="2" min_days="2" students="24" double_lectures="no"/>
+        <course id="EleInfSciCatBenCulM3" teacher="t013" lectures="3" min_days="3" students="24" double_lectures="no"/>
+        <course id="EpiLat" teacher="t014" lectures="3" min_days="3" students="16" double_lectures="no"/>
+        <course id="Esteti" teacher="t015" lectures="3" min_days="3" students="74" double_lectures="no"/>
+        <course id="EtrAntIta" teacher="t016" lectures="3" min_days="3" students="26" double_lectures="no"/>
+        <course id="FilCla2" teacher="t017" lectures="3" min_days="3" students="14" double_lectures="no"/>
+        <course id="FilTeo" teacher="t018" lectures="3" min_days="3" students="33" double_lectures="no"/>
+        <course id="FonSoc" teacher="t019" lectures="3" min_days="3" students="41" double_lectures="no"/>
+        <course id="GeoTur" teacher="t020" lectures="3" min_days="3" students="104" double_lectures="no"/>
+        <course id="Geo1" teacher="t021" lectures="3" min_days="3" students="139" double_lectures="no"/>
+        <course id="Glotto" teacher="t022" lectures="3" min_days="3" students="18" double_lectures="no"/>
+        <course id="InfDoc" teacher="t023" lectures="3" min_days="3" students="121" double_lectures="no"/>
+        <course id="ItaScr" teacher="t024" lectures="2" min_days="2" students="67" double_lectures="no"/>
+        <course id="LabScr" teacher="t024" lectures="1" min_days="1" students="5" double_lectures="no"/>
+        <course id="LegBenCul2" teacher="t025" lectures="2" min_days="2" students="110" double_lectures="no"/>
+        <course id="LetCriAnt" teacher="t026" lectures="3" min_days="3" students="69" double_lectures="no"/>
+        <course id="LinLetGre1" teacher="t027" lectures="3" min_days="3" students="14" double_lectures="no"/>
+        <course id="LinLetLatCS" teacher="t028" lectures="2" min_days="2" students="6" double_lectures="no"/>
+        <course id="LinLetLat2" teacher="t028" lectures="3" min_days="3" students="27" double_lectures="no"/>
+        <course id="LinGreA" teacher="t029" lectures="2" min_days="2" students="26" double_lectures="no"/>
+        <course id="LinLatA" teacher="t030" lectures="2" min_days="2" students="53" double_lectures="no"/>
+        <course id="LinLatB" teacher="t031" lectures="3" min_days="3" students="86" double_lectures="no"/>
+        <course id="LinGen" teacher="t032" lectures="3" min_days="3" students="53" double_lectures="no"/>
+        <course id="LinIta" teacher="t033" lectures="3" min_days="3" students="32" double_lectures="no"/>
+        <course id="LogFilMat" teacher="t034" lectures="2" min_days="2" students="33" double_lectures="no"/>
+        <course id="MatTecAppArcM3" teacher="t035" lectures="2" min_days="2" students="8" double_lectures="no"/>
+        <course id="MatCarCosResEdiSto" teacher="t036" lectures="3" min_days="3" students="56" double_lectures="no"/>
+        <course id="MetRicStoArt" teacher="t037" lectures="2" min_days="2" students="18" double_lectures="no"/>
+        <course id="NumismCS" teacher="t038" lectures="2" min_days="2" students="4" double_lectures="no"/>
+        <course id="OrientCS" teacher="t039" lectures="2" min_days="2" students="4" double_lectures="no"/>
+        <course id="Paleoa" teacher="t007" lectures="3" min_days="3" students="22" double_lectures="no"/>
+        <course id="PalLat" teacher="t040" lectures="3" min_days="3" students="45" double_lectures="no"/>
+        <course id="PapiroCS" teacher="t041" lectures="2" min_days="2" students="13" double_lectures="no"/>
+        <course id="ProMedCS" teacher="t042" lectures="3" min_days="3" students="4" double_lectures="no"/>
+        <course id="PsiTur" teacher="t043" lectures="3" min_days="3" students="104" double_lectures="no"/>
+        <course id="SocArt" teacher="t019" lectures="3" min_days="3" students="24" double_lectures="no"/>
+        <course id="Sociol1" teacher="t019" lectures="3" min_days="3" students="143" double_lectures="no"/>
+        <course id="StoConCS" teacher="t044" lectures="2" min_days="2" students="15" double_lectures="no"/>
+        <course id="StoAntStaItaCS" teacher="t045" lectures="2" min_days="2" students="24" double_lectures="no"/>
+        <course id="StoColIstMus" teacher="t046" lectures="2" min_days="2" students="131" double_lectures="no"/>
+        <course id="StoDisGra" teacher="t047" lectures="2" min_days="2" students="18" double_lectures="no"/>
+        <course id="StoFriCS" teacher="t048" lectures="2" min_days="2" students="24" double_lectures="no"/>
+        <course id="StoLibSta" teacher="t049" lectures="3" min_days="3" students="20" double_lectures="no"/>
+        <course id="StoLibStaCSM1" teacher="t050" lectures="2" min_days="2" students="6" double_lectures="no"/>
+        <course id="StoLibStaCSM2" teacher="t051" lectures="2" min_days="2" students="6" double_lectures="no"/>
+        <course id="StoRes" teacher="t052" lectures="3" min_days="3" students="48" double_lectures="no"/>
+        <course id="StoArc" teacher="t002" lectures="3" min_days="3" students="14" double_lectures="no"/>
+        <course id="StoArcCon" teacher="t053" lectures="2" min_days="2" students="63" double_lectures="no"/>
+        <course id="StoArcMed" teacher="t054" lectures="2" min_days="2" students="33" double_lectures="no"/>
+        <course id="StoArt" teacher="t055" lectures="3" min_days="3" students="90" double_lectures="no"/>
+        <course id="StoCriArt" teacher="t056" lectures="2" min_days="2" students="54" double_lectures="no"/>
+        <course id="StoFilCS" teacher="t057" lectures="2" min_days="2" students="21" double_lectures="no"/>
+        <course id="StoFilMedCS" teacher="t058" lectures="2" min_days="2" students="23" double_lectures="no"/>
+        <course id="StoLinItaCS" teacher="t033" lectures="2" min_days="2" students="24" double_lectures="no"/>
+        <course id="StoMus" teacher="t059" lectures="2" min_days="2" students="51" double_lectures="no"/>
+        <course id="StoProArtCulMatMed" teacher="t060" lectures="2" min_days="2" students="33" double_lectures="no"/>
+        <course id="StoArtCon2CS" teacher="t061" lectures="2" min_days="2" students="6" double_lectures="no"/>
+        <course id="StoArtMod2CS" teacher="t062" lectures="2" min_days="2" students="6" double_lectures="no"/>
+        <course id="StoBib" teacher="t013" lectures="3" min_days="3" students="5" double_lectures="no"/>
+        <course id="StoTecArtM12" teacher="t063" lectures="3" min_days="3" students="36" double_lectures="no"/>
+        <course id="StoTecArtM3" teacher="t064" lectures="3" min_days="3" students="18" double_lectures="no"/>
+        <course id="StoTecArtCS" teacher="t065" lectures="2" min_days="2" students="6" double_lectures="no"/>
+        <course id="StoCriCin" teacher="t066" lectures="2" min_days="2" students="65" double_lectures="no"/>
+        <course id="StoTecFot" teacher="t067" lectures="2" min_days="2" students="126" double_lectures="no"/>
+        <course id="StoGre" teacher="t068" lectures="3" min_days="3" students="39" double_lectures="no"/>
+        <course id="StoMed2" teacher="t069" lectures="3" min_days="3" students="115" double_lectures="no"/>
+        <course id="StoModCS" teacher="t070" lectures="2" min_days="2" students="15" double_lectures="no"/>
+        <course id="StoMod2" teacher="t048" lectures="3" min_days="3" students="104" double_lectures="no"/>
+        <course id="StoRom" teacher="t071" lectures="2" min_days="2" students="76" double_lectures="no"/>
+        <course id="StoRomCS" teacher="t071" lectures="2" min_days="2" students="15" double_lectures="no"/>
+        <course id="TedUma" teacher="t072" lectures="3" min_days="3" students="3" double_lectures="no"/>
+        <course id="TopRilMonAnt" teacher="t073" lectures="3" min_days="3" students="29" double_lectures="no"/>
+    </courses>
+    <rooms>
+        <room id="r10" size="130" building="1"/>
+        <room id="r14" size="28" building="1"/>
+        <room id="r15" size="46" building="1"/>
+        <room id="rC1" size="28" building="0"/>
+        <room id="rH" size="170" building="0"/>
+        <room id="rL" size="65" building="0"/>
+        <room id="rM" size="60" building="1"/>
+        <room id="rO" size="30" building="1"/>
+        <room id="rDTM" size="60" building="2"/>
+        <room id="rHTM" size="60" building="2"/>
+        <room id="rVL" size="40" building="0"/>
+    </rooms>
+    <curricula>
+        <curriculum id="q000">
+            <course ref="LinGen"/>
+            <course ref="LinLatA"/>
+            <course ref="Geo1"/>
+        </curriculum>
+        <curriculum id="q001">
+            <course ref="LinIta"/>
+            <course ref="ItaScr"/>
+            <course ref="Archiv"/>
+        </curriculum>
+        <curriculum id="q002">
+            <course ref="LinIta"/>
+            <course ref="ItaScr"/>
+            <course ref="Codico"/>
+        </curriculum>
+        <curriculum id="q003">
+            <course ref="LinIta"/>
+            <course ref="ItaScr"/>
+            <course ref="PalLat"/>
+        </curriculum>
+        <curriculum id="q004">
+            <course ref="LinIta"/>
+            <course ref="ItaScr"/>
+            <course ref="StoLibSta"/>
+        </curriculum>
+        <curriculum id="q005">
+            <course ref="Esteti"/>
+            <course ref="StoMus"/>
+            <course ref="Cartog"/>
+            <course ref="LabScr"/>
+        </curriculum>
+        <curriculum id="q006">
+            <course ref="LinGen"/>
+            <course ref="LinGreA"/>
+            <course ref="LinLatA"/>
+            <course ref="Geo1"/>
+        </curriculum>
+        <curriculum id="q007">
+            <course ref="Glotto"/>
+            <course ref="LinLetGre1"/>
+            <course ref="StoGre"/>
+            <course ref="ArcCla1"/>
+            <course ref="ItaScr"/>
+        </curriculum>
+        <curriculum id="q008">
+            <course ref="FilCla2"/>
+            <course ref="LinLetLat2"/>
+            <course ref="LetCriAnt"/>
+            <course ref="StoRom"/>
+        </curriculum>
+        <curriculum id="q010">
+            <course ref="LinLetGre1"/>
+            <course ref="StoGre"/>
+            <course ref="StoRom"/>
+            <course ref="ArcCla1"/>
+            <course ref="ItaScr"/>
+        </curriculum>
+        <curriculum id="q011">
+            <course ref="Glotto"/>
+            <course ref="EpiLat"/>
+            <course ref="LetCriAnt"/>
+        </curriculum>
+        <curriculum id="q012">
+            <course ref="Glotto"/>
+            <course ref="EpiLat"/>
+            <course ref="TopRilMonAnt"/>
+        </curriculum>
+        <curriculum id="q014">
+            <course ref="FilCla2"/>
+            <course ref="EpiLat"/>
+            <course ref="LetCriAnt"/>
+        </curriculum>
+        <curriculum id="q015">
+            <course ref="FilCla2"/>
+            <course ref="EpiLat"/>
+            <course ref="TopRilMonAnt"/>
+        </curriculum>
+        <curriculum id="q017">
+            <course ref="LinGen"/>
+            <course ref="LinLatA"/>
+            <course ref="Geo1"/>
+            <course ref="FonSoc"/>
+            <course ref="AntCul"/>
+        </curriculum>
+        <curriculum id="q018">
+            <course ref="ItaScr"/>
+            <course ref="Sociol1"/>
+            <course ref="AntCul"/>
+        </curriculum>
+        <curriculum id="q019">
+            <course ref="StoMus"/>
+            <course ref="LinIta"/>
+            <course ref="Sociol1"/>
+        </curriculum>
+        <curriculum id="q020">
+            <course ref="StoMus"/>
+            <course ref="LinIta"/>
+            <course ref="AntCul"/>
+        </curriculum>
+        <curriculum id="q021">
+            <course ref="StoCriCin"/>
+            <course ref="LinIta"/>
+            <course ref="Sociol1"/>
+        </curriculum>
+        <curriculum id="q022">
+            <course ref="StoCriCin"/>
+            <course ref="LinIta"/>
+            <course ref="AntCul"/>
+        </curriculum>
+        <curriculum id="q024">
+            <course ref="ItaScr"/>
+            <course ref="Archiv"/>
+            <course ref="PalLat"/>
+        </curriculum>
+        <curriculum id="q025">
+            <course ref="StoMed2"/>
+            <course ref="StoMod2"/>
+            <course ref="StoRom"/>
+        </curriculum>
+        <curriculum id="q026">
+            <course ref="StoMed2"/>
+            <course ref="StoMod2"/>
+            <course ref="LetCriAnt"/>
+        </curriculum>
+        <curriculum id="q027">
+            <course ref="LetCriAnt"/>
+            <course ref="FonSoc"/>
+            <course ref="AntCul"/>
+        </curriculum>
+        <curriculum id="q028">
+            <course ref="ItaScr"/>
+            <course ref="Esteti"/>
+            <course ref="ArcCriMed"/>
+        </curriculum>
+        <curriculum id="q029">
+            <course ref="ItaScr"/>
+            <course ref="FonSoc"/>
+            <course ref="AntCul"/>
+            <course ref="ArcCriMed"/>
+        </curriculum>
+        <curriculum id="q030">
+            <course ref="Geo1"/>
+            <course ref="LinLatB"/>
+            <course ref="StoArcMed"/>
+            <course ref="StoTecArtM12"/>
+        </curriculum>
+        <curriculum id="q031">
+            <course ref="Geo1"/>
+            <course ref="LinLatB"/>
+            <course ref="StoArcMed"/>
+            <course ref="StoTecArtM3"/>
+        </curriculum>
+        <curriculum id="q032">
+            <course ref="Geo1"/>
+            <course ref="LinLatB"/>
+            <course ref="StoProArtCulMatMed"/>
+            <course ref="StoTecArtM12"/>
+        </curriculum>
+        <curriculum id="q034">
+            <course ref="Geo1"/>
+            <course ref="LinLatB"/>
+            <course ref="ArcStoArtMus"/>
+            <course ref="StoTecArtM12"/>
+        </curriculum>
+        <curriculum id="q035">
+            <course ref="Geo1"/>
+            <course ref="LinLatB"/>
+            <course ref="ArcStoArtMus"/>
+            <course ref="StoTecArtM3"/>
+        </curriculum>
+        <curriculum id="q036">
+            <course ref="MetRicStoArt"/>
+            <course ref="StoCriArt"/>
+            <course ref="StoRes"/>
+            <course ref="EleInfSciCatBenCulM2"/>
+        </curriculum>
+        <curriculum id="q037">
+            <course ref="MetRicStoArt"/>
+            <course ref="StoCriArt"/>
+            <course ref="StoRes"/>
+            <course ref="EleInfSciCatBenCulM3"/>
+        </curriculum>
+        <curriculum id="q038">
+            <course ref="StoColIstMus"/>
+            <course ref="StoCriArt"/>
+            <course ref="StoRes"/>
+            <course ref="EleInfSciCatBenCulM2"/>
+        </curriculum>
+        <curriculum id="q039">
+            <course ref="StoColIstMus"/>
+            <course ref="StoCriArt"/>
+            <course ref="StoRes"/>
+            <course ref="EleInfSciCatBenCulM3"/>
+        </curriculum>
+        <curriculum id="q040">
+            <course ref="StoDisGra"/>
+            <course ref="StoCriArt"/>
+            <course ref="StoRes"/>
+            <course ref="EleInfSciCatBenCulM2"/>
+        </curriculum>
+        <curriculum id="q041">
+            <course ref="StoDisGra"/>
+            <course ref="StoCriArt"/>
+            <course ref="StoRes"/>
+            <course ref="EleInfSciCatBenCulM3"/>
+        </curriculum>
+        <curriculum id="q042">
+            <course ref="ArcStoArtMus"/>
+            <course ref="StoCriArt"/>
+            <course ref="StoRes"/>
+            <course ref="EleInfSciCatBenCulM2"/>
+        </curriculum>
+        <curriculum id="q043">
+            <course ref="ArcStoArtMus"/>
+            <course ref="StoCriArt"/>
+            <course ref="StoRes"/>
+            <course ref="EleInfSciCatBenCulM3"/>
+        </curriculum>
+        <curriculum id="q044">
+            <course ref="StoArcCon"/>
+            <course ref="MatCarCosResEdiSto"/>
+            <course ref="StoCriCin"/>
+            <course ref="SocArt"/>
+        </curriculum>
+        <curriculum id="q045">
+            <course ref="StoArcCon"/>
+            <course ref="MatCarCosResEdiSto"/>
+            <course ref="StoTecFot"/>
+            <course ref="SocArt"/>
+        </curriculum>
+        <curriculum id="q046">
+            <course ref="StoArcCon"/>
+            <course ref="MatCarCosResEdiSto"/>
+            <course ref="StoMus"/>
+            <course ref="SocArt"/>
+        </curriculum>
+        <curriculum id="q047">
+            <course ref="StoArcCon"/>
+            <course ref="MatCarCosResEdiSto"/>
+            <course ref="StoCriCin"/>
+            <course ref="Esteti"/>
+        </curriculum>
+        <curriculum id="q048">
+            <course ref="StoArcCon"/>
+            <course ref="MatCarCosResEdiSto"/>
+            <course ref="StoTecFot"/>
+            <course ref="Esteti"/>
+        </curriculum>
+        <curriculum id="q049">
+            <course ref="StoArcCon"/>
+            <course ref="MatCarCosResEdiSto"/>
+            <course ref="StoMus"/>
+            <course ref="Esteti"/>
+        </curriculum>
+        <curriculum id="q050">
+            <course ref="StoGre"/>
+            <course ref="ArcCla1"/>
+            <course ref="Geo1"/>
+            <course ref="LinLatB"/>
+            <course ref="Paleoa"/>
+        </curriculum>
+        <curriculum id="q051">
+            <course ref="StoRom"/>
+            <course ref="ArcCla2"/>
+            <course ref="TopRilMonAnt"/>
+            <course ref="LinGreA"/>
+        </curriculum>
+        <curriculum id="q052">
+            <course ref="StoRom"/>
+            <course ref="ArcCriMed"/>
+            <course ref="TopRilMonAnt"/>
+            <course ref="LinGreA"/>
+        </curriculum>
+        <curriculum id="q053">
+            <course ref="StoRom"/>
+            <course ref="ArcVicOriAnt"/>
+            <course ref="TopRilMonAnt"/>
+            <course ref="LinGreA"/>
+        </curriculum>
+        <curriculum id="q054">
+            <course ref="EtrAntIta"/>
+            <course ref="LetCriAnt"/>
+            <course ref="Glotto"/>
+            <course ref="MatCarCosResEdiSto"/>
+        </curriculum>
+        <curriculum id="q055">
+            <course ref="EtrAntIta"/>
+            <course ref="AntCul"/>
+            <course ref="Glotto"/>
+            <course ref="MatCarCosResEdiSto"/>
+        </curriculum>
+        <curriculum id="q056">
+            <course ref="EtrAntIta"/>
+            <course ref="LetCriAnt"/>
+            <course ref="InfDoc"/>
+            <course ref="MatCarCosResEdiSto"/>
+        </curriculum>
+        <curriculum id="q057">
+            <course ref="EtrAntIta"/>
+            <course ref="AntCul"/>
+            <course ref="InfDoc"/>
+            <course ref="MatCarCosResEdiSto"/>
+        </curriculum>
+        <curriculum id="q058">
+            <course ref="EtrAntIta"/>
+            <course ref="LetCriAnt"/>
+            <course ref="Glotto"/>
+            <course ref="MatTecAppArcM3"/>
+        </curriculum>
+        <curriculum id="q059">
+            <course ref="EtrAntIta"/>
+            <course ref="AntCul"/>
+            <course ref="Glotto"/>
+            <course ref="MatTecAppArcM3"/>
+        </curriculum>
+        <curriculum id="q060">
+            <course ref="EtrAntIta"/>
+            <course ref="LetCriAnt"/>
+            <course ref="InfDoc"/>
+            <course ref="MatTecAppArcM3"/>
+        </curriculum>
+        <curriculum id="q061">
+            <course ref="EtrAntIta"/>
+            <course ref="AntCul"/>
+            <course ref="InfDoc"/>
+            <course ref="MatTecAppArcM3"/>
+        </curriculum>
+        <curriculum id="q062">
+            <course ref="Archiv"/>
+            <course ref="Geo1"/>
+            <course ref="LinLatB"/>
+        </curriculum>
+        <curriculum id="q063">
+            <course ref="PalLat"/>
+            <course ref="InfDoc"/>
+            <course ref="StoMus"/>
+        </curriculum>
+        <curriculum id="q064">
+            <course ref="PalLat"/>
+            <course ref="InfDoc"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q065">
+            <course ref="PalLat"/>
+            <course ref="InfDoc"/>
+            <course ref="StoTecFot"/>
+        </curriculum>
+        <curriculum id="q066">
+            <course ref="PalLat"/>
+            <course ref="LinLetGre1"/>
+            <course ref="StoMus"/>
+        </curriculum>
+        <curriculum id="q067">
+            <course ref="PalLat"/>
+            <course ref="LinLetGre1"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q068">
+            <course ref="PalLat"/>
+            <course ref="LinLetGre1"/>
+            <course ref="StoTecFot"/>
+        </curriculum>
+        <curriculum id="q069">
+            <course ref="PalLat"/>
+            <course ref="StoLibSta"/>
+            <course ref="StoMus"/>
+        </curriculum>
+        <curriculum id="q070">
+            <course ref="PalLat"/>
+            <course ref="StoLibSta"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q071">
+            <course ref="PalLat"/>
+            <course ref="StoLibSta"/>
+            <course ref="StoTecFot"/>
+        </curriculum>
+        <curriculum id="q072">
+            <course ref="InfDoc"/>
+            <course ref="Codico"/>
+            <course ref="LinLetGre1"/>
+        </curriculum>
+        <curriculum id="q073">
+            <course ref="InfDoc"/>
+            <course ref="Codico"/>
+            <course ref="StoLibSta"/>
+        </curriculum>
+        <curriculum id="q074">
+            <course ref="InfDoc"/>
+            <course ref="Codico"/>
+            <course ref="StoBib"/>
+        </curriculum>
+        <curriculum id="q075">
+            <course ref="InfDoc"/>
+            <course ref="LinLetGre1"/>
+            <course ref="StoLibSta"/>
+        </curriculum>
+        <curriculum id="q076">
+            <course ref="InfDoc"/>
+            <course ref="LinLetGre1"/>
+            <course ref="StoBib"/>
+        </curriculum>
+        <curriculum id="q077">
+            <course ref="InfDoc"/>
+            <course ref="StoLibSta"/>
+            <course ref="StoBib"/>
+        </curriculum>
+        <curriculum id="q078">
+            <course ref="StoLibSta"/>
+            <course ref="Codico"/>
+            <course ref="LinLetGre1"/>
+        </curriculum>
+        <curriculum id="q079">
+            <course ref="StoLibSta"/>
+            <course ref="Codico"/>
+            <course ref="StoBib"/>
+        </curriculum>
+        <curriculum id="q080">
+            <course ref="StoLibSta"/>
+            <course ref="LinLetGre1"/>
+            <course ref="StoBib"/>
+        </curriculum>
+        <curriculum id="q081">
+            <course ref="Sociol1"/>
+            <course ref="InfDoc"/>
+            <course ref="PsiTur"/>
+            <course ref="AntCul"/>
+            <course ref="StoRom"/>
+            <course ref="StoArc"/>
+        </curriculum>
+        <curriculum id="q082">
+            <course ref="LegBenCul2"/>
+            <course ref="EcoAzi"/>
+            <course ref="GeoTur"/>
+            <course ref="StoColIstMus"/>
+            <course ref="StoTecFot"/>
+        </curriculum>
+        <curriculum id="q083">
+            <course ref="Sociol1"/>
+            <course ref="InfDoc"/>
+            <course ref="PsiTur"/>
+            <course ref="AntCul"/>
+            <course ref="StoMed2"/>
+            <course ref="StoArt"/>
+        </curriculum>
+        <curriculum id="q084">
+            <course ref="Sociol1"/>
+            <course ref="InfDoc"/>
+            <course ref="PsiTur"/>
+            <course ref="AntCul"/>
+            <course ref="StoMod2"/>
+            <course ref="StoArt"/>
+        </curriculum>
+        <curriculum id="q085">
+            <course ref="LegBenCul2"/>
+            <course ref="EcoAzi"/>
+            <course ref="GeoTur"/>
+            <course ref="StoColIstMus"/>
+            <course ref="StoTecFot"/>
+            <course ref="StoMed2"/>
+        </curriculum>
+        <curriculum id="q086">
+            <course ref="LegBenCul2"/>
+            <course ref="EcoAzi"/>
+            <course ref="GeoTur"/>
+            <course ref="StoColIstMus"/>
+            <course ref="StoTecFot"/>
+            <course ref="StoMod2"/>
+        </curriculum>
+        <curriculum id="q091">
+            <course ref="StoGre"/>
+            <course ref="FilTeo"/>
+            <course ref="LogFilMat"/>
+            <course ref="Esteti"/>
+        </curriculum>
+        <curriculum id="q092">
+            <course ref="StoRom"/>
+            <course ref="FilTeo"/>
+            <course ref="LogFilMat"/>
+            <course ref="Esteti"/>
+        </curriculum>
+        <curriculum id="q093">
+            <course ref="StoMed2"/>
+            <course ref="FilTeo"/>
+            <course ref="LogFilMat"/>
+            <course ref="Esteti"/>
+        </curriculum>
+        <curriculum id="q094">
+            <course ref="StoLinItaCS"/>
+            <course ref="Archiv"/>
+            <course ref="StoModCS"/>
+            <course ref="StoFilMedCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q095">
+            <course ref="StoLinItaCS"/>
+            <course ref="Archiv"/>
+            <course ref="StoFriCS"/>
+            <course ref="StoFilMedCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q096">
+            <course ref="StoLinItaCS"/>
+            <course ref="Archiv"/>
+            <course ref="StoConCS"/>
+            <course ref="StoFilMedCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q097">
+            <course ref="StoLinItaCS"/>
+            <course ref="Archiv"/>
+            <course ref="StoAntStaItaCS"/>
+            <course ref="StoFilMedCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q098">
+            <course ref="StoLinItaCS"/>
+            <course ref="PalLat"/>
+            <course ref="StoModCS"/>
+            <course ref="StoFilMedCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q099">
+            <course ref="StoLinItaCS"/>
+            <course ref="PalLat"/>
+            <course ref="StoFriCS"/>
+            <course ref="StoFilMedCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q100">
+            <course ref="StoLinItaCS"/>
+            <course ref="PalLat"/>
+            <course ref="StoConCS"/>
+            <course ref="StoFilMedCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q101">
+            <course ref="StoLinItaCS"/>
+            <course ref="PalLat"/>
+            <course ref="StoAntStaItaCS"/>
+            <course ref="StoFilMedCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q102">
+            <course ref="StoLinItaCS"/>
+            <course ref="StoLibSta"/>
+            <course ref="StoModCS"/>
+            <course ref="StoFilMedCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q103">
+            <course ref="StoLinItaCS"/>
+            <course ref="StoLibSta"/>
+            <course ref="StoFriCS"/>
+            <course ref="StoFilMedCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q104">
+            <course ref="StoLinItaCS"/>
+            <course ref="StoLibSta"/>
+            <course ref="StoConCS"/>
+            <course ref="StoFilMedCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q105">
+            <course ref="StoLinItaCS"/>
+            <course ref="StoLibSta"/>
+            <course ref="StoAntStaItaCS"/>
+            <course ref="StoFilMedCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q106">
+            <course ref="StoLinItaCS"/>
+            <course ref="Archiv"/>
+            <course ref="StoModCS"/>
+            <course ref="StoFilCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q107">
+            <course ref="StoLinItaCS"/>
+            <course ref="Archiv"/>
+            <course ref="StoFriCS"/>
+            <course ref="StoFilCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q108">
+            <course ref="StoLinItaCS"/>
+            <course ref="Archiv"/>
+            <course ref="StoConCS"/>
+            <course ref="StoFilCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q109">
+            <course ref="StoLinItaCS"/>
+            <course ref="Archiv"/>
+            <course ref="StoAntStaItaCS"/>
+            <course ref="StoFilCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q110">
+            <course ref="StoLinItaCS"/>
+            <course ref="PalLat"/>
+            <course ref="StoModCS"/>
+            <course ref="StoFilCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q111">
+            <course ref="StoLinItaCS"/>
+            <course ref="PalLat"/>
+            <course ref="StoFriCS"/>
+            <course ref="StoFilCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q112">
+            <course ref="StoLinItaCS"/>
+            <course ref="PalLat"/>
+            <course ref="StoConCS"/>
+            <course ref="StoFilCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q113">
+            <course ref="StoLinItaCS"/>
+            <course ref="PalLat"/>
+            <course ref="StoAntStaItaCS"/>
+            <course ref="StoFilCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q114">
+            <course ref="StoLinItaCS"/>
+            <course ref="StoLibSta"/>
+            <course ref="StoModCS"/>
+            <course ref="StoFilCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q115">
+            <course ref="StoLinItaCS"/>
+            <course ref="StoLibSta"/>
+            <course ref="StoFriCS"/>
+            <course ref="StoFilCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q116">
+            <course ref="StoLinItaCS"/>
+            <course ref="StoLibSta"/>
+            <course ref="StoConCS"/>
+            <course ref="StoFilCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q117">
+            <course ref="StoLinItaCS"/>
+            <course ref="StoLibSta"/>
+            <course ref="StoAntStaItaCS"/>
+            <course ref="StoFilCS"/>
+            <course ref="StoCriCin"/>
+        </curriculum>
+        <curriculum id="q118">
+            <course ref="LinLetLat2"/>
+        </curriculum>
+        <curriculum id="q119">
+            <course ref="LinLetLat2"/>
+            <course ref="StoRomCS"/>
+            <course ref="PalLat"/>
+            <course ref="EpiLat"/>
+            <course ref="FilCla2"/>
+        </curriculum>
+        <curriculum id="q120">
+            <course ref="LinLetLat2"/>
+            <course ref="StoRomCS"/>
+            <course ref="PalLat"/>
+            <course ref="EpiLat"/>
+            <course ref="LetCriAnt"/>
+        </curriculum>
+        <curriculum id="q121">
+            <course ref="LinLetLat2"/>
+            <course ref="StoRomCS"/>
+            <course ref="PalLat"/>
+            <course ref="EpiLat"/>
+            <course ref="LinLetLatCS"/>
+        </curriculum>
+        <curriculum id="q123">
+            <course ref="LinLetLat2"/>
+            <course ref="StoRomCS"/>
+            <course ref="PalLat"/>
+            <course ref="EpiLat"/>
+            <course ref="FilCla2"/>
+            <course ref="LetCriAnt"/>
+        </curriculum>
+        <curriculum id="q124">
+            <course ref="LinLetLat2"/>
+            <course ref="StoRomCS"/>
+            <course ref="PalLat"/>
+            <course ref="EpiLat"/>
+            <course ref="FilCla2"/>
+            <course ref="LinLetLatCS"/>
+        </curriculum>
+        <curriculum id="q126">
+            <course ref="LinLetLat2"/>
+            <course ref="StoRomCS"/>
+            <course ref="PalLat"/>
+            <course ref="EpiLat"/>
+            <course ref="LetCriAnt"/>
+            <course ref="LinLetLatCS"/>
+        </curriculum>
+        <curriculum id="q129">
+            <course ref="LinLetLatCS"/>
+            <course ref="PapiroCS"/>
+            <course ref="StoFilMedCS"/>
+        </curriculum>
+        <curriculum id="q130">
+            <course ref="LinLetLatCS"/>
+            <course ref="PapiroCS"/>
+            <course ref="TedUma"/>
+        </curriculum>
+        <curriculum id="q131">
+            <course ref="LetCriAnt"/>
+            <course ref="PapiroCS"/>
+            <course ref="StoFilMedCS"/>
+        </curriculum>
+        <curriculum id="q132">
+            <course ref="LetCriAnt"/>
+            <course ref="PapiroCS"/>
+            <course ref="TedUma"/>
+        </curriculum>
+        <curriculum id="q133">
+            <course ref="LinLetLat2"/>
+            <course ref="FilCla2"/>
+            <course ref="StoRom"/>
+            <course ref="ArcCla2"/>
+            <course ref="ArcVicOriAnt"/>
+            <course ref="EtrAntIta"/>
+        </curriculum>
+        <curriculum id="q134">
+            <course ref="LinLetLat2"/>
+            <course ref="FilCla2"/>
+            <course ref="StoRom"/>
+            <course ref="ArcCla2"/>
+            <course ref="ArcVicOriAnt"/>
+            <course ref="TopRilMonAnt"/>
+        </curriculum>
+        <curriculum id="q135">
+            <course ref="LinLetLat2"/>
+            <course ref="FilCla2"/>
+            <course ref="StoRom"/>
+            <course ref="ArcCla2"/>
+            <course ref="TopRilMonAnt"/>
+            <course ref="EtrAntIta"/>
+        </curriculum>
+        <curriculum id="q136">
+            <course ref="LinLetLat2"/>
+            <course ref="FilCla2"/>
+            <course ref="StoRom"/>
+            <course ref="ArcVicOriAnt"/>
+            <course ref="EtrAntIta"/>
+            <course ref="TopRilMonAnt"/>
+        </curriculum>
+        <curriculum id="q137">
+            <course ref="LinLetLat2"/>
+            <course ref="Glotto"/>
+            <course ref="StoRom"/>
+            <course ref="ArcCla2"/>
+            <course ref="ArcVicOriAnt"/>
+            <course ref="EtrAntIta"/>
+        </curriculum>
+        <curriculum id="q138">
+            <course ref="LinLetLat2"/>
+            <course ref="Glotto"/>
+            <course ref="StoRom"/>
+            <course ref="ArcCla2"/>
+            <course ref="ArcVicOriAnt"/>
+            <course ref="TopRilMonAnt"/>
+        </curriculum>
+        <curriculum id="q139">
+            <course ref="LinLetLat2"/>
+            <course ref="Glotto"/>
+            <course ref="StoRom"/>
+            <course ref="ArcCla2"/>
+            <course ref="TopRilMonAnt"/>
+            <course ref="EtrAntIta"/>
+        </curriculum>
+        <curriculum id="q140">
+            <course ref="LinLetLat2"/>
+            <course ref="Glotto"/>
+            <course ref="StoRom"/>
+            <course ref="ArcVicOriAnt"/>
+            <course ref="EtrAntIta"/>
+            <course ref="TopRilMonAnt"/>
+        </curriculum>
+        <curriculum id="q141">
+            <course ref="StoRomCS"/>
+            <course ref="PapiroCS"/>
+            <course ref="TedUma"/>
+        </curriculum>
+        <curriculum id="q142">
+            <course ref="StoRom"/>
+            <course ref="LetCriAnt"/>
+            <course ref="ArcStoArtMus"/>
+            <course ref="StoFriCS"/>
+            <course ref="StoAntStaItaCS"/>
+            <course ref="StoMus"/>
+            <course ref="StoCriCin"/>
+            <course ref="StoConCS"/>
+            <course ref="StoFilMedCS"/>
+            <course ref="StoFilCS"/>
+        </curriculum>
+        <curriculum id="q143">
+            <course ref="Sociol1"/>
+            <course ref="AntCul"/>
+            <course ref="StoModCS"/>
+            <course ref="StoFriCS"/>
+            <course ref="StoAntStaItaCS"/>
+            <course ref="StoArcMed"/>
+            <course ref="StoProArtCulMatMed"/>
+            <course ref="StoColIstMus"/>
+            <course ref="StoArcCon"/>
+        </curriculum>
+        <curriculum id="q144A">
+            <course ref="StoArtMod2CS"/>
+            <course ref="StoArtCon2CS"/>
+            <course ref="ArcCla1"/>
+            <course ref="ArcCla2"/>
+            <course ref="ArcCriMed"/>
+            <course ref="LegBenCul2"/>
+            <course ref="AntCul"/>
+            <course ref="StoCriArt"/>
+        </curriculum>
+        <curriculum id="q144B">
+            <course ref="StoTecArtCS"/>
+            <course ref="StoArcMed"/>
+            <course ref="StoProArtCulMatMed"/>
+            <course ref="ArcStoArtMus"/>
+            <course ref="MetRicStoArt"/>
+            <course ref="StoColIstMus"/>
+            <course ref="StoDisGra"/>
+            <course ref="StoArcCon"/>
+        </curriculum>
+        <curriculum id="q145A">
+            <course ref="StoCriCin"/>
+            <course ref="StoTecFot"/>
+            <course ref="StoMus"/>
+            <course ref="StoArtMod2CS"/>
+            <course ref="StoArtCon2CS"/>
+            <course ref="StoCriArt"/>
+            <course ref="StoTecArtCS"/>
+            <course ref="StoArcMed"/>
+        </curriculum>
+        <curriculum id="q145B">
+            <course ref="StoArcMed"/>
+            <course ref="StoProArtCulMatMed"/>
+            <course ref="ArcStoArtMus"/>
+            <course ref="MetRicStoArt"/>
+            <course ref="StoColIstMus"/>
+            <course ref="StoDisGra"/>
+            <course ref="StoArcCon"/>
+        </curriculum>
+        <curriculum id="q146">
+            <course ref="EtrAntIta"/>
+            <course ref="ArcClaCS"/>
+            <course ref="ProMedCS"/>
+            <course ref="ArcMedCS"/>
+            <course ref="NumismCS"/>
+            <course ref="OrientCS"/>
+            <course ref="PapiroCS"/>
+            <course ref="StoRomCS"/>
+            <course ref="BioarcCS"/>
+        </curriculum>
+        <curriculum id="q147">
+            <course ref="BioarcCS"/>
+        </curriculum>
+        <curriculum id="q148">
+            <course ref="ArchivCS"/>
+            <course ref="StoLibStaCSM1"/>
+            <course ref="StoLibStaCSM2"/>
+            <course ref="LegBenCul2"/>
+        </curriculum>
+        <curriculum id="q149">
+            <course ref="ArchivCS"/>
+            <course ref="CodicoCS"/>
+            <course ref="LegBenCul2"/>
+        </curriculum>
+        <curriculum id="q150">
+            <course ref="StoLibStaCSM1"/>
+            <course ref="StoLibStaCSM2"/>
+            <course ref="CodicoCS"/>
+            <course ref="LegBenCul2"/>
+        </curriculum>
+        <curriculum id="q151">
+            <course ref="ArchivCS"/>
+            <course ref="StoLibStaCSM1"/>
+            <course ref="StoLibStaCSM2"/>
+        </curriculum>
+        <curriculum id="q152">
+            <course ref="ArchivCS"/>
+            <course ref="PapiroCS"/>
+        </curriculum>
+        <curriculum id="q153">
+            <course ref="ArchivCS"/>
+            <course ref="ChiResCS"/>
+        </curriculum>
+        <curriculum id="q154">
+            <course ref="CodicoCS"/>
+            <course ref="ArchivCS"/>
+        </curriculum>
+        <curriculum id="q155">
+            <course ref="CodicoCS"/>
+            <course ref="StoLibStaCSM1"/>
+            <course ref="StoLibStaCSM2"/>
+        </curriculum>
+        <curriculum id="q156">
+            <course ref="CodicoCS"/>
+            <course ref="PapiroCS"/>
+        </curriculum>
+        <curriculum id="q157">
+            <course ref="CodicoCS"/>
+            <course ref="ChiResCS"/>
+        </curriculum>
+        <curriculum id="q158">
+            <course ref="StoLibStaCSM1"/>
+            <course ref="StoLibStaCSM2"/>
+            <course ref="PapiroCS"/>
+        </curriculum>
+        <curriculum id="q159">
+            <course ref="StoLibStaCSM1"/>
+            <course ref="StoLibStaCSM2"/>
+            <course ref="ChiResCS"/>
+        </curriculum>
+        <curriculum id="q160">
+            <course ref="PapiroCS"/>
+            <course ref="ChiResCS"/>
+        </curriculum>
+    </curricula>
+    <constraints>
+        <constraint type="period" course="AntCul">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="ArcClaCS">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="ArcCla1">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="ArcCla2">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="ArcCriMed">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="ArcVicOriAnt">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="ArcStoArtMus">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="ArcMedCS">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="Archiv">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="ArchivCS">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="BioarcCS">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="Cartog">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="ChiResCS">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="Codico">
+            <timeslot day="0" period="0"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="CodicoCS">
+            <timeslot day="0" period="0"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="EcoAzi">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="EleInfSciCatBenCulM2">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="EleInfSciCatBenCulM3">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="EpiLat">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="Esteti">
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="EtrAntIta">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="FilCla2">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="FilTeo">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="FonSoc">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="GeoTur">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="Geo1">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="Glotto">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="InfDoc">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="ItaScr">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="LabScr">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="LegBenCul2">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="LetCriAnt">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="LinLetGre1">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="LinLetLatCS">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="LinLetLat2">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="LinGreA">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="LinLatA">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="LinLatB">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="LinGen">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="LinIta">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="LogFilMat">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="MatTecAppArcM3">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="MatCarCosResEdiSto">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="MetRicStoArt">
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="NumismCS">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="OrientCS">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="Paleoa">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="PalLat">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="PapiroCS">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="ProMedCS">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="PsiTur">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="SocArt">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="Sociol1">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoConCS">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoAntStaItaCS">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoColIstMus">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoDisGra">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoFriCS">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoLibSta">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoLibStaCSM1">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoLibStaCSM2">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoRes">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoArc">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoArcCon">
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoArcMed">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoArt">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoCriArt">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoFilCS">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoFilMedCS">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoLinItaCS">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoMus">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoProArtCulMatMed">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoArtCon2CS">
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoArtMod2CS">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoBib">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoTecArtM12">
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoTecArtM3">
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoTecArtCS">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoCriCin">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoTecFot">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoGre">
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="0"/>
+            <timeslot day="3" period="1"/>
+            <timeslot day="3" period="2"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoMed2">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoModCS">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoMod2">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="1" period="4"/>
+            <timeslot day="1" period="5"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="3" period="3"/>
+            <timeslot day="3" period="4"/>
+            <timeslot day="3" period="5"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoRom">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="StoRomCS">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="0" period="3"/>
+            <timeslot day="0" period="4"/>
+            <timeslot day="0" period="5"/>
+            <timeslot day="1" period="0"/>
+            <timeslot day="1" period="1"/>
+            <timeslot day="1" period="2"/>
+            <timeslot day="1" period="3"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="TedUma">
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="period" course="TopRilMonAnt">
+            <timeslot day="0" period="0"/>
+            <timeslot day="0" period="1"/>
+            <timeslot day="0" period="2"/>
+            <timeslot day="2" period="0"/>
+            <timeslot day="2" period="1"/>
+            <timeslot day="2" period="2"/>
+            <timeslot day="2" period="3"/>
+            <timeslot day="2" period="4"/>
+            <timeslot day="2" period="5"/>
+            <timeslot day="4" period="0"/>
+            <timeslot day="4" period="1"/>
+            <timeslot day="4" period="2"/>
+            <timeslot day="4" period="3"/>
+            <timeslot day="4" period="4"/>
+            <timeslot day="4" period="5"/>
+            <timeslot day="5" period="0"/>
+            <timeslot day="5" period="1"/>
+            <timeslot day="5" period="2"/>
+            <timeslot day="5" period="3"/>
+            <timeslot day="5" period="4"/>
+            <timeslot day="5" period="5"/>
+        </constraint>
+        <constraint type="room" course="AntCul">
+            <room ref="r15"/>
+            <room ref="rVL"/>
+        </constraint>
+        <constraint type="room" course="ArcClaCS">
+            <room ref="rC1"/>
+            <room ref="rM"/>
+        </constraint>
+        <constraint type="room" course="ArcCla1">
+            <room ref="r10"/>
+            <room ref="rHTM"/>
+        </constraint>
+        <constraint type="room" course="ArcCriMed">
+            <room ref="rH"/>
+        </constraint>
+        <constraint type="room" course="ArcVicOriAnt">
+            <room ref="rHTM"/>
+        </constraint>
+        <constraint type="room" course="Archiv">
+            <room ref="r10"/>
+            <room ref="rC1"/>
+        </constraint>
+        <constraint type="room" course="ArchivCS">
+            <room ref="rM"/>
+        </constraint>
+        <constraint type="room" course="Cartog">
+            <room ref="r10"/>
+        </constraint>
+        <constraint type="room" course="EcoAzi">
+            <room ref="rO"/>
+            <room ref="rVL"/>
+        </constraint>
+        <constraint type="room" course="EleInfSciCatBenCulM2">
+            <room ref="r10"/>
+            <room ref="rHTM"/>
+        </constraint>
+        <constraint type="room" course="EleInfSciCatBenCulM3">
+            <room ref="rO"/>
+        </constraint>
+        <constraint type="room" course="EpiLat">
+            <room ref="r10"/>
+        </constraint>
+        <constraint type="room" course="Esteti">
+            <room ref="rHTM"/>
+        </constraint>
+        <constraint type="room" course="EtrAntIta">
+            <room ref="r10"/>
+        </constraint>
+        <constraint type="room" course="FilTeo">
+            <room ref="rVL"/>
+        </constraint>
+        <constraint type="room" course="GeoTur">
+            <room ref="r14"/>
+            <room ref="r15"/>
+            <room ref="rC1"/>
+        </constraint>
+        <constraint type="room" course="Glotto">
+            <room ref="r15"/>
+        </constraint>
+        <constraint type="room" course="InfDoc">
+            <room ref="r15"/>
+        </constraint>
+        <constraint type="room" course="ItaScr">
+            <room ref="rO"/>
+        </constraint>
+        <constraint type="room" course="LetCriAnt">
+            <room ref="rL"/>
+        </constraint>
+        <constraint type="room" course="LinLetLatCS">
+            <room ref="rDTM"/>
+        </constraint>
+        <constraint type="room" course="LinLatB">
+            <room ref="rO"/>
+        </constraint>
+        <constraint type="room" course="LinGen">
+            <room ref="rL"/>
+            <room ref="rDTM"/>
+        </constraint>
+        <constraint type="room" course="LinIta">
+            <room ref="r15"/>
+            <room ref="rM"/>
+        </constraint>
+        <constraint type="room" course="LogFilMat">
+            <room ref="r10"/>
+            <room ref="r14"/>
+            <room ref="rHTM"/>
+        </constraint>
+        <constraint type="room" course="NumismCS">
+            <room ref="r10"/>
+            <room ref="rL"/>
+        </constraint>
+        <constraint type="room" course="OrientCS">
+            <room ref="rM"/>
+        </constraint>
+        <constraint type="room" course="Paleoa">
+            <room ref="rO"/>
+        </constraint>
+        <constraint type="room" course="PapiroCS">
+            <room ref="rHTM"/>
+        </constraint>
+        <constraint type="room" course="ProMedCS">
+            <room ref="rH"/>
+        </constraint>
+        <constraint type="room" course="PsiTur">
+            <room ref="rH"/>
+            <room ref="rHTM"/>
+        </constraint>
+        <constraint type="room" course="StoConCS">
+            <room ref="rC1"/>
+        </constraint>
+        <constraint type="room" course="StoAntStaItaCS">
+            <room ref="rDTM"/>
+        </constraint>
+        <constraint type="room" course="StoColIstMus">
+            <room ref="rVL"/>
+        </constraint>
+        <constraint type="room" course="StoDisGra">
+            <room ref="rH"/>
+            <room ref="rO"/>
+            <room ref="rHTM"/>
+        </constraint>
+        <constraint type="room" course="StoLibStaCSM2">
+            <room ref="rC1"/>
+        </constraint>
+        <constraint type="room" course="StoArc">
+            <room ref="rC1"/>
+        </constraint>
+        <constraint type="room" course="StoArcCon">
+            <room ref="rVL"/>
+        </constraint>
+        <constraint type="room" course="StoArcMed">
+            <room ref="rHTM"/>
+        </constraint>
+        <constraint type="room" course="StoArt">
+            <room ref="r14"/>
+            <room ref="rDTM"/>
+        </constraint>
+        <constraint type="room" course="StoCriArt">
+            <room ref="rC1"/>
+            <room ref="rH"/>
+        </constraint>
+        <constraint type="room" course="StoFilCS">
+            <room ref="r10"/>
+            <room ref="rM"/>
+        </constraint>
+        <constraint type="room" course="StoLinItaCS">
+            <room ref="r10"/>
+            <room ref="rC1"/>
+        </constraint>
+        <constraint type="room" course="StoMus">
+            <room ref="rDTM"/>
+        </constraint>
+        <constraint type="room" course="StoArtCon2CS">
+            <room ref="rC1"/>
+        </constraint>
+        <constraint type="room" course="StoArtMod2CS">
+            <room ref="rM"/>
+        </constraint>
+        <constraint type="room" course="StoTecArtM12">
+            <room ref="rVL"/>
+        </constraint>
+        <constraint type="room" course="StoTecArtM3">
+            <room ref="rC1"/>
+        </constraint>
+        <constraint type="room" course="StoTecArtCS">
+            <room ref="rVL"/>
+        </constraint>
+        <constraint type="room" course="StoCriCin">
+            <room ref="rH"/>
+        </constraint>
+        <constraint type="room" course="StoModCS">
+            <room ref="rC1"/>
+        </constraint>
+        <constraint type="room" course="StoRomCS">
+            <room ref="rHTM"/>
+        </constraint>
+    </constraints>
+</instance>
