@@ -1,0 +1,255 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE problem PUBLIC "-//ITC 2019//DTD Problem Format/EN" "http://www.itc2019.org/competition-format.dtd">
+
+<problem name="LEIC-T" nrDays="5" slotsPerDay="26" nrWeeks="1">
+    <optimization time="1" room="1" distribution="10" student="10"/>
+    <rooms>
+        <room id="1" capacity="252"/>
+        <room id="2" capacity="252"/>
+        <room id="3" capacity="130"/>
+        <room id="4" capacity="130"/>
+        <room id="5" capacity="130"/>
+        <room id="6" capacity="48"/>
+        <room id="7" capacity="44"/>
+        <room id="8" capacity="48"/>
+        <room id="9" capacity="40"/>
+        <room id="10" capacity="36"/>
+        <room id="11" capacity="30"/>
+        <room id="12" capacity="44"/>
+        <room id="13" capacity="40"/>
+        <room id="14" capacity="30"/>
+        <room id="15" capacity="48"/>
+        <room id="16" capacity="40"/>
+        <room id="17" capacity="40"/>
+        <room id="18" capacity="40"/>
+        <room id="19" capacity="40"/>
+        <room id="20" capacity="52"/>
+        <room id="21" capacity="52"/>
+        <room id="22" capacity="48"/>
+        <room id="23" capacity="52"/>
+    </rooms>
+    <courses>
+        <course id="17"><!--EO-->
+            <config id="18">
+                <subpart id="77">
+                    <class id="173" length="2" limit="40">
+                        <time days="00010" start="21" weeks="1"/>
+                        <room id="0 - 49" penalty="0"/>
+                    </class>
+                    <class id="174" length="2" limit="40">
+                        <time days="00001" start="12" weeks="1"/>
+                        <room id="0 - 49" penalty="0"/>
+                    </class>
+                    <class id="175" length="2" limit="40">
+                        <time days="00001" start="5" weeks="1"/>
+                        <room id="0 - 49" penalty="0"/>
+                    </class>
+                    <class id="176" length="2" limit="40">
+                        <time days="01000" start="9" weeks="1"/>
+                        <room id="0 - 49" penalty="0"/>
+                    </class>
+                </subpart>
+                <subpart id="78">
+                </subpart>
+                <subpart id="79">
+                    <class id="177" length="3" limit="250">
+                        <time days="01000" start="15" weeks="1"/>
+                        <room id="A2" penalty="0"/>
+                    </class>
+                </subpart>
+                <subpart id="80">
+                    <class id="178" parent="177" length="3" limit="250">
+                        <time days="00010" start="15" weeks="1"/>
+                        <room id="A2" penalty="0"/>
+                    </class>
+                </subpart>
+            </config>
+        </course>
+        <course id="20"><!--ACED-->
+            <config id="21">
+                <subpart id="93">
+                    <class id="203" length="3" limit="40">
+                        <time days="00100" start="18" weeks="1"/>
+                        <room id="A5" penalty="0"/>
+                    </class>
+                    <class id="204" length="3" limit="40">
+                        <time days="00010" start="15" weeks="1"/>
+                        <room id="0 - 23" penalty="0"/>
+                    </class>
+                    <class id="205" length="3" limit="40">
+                        <time days="00010" start="21" weeks="1"/>
+                        <room id="0 - 23" penalty="0"/>
+                    </class>
+                    <class id="206" length="3" limit="45">
+                        <time days="00001" start="21" weeks="1"/>
+                        <room id="0 - 23" penalty="0"/>
+                    </class>
+                </subpart>
+                <subpart id="94">
+                    <class id="207" length="3" limit="250">
+                        <time days="10000" start="21" weeks="1"/>
+                        <room id="A2" penalty="0"/>
+                    </class>
+                </subpart>
+                <subpart id="95">
+                    <class id="208" parent="207" length="3" limit="250">
+                        <time days="00100" start="21" weeks="1"/>
+                        <room id="A2" penalty="0"/>
+                    </class>
+                </subpart>
+                <subpart id="96">
+                    <class id="209" parent="207" length="2" limit="250">
+                        <time days="00001" start="19" weeks="1"/>
+                        <room id="A2" penalty="0"/>
+                    </class>
+                </subpart>
+            </config>
+        </course>
+        <course id="26"><!--ASA-->
+            <config id="27">
+                <subpart id="119">
+                    <class id="248" length="3" limit="30">
+                        <time days="10000" start="2" weeks="1"/>
+                        <room id=" 1 - 2" penalty="0"/>
+                    </class>
+                    <class id="249" length="3" limit="30">
+                        <time days="10000" start="5" weeks="1"/>
+                        <room id=" 1 - 2" penalty="0"/>
+                    </class>
+                    <class id="250" length="3" limit="30">
+                        <time days="00010" start="6" weeks="1"/>
+                        <room id="0 - 25" penalty="0"/>
+                    </class>
+                    <class id="251" length="3" limit="30">
+                        <time days="00010" start="9" weeks="1"/>
+                        <room id="0 - 25" penalty="0"/>
+                    </class>
+                </subpart>
+                <subpart id="120">
+                    <class id="252" length="3" limit="250">
+                        <time days="10000" start="12" weeks="1"/>
+                        <room id="A2" penalty="0"/>
+                    </class>
+                </subpart>
+                <subpart id="121">
+                    <class id="253" parent="252" length="3" limit="250">
+                        <time days="00010" start="12" weeks="1"/>
+                        <room id="A2" penalty="0"/>
+                    </class>
+                </subpart>
+            </config>
+        </course>
+        <course id="28"><!--IPM-->
+            <config id="29">
+                <subpart id="128">
+                    <class id="270" length="3" limit="24">
+                        <time days="00100" start="3" weeks="1"/>
+                        <room id=" 1 - 19" penalty="0"/>
+                    </class>
+                    <class id="271" length="3" limit="24">
+                        <time days="10000" start="5" weeks="1"/>
+                        <room id=" 1 - 29" penalty="0"/>
+                    </class>
+                    <class id="272" length="3" limit="24">
+                        <time days="00100" start="17" weeks="1"/>
+                        <room id=" 1 - 15" penalty="0"/>
+                    </class>
+                    <class id="273" length="3" limit="24">
+                        <time days="00100" start="14" weeks="1"/>
+                        <room id=" 1 - 15" penalty="0"/>
+                    </class>
+                    <class id="274" length="3" limit="24">
+                        <time days="10000" start="2" weeks="1"/>
+                        <room id=" 1 - 29" penalty="0"/>
+                    </class>
+                    <class id="275" length="3" limit="24">
+                        <time days="00010" start="3" weeks="1"/>
+                        <room id=" 1 - 15" penalty="0"/>
+                    </class>
+                </subpart>
+                <subpart id="129">
+                    <class id="276" length="3" limit="250">
+                        <time days="01000" start="18" weeks="1"/>
+                        <room id="A2" penalty="0"/>
+                    </class>
+                </subpart>
+                <subpart id="130">
+                    <class id="277" parent="276" length="3" limit="250">
+                        <time days="00010" start="18" weeks="1"/>
+                        <room id="A2" penalty="0"/>
+                    </class>
+                </subpart>
+            </config>
+        </course>
+        <course id="32"><!--PE-->
+            <config id="33">
+                <subpart id="145">
+                    <class id="302" length="3" limit="130">
+                        <time days="10000" start="15" weeks="1"/>
+                        <room id="A4" penalty="0"/>
+                    </class>
+                    <class id="303" length="3" limit="130">
+                        <time days="10000" start="7" weeks="1"/>
+                        <room id="A4" penalty="0"/>
+                    </class>
+                    <class id="304" length="3" limit="44">
+                        <time days="00001" start="3" weeks="1"/>
+                        <room id="0 - 15" penalty="0"/>
+                    </class>
+                    <class id="305" length="3" limit="44">
+                        <time days="00001" start="6" weeks="1"/>
+                        <room id="0 - 15" penalty="0"/>
+                    </class>
+                </subpart>
+                <subpart id="146">
+                    <class id="306" length="3" limit="250">
+                        <time days="00001" start="16" weeks="1"/>
+                        <room id="A2" penalty="0"/>
+                    </class>
+                </subpart>
+                <subpart id="147">
+                    <class id="307" parent="306" length="3" limit="250">
+                        <time days="10000" start="18" weeks="1"/>
+                        <room id="A2" penalty="0"/>
+                    </class>
+                </subpart>
+            </config>
+        </course>
+        <course id="33"><!--TC-->
+            <config id="34">
+                <subpart id="149">
+                    <class id="309" length="3" limit="40">
+                        <time days="01000" start="6" weeks="1"/>
+                        <room id="0 - 9" penalty="0"/>
+                    </class>
+                    <class id="310" length="3" limit="40">
+                        <time days="01000" start="6" weeks="1"/>
+                        <room id="0 - 25" penalty="0"/>
+                    </class>
+                    <class id="311" length="3" limit="40">
+                        <time days="01000" start="10" weeks="1"/>
+                        <room id="0 - 9" penalty="0"/>
+                    </class>
+                </subpart>
+                <subpart id="150">
+                    <class id="312" length="2" limit="250">
+                        <time days="01000" start="13" weeks="1"/>
+                        <room id="A2" penalty="0"/>
+                    </class>
+                </subpart>
+                <subpart id="151">
+                    <class id="313" parent="312" length="2" limit="250">
+                        <time days="00001" start="14" weeks="1"/>
+                        <room id="A2" penalty="0"/>
+                    </class>
+                </subpart>
+            </config>
+        </course>
+
+
+    </courses>
+    <distributions>
+
+    </distributions>
+    <students/>
+</problem>
