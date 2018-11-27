@@ -469,6 +469,7 @@ Instance *readInputXML2007(std::string filename) {
     doc.parse<0>(&content[0]);
     xml_node<> *pRoot = doc.first_node();
     Instance *instance;
+    std::map<std::string, Course *> cL;
     for (const xml_attribute<> *a = pRoot->first_attribute(); a; a = a->next_attribute()) {
         name = a->value();
     }
@@ -490,35 +491,44 @@ Instance *readInputXML2007(std::string filename) {
                         else if (strcmp("max", a->name()) == 0)
                             max = atoi(a->value());
                     }
-                } else if (strcmp("course", ne->name()) == 0) {
-                    count++;
-                    int lectures = -1, min_days = -1, students = -1;
-                    char *teacher, *double_lectures, *id;
-                    for (const xml_attribute<> *a = ne->first_attribute(); a; a = a->next_attribute()) {
-                        if (strcmp("id", a->name()) == 0)
-                            id = a->value();
-                        else if (strcmp("teacher", a->name()) == 0)
-                            teacher = a->value();
-                        else if (strcmp("lectures", a->name()) == 0)
-                            lectures = atoi(a->value());
-                        else if (strcmp("min_days", a->name()) == 0)
-                            min_days = atoi(a->value());
-                        else if (strcmp("students", a->name()) == 0)
-                            students = atoi(a->value());
-                        else if (strcmp("double_lectures", a->name()) == 0)
-                            double_lectures = a->value();
-
-                    }
-                    Course *c = new Course(id, teacher, lectures, min_days, students, double_lectures, count);
-                    count += lectures;
                 }
             }
+
             instance = new Instance(name, days, periods_per_day, min, max);
 
 
+        } else if (strcmp("courses", n->name()) == 0) {
+            for (const xml_node<> *ne = n->first_node(); ne; ne = ne->next_sibling()) {
+                int lectures = -1, min_days = -1, students = -1;
+                char *teacher, *double_lectures, *id;
+                for (const xml_attribute<> *a = ne->first_attribute(); a; a = a->next_attribute()) {
+                    if (strcmp("id", a->name()) == 0)
+                        id = a->value();
+                    else if (strcmp("teacher", a->name()) == 0)
+                        teacher = a->value();
+                    else if (strcmp("lectures", a->name()) == 0)
+                        lectures = atoi(a->value());
+                    else if (strcmp("min_days", a->name()) == 0)
+                        min_days = atoi(a->value());
+                    else if (strcmp("students", a->name()) == 0)
+                        students = atoi(a->value());
+                    else if (strcmp("double_lectures", a->name()) == 0)
+                        double_lectures = a->value();
+
+                }
+                Course *c = new Course(id, teacher, lectures, min_days, students, double_lectures, count);
+                cL.insert(std::pair<std::string, Course *>(std::to_string(count), c));
+                count += lectures;
+
+            }
+        } else if (strcmp("curricula", n->name()) == 0) {
+            for (const xml_node<> *ne = n->first_node(); ne; ne = ne->next_sibling()) {
+                // NoLimit *l = new NoLimit()
+            }
         }
         // std::cout<<n->name()<<std::endl;
     }
+    instance->setCourses(cL);
 
     return instance;
 }

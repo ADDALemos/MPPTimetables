@@ -51,7 +51,7 @@ public:
         return os;
     }
 
-    void setCourses(const std::map<std::string, Course *> &courses) {
+    void setCourses(std::map<std::string, Course *> courses) {
         Instance::courses = courses;
     }
 
