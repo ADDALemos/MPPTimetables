@@ -57,6 +57,14 @@ class Lecture {
            << lecture.weeks << " penalty: " << lecture.penalty;
         return os;
     }
+
+    Lecture(int id, char *doubleLec) {
+        if (strcmp(doubleLec, "true") == 0)
+            lenght = 2;
+        else
+            lenght = 1;
+
+    }
 };
 
 

@@ -19,14 +19,38 @@
 
 Instance *readInputXML(std::string filename);
 
+Instance *readInputXML2007(std::string filename);
+
+
 void readOutputXML(std::string filename, Instance *instance);
 
 void writeOutputXML(std::string filename, Instance *instance, double time);
+
+
+void help() {
+    std::cout << "For help press -- h" << std::endl <<
+              "Program execution ./program -o OriginalProblem.xml [-s OriginalSolution.xml] [-p  Perturbations.xml] [-c Cost function]"
+              << std::endl <<
+              "The Problem instance should be encoding with ITC-2019 format;" << std::endl <<
+              "Without the file OriginalSolution.xml the program will first solve the first problem and then solve the MPP;"
+              << std::endl <<
+              "It is possible provide the perturbations in file or use random generated default;"//TODO: Random Perturbations ?
+                      "It is possible to choose the cost function from the ones shown bellow:" << std::endl <<
+              " -c 1 The Hamming distance;" << std::endl <<
+              " -c 2 The Hamming distance weighted with the number of students which scheduled changed;" << std::endl <<
+              " -c 3 The number of students seated." << std::endl;
+    std::exit(0);
+} /* displays help */
+
 
 using namespace rapidxml;
 
 int main() {
     clock_t tStart = clock();
+    readInputXML2007("/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2007/comp02.xml");
+    std::exit(42);
+    // help();
+
     Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/wbg-fal10.xml");
     readOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10.xml", instance);
 
@@ -272,14 +296,16 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                             idsub = a->value();
                         }
                         for (const xml_node<> *cla = sub->first_node(); cla; cla = cla->next_sibling()) {
-                            int idclass=-1,limit=-1;
+                            int idclass = -1, limit = -1, parent = -1;
                             std::map<Room, int> roomsv;
                             std::vector<Lecture *> lecv;
                             for (const xml_attribute<> *a = cla->first_attribute(); a; a = a->next_attribute()) {
                                 if (strcmp(a->name(), "id") == 0)
                                     idclass=atoi(a->value());
-                                else
+                                else if (strcmp(a->name(), "limit") == 0)
                                     limit = atoi(a->value());
+                                else if (strcmp(a->name(), "parent") == 0)
+                                    parent = atoi(a->value());
                             }
                             for (const xml_node<> *lec = cla->first_node(); lec; lec = lec->next_sibling()) {
                                 if (strcmp(lec->name(), "room") == 0) {
@@ -323,6 +349,8 @@ Instance *readInputXML(std::string filename) {//parent flag missing
 
                             }
                             Class *c = new Class(idclass, limit, lecv, roomsv);
+                            if (parent != -1)
+                                c->setParent(parent);
                             clasv.push_back(c);
 
                         }
@@ -424,5 +452,73 @@ Instance *readInputXML(std::string filename) {//parent flag missing
         }
 
     }
+    return instance;
+}
+
+
+/** Function to parse data from ITC 2007 **/
+
+Instance *readInputXML2007(std::string filename) {
+    std::string name;
+    xml_document<> doc;
+    std::ifstream file(filename);
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    file.close();
+    std::__1::string content(buffer.str());
+    doc.parse<0>(&content[0]);
+    xml_node<> *pRoot = doc.first_node();
+    Instance *instance;
+    for (const xml_attribute<> *a = pRoot->first_attribute(); a; a = a->next_attribute()) {
+        name = a->value();
+    }
+    int count = 0;
+    for (const xml_node<> *n = pRoot->first_node(); n; n = n->next_sibling()) {
+        if (strcmp("descriptor", n->name()) == 0) {
+            int days = -1;
+            int periods_per_day = -1;
+            int min = -1, max = -1;
+            for (const xml_node<> *ne = n->first_node(); ne; ne = ne->next_sibling()) {
+                if (strcmp("days", ne->name()) == 0) {
+                    days = atoi(ne->first_attribute()->value());
+                } else if (strcmp("periods_per_day", ne->name()) == 0)
+                    periods_per_day = atoi(ne->first_attribute()->value());
+                else if (strcmp("daily_lectures", ne->name()) == 0) {
+                    for (const xml_attribute<> *a = ne->first_attribute(); a; a = a->next_attribute()) {
+                        if (strcmp("min", a->name()) == 0)
+                            min = atoi(a->value());
+                        else if (strcmp("max", a->name()) == 0)
+                            max = atoi(a->value());
+                    }
+                } else if (strcmp("course", ne->name()) == 0) {
+                    count++;
+                    int lectures = -1, min_days = -1, students = -1;
+                    char *teacher, *double_lectures, *id;
+                    for (const xml_attribute<> *a = ne->first_attribute(); a; a = a->next_attribute()) {
+                        if (strcmp("id", a->name()) == 0)
+                            id = a->value();
+                        else if (strcmp("teacher", a->name()) == 0)
+                            teacher = a->value();
+                        else if (strcmp("lectures", a->name()) == 0)
+                            lectures = atoi(a->value());
+                        else if (strcmp("min_days", a->name()) == 0)
+                            min_days = atoi(a->value());
+                        else if (strcmp("students", a->name()) == 0)
+                            students = atoi(a->value());
+                        else if (strcmp("double_lectures", a->name()) == 0)
+                            double_lectures = a->value();
+
+                    }
+                    Course *c = new Course(id, teacher, lectures, min_days, students, double_lectures, count);
+                    count += lectures;
+                }
+            }
+            instance = new Instance(name, days, periods_per_day, min, max);
+
+
+        }
+        // std::cout<<n->name()<<std::endl;
+    }
+
     return instance;
 }

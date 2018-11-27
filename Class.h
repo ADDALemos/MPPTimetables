@@ -14,7 +14,7 @@
 class Class {
     int id;
     int limit;//limit number of students
-    Class *parent;
+    int parent;
     //Solution
     int roomID = -1;
     int start = -1;
@@ -55,15 +55,18 @@ public:
         Class::roomID = roomID;
     }
 
+    Class(int id, int limit, Lecture *pLecture) : id(id), limit(limit) {
+        lectures.push_back(pLecture);
+    }
+
 private:
     std::vector<Lecture *> lectures;
     std::map<Room, int> possibleRooms;
-    ///TODO: Save solution
 
 public:
     Class(int id, int limit, const std::vector<Lecture *, std::allocator<Lecture *>> &lectures,
           std::map<Room, int> possibleRooms) : id(id), limit(limit), lectures(lectures), possibleRooms(possibleRooms),
-                                               parent(nullptr) {
+                                               parent(-1) {
     }
 
 
@@ -136,6 +139,11 @@ public:
         Class::roomID = room;
         Class::week = week;
         Class::days = day;
+    }
+
+    void setParent(int parent) {
+        Class::parent = parent;
+
     }
 };
 

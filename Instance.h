@@ -20,6 +20,7 @@ class Instance {
     int slotsperday;
     std::string name;
     int totalNumberSteatedStudent = -1;
+    int min = -1, max = -1;
 
 
 private:
@@ -111,6 +112,12 @@ public:
     }
 
     Instance(char *string): name(string) {
+
+    }
+
+    Instance(std::string name, int days, int slots, int min, int max) : ndays(days), nweek(1),
+                                                                        slotsperday(slots), name(name), min(min),
+                                                                        max(max) {
 
     }
 

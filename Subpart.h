@@ -29,7 +29,10 @@ public:
         Subpart::classes = classes;
     }
 
-public:
+    Subpart(std::string id) : id(id) {
+
+    }
+
     Subpart(std::string id, std::vector<Class *, std::allocator<Class *>> classV) : id(id), classes(classV) {
 
     }
