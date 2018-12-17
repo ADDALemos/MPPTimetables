@@ -51,7 +51,7 @@ int main() {
     //std::exit(42);
     // help();
 
-    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/example/shortSAT.xml");
+    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/example/UNSAT/short1.xml");
     //readOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10.xml", instance);
 
     ILPExecuter *runner = new ILPExecuter();
@@ -449,6 +449,7 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                     c.push_back(instance->getCourse(courseIDstd));
 
                 }
+
                 std.insert(std::pair<int, Student>(studentID, Student(studentID, c)));
             }
             instance->setStudent(std);

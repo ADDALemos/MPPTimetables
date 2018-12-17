@@ -140,6 +140,22 @@ public:
             for (int d = 0; d < instance->getNdays(); ++d) {
                 for (int t = 0; t < instance->getSlotsperday(); ++t) {
                     IloExpr conflict = IloExpr(env);
+                    for (int c = 0; c < it->second.getCourse().size(); ++c) {
+                        conflict += lectureTime[d][t][c];
+                    }
+                    model.add(conflict <= 1);
+                }
+
+            }
+        }
+    }
+
+    void studentConflictSolution() {
+        for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
+             it != instance->getStudent().end(); it++) {
+            for (int d = 0; d < instance->getNdays(); ++d) {
+                for (int t = 0; t < instance->getSlotsperday(); ++t) {
+                    IloExpr conflict = IloExpr(env);
                     for (int c = 0; c < it->second.getClasses().size(); ++c) {
                         conflict += lectureTime[d][t][c];
                     }
