@@ -80,14 +80,15 @@ public:
             for (int j = 0; j <
                             instance->getClasses().size(); j++) {
                 for (int i = 0; i < instance->getClasses()[j]->getLenght(); i++) {
-                    for (int k = 0; k < instance->getClasses()[j]->getDays().length(); ++k) {
-                        if (atoi(&instance->getClasses()[j]->getDays()[k]) != 0)
+                    int k = 0;
+                    for (char &c :instance->getClasses()[j]->getDays()) {
+                        if (c != '0')
                             // lectureTime[k][instance->getClasses()[j]->getStart() + i][j] = 1;
                             model.add(lectureTime[k][instance->getClasses()[j]->getStart() + i][j] == 1);
                         else
                             //lectureTime[k][instance->getClasses()[j]->getStart() + i][j] = 0;
                             model.add(lectureTime[k][instance->getClasses()[j]->getStart() + i][j] == 0);
-
+                        k++;
                     }
                 }
 
@@ -123,7 +124,7 @@ public:
                         for (int j = 0; j < instance->getClasses().size(); j++) {
                             temp += lectureTime[d][k][j] * roomLecture[i][j];
                         }
-                        model.add(1 <= temp);
+                        model.add(1 >= temp);
                     }
                 }
             }
@@ -180,6 +181,13 @@ public:
     }
 
 
+    void saveEncoding() {
+        IloCplex cplex(model);
+        //std::cout<<"Room "<<instance->getRooms().size()<<" Lecture"<<instance->getClasses().size()<< " Slot"<<instance->getSlotsperday()
+        //          <<" days"<<instance->getNdays()<<std::endl;
+        cplex.exportModel("/Volumes/MAC/ClionProjects/timetabler/model.lp");
+
+    }
 
 private:
 //Number of seated students for optimization or constraint
@@ -189,8 +197,9 @@ private:
             int j = 0;
             for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
                  it != instance->getRooms().end(); it++) {
-                for (int d = 0; d < instance->getClasses()[l]->getDays().length(); ++d) {
-                    if (atoi(&instance->getClasses()[l]->getDays()[d]) != 0) {
+                int d = 0;
+                for (char &c :instance->getClasses()[l]->getDays()) {
+                    if (d != '0') {
                         for (int i = 0; i < instance->getClasses()[l]->getLenght(); i++) {
                             if (it->second.getCapacity() >= instance->getClasses()[l]->getLimit()) {
                                 temp += instance->getClasses()[l]->getLimit() *
@@ -203,6 +212,7 @@ private:
                             }
                         }
                     }
+                    d++;
                 }
                 j++;
             }
@@ -234,7 +244,7 @@ public:
     double run() {
         IloCplex cplex(model);
         cplex.setParam(IloCplex::TiLim, 100.000);
-        cplex.exportModel("/Volumes/MAC/ClionProjects/timetabler/test1.lp");
+        saveEncoding();
         if (cplex.solve()) {
             std::cout << "solved" << std::endl;
             double value = cplex.getObjValue();
@@ -374,19 +384,22 @@ private:
 
     void solutionTimeReader(IloCplex cplex) {
 
-
+        std::cout << "d t l" << std::endl;
         for (int i = 0; i < instance->getClasses().size(); i++) {
-            for (int k = 0; k < instance->getClasses()[i]->getDays().length(); ++k) {
-                if (instance->getClasses()[i]->getDays()[k] != 0)
+            int k = 0;
+            for (char &c :instance->getClasses()[i]->getDays()) {
+                if (c != '0')
                     for (int j = 0; j < instance->getClasses()[i]->getLenght(); ++j) {
                         solutionTime[k][instance->getClasses()[i]->getStart() + j][i] = cplex.getValue(
                                 lectureTime[k][instance->getClasses()[i]->getStart() + j][i]);
                         if (solutionTime[k][instance->getClasses()[i]->getStart() + j][i] != 0) {
+                            std::cout << k << " " << j << " " << i << std::endl;
                             instance->getClass(j + 1)->setSolution(instance->getClasses()[i]->getStart(),
                                                                    strdup(std::to_string(k).c_str()));
                         }
 
                     }
+                k++;
 
             }
 
@@ -397,7 +410,7 @@ private:
 
 
     void solutionReader(IloCplex cplex) {
-
+        std::cout << "r c" << std::endl;
         for (int i = 0; i < instance->getRooms().size(); i++) {
             for (int j = 0; j < instance->getClasses().size(); ++j) {
                 solutionRoom[i][j] = cplex.getValue(roomLecture[i][j]);

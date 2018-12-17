@@ -47,29 +47,33 @@ using namespace rapidxml;
 
 int main() {
     clock_t tStart = clock();
-    readInputXML2007("/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2007/comp02.xml");
-    std::exit(42);
+    //readInputXML2007("/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2007/comp02.xml");
+    //std::exit(42);
     // help();
 
-    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/wbg-fal10.xml");
-    readOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10.xml", instance);
+    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/example/shortSAT.xml");
+    //readOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10.xml", instance);
 
     ILPExecuter *runner = new ILPExecuter();
     runner->setInstance(instance);
     runner->createSol();
-    runner->loadOutput();
+    // runner->loadOutput();
     runner->definedRoomLecture();
     runner->definedLectureTime();
     runner->oneLectureSlot();
     runner->oneLectureRoom();
-    //runner->slackStudent();
+    // runner->slackStudent();
     runner->studentConflict();
-    //  runner->oneLectureRoomConflict();
+    runner->oneLectureRoomConflict();
+    runner->saveEncoding();
+    //
     //  runner->optimizeSeatedStudents();
-
 
     double v = runner->run();
     int **sol = runner->getSolutionRoom();
+    runner->getSolutionTime();
+
+    std::exit(42);
     writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10Out.xml", instance,
                    (double) (clock() - tStart) / CLOCKS_PER_SEC);
     runner = new ILPExecuter();
