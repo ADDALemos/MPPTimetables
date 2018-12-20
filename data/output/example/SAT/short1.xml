@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<solution name="LEIC-T" runtime="0.006316" cores="4" technique="ILP" author="Alexandre Lemos" institution="INESC-ID"
+          country="Portugal">
+    <class id="1" days="10" start="1" weeks="1" room="1">
+        <student id="1"/>
+    </class>
+    <class id="2" days="10" start="1" weeks="1" room="1">
+    </class>
+</solution>

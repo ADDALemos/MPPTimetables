@@ -14,6 +14,7 @@
 #include "Student.h"
 
 class Instance {
+private:
     int ndays = -1;
     double alfa = 1;
     int nweek;
@@ -22,8 +23,6 @@ class Instance {
     int totalNumberSteatedStudent = -1;
     int min = -1, max = -1;
 
-
-private:
     std::map<std::string, Course *> courses;
     std::vector<distribution *> dist;
     std::map<int, Room> rooms;
@@ -222,6 +221,16 @@ public:
 
     Student &getStudent(int id) {
         return student.at(id);
+    }
+
+    void updateStudentEnrollment(int classes, int increase) {
+        for (std::map<std::string, Course *>::iterator it = courses.begin(); it != courses.end(); ++it) {
+            if (it->second->getClass(classes) != nullptr) {
+                it->second->getClass(classes)->updateStudentEnrollment(increase);
+                break;
+            }
+        }
+
     }
 };
 

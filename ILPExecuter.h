@@ -79,6 +79,7 @@ public:
         try {
             for (int j = 0; j <
                             instance->getClasses().size(); j++) {
+                std::cout << instance->getClasses()[j]->isModified() << std::endl;
                 for (int i = 0; i < instance->getClasses()[j]->getLenght(); i++) {
                     int k = 0;
                     for (char &c :instance->getClasses()[j]->getDays()) {

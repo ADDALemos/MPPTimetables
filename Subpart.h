@@ -36,6 +36,13 @@ public:
     Subpart(std::string id, std::vector<Class *, std::allocator<Class *>> classV) : id(id), classes(classV) {
 
     }
+
+    Class *getClass(int id) {
+        for (int i = 0; i < classes.size(); ++i) {
+            if (classes[i]->getId() == id)
+                return classes[i];
+        }
+    }
 };
 
 

@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <set>
 #include "Lecture.h"
 
 #include "Room.h"
@@ -15,6 +16,7 @@
 #include "WithLimit.h"
 #include "Instance.h"
 #include "ILPExecuter.h"
+#include "Perturbation.h"
 
 
 Instance *readInputXML(std::string filename);
@@ -51,21 +53,29 @@ int main() {
     //std::exit(42);
     // help();
 
-    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/example/UNSAT/short1.xml");
-    //readOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10.xml", instance);
-
+    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/example/SAT/short.xml");
+    //readOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/example/UNSAT/short1.xml", instance);
+    Perturbation *p = new Perturbation();
+    std::vector<std::pair<int, int>> set = p->randomIncreaseCapacity(8, 15, .50);
+    for (std::pair<int, int> pair: set) {
+        instance->updateStudentEnrollment(pair.first, pair.second);
+        std::cout << pair.first << " " << pair.second << std::endl;
+    }
     ILPExecuter *runner = new ILPExecuter();
     runner->setInstance(instance);
     runner->createSol();
-    // runner->loadOutput();
+    runner->loadOutput();
     runner->definedRoomLecture();
     runner->definedLectureTime();
     runner->oneLectureSlot();
     runner->oneLectureRoom();
     // runner->slackStudent();
-    runner->studentConflict();
+    runner->studentConflictSolution();
     runner->oneLectureRoomConflict();
+
     runner->saveEncoding();
+
+
     //
     //  runner->optimizeSeatedStudents();
 

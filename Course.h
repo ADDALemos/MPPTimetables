@@ -79,6 +79,17 @@ public:
         configuration.insert(std::pair<int, std::vector<Subpart *>>(count, sub));
 
     }
+
+    Class *getClass(int id) {
+        for (std::map<int, std::vector<Subpart *>>::iterator it = configuration.begin();
+             it != configuration.end(); ++it) {
+            for (int i = 0; i < it->second.size(); ++i) {
+                if (it->second[i]->getClass(id) != nullptr)
+                    return it->second[i]->getClass(id);
+            }
+        }
+        return nullptr;
+    }
 };
 
 

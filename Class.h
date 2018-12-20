@@ -12,6 +12,7 @@
 #include "Room.h"
 
 class Class {
+    bool modified = false;
     int id;
     int limit;//limit number of students
     int parent;
@@ -59,11 +60,18 @@ public:
         lectures.push_back(pLecture);
     }
 
+    void updateStudentEnrollment(int increase) {
+        limit = increase;
+        modified = true;
+
+    }
+
 private:
     std::vector<Lecture *> lectures;
     std::map<Room, int> possibleRooms;
 
 public:
+    inline bool isModified() { return modified; }
     Class(int id, int limit, const std::vector<Lecture *, std::allocator<Lecture *>> &lectures,
           std::map<Room, int> possibleRooms) : id(id), limit(limit), lectures(lectures), possibleRooms(possibleRooms),
                                                parent(-1) {
