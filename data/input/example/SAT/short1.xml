@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE problem PUBLIC "-//ITC 2019//DTD Problem Format/EN" "http://www.itc2019.org/competition-format.dtd">
+<problem name="LEIC-T" nrDays="2" slotsPerDay="6" nrWeeks="1">
+    <optimization time="3" room="1" distribution="12" student="20"/>
+    <rooms>
+        <room id="1" capacity="20">
+            <travel room="2" value="1"/>
+        </room>
+        <room id="2" capacity="20">
+            <travel room="1" value="1"/>
+        </room>
+    </rooms>
+    <courses>
+        <course id="1">
+            <config id="1">
+                <subpart id="1">
+                    <class id="1" limit="20">
+                        <time days="10" start="1" length="2" weeks="1" penalty="0"/>
+                    </class>
+                </subpart>
+            </config>
+        </course>
+        <course id="2">
+            <config id="2">
+                <subpart id="2">
+                    <class id="2" limit="20">
+                        <time days="10" start="1" length="2" weeks="1" penalty="0"/>
+                    </class>
+                </subpart>
+            </config>
+        </course>
+    </courses>
+    <students>
+        <student id="1">
+            <course id="1"/>
+        </student>
+    </students>
+
+
+</problem>

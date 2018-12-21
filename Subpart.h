@@ -42,6 +42,7 @@ public:
             if (classes[i]->getId() == id)
                 return classes[i];
         }
+        return nullptr;
     }
 };
 

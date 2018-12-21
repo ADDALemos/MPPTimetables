@@ -79,14 +79,13 @@ public:
         try {
             for (int j = 0; j <
                             instance->getClasses().size(); j++) {
-                std::cout << instance->getClasses()[j]->isModified() << std::endl;
                 for (int i = 0; i < instance->getClasses()[j]->getLenght(); i++) {
                     int k = 0;
                     for (char &c :instance->getClasses()[j]->getDays()) {
-                        if (c != '0')
+                        if (c == '1')
                             // lectureTime[k][instance->getClasses()[j]->getStart() + i][j] = 1;
                             model.add(lectureTime[k][instance->getClasses()[j]->getStart() + i][j] == 1);
-                        else
+                        else if (c == '0')
                             //lectureTime[k][instance->getClasses()[j]->getStart() + i][j] = 0;
                             model.add(lectureTime[k][instance->getClasses()[j]->getStart() + i][j] == 0);
                         k++;
@@ -168,22 +167,29 @@ public:
     }
 
     void loadOutput() {
-        for (int i = 0; i < instance->getNdays(); ++i) {
             for (int j = 0; j < instance->getSlotsperday(); ++j) {
                 for (int k = 0; k < instance->getClasses().size(); ++k) {
-                    if (atoi(&instance->getClasses()[k]->getSolDays()[i]) != 0 &&
-                        instance->getClasses()[k]->getSolStart() >= j &&
-                        (instance->getClasses()[k]->getSolStart() + instance->getClasses()[k]->getLenght() <= j))
-                        solutionTime[i][j][k] = 1;
-                    else
-                        solutionTime[i][j][k] = 0;
+                    int d = 0;
+                    for (auto c : instance->getClasses()[k]->getSolDays()) {
+                        if (c == '1') {
+                            if (instance->getClasses()[k]->getSolStart() <= j &&
+                                (instance->getClasses()[k]->getSolStart() + instance->getClasses()[k]->getLenght() >=
+                                 j))
+                                solutionTime[d][j][k] = 1;
+                            else
+                                solutionTime[d][j][k] = 0;
+                        } else if (c == '0')
+                            solutionTime[d][j][k] = 0;
+
+                        d++;
+                    }
 
 
                 }
 
             }
 
-        }
+
         for (int i = 0; i < instance->getRooms().size(); ++i) {
             for (int k = 0; k < instance->getClasses().size(); ++k) {
                 if (instance->getClasses()[k]->getSolRoom() == i)
@@ -216,7 +222,7 @@ private:
                  it != instance->getRooms().end(); it++) {
                 int d = 0;
                 for (char &c :instance->getClasses()[l]->getDays()) {
-                    if (d != '0') {
+                    if (c != '0') {
                         for (int i = 0; i < instance->getClasses()[l]->getLenght(); i++) {
                             if (it->second.getCapacity() >= instance->getClasses()[l]->getLimit()) {
                                 temp += instance->getClasses()[l]->getLimit() *
@@ -257,10 +263,11 @@ public:
         model.add(IloMaximize(env, numberSeatedStudents()));
     }
 
-
-    double run() {
+    double run(bool mpp) {
         IloCplex cplex(model);
         cplex.setParam(IloCplex::TiLim, 100.000);
+        if (mpp)
+            warmStart(cplex);
         saveEncoding();
         if (cplex.solve()) {
             std::cout << "solved" << std::endl;
@@ -335,9 +342,12 @@ public:
         model.add(IloMinimize(env, IloAbs(numberSeatedStudents() - instance->getTotalNumberSteatedStudent())));
     }
 
+private:
     void warmStart(IloCplex cplex) {
-        IloNumVarArray startVar(env);
-        IloNumArray startVal(env);
+        IloNumVarArray startVar(env, instance->getNdays() * instance->getSlotsperday() * instance->getClasses().size()
+                                     + instance->getRooms().size() * instance->getClasses().size());
+        IloNumArray startVal(env, instance->getNdays() * instance->getSlotsperday() * instance->getClasses().size()
+                                  + instance->getRooms().size() * instance->getClasses().size());
         int idx = 0;
         for (int k = 0; k < instance->getNdays(); k++) {
             for (int i = 0; i < instance->getSlotsperday(); i++) {
@@ -357,6 +367,7 @@ public:
             }
 
         }
+
         cplex.addMIPStart(startVar, startVal);
     }
 

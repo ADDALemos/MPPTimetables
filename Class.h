@@ -19,8 +19,8 @@ class Class {
     //Solution
     int roomID = -1;
     int start = -1;
-    char *week = "1";
-    char *days = "0";
+    std::string week = "1";
+    std::string days = "0";
     std::vector<int> student;
 
 public:
@@ -44,11 +44,11 @@ public:
         return start;
     }
 
-    char *getSolWeek() const {
+    std::string getSolWeek() const {
         return week;
     }
 
-    char *getSolDays() const {
+    std::string getSolDays() const {
         return days;
     }
 
@@ -61,7 +61,7 @@ public:
     }
 
     void updateStudentEnrollment(int increase) {
-        limit = increase;
+        limit += increase;
         modified = true;
 
     }
@@ -133,7 +133,7 @@ public:
     }
 
 
-    void setSolution(int start, char *days) {
+    void setSolution(int start, std::string days) {
         Class::start = start;
         Class::days = days;
     }
@@ -142,7 +142,7 @@ public:
         Class::student = student;
     }
 
-    void setSolution(int start, int room, char *week, char *day) {
+    void setSolution(int start, int room, std::string week, std::string day) {
         Class::start = start;
         Class::roomID = room;
         Class::week = week;

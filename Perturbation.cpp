@@ -12,6 +12,7 @@
 #include <random>
 #include <sstream>
 #include "Perturbation.h"
+#include "Instance.h"
 
 std::vector<std::pair<int, int>> Perturbation::randomIncreaseCapacity(int classNumber, int increase, double factor) {
     unsigned int t = std::chrono::steady_clock::now().time_since_epoch().count();
@@ -22,12 +23,7 @@ std::vector<std::pair<int, int>> Perturbation::randomIncreaseCapacity(int classN
     std::uniform_int_distribution<int> distribution(0, increase - 1);
     std::vector<std::pair<int, int>> number;
     for (std::set<int>::iterator it = classes.begin(); it != classes.end(); ++it) {
-        int n = 0;
-        for (; number.size() < floor(factor * increase);) {
-            n = distribution(generator);
-            number.push_back(std::pair<int, int>(*it, n));
-
-        }
+        number.push_back(std::pair<int, int>(*it, distribution(generator)));
     }
     return number;
 
@@ -37,7 +33,7 @@ std::vector<std::pair<int, int>> Perturbation::randomIncreaseCapacity(int classN
 std::set<int> Perturbation::randomClassSelection(int classNumber, double factor, unsigned int t) {
 
     std::default_random_engine generator(t);
-    std::uniform_int_distribution<int> distribution(0, classNumber - 1);
+    std::uniform_int_distribution<int> distribution(1, classNumber);
     std::set<int> number;
     int n = 0;
     for (; number.size() < floor(factor * classNumber);) {
@@ -47,4 +43,13 @@ std::set<int> Perturbation::randomClassSelection(int classNumber, double factor,
     return number;
 
 
+}
+
+
+void Perturbation::randomIncreaseCapacity(Instance *i, int increaseMAX, double factor) {
+    std::vector<std::pair<int, int>> set = randomIncreaseCapacity(i->getNumClasses(), increaseMAX, factor);
+    for (std::pair<int, int> pair: set) {
+        std::cout << pair.first << " " << pair.second << std::endl;
+        i->updateStudentEnrollment(pair.first, pair.second);
+    }
 }

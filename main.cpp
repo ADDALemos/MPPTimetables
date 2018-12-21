@@ -53,20 +53,19 @@ int main() {
     //std::exit(42);
     // help();
 
-    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/example/SAT/short.xml");
-    //readOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/example/UNSAT/short1.xml", instance);
+    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/example/SAT/short1.xml");
+    readOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/example/UNSAT/short1.xml", instance);
     Perturbation *p = new Perturbation();
-    std::vector<std::pair<int, int>> set = p->randomIncreaseCapacity(8, 15, .50);
-    for (std::pair<int, int> pair: set) {
-        instance->updateStudentEnrollment(pair.first, pair.second);
-        std::cout << pair.first << " " << pair.second << std::endl;
-    }
+    p->randomIncreaseCapacity(instance, 15, .5);
     ILPExecuter *runner = new ILPExecuter();
     runner->setInstance(instance);
-    runner->createSol();
-    runner->loadOutput();
     runner->definedRoomLecture();
     runner->definedLectureTime();
+    runner->createSol();
+
+    runner->loadOutput();
+
+
     runner->oneLectureSlot();
     runner->oneLectureRoom();
     // runner->slackStudent();
@@ -79,7 +78,7 @@ int main() {
     //
     //  runner->optimizeSeatedStudents();
 
-    double v = runner->run();
+    double v = runner->run(true);
     int **sol = runner->getSolutionRoom();
     runner->getSolutionTime();
 
@@ -96,7 +95,7 @@ int main() {
     runner->studentConflict();
     //runner->constraintSeatedStudents(v);
     runner->distanceToSolution(sol, nullptr, false);
-    runner->run();
+    runner->run(false);
 
 
     printf("Time taken: %.2fs\n", (double) (clock() - tStart) / CLOCKS_PER_SEC);
@@ -128,11 +127,11 @@ void writeOutputXML(std::string filename, Instance *instance, double time) {
         child->append_attribute(doc.allocate_attribute("id", doc.allocate_string(
                 std::to_string(instance->getClasses()[c]->getId()).c_str())));
         child->append_attribute(
-                doc.allocate_attribute("days", doc.allocate_string(instance->getClasses()[c]->getSolDays())));
+                doc.allocate_attribute("days", doc.allocate_string(instance->getClasses()[c]->getSolDays().c_str())));
         child->append_attribute(doc.allocate_attribute("start", doc.allocate_string(
                 std::to_string(instance->getClasses()[c]->getSolStart()).c_str())));
         child->append_attribute(
-                doc.allocate_attribute("weeks", doc.allocate_string(instance->getClasses()[c]->getSolWeek())));
+                doc.allocate_attribute("weeks", doc.allocate_string(instance->getClasses()[c]->getSolWeek().c_str())));
         child->append_attribute(doc.allocate_attribute("room", doc.allocate_string(
                 std::to_string(instance->getClasses()[c]->getSolRoom()).c_str())));
         for (int s = 0; s < instance->getClasses()[c]->getStudent().size(); ++s) {
@@ -170,7 +169,7 @@ void readOutputXML(std::string filename, Instance *instance) {
     }
     int total = 0;
     for (const xml_node<> *n = pRoot->first_node(); n; n = n->next_sibling()) {
-        char *weeks, *days;
+        std::string weeks = " ", days = " ";
         int id = -1, start = -1, room = -1;
         for (const xml_attribute<> *a = n->first_attribute(); a; a = a->next_attribute()) {
             if (strcmp(a->name(), "id") == 0) {
