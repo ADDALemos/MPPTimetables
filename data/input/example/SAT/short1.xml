@@ -9,6 +9,9 @@
         <room id="2" capacity="20">
             <travel room="1" value="1"/>
         </room>
+        <room id="3" capacity="90">
+            <travel room="1" value="1"/>
+        </room>
     </rooms>
     <courses>
         <course id="1">

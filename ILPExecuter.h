@@ -12,7 +12,7 @@
 #include <ilconcert/ilomodel.h>
 #include <ilcplex/ilocplex.h>
 #include <exception>
-
+#include <stdlib.h>
 #include "Instance.h"
 
 class ILPExecuter {
@@ -245,6 +245,35 @@ private:
         return temp;
     }
 
+    IloExpr usage() {
+        IloExpr temp(env);
+        for (int l = 0; l < instance->getClasses().size(); l++) {
+            int j = 0;
+            for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
+                 it != instance->getRooms().end(); it++) {
+                int d = 0;
+                for (char &c :instance->getClasses()[l]->getDays()) {
+                    if (c != '0') {
+                        for (int i = 0; i < instance->getClasses()[l]->getLenght(); i++) {
+
+                            temp += abs(it->second.getCapacity() - instance->getClasses()[l]->getLimit()) *
+                                    lectureTime[d][instance->getClasses()[l]->getStart() + i][l]
+                                    * roomLecture[j][l];
+                        }
+                    }
+
+                    d++;
+                }
+                j++;
+            }
+        }
+        //std::cout<<temp<<std::endl;
+
+        return temp;
+
+    }
+
+
 public:
 
 
@@ -257,6 +286,10 @@ public:
             e.end();
         }
 
+    }
+
+    void optimizeRoomUsage() {
+        model.add(IloMinimize(env, usage()));
     }
 
     void optimizeSeatedStudents() {
