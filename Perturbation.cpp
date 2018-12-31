@@ -14,21 +14,43 @@
 #include "Perturbation.h"
 #include "Instance.h"
 
-std::vector<std::pair<int, int>> Perturbation::randomIncreaseCapacity(int classNumber, int increase, double factor) {
+/**
+ * Random increase/decrease in the number of attending students
+ * @requires This method must be used after randomClassSelection is performed
+ * @param classNumber total number of classes
+ * @param change maximum/minimum value of increase/decrease in the number of new students
+ * @param increase increase or decrease the number of students
+ * @param factor random factor
+ * @return std::vector<std::pair<int, int>> classes perturbed and the respective increase value
+ */
+std::vector<std::pair<int, int>, std::allocator<std::pair<int, int>>>
+Perturbation::randomEnrolment(unsigned int classNumber, int change, bool increase, double factor) {
     unsigned int t = std::chrono::steady_clock::now().time_since_epoch().count();
     seedFile.open("seed.txt", std::ios::app);
     seedFile << t << std::endl;
     std::set<int> classes = randomClassSelection(classNumber, factor, t);
     std::default_random_engine generator(t);
-    std::uniform_int_distribution<int> distribution(0, increase - 1);
+    std::uniform_int_distribution<int> distribution(0, change - 1);
     std::vector<std::pair<int, int>> number;
     for (std::set<int>::iterator it = classes.begin(); it != classes.end(); ++it) {
-        number.push_back(std::pair<int, int>(*it, distribution(generator)));
+        if (increase)
+            number.push_back(std::pair<int, int>(*it, distribution(generator)));
+        else
+            number.push_back(std::pair<int, int>(*it, -distribution(generator)));
+
     }
     return number;
 
 
 }
+
+/**
+ * Random selection of the number classes where the number of students will increase
+ * @param classNumber total number of classes
+ * @param factor random factor
+ * @param t seed value
+ * @return set of classes to perturbed
+ */
 
 std::set<int> Perturbation::randomClassSelection(int classNumber, double factor, unsigned int t) {
 
@@ -45,9 +67,15 @@ std::set<int> Perturbation::randomClassSelection(int classNumber, double factor,
 
 }
 
-
-void Perturbation::randomIncreaseCapacity(Instance *i, int increaseMAX, double factor) {
-    std::vector<std::pair<int, int>> set = randomIncreaseCapacity(i->getNumClasses(), increaseMAX, factor);
+/**
+ * Update the instances with the new students
+ * @param i problem instance
+ * @param changeLimit maximum/minimum number of increase/decrease in the number of students.
+ * @param increase increase or decrease in the number of students
+ * @param factor random factor
+ */
+void Perturbation::randomeEnrolmentChanges(Instance *i, int changeLimit, bool increase, double factor) {
+    std::vector<std::pair<int, int>> set = randomEnrolment(i->getNumClasses(), changeLimit, increase, factor);
     for (std::pair<int, int> pair: set) {
         std::cout << pair.first << " " << pair.second << std::endl;
         i->updateStudentEnrollment(pair.first, pair.second);

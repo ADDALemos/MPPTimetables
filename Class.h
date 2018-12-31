@@ -60,8 +60,11 @@ public:
         lectures.push_back(pLecture);
     }
 
-    void updateStudentEnrollment(int increase) {
-        limit += increase;
+    void updateStudentEnrollment(int change) {
+        if (limit + change > 0)
+            limit += change;
+        else
+            limit = 0;
         modified = true;
 
     }

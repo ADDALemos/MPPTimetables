@@ -509,7 +509,7 @@ public:
             }
 
         }
-        solutionTime = new int *[instance->getRooms().size()];
+        solutionRoom = new int *[instance->getRooms().size()];
         for (int i = 0; i < instance->getRooms().size(); i++) {
             solutionRoom[i] = new int[instance->getClasses().size()];
             for (int j = 0; j < instance->getClasses().size(); ++j) {

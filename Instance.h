@@ -223,10 +223,10 @@ public:
         return student.at(id);
     }
 
-    void updateStudentEnrollment(int classes, int increase) {
+    void updateStudentEnrollment(int classes, int change) {
         for (std::map<std::string, Course *>::iterator it = courses.begin(); it != courses.end(); ++it) {
             if (it->second->getClass(classes) != nullptr) {
-                it->second->getClass(classes)->updateStudentEnrollment(increase);
+                it->second->getClass(classes)->updateStudentEnrollment(change);
                 break;
             }
         }
