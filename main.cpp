@@ -58,12 +58,14 @@ int main() {
     Perturbation *p = new Perturbation();
     p->randomEnrolmentChanges(instance, 15, false, .5);
     p->randomCloseRoom(instance, .5);
+    p->randomSlotClose(instance, .1);
     ILPExecuter *runner = new ILPExecuter();
     runner->setInstance(instance);
     runner->definedRoomLecture();
     runner->definedLectureTime();
     runner->createSol();
     runner->roomClose();
+    runner->slotClose();
 
     runner->loadOutput();
 

@@ -81,7 +81,7 @@ void Perturbation::randomEnrolmentChanges(Instance *i, int changeLimit, bool inc
 }
 
 /**
- * Choose random to close
+ * Choose room to close
  * @param i problem instance
  * @param factor random factor
  */
@@ -97,6 +97,28 @@ void Perturbation::randomCloseRoom(Instance *i, double factor) {
         else {
             i->blockRoom(n);
             std::cout << "Block room:" << n << std::endl;
+        }
+    }
+
+}
+
+/**
+ * Choose a time slot to close
+ * @param i problem instance
+ * @param factor random factor
+ */
+void Perturbation::randomSlotClose(Instance *i, double factor) {
+    unsigned int t = seedHandler();
+    std::default_random_engine generator(t);
+    std::uniform_int_distribution<int> distribution(1, i->getSlotsperday() * i->getNdays());
+    int n = 0;
+    for (int size = 0; size < floor(factor * i->getSlotsperday() * i->getNdays()); size++) {
+        n = distribution(generator);
+        if (i->isTimeUnavailable(n))
+            size--;
+        else {
+            i->setTimeUnavailable(n);
+            std::cout << "Block time slot:" << n << std::endl;
         }
     }
 

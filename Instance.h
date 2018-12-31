@@ -23,6 +23,8 @@ private:
     int totalNumberSteatedStudent = -1;
     int min = -1, max = -1;
 
+    std::set<int> uva;
+
     std::map<std::string, Course *> courses;
     std::vector<distribution *> dist;
     std::map<int, Room> rooms;
@@ -244,6 +246,14 @@ public:
 
     bool isRoomBlocked(int roomID) {
         return rooms.at(roomID).isClose();
+    }
+
+    bool isTimeUnavailable(int slot) {
+        return uva.find(slot) != uva.end();
+    }
+
+    void setTimeUnavailable(int time) {
+        uva.insert(time);
     }
 };
 

@@ -22,6 +22,8 @@ public:
 
     void randomCloseRoom(Instance *i, double factor);
 
+    void randomSlotClose(Instance *i, double factor);
+
 
 };
 

@@ -147,6 +147,22 @@ public:
         }
     }
 
+    /**
+    * Ensure times lot ina day is closed cannot be used
+    */
+    void slotClose() {
+        for (int i = 0; i < instance->getClasses().size(); i++) {
+            for (int d = 0; d < instance->getNdays(); d++) {
+                for (int t = 0; t < instance->getSlotsperday(); ++t) {
+                    if (instance->isTimeUnavailable(i * t))
+                        model.add(lectureTime[d][t][i] < 0);
+
+                }
+            }
+
+        }
+    }
+
 
 
     /** Student conflicts hard constraint based on the input model
