@@ -55,8 +55,8 @@ int main() {
 
     Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/example/SAT/short1.xml");
     readOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/example/SAT/short1.xml", instance);
-    //Perturbation *p = new Perturbation();
-    //p->randomIncreaseCapacity(instance, 15, .5);
+    Perturbation *p = new Perturbation();
+    p->randomIncreaseCapacity(instance, 15, .5);
     ILPExecuter *runner = new ILPExecuter();
     runner->setInstance(instance);
     runner->definedRoomLecture();
@@ -73,7 +73,8 @@ int main() {
     runner->oneLectureRoomConflict();
 
     runner->saveEncoding();
-    runner->optimizeRoomUsage();
+    runner->distanceToSolution();
+    //runner->optimizeRoomUsage();
 
 
     //runner->optimizeSeatedStudents();

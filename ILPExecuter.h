@@ -134,6 +134,9 @@ public:
 
     }
 
+    /** Student conflicts hard constraint based on the input model
+     *
+     */
     void studentConflict() {
         for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
              it != instance->getStudent().end(); it++) {
@@ -150,6 +153,9 @@ public:
         }
     }
 
+    /** Student conflicts hard constraint based on the original solution
+     *
+     */
     void studentConflictSolution() {
         for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
              it != instance->getStudent().end(); it++) {
@@ -276,7 +282,12 @@ private:
 
 public:
 
-
+    /**
+     * Creates a hard constriant to the number of students.
+     * All students must be seated.
+     * For slack cosntraint use slackStudent()
+     * @param students
+     */
     void constraintSeatedStudents(double students) {
         try {
             model.add(numberSeatedStudents() >= students);
@@ -297,6 +308,9 @@ public:
     }
 
     double run(bool mpp) {
+        std::cout << "Original Solution" << std::endl;
+        printRoomSolution();
+        printsolutionTime();
         IloCplex cplex(model);
         cplex.setParam(IloCplex::TiLim, 100.000);
         if (mpp)
@@ -304,10 +318,14 @@ public:
         saveEncoding();
         if (cplex.solve()) {
             std::cout << "solved" << std::endl;
+            // printdistanceToSolutionRooms(cplex);
             double value = cplex.getObjValue();
             std::cout << value << std::endl;
-            solutionReader(cplex);
-            solutionTimeReader(cplex);
+            switchSolution(cplex);
+            std::cout << "New Found Solution" << std::endl;
+            printRoomSolution();
+            printsolutionTime();
+
             return value;
 
         } else {
@@ -315,6 +333,11 @@ public:
         }
 
     }
+
+    /**
+     * Create a hard constraint on the number of studnets seated.
+     * Can be controled by the value of slack of each instance
+     */
 
     void slackStudent() {
         for (int l = 0; l <
@@ -341,6 +364,32 @@ public:
         ILPExecuter::instance = instance;
     }
 
+    /***
+     * Prints the current distance of the solution with the old solution
+     * The distante is base on the weighted Hamming distance of the roomLecture variable (room atributions)
+     * The weighted is baed on the number of students moved
+     * @param cplex
+     */
+    void printdistanceToSolutionRooms(IloCplex cplex) {
+        int temp = 0;
+        for (int i = 0; i < instance->getRooms().size(); i++) {
+            for (int j = 0; j < instance->getClasses().size(); ++j) {
+                temp += instance->getClasses()[j]->getLimit() * (solutionRoom[i][j]
+                                                                 != cplex.getValue(roomLecture[i][j]));
+            }
+        }
+        std::cout << temp << std::endl;
+    }
+
+    /***
+     * The current distance of the solution with the old solution
+     * The distante is base on the weighted Hamming distance of the roomLecture variable (room atributions)
+     * The weighted is baed on the number of students moved
+     * @param oldRoom
+     * @param weighted
+     * @return IloExpr
+     */
+
     IloExpr distanceToSolutionRooms(int **oldRoom, bool weighted) {
         IloExpr temp(env);
         for (int i = 0; i < instance->getRooms().size(); i++) {
@@ -351,6 +400,16 @@ public:
         }
         return temp;
     }
+
+    /***
+    * The current distance of the solution with the old solution
+    * The distante is base on the weighted Hamming distance of the lectureTime variable (time slot atributions)
+    * The weighted is baed on the number of students moved
+    * @param oldTime
+    * @param weighted
+    * @return IloExpr
+    */
+
 
     IloExpr distanceToSolutionLectures(int ***oldTime, bool weighted) {
         IloExpr temp(env);
@@ -365,17 +424,37 @@ public:
         return temp;
     }
 
+    void distanceToSolution() {
+        distanceToSolution(solutionRoom, solutionTime, false);
+    }
+
+    /**
+     * Minimization statement distance solutions
+     * TODO: Generalize the distance metric
+     * @param oldRoom
+     * @param oldTime
+     * @param weighted
+     */
+
     void distanceToSolution(int **oldRoom, int ***oldTime, bool weighted) {
 
         model.add(IloMinimize(env, distanceToSolutionRooms(oldRoom, weighted)));
 
     }
 
+    /**
+     * Minimization statement distance between solutions: Number of students seated
+     */
     void minimizeDifferenceSeatedStudents() {
         model.add(IloMinimize(env, IloAbs(numberSeatedStudents() - instance->getTotalNumberSteatedStudent())));
     }
 
 private:
+    /**
+     * Warm starting procedure with the solution found before
+     * Used the class atributes: solutionTime and roomLecture
+     * @param cplex
+     */
     void warmStart(IloCplex cplex) {
         IloNumVarArray startVar(env, instance->getNdays() * instance->getSlotsperday() * instance->getClasses().size()
                                      + instance->getRooms().size() * instance->getClasses().size());
@@ -414,6 +493,9 @@ public:
         return solutionTime;
     }
 
+    /**
+     * Initialize the solutions structures: solutionTime and solutionTime
+     */
     void createSol() {
         solutionTime = new int **[instance->getNdays()];
         for (int i = 0; i < instance->getNdays(); i++) {
@@ -427,7 +509,7 @@ public:
             }
 
         }
-        solutionRoom = new int *[instance->getRooms().size()];
+        solutionTime = new int *[instance->getRooms().size()];
         for (int i = 0; i < instance->getRooms().size(); i++) {
             solutionRoom[i] = new int[instance->getClasses().size()];
             for (int j = 0; j < instance->getClasses().size(); ++j) {
@@ -442,8 +524,10 @@ private:
     int **solutionRoom;
     int ***solutionTime;
 
-
-    void solutionTimeReader(IloCplex cplex) {
+    /**
+     * Print the current value of the solutionTime
+     */
+    void printsolutionTime() {
 
         std::cout << "d t l" << std::endl;
         for (int i = 0; i < instance->getClasses().size(); i++) {
@@ -451,12 +535,10 @@ private:
             for (char &c :instance->getClasses()[i]->getDays()) {
                 if (c != '0')
                     for (int j = 0; j < instance->getClasses()[i]->getLenght(); ++j) {
-                        solutionTime[k][instance->getClasses()[i]->getStart() + j][i] = cplex.getValue(
-                                lectureTime[k][instance->getClasses()[i]->getStart() + j][i]);
+
                         if (solutionTime[k][instance->getClasses()[i]->getStart() + j][i] != 0) {
                             std::cout << k << " " << j << " " << i << std::endl;
-                            instance->getClass(j + 1)->setSolution(instance->getClasses()[i]->getStart(),
-                                                                   strdup(std::to_string(k).c_str()));
+
                         }
 
                     }
@@ -469,15 +551,85 @@ private:
 
     }
 
+    /**
+     * Remove old solution
+     * TODO: Memory management
+     */
+    void removeSolution() {
+//        delete roomLecture;
+        //      delete lectureTime;
+        createSol();
+    }
 
-    void solutionReader(IloCplex cplex) {
-        std::cout << "r c" << std::endl;
+    /**
+     * Switch solution time
+     * Updates the solution time structure with new data
+     * @Requires delete the previous found solution
+     * @param cplex
+     */
+
+    void switchSolutionTime(IloCplex cplex) {
+        for (int i = 0; i < instance->getClasses().size(); i++) {
+            int k = 0;
+            for (char &c :instance->getClasses()[i]->getDays()) {
+                if (c != '0')
+                    for (int j = 0; j < instance->getClasses()[i]->getLenght(); ++j) {
+                        solutionTime[k][instance->getClasses()[i]->getStart() + j][i] = cplex.getValue(
+                                lectureTime[k][instance->getClasses()[i]->getStart() + j][i]);
+                        if (solutionTime[k][instance->getClasses()[i]->getStart() + j][i] != 0) {
+                            instance->getClass(j + 1)->setSolution(instance->getClasses()[i]->getStart(),
+                                                                   strdup(std::to_string(k).c_str()));
+                        }
+
+                    }
+                k++;
+
+            }
+
+        }
+
+    }
+
+    /** Switch solution
+    * Updates the solution structures with new data
+    * @param cplex
+    */
+    void switchSolution(IloCplex cplex) {
+        removeSolution();
+        switchSolutionRoom(cplex);
+        switchSolutionTime(cplex);
+
+    }
+
+    /**
+     * Switch solution room
+     * Updates the solution room structure with new data
+     * @Requires delete the previous found solution
+     * @param cplex
+     */
+    void switchSolutionRoom(IloCplex cplex) {
         for (int i = 0; i < instance->getRooms().size(); i++) {
             for (int j = 0; j < instance->getClasses().size(); ++j) {
                 solutionRoom[i][j] = cplex.getValue(roomLecture[i][j]);
+                if (cplex.getValue(roomLecture[i][j]) != 0) {
+                    instance->getClass(j + 1)->setSolRoom(i + 1);
+                }
+            }
+
+        }
+    }
+
+
+    /**
+     * Print the current value of the solutionRoom
+     */
+    void printRoomSolution() {
+        std::cout << "room solution" << std::endl;
+        std::cout << "r c" << std::endl;
+        for (int i = 0; i < instance->getRooms().size(); i++) {
+            for (int j = 0; j < instance->getClasses().size(); ++j) {
                 if (solutionRoom[i][j] != 0) {
                     std::cout << i << " " << j << " " << solutionRoom[i][j] << std::endl;
-                    instance->getClass(j + 1)->setSolRoom(i + 1);
                 }
             }
 
