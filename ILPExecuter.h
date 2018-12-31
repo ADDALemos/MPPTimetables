@@ -134,6 +134,21 @@ public:
 
     }
 
+    /**
+    * Ensure Room closed cannot be used
+    */
+    void roomClose() {
+        for (int i = 0; i < instance->getNumRoom(); i++) {
+            for (int j = 0; j < instance->getNumClasses(); ++j) {
+                if (instance->isRoomBlocked(i + 1)) {
+                    model.add(roomLecture[i][j] < 1);
+                }
+            }
+        }
+    }
+
+
+
     /** Student conflicts hard constraint based on the input model
      *
      */
@@ -448,6 +463,7 @@ public:
     void minimizeDifferenceSeatedStudents() {
         model.add(IloMinimize(env, IloAbs(numberSeatedStudents() - instance->getTotalNumberSteatedStudent())));
     }
+
 
 private:
     /**

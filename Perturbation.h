@@ -11,11 +11,16 @@ class Perturbation {
     std::ofstream seedFile;
 
     std::vector<std::pair<int, int>, std::allocator<std::pair<int, int>>>
-    randomEnrolment(unsigned int classNumber, int change, bool factor, double d);
+    randomEnrolment(unsigned int classNumber, int change, bool increase, double factor);
     std::set<int> randomClassSelection(int classNumber, double factor, unsigned int t);
 
+    unsigned int seedHandler();
+
+
 public:
-    void randomeEnrolmentChanges(Instance *i, int changeLimit, bool factor, double d);
+    void randomEnrolmentChanges(Instance *i, int changeLimit, bool increase, double factor);
+
+    void randomCloseRoom(Instance *i, double factor);
 
 
 };

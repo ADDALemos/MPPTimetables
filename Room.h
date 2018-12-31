@@ -14,9 +14,19 @@
 class Room {
     int id;
     int capacity;
+    bool close = false;
+
+private:
     std::map<int,int> travel;//room time
     std::vector<Unavailability> slots;
 public:
+    bool isClose() const {
+        return close;
+    }
+
+    void setClose(bool close) {
+        Room::close = close;
+    }
 
     int getId() const {
         return id;
@@ -64,6 +74,10 @@ public:
     Room(int i, int i1, std::map<int, int> map, std::vector<Unavailability, std::allocator<Unavailability>> vector)
             : id(i), capacity(i1), travel(map), slots(vector) {
 
+    }
+
+    void block() {
+        setClose(true);
     }
 };
 

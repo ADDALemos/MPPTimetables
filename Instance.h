@@ -232,6 +232,19 @@ public:
         }
 
     }
+
+    int getNumRoom() {
+        return rooms.size();
+    }
+
+    void blockRoom(int roomID) {
+        rooms.at(roomID).block();
+
+    }
+
+    bool isRoomBlocked(int roomID) {
+        return rooms.at(roomID).isClose();
+    }
 };
 
 
