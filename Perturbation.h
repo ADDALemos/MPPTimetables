@@ -24,6 +24,8 @@ public:
 
     void randomSlotClose(Instance *i, double factor);
 
+    void randomClassSelection(Instance *i, double factor);
+
 
 };
 

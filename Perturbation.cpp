@@ -43,6 +43,26 @@ Perturbation::randomEnrolment(unsigned int classNumber, int change, bool increas
 }
 
 /**
+ * Random selection of the number classes with wrong assigments
+ * @param i problem instance
+ * @param factor random factor
+ * @return set of classes to perturbed
+ */
+void Perturbation::randomClassSelection(Instance *i, double factor) {
+    unsigned int t = seedHandler();
+    std::set<int> p = randomClassSelection(i->getNumClasses(), factor, t);
+    for (int j = 0; j < p.size(); ++j) {
+        if (i->isIncorrectAssignment(j))
+            j--;
+        else {
+            i->incorrectAssignment(j);
+            std::cout << "Assigment" << j << std::endl;
+        }
+
+    }
+}
+
+/**
  * Random selection of the number classes where the number of students will increase
  * @param classNumber total number of classes
  * @param factor random factor
@@ -124,8 +144,9 @@ void Perturbation::randomSlotClose(Instance *i, double factor) {
 
 }
 
+
 /**
- * Genarete a seed based on the clock
+ * Generate a seed based on the clock
  * @return seed
  */
 unsigned int Perturbation::seedHandler() {

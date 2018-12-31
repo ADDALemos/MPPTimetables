@@ -24,6 +24,8 @@ private:
     int min = -1, max = -1;
 
     std::set<int> uva;
+    std::set<int> incorrentAssignments;//TODO: Passar para a class class
+
 
     std::map<std::string, Course *> courses;
     std::vector<distribution *> dist;
@@ -254,6 +256,15 @@ public:
 
     void setTimeUnavailable(int time) {
         uva.insert(time);
+    }
+
+    void incorrectAssignment(int classID) {
+        incorrentAssignments.insert(classID);
+    }
+
+    bool isIncorrectAssignment(int classID) {
+        return incorrentAssignments.find(classID) != incorrentAssignments.end();
+
     }
 };
 

@@ -56,9 +56,10 @@ int main() {
     Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/example/SAT/short1.xml");
     readOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/example/SAT/short1.xml", instance);
     Perturbation *p = new Perturbation();
+    p->randomClassSelection(instance, 1);
     p->randomEnrolmentChanges(instance, 15, false, .5);
-    p->randomCloseRoom(instance, .5);
-    p->randomSlotClose(instance, .1);
+    p->randomCloseRoom(instance, 0);
+    p->randomSlotClose(instance, 0);
     ILPExecuter *runner = new ILPExecuter();
     runner->setInstance(instance);
     runner->definedRoomLecture();
@@ -66,7 +67,7 @@ int main() {
     runner->createSol();
     runner->roomClose();
     runner->slotClose();
-
+    runner->assignmentInvalid();
     runner->loadOutput();
 
 

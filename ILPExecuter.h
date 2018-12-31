@@ -163,6 +163,35 @@ public:
         }
     }
 
+    /**
+     * One assignment, is invalid and needs to be assigned
+     * to a different room or to a different time slot
+     */
+    void assignmentInvalid() {
+        for (int i = 0; i < instance->getNumClasses(); ++i) {
+            if (instance->isIncorrectAssignment(i)) {
+                for (int j = 0; j < instance->getNdays(); ++j) {
+                    for (int k = 0; k < instance->getSlotsperday(); ++k) {
+                        if (solutionTime[j][k][i] == 1) {
+                            IloExpr temp(env);
+                            temp = lectureTime[j][k][i];
+                            for (int l = 0; l < instance->getNumRoom(); ++l) {
+                                if (solutionRoom[l][i] == 1) {
+                                    temp += roomLecture[l][i];
+                                    model.add(temp <= 1);
+                                    break;
+                                }
+
+                            }
+                        }
+                    }
+                }
+
+            }
+
+        }
+    }
+
 
 
     /** Student conflicts hard constraint based on the input model
