@@ -24,6 +24,14 @@ public:
         return os;
     }
 
+    std::string &getDays() {
+        return days;
+    }
+
+    Unavailability(std::string day) : days(day) {
+
+
+    }
 };
 
 

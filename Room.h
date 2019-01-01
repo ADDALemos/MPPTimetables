@@ -20,6 +20,22 @@ private:
     std::map<int,int> travel;//room time
     std::vector<Unavailability> slots;
 public:
+    bool isClosebyDay(int day) {
+        if (isClose())
+            return true;
+        for (int i = 0; i < slots.size(); ++i) {
+            int k = 0;
+            for (char &c :slots[i].getDays()) {
+                if (c == '1') {
+                    if (k == day)
+                        return true;
+                }
+                k++;
+            }
+
+        }
+        return false;
+    }
     bool isClose() const {
         return close;
     }
@@ -78,6 +94,10 @@ public:
 
     void block() {
         setClose(true);
+    }
+
+    void block(std::string day) {
+        slots.push_back(Unavailability(day));
     }
 };
 

@@ -148,6 +148,27 @@ public:
     }
 
     /**
+    * Ensure Room closed in a day cannot be used
+    */
+    void roomClosebyDay() {
+        for (int d = 0; d < instance->getNdays(); ++d) {
+            for (int t = 0; t < instance->getSlotsperday(); ++t) {
+                for (int i = 0; i < instance->getNumRoom(); i++) {
+                    for (int j = 0; j < instance->getNumClasses(); ++j) {
+                        if (instance->isRoomBlockedbyDay(i + 1, d + 1)) {
+                            model.add(roomLecture[i][j] * lectureTime[d][t][j] < 1);
+                        }
+                    }
+                }
+            }
+
+        }
+
+
+    }
+
+
+    /**
     * Ensure times lot ina day is closed cannot be used
     */
     void slotClose() {

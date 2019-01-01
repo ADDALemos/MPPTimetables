@@ -250,6 +250,15 @@ public:
         return rooms.at(roomID).isClose();
     }
 
+    void blockRoombyDay(int roomID, std::string day) {
+        rooms.at(roomID).block(day);
+
+    }
+
+    bool isRoomBlockedbyDay(int roomID, int day) {
+        return rooms.at(roomID).isClosebyDay(day);
+    }
+
     bool isTimeUnavailable(int slot) {
         return uva.find(slot) != uva.end();
     }

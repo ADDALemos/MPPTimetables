@@ -18,13 +18,23 @@ class Perturbation {
 
 
 public:
+    //Change the number of students enrolled
     void randomEnrolmentChanges(Instance *i, int changeLimit, bool increase, double factor);
 
+    //Close down a room
     void randomCloseRoom(Instance *i, double factor);
 
+    //Close down a room for Day
+    void randomCloseRoomDay(Instance *i, double factor);
+
+    //Close time slot
     void randomSlotClose(Instance *i, double factor);
 
+    //Unavailable Assigment
     void randomClassSelection(Instance *i, double factor);
+
+    //Change the number of shifts
+    void randomShiftChange(Instance *i, double factor);
 
 
 };

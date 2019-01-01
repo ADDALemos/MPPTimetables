@@ -116,10 +116,45 @@ void Perturbation::randomCloseRoom(Instance *i, double factor) {
             size--;
         else {
             i->blockRoom(n);
-            std::cout << "Block room:" << n << std::endl;
+            std::cout << "Block room: " << n << std::endl;
         }
     }
 
+}
+
+/**
+ * Choose room and a day to close it
+ * @param i problem instance
+ * @param factor random factor
+ */
+void Perturbation::randomCloseRoomDay(Instance *i, double factor) {
+    unsigned int t = seedHandler();
+    std::default_random_engine generator(t);
+    std::uniform_int_distribution<int> distribution(1, i->getNumRoom());
+    int n = 0;
+    for (int size = 0; size < floor(factor * i->getNumRoom()); size++) {
+        n = distribution(generator);
+        unsigned int t1 = seedHandler();
+        std::default_random_engine generator1(t1);
+        std::uniform_int_distribution<int> distribution1(1, i->getNdays());
+        int d = -1;
+        for (int size1 = 0; size1 < floor(factor * i->getNdays()); size1++) {
+            d = distribution1(generator1);
+            if (i->isRoomBlockedbyDay(n, d))
+                size1--;
+            else {
+                std::string days = "";
+                for (int j = 1; j <= i->getNdays(); ++j) {
+                    if (d != j)
+                        days.append("0");
+                    else
+                        days.append("1");
+                }
+                i->blockRoombyDay(n, days);
+                std::cout << "Block room by day: " << n << " day " << days << std::endl;
+            }
+        }
+    }
 }
 
 /**
