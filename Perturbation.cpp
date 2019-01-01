@@ -186,8 +186,9 @@ void Perturbation::randomSlotClose(Instance *i, double factor) {
  */
 unsigned int Perturbation::seedHandler() {
     unsigned int t = std::chrono::steady_clock::now().time_since_epoch().count();
-    seedFile.open("seed.txt", std::ios_base::app);
-    seedFile << t << std::__1::endl;
+    seedFile.open("../log/seed.txt", std::ios_base::app);
+    seedFile << t << std::endl;
+    seedFile.close();
     return t;
 }
 
