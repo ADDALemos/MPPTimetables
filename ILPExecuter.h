@@ -239,7 +239,7 @@ public:
                     for (auto c : instance->getClasses()[k]->getSolDays()) {
                         if (c == '1') {
                             if (instance->getClasses()[k]->getSolStart() <= j &&
-                                (instance->getClasses()[k]->getSolStart() + instance->getClasses()[k]->getLenght() >=
+                                (instance->getClasses()[k]->getSolStart() + instance->getClasses()[k]->getLenght() >
                                  j))
                                 solutionTime[d][j][k] = 1;
                             else
@@ -598,8 +598,7 @@ private:
                     for (int j = 0; j < instance->getClasses()[i]->getLenght(); ++j) {
 
                         if (solutionTime[k][instance->getClasses()[i]->getStart() + j][i] != 0) {
-                            std::cout << k << " " << j << " " << i << std::endl;
-
+                            std::cout << k << " " << instance->getClasses()[i]->getStart() + j << " " << i << std::endl;
                         }
 
                     }
