@@ -60,7 +60,8 @@ int main() {
     p->randomEnrolmentChanges(instance, 15, false, .5);
     p->randomCloseRoom(instance, 0);
     p->randomSlotClose(instance, 0);
-    p->randomCloseRoomDay(instance, .5);
+    p->randomCloseRoomDay(instance, 0);
+    p->randomShiftChange(instance, 1, 1, 150, false);
     ILPExecuter *runner = new ILPExecuter();
     runner->setInstance(instance);
     runner->definedRoomLecture();

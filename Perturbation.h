@@ -34,7 +34,7 @@ public:
     void randomClassSelection(Instance *i, double factor);
 
     //Change the number of shifts
-    void randomShiftChange(Instance *i, double factor);
+    void randomShiftChange(Instance *i, double factorCourse, double factorShift, int limit, bool increase);
 
 
 };

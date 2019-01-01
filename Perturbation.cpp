@@ -179,6 +179,45 @@ void Perturbation::randomSlotClose(Instance *i, double factor) {
 
 }
 
+/**
+ * Random increase/decrease in the number of shifts
+ * @param i problem instance
+ * @param factorCourse random factor for the courses
+ * @param factorShift random factor for the subparts
+ * @param limit increase and decrease limit
+ * @param increase increase or decrease flag
+ */
+
+void Perturbation::randomShiftChange(Instance *i, double factorCourse, double factorShift, int limit, bool increase) {
+    unsigned int t = seedHandler();
+    std::default_random_engine generator(t);
+    std::uniform_int_distribution<int> distribution(1, i->getCourses().size() - 1);//numb of courses not classes
+    int course = 0;
+    for (int size = 0; size < floor(factorCourse * i->getCourses().size()); size++) {
+        course = distribution(generator);
+        unsigned int tShift = seedHandler();
+        std::default_random_engine generatorShift(tShift);
+        std::uniform_int_distribution<int> distributionShift(0,
+                                                             i->getCourse(std::to_string(course))->getNumShifts() - 1);
+        int shift = 0;
+        for (int size1 = 0;
+             size1 < floor(factorShift * i->getCourse(std::to_string(course))->getNumShifts()); size1++) {
+            shift = distributionShift(generatorShift);
+            unsigned int tAmount = seedHandler();
+            std::default_random_engine generatorAmount(tAmount);
+            std::uniform_int_distribution<int> distributionAmount(1, limit);
+            int amount = distributionAmount(generatorAmount);
+            if (increase)
+                i->getCourse(std::to_string(course))->newShift(shift, amount);
+            else
+                i->getCourse(std::to_string(course))->deleteShift(shift, amount);
+            std::cout << "Shift: courseID " << course << " SubpartID:" << shift << " number:" << amount << std::endl;
+
+
+        }
+    }
+}
+
 
 /**
  * Generate a seed based on the clock

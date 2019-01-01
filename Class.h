@@ -69,6 +69,10 @@ public:
 
     }
 
+    Class() {
+
+    }
+
 private:
     std::vector<Lecture *> lectures;
     std::map<Room, int> possibleRooms;

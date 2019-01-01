@@ -90,6 +90,20 @@ public:
         }
         return nullptr;
     }
+
+    int getNumShifts() {
+        return configuration.begin()->second.size();
+    }
+
+    void newShift(int subpart, int numberNewShifts) {
+        configuration.begin()->second[subpart]->newShift(numberNewShifts);
+
+    }
+
+    void deleteShift(int subpartID, int amount) {
+        configuration.begin()->second[subpartID]->deleteShift(amount);
+
+    }
 };
 
 

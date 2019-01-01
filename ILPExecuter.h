@@ -169,7 +169,7 @@ public:
 
 
     /**
-    * Ensure times lot ina day is closed cannot be used
+    * Ensure times lot in a day is closed cannot be used
     */
     void slotClose() {
         for (int i = 0; i < instance->getClasses().size(); i++) {
@@ -658,7 +658,7 @@ private:
                         solutionTime[k][instance->getClasses()[i]->getStart() + j][i] = cplex.getValue(
                                 lectureTime[k][instance->getClasses()[i]->getStart() + j][i]);
                         if (solutionTime[k][instance->getClasses()[i]->getStart() + j][i] != 0) {
-                            instance->getClass(j + 1)->setSolution(instance->getClasses()[i]->getStart(),
+                            instance->getClasses()[i]->setSolution(instance->getClasses()[i]->getStart(),
                                                                    strdup(std::to_string(k).c_str()));
                         }
 
@@ -693,7 +693,7 @@ private:
             for (int j = 0; j < instance->getClasses().size(); ++j) {
                 solutionRoom[i][j] = cplex.getValue(roomLecture[i][j]);
                 if (cplex.getValue(roomLecture[i][j]) != 0) {
-                    instance->getClass(j + 1)->setSolRoom(i + 1);
+                    instance->getClasses()[j]->setSolRoom(i + 1);
                 }
             }
 

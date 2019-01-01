@@ -44,6 +44,23 @@ public:
         }
         return nullptr;
     }
+
+    void newShift(int numberNewShifts) {
+        for (int i = 0; i < numberNewShifts; ++i) {
+            //classes.push_back(new Class());//TODO: Actually create a new class
+        }
+
+    }
+
+    void deleteShift(int numberNewShifts) {
+        if (numberNewShifts > classes.size())
+            numberNewShifts = classes.size();
+        for (int i = 0; i < numberNewShifts; ++i) {
+            classes.erase(classes.begin() + i);
+        }
+
+
+    }
 };
 
 
