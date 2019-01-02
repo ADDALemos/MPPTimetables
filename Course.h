@@ -97,6 +97,12 @@ public:
 
     void newShift(int subpart, int numberNewShifts) {
         configuration.begin()->second[subpart]->newShift(numberNewShifts);
+        int subpartID = subpart;
+        while ((subpart = findParentSubpart(subpartID)) != -1) {
+            configuration.begin()->second[subpart]->newShift(numberNewShifts);
+            //configuration.begin()->second[subpartID]->setParent(subpart);TODO:parent part
+            subpartID = subpart;
+        }
 
     }
 
@@ -104,6 +110,21 @@ public:
         configuration.begin()->second[subpartID]->deleteShift(amount);
 
     }
+
+    int findParentSubpart(int subpart) {
+        if (configuration.begin()->second[subpart]->getFirstParent() == -1)
+            return -1;
+        for (auto it = configuration.begin(); it != configuration.end(); ++it) {
+            for (int i = 0; i < it->second.size(); ++i) {
+                if (it->second[i]->existsParentClass(configuration.begin()->second[subpart]->getFirstParent()))
+                    return i;
+
+            }
+
+        }
+        return -1;
+    }
+
 };
 
 

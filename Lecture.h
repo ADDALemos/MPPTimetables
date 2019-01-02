@@ -20,6 +20,8 @@ class Lecture {
                                                                                        weeks(weeks),
                                                                                        penalty(penalty) {}
 
+    Lecture(int lenght) : lenght(lenght) {}
+
     const std::string &getDays() const {
         return days;
     }

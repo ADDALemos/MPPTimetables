@@ -16,6 +16,8 @@ class Class {
     int id;
     int limit;//limit number of students
     int parent;
+
+private:
     //Solution
     int roomID = -1;
     int start = -1;
@@ -69,7 +71,10 @@ public:
 
     }
 
-    Class() {
+
+    Class(int limit, int lenght) : limit(limit) {
+        Lecture *l = new Lecture(lenght);
+        lectures.push_back(l);
 
     }
 
@@ -160,6 +165,12 @@ public:
         Class::parent = parent;
 
     }
+
+    int getParent() const {
+        return parent;
+    }
+
+
 };
 
 

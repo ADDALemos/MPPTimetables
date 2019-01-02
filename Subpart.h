@@ -47,7 +47,8 @@ public:
 
     void newShift(int numberNewShifts) {
         for (int i = 0; i < numberNewShifts; ++i) {
-            //classes.push_back(new Class());//TODO: Actually create a new class
+            classes.push_back(
+                    new Class(averageClassLimit(), averageLectureLenght()));//TODO: Actually create a new class
         }
 
     }
@@ -58,8 +59,37 @@ public:
         for (int i = 0; i < numberNewShifts; ++i) {
             classes.erase(classes.begin() + i);
         }
+    }
 
+    int averageClassLimit() {
+        int sum = 0;
+        for (int i = 0; i < classes.size(); ++i) {
+            sum += classes[i]->getLimit();
+        }
+        sum = sum / classes.size();
+        return sum;
 
+    }
+
+    int averageLectureLenght() {
+        int sum = 0;
+        for (int i = 0; i < classes.size(); ++i) {
+            sum += classes[i]->getLenght();
+        }
+        sum = sum / classes.size();
+        return sum;
+    }
+
+    int getFirstParent() {
+        return classes[0]->getParent();
+    }
+
+    bool existsParentClass(int id) {
+        for (int i = 0; i < classes.size(); ++i) {
+            if (classes[i]->getId() == id)
+                return true;
+        }
+        return false;
     }
 };
 
