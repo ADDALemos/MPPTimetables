@@ -48,7 +48,7 @@ public:
     void newShift(int numberNewShifts) {
         for (int i = 0; i < numberNewShifts; ++i) {
             classes.push_back(
-                    new Class(averageClassLimit(), averageLectureLenght()));//TODO: Actually create a new class
+                    new Class(averageClassLimit(), averageLectureLenght(), classes[0]->getStudent()));
         }
 
     }
@@ -91,6 +91,7 @@ public:
         }
         return false;
     }
+
 };
 
 

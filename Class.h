@@ -72,7 +72,7 @@ public:
     }
 
 
-    Class(int limit, int lenght) : limit(limit) {
+    Class(int limit, int lenght, std::vector<int> student) : limit(limit), student(student) {
         Lecture *l = new Lecture(lenght);
         lectures.push_back(l);
 
