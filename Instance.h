@@ -275,6 +275,37 @@ public:
         return incorrentAssignments.find(classID) != incorrentAssignments.end();
 
     }
+
+    int averageCoursesperStudent() {
+        int course = 0;
+        for (auto it = std::begin(student); it != std::end(student); ++it) {
+            course += it->second.getCourse().size();
+        }
+        return course;
+    }
+
+    int averageClassesperStudent() {
+        int classes = 0;
+        for (auto it = std::begin(student); it != std::end(student); ++it) {
+            classes += it->second.getClasses().size();
+        }
+        return classes;
+    }
+
+    int averageSubpartsperCourse() {
+        int sub = 0;
+        for (auto it = std::begin(courses); it != std::end(courses); ++it) {
+            sub += it->second->getConfiguratons().size();
+        }
+        return sub;
+    }
+
+    void findOverlapConstraints() {
+        for (std::map<std::string, Course *>::iterator i = courses.begin(); i != courses.end(); ++i) {
+            i->second->findOverlapConstraints();
+        }
+
+    }
 };
 
 

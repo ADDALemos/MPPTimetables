@@ -75,6 +75,10 @@ public:
 
     }
 
+    /**
+     * The lecture can only be scheduled in one slot
+     */
+
     void oneLectureSlot() {
         try {
             for (int j = 0; j <
@@ -99,6 +103,10 @@ public:
 
     }
 
+    /**
+     * A lecture can only be in one room at time
+     */
+
     void oneLectureRoom() {
         try {
             for (int j = 0; j <
@@ -114,6 +122,10 @@ public:
         }
 
     }
+
+    /***
+     * The room can only have one lecture per slot
+     */
 
     void oneLectureRoomConflict() {
         try {
@@ -210,6 +222,29 @@ public:
 
             }
 
+        }
+    }
+
+    /**Teacher's conflict*/
+    void teacher() {
+        for (std::map<std::string, Course *>::const_iterator it = instance->getCourses().begin();
+             it != instance->getCourses().end(); it++) {
+            for (std::map<int, std::vector<Subpart *>>::iterator sub = it->second->getConfiguratons().begin();
+                 sub != it->second->getConfiguratons().end(); ++sub) {
+                for (int i = 0; i < sub->second.size(); ++i) {
+                    for (int d = 0; d < instance->getNdays(); ++d) {
+                        for (int t = 0; t < instance->getSlotsperday(); ++t) {
+                            IloExpr conflict = IloExpr(env);
+                            for (int c = 0; c < sub->second[i]->getClasses().size(); c++) {
+                                conflict += lectureTime[d][t][c];
+                            }
+                            model.add(conflict <= sub->second[i]->getOverlap());
+                        }
+
+                    }
+                }
+
+            }
         }
     }
 

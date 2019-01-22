@@ -23,7 +23,7 @@ public:
         Course::name = name;
     }
 
-    const std::map<int, std::vector<Subpart *>> &getConfiguratons() const {
+    std::map<int, std::vector<Subpart *>> &getConfiguratons() {
         return configuration;
     }
 
@@ -123,6 +123,16 @@ public:
 
         }
         return -1;
+    }
+
+    void findOverlapConstraints() {
+        for (std::map<int, std::vector<Subpart *>>::iterator it = configuration.begin();
+             it != configuration.end(); ++it) {
+            for (int i = 0; i < it->second.size(); ++i) {
+                it->second[i]->isOverlapped();
+            }
+        }
+
     }
 
 };

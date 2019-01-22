@@ -13,6 +13,7 @@
 #include <sstream>
 #include "Perturbation.h"
 #include "Instance.h"
+#include<limits.h>
 
 /**
  * Random increase/decrease in the number of attending students
@@ -217,6 +218,27 @@ void Perturbation::randomShiftChange(Instance *i, double factorCourse, double fa
         }
     }
 }
+
+
+/**
+ *
+ */
+void Perturbation::randomAddNewCurriculum(Instance *i) {
+    unsigned int t = seedHandler();
+    std::default_random_engine generator(t);
+    std::uniform_int_distribution<int> distribution(1, i->getCourses().size() - 1);
+    int course;
+    for (int j = 0; j < NUMBER_OF_COURSES; ++j) {
+        course = distribution(generator);
+
+
+    }
+
+    std::cout << id << std::endl;
+    id--;
+
+}
+
 
 
 /**

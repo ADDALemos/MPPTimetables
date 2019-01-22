@@ -5,6 +5,8 @@
 #ifndef PROJECT_PERTURBATION_H
 #define PROJECT_PERTURBATION_H
 
+static const int NUMBER_OF_COURSES = 4;
+
 #include "Instance.h"
 
 class Perturbation {
@@ -15,6 +17,8 @@ class Perturbation {
     std::set<int> randomClassSelection(int classNumber, double factor, unsigned int t);
 
     unsigned int seedHandler();
+
+    int id = INT_MAX;
 
 
 public:
@@ -35,6 +39,8 @@ public:
 
     //Change the number of shifts
     void randomShiftChange(Instance *i, double factorCourse, double factorShift, int limit, bool increase);
+
+    void randomAddNewCurriculum(Instance *i);
 
 
 };

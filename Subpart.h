@@ -12,7 +12,11 @@
 class Subpart {
     std::string id;
     std::vector<Class *> classes;
+    int overlap = 1;
 public:
+    int getOverlap() const {
+        return overlap;
+    }
     const std::string &getId() const {
         return id;
     }
@@ -91,6 +95,25 @@ public:
         }
         return false;
     }
+
+    /**
+     * How many shift of this type are overlaped in the original solution
+     */
+    void isOverlapped() {
+        int max = 1;
+        std::map<int, int> map;
+        for (Class *c: classes) {
+            if (map.find(c->getSolStart()) == map.end())
+                map.insert(std::pair<int, int>(c->getSolStart(), 1));
+            else
+                map[c->getSolStart()]++;
+            if (max < map[c->getSolStart()])
+                max = map[c->getSolStart()];
+
+        }
+        overlap = max;
+    }
+
 
 };
 
