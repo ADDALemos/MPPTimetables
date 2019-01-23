@@ -423,6 +423,31 @@ public:
         model.add(IloMaximize(env, numberSeatedStudents()));
     }
 
+
+    IloNum gapStudentsTimetable() {
+        IloExpr min(env);
+        for (int i = 0; i < instance->getStudent().size(); ++i) {
+            for (int j = 0; j < instance->getNdays(); ++j) {
+                for (int k = 1; k < instance->getSlotsperday(); ++k) {
+                    IloExpr temp(env);
+                    for (int l = 0; l < instance->getClasses().size(); ++l) {
+                        std::cout << l << " " << instance->getStudent(i + 1).isEnrolled(l) << std::endl;
+                        if (instance->getStudent(i + 1).isEnrolled(l))
+                            temp += lectureTime[j][k][l] + lectureTime[j][k - 1][l];
+                    }
+                    min += (temp == 1);
+
+                }
+            }
+
+        }
+        std::cout << min << std::endl;
+    }
+
+    void optimizeGapStudentsTimetable() {
+        model.add(IloMaximize(env, gapStudentsTimetable()));
+    }
+
     double run(bool mpp) {
         std::cout << "Original Solution" << std::endl;
         printRoomSolution();

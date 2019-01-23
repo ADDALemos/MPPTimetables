@@ -85,7 +85,7 @@ int main() {
     runner->oneLectureRoomConflict();
 
     runner->saveEncoding();
-    runner->distanceToSolution();
+    runner->optimizeGapStudentsTimetable();
     //runner->optimizeRoomUsage();
 
 

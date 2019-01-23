@@ -44,6 +44,14 @@ public:
         Student::classes.push_back(c);
     }
 
+    bool isEnrolled(int idClass) {
+        for (int i = 0; i < classes.size(); ++i) {
+            if (classes[i]->getId() == idClass)
+                return true;
+        }
+        return false;
+    }
+
 public:
     Student(int id, std::vector<Course *, std::allocator<Course *>> courses) : id(id), course(courses) {
 
