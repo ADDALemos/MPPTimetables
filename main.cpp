@@ -29,8 +29,6 @@ void readOutputXML(std::string filename, Instance *instance);
 void writeOutputXML(std::string filename, Instance *instance, double time);
 
 
-void findOverlapConstraints();
-
 void help() {
     std::cout << "For help press -- h" << std::endl <<
               "Program execution ./program -o OriginalProblem.xml [-s OriginalSolution.xml] [-p  Perturbations.xml] [-c Cost function]"
@@ -55,8 +53,8 @@ int main() {
     //std::exit(42);
     // help();
 
-    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/example/SAT/short1.xml");
-    readOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/example/SAT/short1.xml", instance);
+    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/IST/IST-C1S1-2018-2019.xml");
+    readOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/IST/IST-C1S1-2018-2019.xml", instance);
     /*Perturbation *p = new Perturbation();
     p->randomAddNewCurriculum(instance);
     p->randomClassSelection(instance, 0);
@@ -169,6 +167,11 @@ void writeOutputXML(std::string filename, Instance *instance, double time) {
 void readOutputXML(std::string filename, Instance *instance) {
     xml_document<> doc;
     std::ifstream file(filename);
+    if (file.fail()) {
+        std::cerr << "File not found: " + filename << std::endl;
+        std::cerr << "Method: readOutputXML" << std::endl;
+        std::exit(11);
+    }
     std::stringstream buffer;
     buffer << file.rdbuf();
     file.close();
@@ -219,6 +222,11 @@ void readOutputXML(std::string filename, Instance *instance) {
 Instance *readInputXML(std::string filename) {//parent flag missing
     xml_document<> doc;
     std::ifstream file(filename);
+    if (file.fail()) {
+        std::cerr << "File not found: " + filename << std::endl;
+        std::cerr << "Method: readInputXML" << std::endl;
+        std::exit(11);
+    }
     std::stringstream buffer;
     buffer << file.rdbuf();
     file.close();
@@ -561,3 +569,5 @@ Instance *readInputXML2007(std::string filename) {
 
     return instance;
 }
+
+
