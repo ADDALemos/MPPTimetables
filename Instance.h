@@ -187,7 +187,12 @@ public:
     }
 
     Course *getCourse(std::string courseID) {
-        return courses.at(courseID);
+        if (courses.find(courseID) != courses.end())
+            return courses.at(courseID);
+        else {
+            std::cerr << "Course does not exist: " << courseID << std::endl;
+            return nullptr;
+        }
     }
 
     unsigned int getNumClasses() {
@@ -224,7 +229,11 @@ public:
     }
 
     Student &getStudent(int id) {
-        return student.at(id);
+        if (student.find(id) != student.end())
+            return student.at(id);
+        else {
+            std::cerr << "Student does not exist: " << id << std::endl;
+        }
     }
 
     void updateStudentEnrollment(int classes, int change) {
@@ -247,7 +256,12 @@ public:
     }
 
     bool isRoomBlocked(int roomID) {
-        return rooms.at(roomID).isClose();
+        if (rooms.find(roomID) != rooms.end())
+            return rooms.at(roomID).isClose();
+        else {
+            std::cerr << "Room does not exist: " << roomID << std::endl;
+            std::exit(11);
+        }
     }
 
     void blockRoombyDay(int roomID, std::string day) {

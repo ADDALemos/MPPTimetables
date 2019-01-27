@@ -2255,8 +2255,10 @@ namespace rapidxml
                 skip<whitespace_pred, Flags>(text);
 
                 // Skip =
-                if (*text != Ch('='))
+                if (*text != Ch('=')) {
+                    std::cerr << text << std::endl;
                     RAPIDXML_PARSE_ERROR("expected =", text);
+                }
                 ++text;
 
                 // Add terminating zero after name
