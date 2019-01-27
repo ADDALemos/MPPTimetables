@@ -28,7 +28,9 @@ void readOutputXML(std::string filename, Instance *instance);
 
 void writeOutputXML(std::string filename, Instance *instance, double time);
 
+void readPerturbations();
 
+//TODO: Actually write help
 void help() {
     std::cout << "For help press -- h" << std::endl <<
               "Program execution ./program -o OriginalProblem.xml [-s OriginalSolution.xml] [-p  Perturbations.xml] [-c Cost function]"
@@ -46,23 +48,19 @@ void help() {
 
 
 using namespace rapidxml;
-
-int main() {
+bool quiet = false; //Print info
+int main(int argc, char **argv) {
     clock_t tStart = clock();
-    //readInputXML2007("/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2007/comp02.xml");
-    //std::exit(42);
     // help();
 
-    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/IST/IST-C1S1-2018-2019.xml");
-    readOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/IST/IST-C1S1-2018-2019.xml", instance);
-    /*Perturbation *p = new Perturbation();
-    p->randomAddNewCurriculum(instance);
-    p->randomClassSelection(instance, 0);
-    p->randomEnrolmentChanges(instance, 15, false, .5);
-    p->randomCloseRoom(instance, 0);
-    p->randomSlotClose(instance, 0);
-    p->randomCloseRoomDay(instance, 0);
-    p->randomShiftChange(instance, 1, 1, 150, false);*/
+
+    if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
+    Instance *instance = readInputXML(argv[1]);
+    if (!quiet) std::cout << "Starting Reading File: " << argv[2] << std::endl;
+    readOutputXML(argv[2], instance);
+    if (!quiet) std::cout << "Generating Perturbations based on the file: " << std::endl;
+    readPerturbations();
+    if (!quiet) std::cout << "Generating ILP model" << std::endl;
     ILPExecuter *runner = new ILPExecuter();
     runner->setInstance(instance);
     runner->definedRoomLecture();
@@ -74,21 +72,22 @@ int main() {
     runner->roomClosebyDay();
     runner->assignmentInvalid();
     runner->loadOutput();
-
-
-    runner->oneLectureSlot();
     runner->oneLectureRoom();
+    runner->oneLectureperSlot();
     // runner->slackStudent();
     runner->studentConflictSolution();
     runner->oneLectureRoomConflict();
-
     runner->saveEncoding();
-    runner->optimizeGapStudentsTimetable();
+
+    if (!quiet) std::cout << "Add optimization: GapStudentsTimetable" << std::endl;
+    //runner->optimizeGapStudentsTimetable();
+
     //runner->optimizeRoomUsage();
 
 
     //runner->optimizeSeatedStudents();
 
+    if (!quiet) std::cout << "Running ILP solver" << std::endl;
     double v = runner->run(true);
     int **sol = runner->getSolutionRoom();
     runner->getSolutionTime();
@@ -100,7 +99,6 @@ int main() {
     runner->setInstance(instance);
     runner->definedRoomLecture();
     runner->definedLectureTime();
-    runner->oneLectureSlot();
     runner->oneLectureRoom();
     //runner->slackStudent();
     runner->studentConflict();
@@ -114,6 +112,15 @@ int main() {
 
     return 0;
 }
+
+void readPerturbations() {/*Perturbation *p = new Perturbation();
+    p->randomAddNewCurriculum(instance);
+    p->randomClassSelection(instance, 0);
+    p->randomEnrolmentChanges(instance, 15, false, .5);
+    p->randomCloseRoom(instance, 0);
+    p->randomSlotClose(instance, 0);
+    p->randomCloseRoomDay(instance, 0);
+    p->randomShiftChange(instance, 1, 1, 150, false);*/}
 
 
 void writeOutputXML(std::string filename, Instance *instance, double time) {
@@ -164,6 +171,9 @@ void writeOutputXML(std::string filename, Instance *instance, double time) {
 
 }
 
+//Room mapping
+std::map<std::string, int> roomID;
+
 void readOutputXML(std::string filename, Instance *instance) {
     xml_document<> doc;
     std::ifstream file(filename);
@@ -185,15 +195,15 @@ void readOutputXML(std::string filename, Instance *instance) {
     }
     int total = 0;
     for (const xml_node<> *n = pRoot->first_node(); n; n = n->next_sibling()) {
-        std::string weeks = " ", days = " ";
-        int id = -1, start = -1, room = -1;
+        std::string weeks = " ", days = " ", room = " ";
+        int id = -1, start = -1;
         for (const xml_attribute<> *a = n->first_attribute(); a; a = a->next_attribute()) {
             if (strcmp(a->name(), "id") == 0) {
                 id = atoi(a->value());
             } else if (strcmp(a->name(), "start") == 0) {
                 start = atoi(a->value());
             } else if (strcmp(a->name(), "room") == 0) {
-                room = atoi(a->value());
+                room = a->value();
             } else if (strcmp(a->name(), "weeks") == 0) {
                 weeks = a->value();
             } else if (strcmp(a->name(), "days") == 0) {
@@ -201,7 +211,7 @@ void readOutputXML(std::string filename, Instance *instance) {
             }
         }
         Class *s = instance->getClass(id);
-        s->setSolution(start, room, weeks, days);
+        s->setSolution(start, roomID.at(room), room, weeks, days);
         std::vector<int> student;
         for (const xml_node<> *stu = n->first_node(); stu; stu = stu->next_sibling()) {
             for (const xml_attribute<> *a = stu->first_attribute(); a; a = a->next_attribute()) {
@@ -259,12 +269,13 @@ Instance *readInputXML(std::string filename) {//parent flag missing
             }
         } else if (strcmp(n->name(), "rooms") == 0) {
             for (const xml_node<> *s = n->first_node(); s; s = s->next_sibling()) {
-                int id=-1, capacity=-1;
+                std::string id = " ";
+                int capacity = -1;
                 for (const xml_attribute<> *a = s->first_attribute(); a; a = a->next_attribute()) {
                     if (strcmp(a->name(), "capacity") == 0) {
                         capacity=atoi(a->value());
                     } else if (strcmp(a->name(), "id") == 0) {
-                        id=atoi(a->value());
+                        id = a->value();
                     }
                 }
                 std::map<int, int> travel;
@@ -303,7 +314,12 @@ Instance *readInputXML(std::string filename) {//parent flag missing
 
 
                 }
-                Room *r = new Room(id, capacity, travel, una);
+                if (roomID.find(id) == roomID.end()) {
+                    int size = roomID.size();
+                    size++;
+                    roomID.insert(std::pair<std::string, int>(id, size));
+                }
+                Room *r = new Room(roomID[id], id, capacity, travel, una);
                 //   std::cout<<*r<<std::endl;
                 //      std::cout<<r->getSlots().size()<<std::endl;
                 instance->addRoom(r);
@@ -311,7 +327,6 @@ Instance *readInputXML(std::string filename) {//parent flag missing
             }
 
         } else if (strcmp(n->name(), "courses") == 0) {
-
             for (const xml_node<> *s = n->first_node(); s; s = s->next_sibling()) {
                 char *id;
                 std::__1::map<int, std::__1::vector<Subpart *>> config;
@@ -345,21 +360,21 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                             }
                             for (const xml_node<> *lec = cla->first_node(); lec; lec = lec->next_sibling()) {
                                 if (strcmp(lec->name(), "room") == 0) {
-                                    int idRoom = -1, penalty = -1;
+                                    std::string idRoom = " ";
+                                    int penalty = -1;
                                     for (const xml_attribute<> *a = lec->first_attribute(); a; a = a->next_attribute()) {
                                         //std::cout<<a->name()<<std::endl;
                                         if (strcmp(a->name(), "id") == 0)
-                                            idRoom = atoi(a->value());
+                                            idRoom = a->value();
                                         else if (strcmp(a->name(), "penalty") == 0)
                                             penalty = atoi(a->value());
 
                                     }
-                                    roomsv.insert(std::pair<Room, int>(instance->getRoom(idRoom), penalty));
+                                    roomsv.insert(std::pair<Room, int>(instance->getRoom(roomID[idRoom]), penalty));
                                 } else if (strcmp(lec->name(), "time") == 0) {
                                     int lenght = -1, start = -1, penalty = -1;
                                     std::string weeks, days;
                                     for (const xml_attribute<> *a = lec->first_attribute(); a; a = a->next_attribute()) {
-
 
                                         if (strcmp(a->name(), "length") == 0) {
                                             lenght = atoi(a->value());
@@ -464,7 +479,6 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                     instance->addDistribution(req);
 
             }
-
         } else if (strcmp(n->name(), "students") == 0) {
             std::__1::map<int, Student> std;
             for (const xml_node<> *sub = n->first_node(); sub; sub = sub->next_sibling()) {
@@ -481,10 +495,10 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                     c.push_back(instance->getCourse(courseIDstd));
 
                 }
-
                 std.insert(std::pair<int, Student>(studentID, Student(studentID, c)));
             }
             instance->setStudent(std);
+
 
         }
 

@@ -21,6 +21,7 @@ private:
     //Solution
     int roomID = -1;
     int start = -1;
+    std::string room = " ";
     std::string week = "1";
     std::string days = "0";
     std::vector<int> student;
@@ -145,21 +146,20 @@ public:
     }
 
 
-    void setSolution(int start, std::string days) {
-        Class::start = start;
-        Class::days = days;
-    }
+
 
     void addStudents(std::vector<int, std::allocator<int>> student) {
         Class::student = student;
     }
 
-    void setSolution(int start, int room, std::string week, std::string day) {
+    void setSolution(int start, int roomID, std::string room, std::string week, std::string day) {
         Class::start = start;
-        Class::roomID = room;
+        Class::roomID = roomID;
+        Class::room = room;
         Class::week = week;
         Class::days = day;
     }
+
 
     void setParent(int parent) {
         Class::parent = parent;
@@ -171,6 +171,10 @@ public:
     }
 
 
+    void setSolutionTime(int time, char *day) {
+        Class::start = time;
+        Class::days = day;
+    }
 };
 
 

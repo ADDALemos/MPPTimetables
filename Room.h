@@ -12,11 +12,11 @@
 #include "Unavailability.h"
 
 class Room {
+private:
     int id;
+    std::string name;
     int capacity;
     bool close = false;
-
-private:
     std::map<int,int> travel;//room time
     std::vector<Unavailability> slots;
 public:
@@ -87,8 +87,9 @@ public:
         return id < rhs.id;
     }
 
-    Room(int i, int i1, std::map<int, int> map, std::vector<Unavailability, std::allocator<Unavailability>> vector)
-            : id(i), capacity(i1), travel(map), slots(vector) {
+    Room(int i, std::string name, int i1, std::map<int, int> map,
+         std::vector<Unavailability, std::allocator<Unavailability>> vector)
+            : id(i), name(name), capacity(i1), travel(map), slots(vector) {
 
     }
 
