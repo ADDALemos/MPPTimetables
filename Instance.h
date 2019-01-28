@@ -172,7 +172,12 @@ public:
     }
 
     Room getRoom(int roomID) {
-        return rooms.at(roomID);
+        if (rooms.find(roomID) != rooms.end())
+            return rooms.at(roomID);
+        else {
+            std::cerr << "Room does not exist: " << roomID << std::endl;
+            std::exit(11);
+        }
 
     }
 
@@ -191,6 +196,7 @@ public:
             return courses.at(courseID);
         else {
             std::cerr << "Course does not exist: " << courseID << std::endl;
+            std::exit(11);
             return nullptr;
         }
     }
@@ -225,7 +231,9 @@ public:
                     return temp[j];
             }
         }
-        return nullptr;
+        std::cerr << "Class does not exist: " << id << std::endl;
+        std::exit(11);
+
     }
 
     Student &getStudent(int id) {
@@ -233,6 +241,7 @@ public:
             return student.at(id);
         else {
             std::cerr << "Student does not exist: " << id << std::endl;
+            std::exit(11);
         }
     }
 

@@ -240,6 +240,19 @@ void Perturbation::randomAddNewCurriculum(Instance *i) {
 }
 
 
+void Perturbation::randomOverlap(Instance *i, double factor) {
+    unsigned int t = seedHandler();
+    std::default_random_engine generator(t);
+    std::uniform_int_distribution<int> distribution(1, i->getClasses().size() - 1);
+    std::vector<std::pair<int, int>> l;
+    int class1 = distribution(generator);
+    for (int size = 0; size < floor(factor * i->getClasses().size()) * 2; size++) {
+        l.push_back(std::pair<int, int>(class1, distribution(generator)));
+    }
+
+}
+
+
 
 /**
  * Generate a seed based on the clock

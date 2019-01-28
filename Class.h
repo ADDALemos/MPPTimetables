@@ -44,7 +44,7 @@ public:
     }
 
     int getSolStart() const {
-        return start - 1;
+        return start;
     }
 
     std::string getSolWeek() const {

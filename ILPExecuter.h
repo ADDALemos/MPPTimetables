@@ -20,6 +20,7 @@ class ILPExecuter {
     IloModel model = IloModel(env);
     Instance *instance;
 
+
     typedef IloArray<IloBoolVarArray> NumVarMatrix;// Matrix
     typedef IloArray<NumVarMatrix> NumVar3Matrix;// 3d Matrix
 
@@ -79,6 +80,37 @@ public:
      * The lecture can only be scheduled in one slot
      */
 
+    void oneLectureperSlot() {
+        try {
+            for (int j = 0; j <
+                            instance->getClasses().size(); j++) {
+                IloNumExpr temp = IloNumExpr(env);
+                for (int d = 0; d < instance->getNdays(); d++) {
+                    for (int t = 0; t < instance->getSlotsperday(); t++) {
+                        temp += lectureTime[d][t][j];
+                        for (int t1 = t + 1; t1 < instance->getSlotsperday(); t1++) {
+                            for (int t2 = t1 + 1; t2 < instance->getSlotsperday(); t2++) {
+                                model.add(
+                                        lectureTime[d][t1][j] == ((lectureTime[d][t][j] - lectureTime[d][t2][j]) == 0));
+                            }
+                        }
+                    }
+
+                }
+                model.add(temp == instance->getClasses()[j]->getLenght());
+
+            }
+        } catch (IloCplex::Exception &e) {
+            std::cout << e.getMessage() << std::endl;
+        }
+
+    }
+
+    /**
+     * Force lectures to be in slot n
+     */
+
+
     void oneLectureSlot() {
         try {
             for (int j = 0; j <
@@ -113,7 +145,8 @@ public:
                             instance->getClasses().size(); j++) {
                 IloNumExpr temp = IloNumExpr(env);
                 for (int i = 0; i < instance->getRooms().size(); i++) {
-                    temp += roomLecture[i][j];
+                    if (instance->getClasses()[j]->getPossibleRooms().size() > 0)
+                        temp += roomLecture[i][j];
                 }
                 model.add(temp == 1);
             }
@@ -121,6 +154,14 @@ public:
             std::cout << e.getMessage() << std::endl;
         }
 
+    }
+
+    /**
+     * Ensure room r is used to lecture l
+     */
+    void roomPreference(int r, int l) {
+        model.add(roomLecture[r][l] == 1);
+        //std::cout<<instance->getRoom(r-1).getName()<<" "<<instance->getClasses()[l]->getId()<<std::endl;
     }
 
     /***
@@ -134,9 +175,10 @@ public:
                     for (int k = 0; k < instance->getSlotsperday(); k++) {
                         IloNumExpr temp(env);
                         for (int j = 0; j < instance->getClasses().size(); j++) {
-                            temp += lectureTime[d][k][j] * roomLecture[i][j];
+                            temp += (lectureTime[d][k][j] * roomLecture[i][j]);
+                            //lectureTime[Qui][12]["ACED"]*roomLecture["FA1"]["ACED"]+lectureTime[Qui][12]["LP"]*roomLecture["FA1"]["LP"]
                         }
-                        model.add(1 >= temp);
+                        model.add(temp <= 1);
                     }
                 }
             }
@@ -152,7 +194,7 @@ public:
     void roomClose() {
         for (int i = 0; i < instance->getNumRoom(); i++) {
             for (int j = 0; j < instance->getNumClasses(); ++j) {
-                if (instance->isRoomBlocked(i + 1)) {
+                if (instance->isRoomBlocked(i)) {
                     model.add(roomLecture[i][j] < 1);
                 }
             }
@@ -167,7 +209,7 @@ public:
             for (int t = 0; t < instance->getSlotsperday(); ++t) {
                 for (int i = 0; i < instance->getNumRoom(); i++) {
                     for (int j = 0; j < instance->getNumClasses(); ++j) {
-                        if (instance->isRoomBlockedbyDay(i + 1, d + 1)) {
+                        if (instance->isRoomBlockedbyDay(i, d)) {
                             model.add(roomLecture[i][j] * lectureTime[d][t][j] < 1);
                         }
                     }
@@ -289,20 +331,17 @@ public:
     }
 
     void loadOutput() {
-            for (int j = 0; j < instance->getSlotsperday(); ++j) {
-                for (int k = 0; k < instance->getClasses().size(); ++k) {
+        for (int j = 0; j < instance->getSlotsperday(); j++) {
+            for (int k = 0; k < instance->getClasses().size(); k++) {
                     int d = 0;
                     for (auto c : instance->getClasses()[k]->getSolDays()) {
                         if (c == '1') {
                             if (instance->getClasses()[k]->getSolStart() <= j &&
                                 (instance->getClasses()[k]->getSolStart() + instance->getClasses()[k]->getLenght() >
-                                 j))
+                                 j)) {
                                 solutionTime[d][j][k] = 1;
-                            else
-                                solutionTime[d][j][k] = 0;
-                        } else if (c == '0')
-                            solutionTime[d][j][k] = 0;
-
+                            }
+                        }
                         d++;
                     }
 
@@ -314,7 +353,7 @@ public:
 
         for (int i = 0; i < instance->getRooms().size(); ++i) {
             for (int k = 0; k < instance->getClasses().size(); ++k) {
-                if (instance->getClasses()[k]->getSolRoom() == i)
+                if ((instance->getClasses()[k]->getSolRoom() - 1) == i)
                     solutionRoom[i][k] = 1;
                 else
                     solutionRoom[i][k] = 0;
@@ -328,6 +367,7 @@ public:
 
     void saveEncoding() {
         IloCplex cplex(model);
+        std::cout << "here" << std::endl;
         //std::cout<<"Room "<<instance->getRooms().size()<<" Lecture"<<instance->getClasses().size()<< " Slot"<<instance->getSlotsperday()
         //          <<" days"<<instance->getNdays()<<std::endl;
         cplex.exportModel("/Volumes/MAC/ClionProjects/timetabler/model.lp");
@@ -431,8 +471,8 @@ public:
                 for (int k = 1; k < instance->getSlotsperday(); ++k) {
                     IloExpr temp(env);
                     for (int l = 0; l < instance->getClasses().size(); ++l) {
-                        std::cout << l << " " << instance->getStudent(i + 1).isEnrolled(l) << std::endl;
-                        if (instance->getStudent(i + 1).isEnrolled(l))
+                        //std::cout << l << " " << instance->getStudent(i).isEnrolled(l) << std::endl;
+                        if (instance->getStudent(i).isEnrolled(l))
                             temp += lectureTime[j][k][l] + lectureTime[j][k - 1][l];
                     }
                     min += (temp == 1);
@@ -441,7 +481,7 @@ public:
             }
 
         }
-        std::cout << min << std::endl;
+        //std::cout << min << std::endl;
     }
 
     void optimizeGapStudentsTimetable() {
@@ -449,28 +489,38 @@ public:
     }
 
     double run(bool mpp) {
+        for (int i = 0; i < instance->getClasses().size(); ++i) {
+            //roomPreference(instance->getClasses()[i]->getSolRoom()-1,i);
+        }
+
+        createSol();
         std::cout << "Original Solution" << std::endl;
-        printRoomSolution();
+        loadOutput();
         printsolutionTime();
+        printRoomSolution();
         IloCplex cplex(model);
         cplex.setParam(IloCplex::TiLim, 100.000);
-        if (mpp)
-            warmStart(cplex);
+        if (mpp);
+        // warmStart(cplex);
         saveEncoding();
-        if (cplex.solve()) {
-            std::cout << "solved" << std::endl;
-            // printdistanceToSolutionRooms(cplex);
-            double value = cplex.getObjValue();
-            std::cout << value << std::endl;
-            switchSolution(cplex);
-            std::cout << "New Found Solution" << std::endl;
-            printRoomSolution();
-            printsolutionTime();
+        try {
+            if (cplex.solve()) {
+                std::cout << "solved" << std::endl;
+                //printdistanceToSolutionRooms(cplex);
+                double value = cplex.getObjValue();
+                std::cout << value << std::endl;
+                switchSolution(cplex);
+                std::cout << "New Found Solution" << std::endl;
+                printRoomSolution();
+                printsolutionTime();
 
-            return value;
+                return value;
 
-        } else {
-            std::cout << "false" << std::endl;
+            } else {
+                std::cout << "false" << std::endl;
+            }
+        } catch (IloCplex::Exception e) {
+            std::cerr << e.getMessage() << std::endl;
         }
 
     }
@@ -519,7 +569,7 @@ public:
                                                                  != cplex.getValue(roomLecture[i][j]));
             }
         }
-        std::cout << temp << std::endl;
+        //std::cout << temp << std::endl;
     }
 
     /***
@@ -673,17 +723,12 @@ private:
 
         std::cout << "d t l" << std::endl;
         for (int i = 0; i < instance->getClasses().size(); i++) {
-            int k = 0;
-            for (char &c :instance->getClasses()[i]->getDays()) {
-                if (c != '0')
-                    for (int j = 0; j < instance->getClasses()[i]->getLenght(); ++j) {
-
-                        if (solutionTime[k][instance->getClasses()[i]->getStart() + j][i] != 0) {
-                            std::cout << k << " " << instance->getClasses()[i]->getStart() + j << " " << i << std::endl;
+            for (int d = 0; d < instance->getNdays(); d++) {
+                for (int t = 0; t < instance->getSlotsperday(); t++) {
+                    if (solutionTime[d][t][i] != 0) {
+                        std::cout << d << " t: " << t << " l: " << instance->getClasses()[i]->getId() << std::endl;
                         }
-
                     }
-                k++;
 
             }
 
@@ -711,19 +756,16 @@ private:
 
     void switchSolutionTime(IloCplex cplex) {
         for (int i = 0; i < instance->getClasses().size(); i++) {
-            int k = 0;
-            for (char &c :instance->getClasses()[i]->getDays()) {
-                if (c != '0')
-                    for (int j = 0; j < instance->getClasses()[i]->getLenght(); ++j) {
-                        solutionTime[k][instance->getClasses()[i]->getStart() + j][i] = cplex.getValue(
-                                lectureTime[k][instance->getClasses()[i]->getStart() + j][i]);
-                        if (solutionTime[k][instance->getClasses()[i]->getStart() + j][i] != 0) {
-                            instance->getClasses()[i]->setSolution(instance->getClasses()[i]->getStart(),
+            for (int k = 0; k < instance->getNdays(); ++k) {
+                for (int j = 0; j < instance->getSlotsperday(); ++j) {
+                    solutionTime[k][j][i] = cplex.getValue(lectureTime[k][j][i]);
+
+                    if (solutionTime[k][j][i] != 0) {
+                        instance->getClasses()[i]->setSolutionTime(j,
                                                                    strdup(std::to_string(k).c_str()));
                         }
 
                     }
-                k++;
 
             }
 
@@ -753,7 +795,7 @@ private:
             for (int j = 0; j < instance->getClasses().size(); ++j) {
                 solutionRoom[i][j] = cplex.getValue(roomLecture[i][j]);
                 if (cplex.getValue(roomLecture[i][j]) != 0) {
-                    instance->getClasses()[j]->setSolRoom(i + 1);
+                    instance->getClasses()[j]->setSolRoom(i);
                 }
             }
 
@@ -770,7 +812,8 @@ private:
         for (int i = 0; i < instance->getRooms().size(); i++) {
             for (int j = 0; j < instance->getClasses().size(); ++j) {
                 if (solutionRoom[i][j] != 0) {
-                    std::cout << i << " " << j << " " << solutionRoom[i][j] << std::endl;
+                    std::cout << instance->getRoom(i + 1).getName() << " " << instance->getClasses()[j]->getId() << " "
+                              << solutionRoom[i][j] << std::endl;
                 }
             }
 

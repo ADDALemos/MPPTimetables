@@ -15,6 +15,8 @@ class Room {
 private:
     int id;
     std::string name;
+
+private:
     int capacity;
     bool close = false;
     std::map<int,int> travel;//room time
@@ -36,6 +38,11 @@ public:
         }
         return false;
     }
+
+    const std::string &getName() const {
+        return name;
+    }
+
     bool isClose() const {
         return close;
     }

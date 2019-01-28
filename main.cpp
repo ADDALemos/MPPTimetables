@@ -65,22 +65,19 @@ int main(int argc, char **argv) {
     runner->setInstance(instance);
     runner->definedRoomLecture();
     runner->definedLectureTime();
-    runner->createSol();
-    runner->roomClose();
-    runner->slotClose();
+    //runner->roomClose();
+    //runner->slotClose();
     runner->teacher();
-    runner->roomClosebyDay();
-    runner->assignmentInvalid();
-    runner->loadOutput();
+    //runner->roomClosebyDay();
+    //runner->assignmentInvalid();
     runner->oneLectureRoom();
     runner->oneLectureperSlot();
     // runner->slackStudent();
     runner->studentConflictSolution();
     runner->oneLectureRoomConflict();
-    runner->saveEncoding();
 
     if (!quiet) std::cout << "Add optimization: GapStudentsTimetable" << std::endl;
-    //runner->optimizeGapStudentsTimetable();
+    runner->optimizeGapStudentsTimetable();
 
     //runner->optimizeRoomUsage();
 
@@ -89,8 +86,8 @@ int main(int argc, char **argv) {
 
     if (!quiet) std::cout << "Running ILP solver" << std::endl;
     double v = runner->run(true);
-    int **sol = runner->getSolutionRoom();
-    runner->getSolutionTime();
+    //int **sol = runner->getSolutionRoom();
+    //runner->getSolutionTime();
 
     std::exit(42);
     writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10Out.xml", instance,
@@ -103,7 +100,7 @@ int main(int argc, char **argv) {
     //runner->slackStudent();
     runner->studentConflict();
     //runner->constraintSeatedStudents(v);
-    runner->distanceToSolution(sol, nullptr, false);
+//    runner->distanceToSolution(sol, nullptr, false);
     runner->run(false);
 
 
@@ -211,7 +208,11 @@ void readOutputXML(std::string filename, Instance *instance) {
             }
         }
         Class *s = instance->getClass(id);
-        s->setSolution(start, roomID.at(room), room, weeks, days);
+        if (roomID.find(room) == roomID.end()) {
+            std::cerr << "Room does not exist: " << room << std::endl;
+            std::exit(11);
+        }
+        s->setSolution(start, roomID[room], room, weeks, days);
         std::vector<int> student;
         for (const xml_node<> *stu = n->first_node(); stu; stu = stu->next_sibling()) {
             for (const xml_attribute<> *a = stu->first_attribute(); a; a = a->next_attribute()) {
@@ -219,6 +220,7 @@ void readOutputXML(std::string filename, Instance *instance) {
                 instance->getStudent(atoi(a->value())).addClass(s);
             }
         }
+
         s->addStudents(student);
         total += s->getSteatedStudents();
     }
@@ -337,6 +339,7 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                     int idConf = -1;
 
                     std::__1::vector<Subpart *> subpartvec;
+
                     for (const xml_attribute<> *a = rs->first_attribute(); a; a = a->next_attribute()) {
                         idConf = atoi(a->value());
                     }
@@ -347,6 +350,7 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                             idsub = a->value();
                         }
                         for (const xml_node<> *cla = sub->first_node(); cla; cla = cla->next_sibling()) {
+
                             int idclass = -1, limit = -1, parent = -1;
                             std::map<Room, int> roomsv;
                             std::vector<Lecture *> lecv;
@@ -369,6 +373,10 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                                         else if (strcmp(a->name(), "penalty") == 0)
                                             penalty = atoi(a->value());
 
+                                    }
+                                    if (roomID.find(idRoom) == roomID.end()) {
+                                        std::cerr << "Room does not exist: " << idRoom << std::endl;
+                                        std::exit(11);
                                     }
                                     roomsv.insert(std::pair<Room, int>(instance->getRoom(roomID[idRoom]), penalty));
                                 } else if (strcmp(lec->name(), "time") == 0) {
@@ -399,6 +407,7 @@ Instance *readInputXML(std::string filename) {//parent flag missing
 
 
                             }
+
                             Class *c = new Class(idclass, limit, lecv, roomsv);
                             if (parent != -1)
                                 c->setParent(parent);

@@ -43,6 +43,7 @@ public:
     void randomAddNewCurriculum(Instance *i);
 
 
+    void randomOverlap(Instance *i, double factor);
 };
 
 
