@@ -198,6 +198,25 @@ public:
         }
     }
 
+    double frequency() {
+        double used = 0, all = (instance->getNdays() * instance->getSlotsperday() * instance->getNumRoom());
+        for (int k = 0; k < instance->getClasses().size(); ++k) {
+            used += instance->getClasses()[k]->getLenght();
+        }
+        return 100 * used / all;
+    }
+
+
+    double utilization() {
+        double used = 0, all = (instance->getNdays() * instance->getSlotsperday() * instance->getNumRoom() *
+                                instance->getAvCapacity());
+        for (int k = 0; k < instance->getClasses().size(); ++k) {
+            used += instance->getClasses()[k]->getLenght() * instance->getClasses()[k]->getLimit();
+        }
+        return 100 * used / all;
+
+    }
+
 
 protected:
     int **solutionRoom;

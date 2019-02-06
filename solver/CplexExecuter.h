@@ -11,6 +11,7 @@
 #include <exception>
 #include <stdlib.h>
 #include "../problem/Instance.h"
+#include "ILPExecuter.h"
 
 
 class CplexExecuter : public ILPExecuter {
@@ -331,6 +332,7 @@ public:
     }
 
     void loadOutput() {
+        createSol();
         for (int j = 0; j < instance->getSlotsperday(); j++) {
             for (int k = 0; k < instance->getClasses().size(); k++) {
                     int d = 0;
@@ -361,6 +363,7 @@ public:
             }
 
         }
+
 
     }
 

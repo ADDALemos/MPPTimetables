@@ -8,6 +8,7 @@
 
 #include <string>
 #include <ostream>
+#include <cmath>
 #include "Course.h"
 #include "distribution.h"
 #include "Room.h"
@@ -329,6 +330,82 @@ public:
         }
 
     }
+
+    /**
+     * Average Room Capacity
+     */
+    double getAvCapacity() {
+        double d = 0;
+        for (int i = 1; i <= getNumRoom(); ++i) {
+            d += getRoom(i).getCapacity();
+        }
+        return d / getNumRoom();
+    }
+
+    /**
+     * Standard Deviation Room Capacity
+     * @return standard deviation
+     */
+
+    double getSTDCapacity() {
+        int mean = getAvCapacity();
+        double d = 0;
+        for (int i = 1; i <= getNumRoom(); ++i) {
+            d += std::pow(getRoom(i).getCapacity() - mean, 2);
+        }
+        return std::sqrt(d / (getNumRoom() - 1));
+    }
+
+    /**
+     * Average Lectures Lenght
+     */
+    double getAvLenght() {
+        double d = 0;
+        for (int i = 0; i < getClasses().size(); ++i) {
+            d += getClasses()[i]->getLenght();
+        }
+        return d / getClasses().size();
+    }
+
+    /**
+     * Standard Deviation Lectures Lenght
+     * @return standard deviation
+     */
+
+    double getSTDLenght() {
+        double mean = getAvLenght();
+        double d = 0;
+        for (int i = 0; i < getClasses().size(); ++i) {
+            d += std::pow(getClasses()[i]->getLenght() - mean, 2);
+        }
+        return std::sqrt(d / (getClasses().size() - 1));
+    }
+
+    /**
+     * Average Lectures Lenght
+     */
+    double getAvEnrollment() {
+        double d = 0;
+        for (int i = 0; i < getClasses().size(); ++i) {
+            d += getClasses()[i]->getLimit();
+        }
+        return d / getClasses().size();
+    }
+
+    /**
+     * Standard Deviation Lectures Lenght
+     * @return standard deviation
+     */
+
+    double getSTDEnrollment() {
+        int mean = getAvEnrollment();
+        double d = 0;
+        for (int i = 0; i < getClasses().size(); ++i) {
+            d += std::pow(getClasses()[i]->getLimit() - mean, 2);
+        }
+        return std::sqrt(d / (getClasses().size() - 1));
+    }
+
 };
 
 
