@@ -8,6 +8,8 @@
 #define IL_STD
 #endif
 
+#include "gurobi_c++.h"
+
 #include <ilconcert/iloenv.h>
 #include <ilconcert/ilomodel.h>
 #include <ilcplex/ilocplex.h>
@@ -15,10 +17,15 @@
 #include <stdlib.h>
 #include "Instance.h"
 
+
 class ILPExecuter {
     IloEnv env; //CPLEX execution
     IloModel model = IloModel(env);
     Instance *instance;
+    GRBEnv env1 = GRBEnv();
+
+    GRBModel model1 = GRBModel(env1);
+
 
 
     typedef IloArray<IloBoolVarArray> NumVarMatrix;// Matrix
@@ -90,14 +97,15 @@ public:
                         temp += lectureTime[d][t][j];
                         for (int t1 = t + 1; t1 < instance->getSlotsperday(); t1++) {
                             for (int t2 = t1 + 1; t2 < instance->getSlotsperday(); t2++) {
-                                model.add(
-                                        lectureTime[d][t1][j] == ((lectureTime[d][t][j] - lectureTime[d][t2][j]) == 0));
+                                //model.add(lectureTime[d][t1][j] == ((lectureTime[d][t][j] - lectureTime[d][t2][j]) == 0));
+                                model.add(IloIfThen(env, lectureTime[d][t][j] == 1 && lectureTime[d][t2][j] == 1,
+                                                    lectureTime[d][t1][j] == 1));
                             }
                         }
                     }
 
                 }
-                model.add(temp == instance->getClasses()[j]->getLenght());
+                // model.add(temp == instance->getClasses()[j]->getLenght());
 
             }
         } catch (IloCplex::Exception &e) {
@@ -367,7 +375,6 @@ public:
 
     void saveEncoding() {
         IloCplex cplex(model);
-        std::cout << "here" << std::endl;
         //std::cout<<"Room "<<instance->getRooms().size()<<" Lecture"<<instance->getClasses().size()<< " Slot"<<instance->getSlotsperday()
         //          <<" days"<<instance->getNdays()<<std::endl;
         cplex.exportModel("/Volumes/MAC/ClionProjects/timetabler/model.lp");
@@ -489,8 +496,9 @@ public:
     }
 
     double run(bool mpp) {
+        std::cout << env.getVersion() << std::endl;
         for (int i = 0; i < instance->getClasses().size(); ++i) {
-            //roomPreference(instance->getClasses()[i]->getSolRoom()-1,i);
+            roomPreference(instance->getClasses()[i]->getSolRoom() - 1, i);
         }
 
         createSol();
