@@ -2,29 +2,21 @@
 // Created by Alexandre Lemos on 12/11/2018.
 //
 
-#ifndef PROJECT_ILPEXECUTER_H
-#define PROJECT_ILPEXECUTER_H
-#ifndef IL_STD
-#define IL_STD
-#endif
-
-#include "gurobi_c++.h"
+#ifndef PROJECT_CPLEXEXECUTER_H
+#define PROJECT_CPLEXEXECUTER_H
 
 #include <ilconcert/iloenv.h>
 #include <ilconcert/ilomodel.h>
 #include <ilcplex/ilocplex.h>
 #include <exception>
 #include <stdlib.h>
-#include "Instance.h"
+#include "../problem/Instance.h"
 
 
-class ILPExecuter {
+class CplexExecuter : public ILPExecuter {
     IloEnv env; //CPLEX execution
     IloModel model = IloModel(env);
-    Instance *instance;
-    GRBEnv env1 = GRBEnv();
 
-    GRBModel model1 = GRBModel(env1);
 
 
 
@@ -555,13 +547,7 @@ public:
         }
     }
 
-    Instance *getInstance() const {
-        return instance;
-    }
 
-    void setInstance(Instance *instance) {
-        ILPExecuter::instance = instance;
-    }
 
     /***
      * Prints the current distance of the solution with the old solution
@@ -683,77 +669,11 @@ private:
         cplex.addMIPStart(startVar, startVal);
     }
 
-public:
 
-    int **getSolutionRoom() const {
-        return solutionRoom;
-    }
-
-    int ***getSolutionTime() const {
-        return solutionTime;
-    }
-
-    /**
-     * Initialize the solutions structures: solutionTime and solutionTime
-     */
-    void createSol() {
-        solutionTime = new int **[instance->getNdays()];
-        for (int i = 0; i < instance->getNdays(); i++) {
-            solutionTime[i] = new int *[instance->getSlotsperday()];
-            for (int k = 0; k < instance->getSlotsperday(); ++k) {
-                solutionTime[i][k] = new int[instance->getClasses().size()];
-                for (int j = 0; j < instance->getClasses().size(); ++j) {
-                    solutionTime[i][k][j] = 0;
-                }
-
-            }
-
-        }
-        solutionRoom = new int *[instance->getRooms().size()];
-        for (int i = 0; i < instance->getRooms().size(); i++) {
-            solutionRoom[i] = new int[instance->getClasses().size()];
-            for (int j = 0; j < instance->getClasses().size(); ++j) {
-                solutionRoom[i][j] = 0;
-            }
-
-        }
-    }
 
 
 private:
-    int **solutionRoom;
-    int ***solutionTime;
 
-    /**
-     * Print the current value of the solutionTime
-     */
-    void printsolutionTime() {
-
-        std::cout << "d t l" << std::endl;
-        for (int i = 0; i < instance->getClasses().size(); i++) {
-            for (int d = 0; d < instance->getNdays(); d++) {
-                for (int t = 0; t < instance->getSlotsperday(); t++) {
-                    if (solutionTime[d][t][i] != 0) {
-                        std::cout << d << " t: " << t << " l: " << instance->getClasses()[i]->getId() << std::endl;
-                        }
-                    }
-
-            }
-
-        }
-
-
-    }
-
-    /**
-     * Remove old solution
-     * TODO: Memory management
-     */
-    void removeSolution() {
-//        delete roomLecture;
-        //      delete lectureTime;
-        createSol();
-    }
 
     /**
      * Switch solution time
@@ -811,22 +731,6 @@ private:
     }
 
 
-    /**
-     * Print the current value of the solutionRoom
-     */
-    void printRoomSolution() {
-        std::cout << "room solution" << std::endl;
-        std::cout << "r c" << std::endl;
-        for (int i = 0; i < instance->getRooms().size(); i++) {
-            for (int j = 0; j < instance->getClasses().size(); ++j) {
-                if (solutionRoom[i][j] != 0) {
-                    std::cout << instance->getRoom(i + 1).getName() << " " << instance->getClasses()[j]->getId() << " "
-                              << solutionRoom[i][j] << std::endl;
-                }
-            }
-
-        }
-    }
 
 
 };

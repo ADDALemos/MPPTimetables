@@ -3,20 +3,21 @@
 #include <vector>
 #include <sstream>
 #include <set>
-#include "Lecture.h"
+#include "problem/Lecture.h"
 
-#include "Room.h"
-#include "Course.h"
-#include "distribution.h"
-#include "rapid/rapidxml.hpp"
-#include "rapid/rapidxml_print.hpp"
-#include "DistributionRequired.h"
-#include "DistributionPenalty.h"
-#include "Limits.h"
-#include "WithLimit.h"
-#include "Instance.h"
-#include "ILPExecuter.h"
-#include "Perturbation.h"
+#include "problem/Room.h"
+#include "problem/Course.h"
+#include "problem/distribution.h"
+#include "rapidXMLParser/rapidxml.hpp"
+#include "rapidXMLParser/rapidxml_print.hpp"
+#include "problem/DistributionRequired.h"
+#include "problem/DistributionPenalty.h"
+#include "problem/Limits.h"
+#include "problem/WithLimit.h"
+#include "problem/Instance.h"
+#include "solver/ILPExecuter.h"
+#include "solver/GurobiExecuter.h"
+#include "refactor/Perturbation.h"
 
 
 Instance *readInputXML(std::string filename);
@@ -51,7 +52,8 @@ using namespace rapidxml;
 bool quiet = false; //Print info
 int main(int argc, char **argv) {
     clock_t tStart = clock();
-    // help();
+    if (argc < 3)
+        help();
 
 
     if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
@@ -61,10 +63,14 @@ int main(int argc, char **argv) {
     if (!quiet) std::cout << "Generating Perturbations based on the file: " << std::endl;
     readPerturbations();
     if (!quiet) std::cout << "Generating ILP model" << std::endl;
-    ILPExecuter *runner = new ILPExecuter();
+    ILPExecuter *runner = new GurobiExecuter();
     runner->setInstance(instance);
     runner->definedRoomLecture();
     runner->definedLectureTime();
+    runner->oneLectureperSlot();
+    runner->saveEncoding();
+    std::exit(42);
+
     //runner->roomClose();
     //runner->slotClose();
     runner->teacher();
@@ -77,7 +83,7 @@ int main(int argc, char **argv) {
     runner->oneLectureRoomConflict();
 
     if (!quiet) std::cout << "Add optimization: GapStudentsTimetable" << std::endl;
-    runner->optimizeGapStudentsTimetable();
+    //runner->optimizeGapStudentsTimetable();
 
     //runner->optimizeRoomUsage();
 
@@ -92,7 +98,7 @@ int main(int argc, char **argv) {
     std::exit(42);
     writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10Out.xml", instance,
                    (double) (clock() - tStart) / CLOCKS_PER_SEC);
-    runner = new ILPExecuter();
+    runner = new GurobiExecuter();
     runner->setInstance(instance);
     runner->definedRoomLecture();
     runner->definedLectureTime();
