@@ -24,7 +24,7 @@ if (WIN32)
     set(CPLEX_WIN_VERSION ${CPLEX_WIN_VERSION} CACHE STRING "CPLEX version to be used.")
     set(CPLEX_ROOT_DIR "${CPLEX_ROOT_DIR_GUESS}" CACHE PATH "CPLEX root directory.")
 
-    MESSAGE(STATUS "Found CLPEX version ${CPLEX_WIN_VERSION} at '/Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271'")
+    MESSAGE(STATUS "Found CLPEX version ${CPLEX_WIN_VERSION} at '/Applications/CPLEX_Studio128'")
 
     STRING(REGEX REPLACE "/VC/bin/.*" "" VISUAL_STUDIO_PATH ${CMAKE_C_COMPILER})
     STRING(REGEX MATCH "Studio [0-9]+" CPLEX_WIN_VS_VERSION ${VISUAL_STUDIO_PATH})
@@ -34,8 +34,8 @@ if (WIN32)
         set(CPLEX_WIN_VS_VERSION 2008)
     elseif (${CPLEX_WIN_VS_VERSION} STREQUAL "10")
         set(CPLEX_WIN_VS_VERSION 2010)
-    elseif (${CPLEX_WIN_VS_VERSION} STREQUAL "11")
-        set(CPLEX_WIN_VS_VERSION 2012)
+    elseif (${CPLEX_WIN_VS_VERSION} STREQUAL "12.8")
+        set(CPLEX_WIN_VS_VERSION 2018)
     else ()
         MESSAGE(FATAL_ERROR "CPLEX: unknown Visual Studio version at '${VISUAL_STUDIO_PATH}'.")
     endif ()
@@ -69,8 +69,7 @@ endif ()
 
 FIND_PATH(CPLEX_INCLUDE_DIR
         ilcplex/cplex.h
-        HINTS /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/cplex/include
-        /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/include
+        HINTS /Applications/CPLEX_Studio128/cplex/include
         PATHS ENV C_INCLUDE_PATH
         ENV C_PLUS_INCLUDE_PATH
         ENV INCLUDE_PATH
@@ -78,8 +77,7 @@ FIND_PATH(CPLEX_INCLUDE_DIR
 
 FIND_PATH(CPLEX_CONCERT_INCLUDE_DIR
         ilconcert/iloenv.h
-        HINTS /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/concert/include
-        /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/include
+        HINTS /Applications/CPLEX_Studio128/concert/include
         PATHS ENV C_INCLUDE_PATH
         ENV C_PLUS_INCLUDE_PATH
         ENV INCLUDE_PATH
@@ -87,12 +85,12 @@ FIND_PATH(CPLEX_CONCERT_INCLUDE_DIR
 
 FIND_LIBRARY(CPLEX_LIBRARY
         NAMES cplex${CPLEX_WIN_VERSION} cplex
-        HINTS /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/cplex/lib/${CPLEX_WIN_PLATFORM} #windows
-        /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/cplex/lib/x86-64_debian4.0_4.1/static_pic #unix
-        /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/cplex/lib/x86-64_sles10_4.1/static_pic #unix 
-        /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/cplex/lib/x86-64_linux/static_pic #unix 
-        /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/cplex/lib/x86-64_osx/static_pic #osx 
-        /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/cplex/lib/x86-64_darwin/static_pic #osx 
+        HINTS /Applications/CPLEX_Studio128/cplex/lib/${CPLEX_WIN_PLATFORM} #windows
+        /Applications/CPLEX_Studio128/cplex/lib/x86-64_debian4.0_4.1/static_pic #unix
+        /Applications/CPLEX_Studio128/cplex/lib/x86-64_sles10_4.1/static_pic #unix
+        /Applications/CPLEX_Studio128/cplex/lib/x86-64_linux/static_pic #unix
+        /Applications/CPLEX_Studio128/cplex/lib/x86-64_osx/static_pic #osx
+        /Applications/CPLEX_Studio128/cplex/lib/x86-64_darwin/static_pic #osx
         PATHS ENV LIBRARY_PATH #unix
         ENV LD_LIBRARY_PATH #unix
         )
@@ -100,12 +98,12 @@ message(STATUS "CPLEX Library: ${CPLEX_LIBRARY}")
 
 FIND_LIBRARY(CPLEX_ILOCPLEX_LIBRARY
         ilocplex
-        HINTS /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/cplex/lib/${CPLEX_WIN_PLATFORM} #windows
-        /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/cplex/lib/x86-64_debian4.0_4.1/static_pic #unix 
-        /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/cplex/lib/x86-64_sles10_4.1/static_pic #unix 
-        /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/cplex/lib/x86-64_linux/static_pic #unix 
-        /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/cplex/lib/x86-64_osx/static_pic #osx 
-        /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/cplex/lib/x86-64_darwin/static_pic #osx 
+        HINTS /Applications/CPLEX_Studio128/cplex/lib/${CPLEX_WIN_PLATFORM} #windows
+        /Applications/CPLEX_Studio128/cplex/lib/x86-64_debian4.0_4.1/static_pic #unix
+        /Applications/CPLEX_Studio128/cplex/lib/x86-64_sles10_4.1/static_pic #unix
+        /Applications/CPLEX_Studio128/cplex/lib/x86-64_linux/static_pic #unix
+        /Applications/CPLEX_Studio128/cplex/lib/x86-64_osx/static_pic #osx
+        /Applications/CPLEX_Studio128/cplex/lib/x86-64_darwin/static_pic #osx
         PATHS ENV LIBRARY_PATH
         ENV LD_LIBRARY_PATH
         )
@@ -113,12 +111,8 @@ message(STATUS "ILOCPLEX Library: ${CPLEX_ILOCPLEX_LIBRARY}")
 
 FIND_LIBRARY(CPLEX_CONCERT_LIBRARY
         concert
-        HINTS /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/concert/lib/${CPLEX_WIN_PLATFORM} #windows
-        /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/concert/lib/x86-64_debian4.0_4.1/static_pic #unix 
-        /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/concert/lib/x86-64_sles10_4.1/static_pic #unix 
-        /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/concert/lib/x86-64_linux/static_pic #unix 
-        /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/concert/lib/x86-64_osx/static_pic #osx 
-        /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/concert/lib/x86-64_darwin/static_pic #osx 
+        HINTS
+        /Applications/CPLEX_Studio128/concert/lib/x86-64_osx/static_pic #osx
         PATHS ENV LIBRARY_PATH
         ENV LD_LIBRARY_PATH
         )
@@ -127,16 +121,12 @@ message(STATUS "CONCERT Library: ${CPLEX_CONCERT_LIBRARY}")
 if (WIN32)
     FIND_PATH(CPLEX_BIN_DIR
             cplex${CPLEX_WIN_VERSION}.dll
-            HINTS /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/cplex/bin/${CPLEX_WIN_PLATFORM} #windows
+            HINTS /Applications/CPLEX_Studio128/cplex/bin/${CPLEX_WIN_PLATFORM} #windows
             )
 else ()
     FIND_PATH(CPLEX_BIN_DIR
             cplex
-            HINTS /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/cplex/bin/x86-64_sles10_4.1 #unix
-            /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/cplex/bin/x86-64_debian4.0_4.1 #unix
-            /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/cplex/lib/x86-64_linux #unix
-            /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/cplex/bin/x86-64_osx #osx
-            /Users/alexandrelemos/Applications/IBM/ILOG/CPLEX_Studio1271/cplex/bin/x86-64_darwin #osx
+            HINTS /Applications/CPLEX_Studio128/cplex/bin/x86-64_osx #osx
             ENV LIBRARY_PATH
             ENV LD_LIBRARY_PATH
             )
