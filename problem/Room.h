@@ -107,6 +107,10 @@ public:
     void block(std::string day) {
         slots.push_back(Unavailability(day));
     }
+
+    Room(int id, char *name, int capcacity) : id(id), name(name), capacity(capcacity) {
+
+    }
 };
 
 

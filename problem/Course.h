@@ -69,14 +69,15 @@ public:
         Subpart *p = new Subpart(std::to_string(count));
         std::vector<Class *> list;
         for (int i = 0; i < numLect; ++i) {
-            Lecture *l = new Lecture(++count, doubleLec);
-            Class *c = new Class(++count, student, l);
+            Lecture *l = new Lecture(count, doubleLec);
+            Class *c = new Class(count, student, l);
             list.push_back(c);
+            count++;
         }
         p->setClasses(list);
         std::vector<Subpart *> sub;
         sub.push_back(p);
-        configuration.insert(std::pair<int, std::vector<Subpart *>>(count, sub));
+        configuration.insert(std::pair<int, std::vector<Subpart *>>(0, sub));
 
     }
 
@@ -132,6 +133,14 @@ public:
                 it->second[i]->isOverlapped();
             }
         }
+
+    }
+
+    /**
+     * Add solution for old encodings
+     */
+    void addSol(int lectureID, int idRoom, std::string room, char *day, int slot) {
+        (configuration.begin()->second)[0]->getClass(lectureID)->setSolution(idRoom, room, day, slot);
 
     }
 

@@ -175,6 +175,17 @@ public:
         Class::start = time;
         Class::days = day;
     }
+
+    /**
+     * Set Solution for ITC-2007
+     */
+    void setSolution(int roomID, std::string room, char *day, int time) {
+        Class::start = time;
+        Class::days = day;
+        Class::roomID = roomID;
+        Class::room = room;
+
+    }
 };
 
 

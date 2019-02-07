@@ -406,6 +406,10 @@ public:
         return std::sqrt(d / (getClasses().size() - 1));
     }
 
+    /*
+     * Number of students enrolled
+     */
+
 };
 
 

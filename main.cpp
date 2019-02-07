@@ -17,12 +17,17 @@
 #include "problem/Instance.h"
 #include "solver/ILPExecuter.h"
 #include "solver/GurobiExecuter.h"
-#include "refactor/Perturbation.h"
+#include "randomGenerator/Perturbation.h"
+#include "stats/Stats.h"
+#include "solver/CplexExecuter.h"
 
 
 Instance *readInputXML(std::string filename);
 
 Instance *readInputXML2007(std::string filename);
+
+Instance *readOutputXML2007(std::string filename, Instance *instance);
+
 
 
 void readOutputXML(std::string filename, Instance *instance);
@@ -57,13 +62,19 @@ int main(int argc, char **argv) {
 
 
     if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
-    Instance *instance = readInputXML(argv[1]);
+    Instance *instance = readInputXML2007(argv[1]);
     if (!quiet) std::cout << "Starting Reading File: " << argv[2] << std::endl;
-    readOutputXML(argv[2], instance);
+    readOutputXML2007(argv[2], instance);
     if (!quiet) std::cout << "Generating Perturbations based on the file: " << std::endl;
     readPerturbations();
     if (!quiet) std::cout << "Generating ILP model" << std::endl;
-    ILPExecuter *runner = new GurobiExecuter();
+    printProblemStats(instance);
+    ILPExecuter *runner = new CplexExecuter();
+    runner->setInstance(instance);
+    runner->loadOutput();
+    printSolutionStats(runner);
+    std::exit(42);
+
     runner->setInstance(instance);
     runner->definedRoomLecture();
     runner->definedLectureTime();
@@ -524,10 +535,17 @@ Instance *readInputXML(std::string filename) {//parent flag missing
 
 /** Function to parse data from ITC 2007 **/
 
+//TODO: READ curricular constraints
+
 Instance *readInputXML2007(std::string filename) {
     std::string name;
     xml_document<> doc;
     std::ifstream file(filename);
+    if (file.fail()) {
+        std::cerr << "File not found: " + filename << std::endl;
+        std::cerr << "Method: readInputXML2007" << std::endl;
+        std::exit(11);
+    }
     std::stringstream buffer;
     buffer << file.rdbuf();
     file.close();
@@ -539,7 +557,7 @@ Instance *readInputXML2007(std::string filename) {
     for (const xml_attribute<> *a = pRoot->first_attribute(); a; a = a->next_attribute()) {
         name = a->value();
     }
-    int count = 0;
+    int count = 1;
     for (const xml_node<> *n = pRoot->first_node(); n; n = n->next_sibling()) {
         if (strcmp("descriptor", n->name()) == 0) {
             int days = -1;
@@ -563,6 +581,28 @@ Instance *readInputXML2007(std::string filename) {
             instance = new Instance(name, days, periods_per_day, min, max);
 
 
+        } else if (strcmp("rooms", n->name()) == 0) {
+            for (const xml_node<> *ne = n->first_node(); ne; ne = ne->next_sibling()) {
+                int size = -1, building = -1;
+                char *id;
+                for (const xml_attribute<> *a = ne->first_attribute(); a; a = a->next_attribute()) {
+                    if (strcmp("id", a->name()) == 0)
+                        id = a->value();
+                    else if (strcmp("size", a->name()) == 0)
+                        size = atoi(a->value());
+                    else if (strcmp("building", a->name()) == 0)
+                        building = atoi(a->value());
+
+                }
+                if (roomID.find(id) == roomID.end()) {
+                    int newID = roomID.size();
+                    newID++;
+                    roomID.insert(std::pair<std::string, int>(id, newID));
+                }
+                Room *r = new Room(roomID[id], id, size);
+                //TODO: Tranform building into Travel constraints
+                instance->addRoom(r);
+            }
         } else if (strcmp("courses", n->name()) == 0) {
             for (const xml_node<> *ne = n->first_node(); ne; ne = ne->next_sibling()) {
                 int lectures = -1, min_days = -1, students = -1;
@@ -583,7 +623,7 @@ Instance *readInputXML2007(std::string filename) {
 
                 }
                 Course *c = new Course(id, teacher, lectures, min_days, students, double_lectures, count);
-                cL.insert(std::pair<std::string, Course *>(std::to_string(count), c));
+                cL.insert(std::pair<std::string, Course *>(id, c));
                 count += lectures;
 
             }
@@ -599,4 +639,31 @@ Instance *readInputXML2007(std::string filename) {
     return instance;
 }
 
+Instance *readOutputXML2007(std::string filename, Instance *instance) {
+    std::ifstream file(filename);
+    if (file.fail()) {
+        std::cerr << "File not found: " + filename << std::endl;
+        std::cerr << "Method: readOutputXM2007L" << std::endl;
+        std::exit(11);
+    }
+    std::string course, room;
+    int day, slot;
+    int lec = 1;
+    while (file >> course >> room >> day >> slot) {
+        char *days = new char[instance->getNdays()];
+        for (int i = 0; i < instance->getNdays(); ++i) {
+            if (i == day)
+                days[i] = '1';
+            else
+                days[i] = '0';
 
+        }
+        if (roomID.find(room) == roomID.end()) {
+            std::cerr << "Room does not exist: " << room << std::endl;
+            std::exit(11);
+        }
+        instance->getCourse(course)->addSol(lec, roomID[room], room, days, slot);
+        lec++;
+    }
+
+}

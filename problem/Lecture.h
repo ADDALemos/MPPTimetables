@@ -14,6 +14,7 @@ class Lecture {
     int lenght;
     std::string weeks;
     int penalty;
+    bool doubleL = false;
  public:
     Lecture(int lenght, int start, std::string weeks, std::string days, int penalty) : days(days), start(start),
                                                                                        lenght(lenght),
@@ -61,11 +62,9 @@ class Lecture {
     }
 
     Lecture(int id, char *doubleLec) {
-        if (strcmp(doubleLec, "true") == 0)
-            lenght = 2;
-        else
-            lenght = 1;
-
+        if (strcmp(doubleLec, "yes") == 0)
+            doubleL = true;
+        lenght = 1;
     }
 };
 
