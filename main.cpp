@@ -62,25 +62,20 @@ int main(int argc, char **argv) {
 
 
     if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
-    Instance *instance = readInputXML2007(argv[1]);
+    Instance *instance = readInputXML(argv[1]);
     if (!quiet) std::cout << "Starting Reading File: " << argv[2] << std::endl;
-    readOutputXML2007(argv[2], instance);
+    readOutputXML(argv[2], instance);
     if (!quiet) std::cout << "Generating Perturbations based on the file: " << std::endl;
     readPerturbations();
     if (!quiet) std::cout << "Generating ILP model" << std::endl;
-    printProblemStats(instance);
-    ILPExecuter *runner = new CplexExecuter();
+    //printProblemStats(instance);
+    ILPExecuter *runner = new GurobiExecuter();
     runner->setInstance(instance);
-    runner->loadOutput();
-    printSolutionStats(runner);
-    std::exit(42);
-
-    runner->setInstance(instance);
+    //printSolutionStats(runner);
     runner->definedRoomLecture();
     runner->definedLectureTime();
     runner->oneLectureperSlot();
     runner->saveEncoding();
-    std::exit(42);
 
     //runner->roomClose();
     //runner->slotClose();
@@ -94,7 +89,7 @@ int main(int argc, char **argv) {
     runner->oneLectureRoomConflict();
 
     if (!quiet) std::cout << "Add optimization: GapStudentsTimetable" << std::endl;
-    //runner->optimizeGapStudentsTimetable();
+    runner->optimizeGapStudentsTimetable();
 
     //runner->optimizeRoomUsage();
 
@@ -103,6 +98,8 @@ int main(int argc, char **argv) {
 
     if (!quiet) std::cout << "Running ILP solver" << std::endl;
     double v = runner->run(true);
+    std::exit(42);
+
     //int **sol = runner->getSolutionRoom();
     //runner->getSolutionTime();
 

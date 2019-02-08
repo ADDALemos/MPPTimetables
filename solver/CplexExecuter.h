@@ -331,41 +331,6 @@ public:
         }
     }
 
-    void loadOutput() {
-        createSol();
-        for (int j = 0; j < instance->getSlotsperday(); j++) {
-            for (int k = 0; k < instance->getClasses().size(); k++) {
-                    int d = 0;
-                    for (auto c : instance->getClasses()[k]->getSolDays()) {
-                        if (c == '1') {
-                            if (instance->getClasses()[k]->getSolStart() <= j &&
-                                (instance->getClasses()[k]->getSolStart() + instance->getClasses()[k]->getLenght() >
-                                 j)) {
-                                solutionTime[d][j][k] = 1;
-                            }
-                        }
-                        d++;
-                    }
-
-
-                }
-
-            }
-
-
-        for (int i = 0; i < instance->getRooms().size(); ++i) {
-            for (int k = 0; k < instance->getClasses().size(); ++k) {
-                if ((instance->getClasses()[k]->getSolRoom() - 1) == i)
-                    solutionRoom[i][k] = 1;
-                else
-                    solutionRoom[i][k] = 0;
-
-            }
-
-        }
-
-
-    }
 
 
     void saveEncoding() {

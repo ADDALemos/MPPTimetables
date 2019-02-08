@@ -97,7 +97,39 @@ public:
      */
     virtual void studentConflictSolution()= 0;
 
-    virtual void loadOutput()= 0;
+    void loadOutput() {
+        for (int j = 0; j < instance->getSlotsperday(); j++) {
+            for (int k = 0; k < instance->getClasses().size(); k++) {
+                int d = 0;
+                for (auto c : instance->getClasses()[k]->getSolDays()) {
+                    if (c == '1') {
+                        if (instance->getClasses()[k]->getSolStart() <= j &&
+                            (instance->getClasses()[k]->getSolStart() + instance->getClasses()[k]->getLenght() >
+                             j)) {
+                            solutionTime[d][j][k] = 1;
+                        }
+                    }
+                    d++;
+                }
+
+
+            }
+
+        }
+
+
+        for (int i = 0; i < instance->getRooms().size(); ++i) {
+            for (int k = 0; k < instance->getClasses().size(); ++k) {
+                if ((instance->getClasses()[k]->getSolRoom() - 1) == i)
+                    solutionRoom[i][k] = 1;
+                else
+                    solutionRoom[i][k] = 0;
+
+            }
+
+        }
+
+    }
 
 
     virtual void saveEncoding()= 0;
@@ -153,14 +185,6 @@ public:
      */
     virtual void minimizeDifferenceSeatedStudents()= 0;
 
-
-private:
-    /**
-     * Warm starting procedure with the solution found before
-     * Used the class atributes: solutionTime and roomLecture
-     * @param cplex
-     */
-    virtual void warmStart(IloCplex cplex)= 0;
 
 public:
 
