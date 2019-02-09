@@ -19,7 +19,7 @@
 #include "solver/GurobiExecuter.h"
 #include "randomGenerator/Perturbation.h"
 #include "stats/Stats.h"
-#include "solver/CplexExecuter.h"
+#include "solver/BinaryOnlyGurobiExecuter.h"
 
 
 Instance *readInputXML(std::string filename);
@@ -68,10 +68,10 @@ int main(int argc, char **argv) {
     if (!quiet) std::cout << "Generating Perturbations based on the file: " << std::endl;
     readPerturbations();
     if (!quiet) std::cout << "Generating ILP model" << std::endl;
-    //printProblemStats(instance);
-    ILPExecuter *runner = new GurobiExecuter();
+    //  printProblemStats(instance);
+    ILPExecuter *runner = new BinaryOnlyGurobiExecuter();
     runner->setInstance(instance);
-    //printSolutionStats(runner);
+//    printSolutionStats(runner);
     runner->definedRoomLecture();
     runner->definedLectureTime();
     runner->oneLectureperSlot();
@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
     std::exit(42);
     writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10Out.xml", instance,
                    (double) (clock() - tStart) / CLOCKS_PER_SEC);
-    runner = new GurobiExecuter();
+    runner = new BinaryOnlyGurobiExecuter();
     runner->setInstance(instance);
     runner->definedRoomLecture();
     runner->definedLectureTime();

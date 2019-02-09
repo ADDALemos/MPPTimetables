@@ -14,13 +14,11 @@
 
 
 class GurobiExecuter : public ILPExecuter {
+protected:
 
     GRBEnv env = GRBEnv();
 
     GRBModel *model = new GRBModel(env);
-    GRBVar ***lectureTime;
-    GRBVar **roomLecture;
-
     std::string itos(int i) {
         std::stringstream s;
         s << i;
@@ -32,123 +30,29 @@ class GurobiExecuter : public ILPExecuter {
 
 public:
 
-    void definedRoomLecture() {
-        try {
-            roomLecture = new GRBVar *[instance->getRooms().size()];
-            for (int i = 0; i < instance->getRooms().size(); i++) {
-                roomLecture[i] = new GRBVar[instance->getClasses().size()];
-                for (int j = 0; j < instance->getNumClasses(); ++j) {
-                    std::string name = "X_" + itos(i) + "_" + itos(j);
-                    roomLecture[i][j] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY, name);
-                }
-
-            }
-        } catch (GRBException e) {
-            printError(e, "definedRoomLecture");
-
-        }
+    virtual void definedRoomLecture()=0;
 
 
-    }
-
-
-    void definedLectureTime() {
-        lectureTime = new GRBVar **[instance->getNdays()];
-        for (int i = 0; i < instance->getNdays(); i++) {
-            lectureTime[i] = new GRBVar *[instance->getSlotsperday()];
-            for (int k = 0; k < instance->getSlotsperday(); ++k) {
-                lectureTime[i][k] = new GRBVar[instance->getClasses().size()];
-                for (int j = 0; j < instance->getClasses().size(); ++j) {
-                    std::string name = "A_" + itos(i) + "_" + itos(k) + "_" + itos(j);
-                    lectureTime[i][k][j] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY, name);
-                }
-
-            }
-
-        }
-
-
-    }
+    virtual void definedLectureTime()=0;
 
     /**
      * The lecture can only be scheduled in one slot
      */
 
-    void oneLectureperSlot() {
-        try {
-            for (int j = 0; j <
-                            instance->getClasses().size(); j++) {
-                GRBLinExpr expr = 0;
-                for (int d = 0; d < instance->getNdays(); d++) {
-                    for (int t = 0; t < instance->getSlotsperday(); t++) {
-                        expr += lectureTime[d][t][j];
-                        for (int t1 = t + 1; t1 < instance->getSlotsperday(); t1++) {
-                            for (int t2 = t1 + 1; t2 < instance->getSlotsperday(); t2++) {
-                                GRBVar temp = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                                model->addGenConstrIndicator(temp, 1,
-                                                             (lectureTime[d][t][j] - lectureTime[d][t2][j]) == 0);
-                                model->addConstr(lectureTime[d][t1][j] == temp);
-                            }
-                        }
-                    }
-
-                }
-                model->addConstr(expr == instance->getClasses()[j]->getLenght());
-
-            }
-        } catch (GRBException e) {
-            printError(e, "oneLectureperSlot");
-        }
-
-    }
+    virtual void oneLectureperSlot() =0;
 
     /**
      * Force lectures to be in slot n
      */
 
 
-    void oneLectureSlot() {
-        try {
-            for (int j = 0; j <
-                            instance->getClasses().size(); j++) {
-                for (int i = 0; i < instance->getClasses()[j]->getLenght(); i++) {
-                    int k = 0;
-                    for (char &c :instance->getClasses()[j]->getDays()) {
-                        if (c == '1')
-                            model->addConstr(lectureTime[k][instance->getClasses()[j]->getStart() + i][j] == 1);
-                        else if (c == '0')
-                            model->addConstr(lectureTime[k][instance->getClasses()[j]->getStart() + i][j] == 0);
-                        k++;
-                    }
-                }
-
-            }
-        } catch (GRBException e) {
-            printError(e, "oneLectureSlot");
-        }
-
-    }
+    virtual void oneLectureSlot() =0;
 
     /**
      * A lecture can only be in one room at time
      */
 
-    void oneLectureRoom() {
-        try {
-            for (int j = 0; j <
-                            instance->getClasses().size(); j++) {
-                GRBLinExpr temp = 0;
-                for (int i = 0; i < instance->getRooms().size(); i++) {
-                    if (instance->getClasses()[j]->getPossibleRooms().size() > 0)
-                        temp += roomLecture[i][j];
-                }
-                model->addConstr(temp == 1);
-            }
-        } catch (GRBException e) {
-            printError(e, "oneLectureRoom");
-        }
-
-    }
+    virtual void oneLectureRoom() =0;
 
     void printError(const GRBException &e, std::string local) const {
         std::cout << "Error found: " << local << std::endl;
@@ -159,174 +63,48 @@ public:
     /**
      * Ensure room r is used to lecture l
      */
-    void roomPreference(int r, int l) {
-        model->addConstr(roomLecture[r][l] == 1);
-    }
+    virtual void roomPreference(int r, int l) =0;
 
     /***
      * The room can only have one lecture per slot
      */
 
-    void oneLectureRoomConflict() {
-        try {
-            for (int i = 0; i < instance->getRooms().size(); i++) {
-                for (int d = 0; d < instance->getNdays(); d++) {
-                    for (int k = 0; k < instance->getSlotsperday(); k++) {
-                        GRBQuadExpr temp = 0;
-                        for (int j = 0; j < instance->getClasses().size(); j++) {
-                            temp += (lectureTime[d][k][j] * roomLecture[i][j]);
-                            //lectureTime[Qui][12]["ACED"]*roomLecture["FA1"]["ACED"]+lectureTime[Qui][12]["LP"]*roomLecture["FA1"]["LP"]
-                        }
-                        model->addQConstr(temp <= 1);
-                    }
-                }
-            }
-        } catch (GRBException e) {
-            printError(e, "oneLectureRoomConflict");
-        }
-
-    }
-
+    virtual void oneLectureRoomConflict() =0;
     /**
     * Ensure Room closed cannot be used
     */
-    void roomClose() {
-        for (int i = 0; i < instance->getNumRoom(); i++) {
-            for (int j = 0; j < instance->getNumClasses(); ++j) {
-                if (instance->isRoomBlocked(i)) {
-                    model->addConstr(roomLecture[i][j] == 0);
-                }
-            }
-        }
-    }
+    virtual void roomClose() =0;
 
     /**
     * Ensure Room closed in a day cannot be used
     */
-    void roomClosebyDay() {
-        for (int d = 0; d < instance->getNdays(); ++d) {
-            for (int t = 0; t < instance->getSlotsperday(); ++t) {
-                for (int i = 0; i < instance->getNumRoom(); i++) {
-                    for (int j = 0; j < instance->getNumClasses(); ++j) {
-                        if (instance->isRoomBlockedbyDay(i, d)) {
-                            model->addConstr(roomLecture[i][j] * lectureTime[d][t][j] == 0);
-                        }
-                    }
-                }
-            }
-
-        }
-
-
-    }
+    virtual void roomClosebyDay() =0;
 
 
     /**
     * Ensure times lot in a day is closed cannot be used
     */
-    void slotClose() {
-        for (int i = 0; i < instance->getClasses().size(); i++) {
-            for (int d = 0; d < instance->getNdays(); d++) {
-                for (int t = 0; t < instance->getSlotsperday(); ++t) {
-                    if (instance->isTimeUnavailable(i * t))
-                        model->addConstr(lectureTime[d][t][i] == 0);
-
-                }
-            }
-
-        }
-    }
+    virtual void slotClose() =0;
 
     /**
      * One assignment, is invalid and needs to be assigned
      * to a different room or to a different time slot
      */
-    void assignmentInvalid() {
-        for (int i = 0; i < instance->getNumClasses(); ++i) {
-            if (instance->isIncorrectAssignment(i)) {
-                for (int j = 0; j < instance->getNdays(); ++j) {
-                    for (int k = 0; k < instance->getSlotsperday(); ++k) {
-                        if (solutionTime[j][k][i] == 1) {
-                            GRBLinExpr temp = 0;
-                            temp = lectureTime[j][k][i];
-                            for (int l = 0; l < instance->getNumRoom(); ++l) {
-                                if (solutionRoom[l][i] == 1) {
-                                    temp += roomLecture[l][i];
-                                    model->addConstr(temp <= 1);
-                                    break;
-                                }
-
-                            }
-                        }
-                    }
-                }
-
-            }
-
-        }
-    }
+    virtual void assignmentInvalid() =0;
 
     /**Teacher's conflict*/
-    void teacher() {
-        for (std::map<std::string, Course *>::const_iterator it = instance->getCourses().begin();
-             it != instance->getCourses().end(); it++) {
-            for (std::map<int, std::vector<Subpart *>>::iterator sub = it->second->getConfiguratons().begin();
-                 sub != it->second->getConfiguratons().end(); ++sub) {
-                for (int i = 0; i < sub->second.size(); ++i) {
-                    for (int d = 0; d < instance->getNdays(); ++d) {
-                        for (int t = 0; t < instance->getSlotsperday(); ++t) {
-                            GRBLinExpr conflict = 0;
-                            for (int c = 0; c < sub->second[i]->getClasses().size(); c++) {
-                                conflict += lectureTime[d][t][c];
-                            }
-                            model->addConstr(conflict <= sub->second[i]->getOverlap());
-                        }
-
-                    }
-                }
-
-            }
-        }
-    }
+    virtual void teacher() =0;
 
 
     /** Student conflicts hard constraint based on the input model
      *
      */
-    void studentConflict() {
-        for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
-             it != instance->getStudent().end(); it++) {
-            for (int d = 0; d < instance->getNdays(); ++d) {
-                for (int t = 0; t < instance->getSlotsperday(); ++t) {
-                    GRBLinExpr conflict = 0;
-                    for (int c = 0; c < it->second.getCourse().size(); ++c) {
-                        conflict += lectureTime[d][t][c];
-                    }
-                    model->addConstr(conflict <= 1);
-                }
-
-            }
-        }
-    }
+    virtual void studentConflict() =0;
 
     /** Student conflicts hard constraint based on the original solution
      *
      */
-    void studentConflictSolution() {
-        for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
-             it != instance->getStudent().end(); it++) {
-            for (int d = 0; d < instance->getNdays(); ++d) {
-                for (int t = 0; t < instance->getSlotsperday(); ++t) {
-                    GRBLinExpr conflict = 0;
-                    for (int c = 0; c < it->second.getClasses().size(); ++c) {
-                        conflict += lectureTime[d][t][c];
-                    }
-                    model->addConstr(conflict <= 1);
-                }
-
-            }
-        }
-    }
+    virtual void studentConflictSolution() =0;
 
 
 
@@ -336,66 +114,14 @@ public:
 
     }
 
-private:
+protected:
 //Number of seated students for optimization or constraint
-    GRBQuadExpr numberSeatedStudents() {
-        GRBQuadExpr temp = 0;
-        for (int l = 0; l < instance->getClasses().size(); l++) {
-            int j = 0;
-            for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
-                 it != instance->getRooms().end(); it++) {
-                int d = 0;
-                for (char &c :instance->getClasses()[l]->getDays()) {
-                    if (c != '0') {
-                        for (int i = 0; i < instance->getClasses()[l]->getLenght(); i++) {
-                            if (it->second.getCapacity() >= instance->getClasses()[l]->getLimit()) {
-                                temp += instance->getClasses()[l]->getLimit() *
-                                        lectureTime[d][instance->getClasses()[l]->getStart() + i][l]
-                                        * roomLecture[j][l];
-                            } else {
-                                temp += it->second.getCapacity() *
-                                        lectureTime[d][instance->getClasses()[l]->getStart() + i][l]
-                                        * roomLecture[j][l];
-                            }
-                        }
-                    }
-                    d++;
-                }
-                j++;
-            }
-        }
-        //std::cout<<temp<<std::endl;
+    virtual GRBQuadExpr numberSeatedStudents() =0;
 
-        return temp;
-    }
+    virtual GRBQuadExpr usage() =0;
 
-    GRBQuadExpr usage() {
-        GRBQuadExpr temp = 0;
-        for (int l = 0; l < instance->getClasses().size(); l++) {
-            int j = 0;
-            for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
-                 it != instance->getRooms().end(); it++) {
-                int d = 0;
-                for (char &c :instance->getClasses()[l]->getDays()) {
-                    if (c != '0') {
-                        for (int i = 0; i < instance->getClasses()[l]->getLenght(); i++) {
+    virtual GRBLinExpr gapStudentsTimetable() =0;
 
-                            temp += abs(it->second.getCapacity() - instance->getClasses()[l]->getLimit()) *
-                                    lectureTime[d][instance->getClasses()[l]->getStart() + i][l]
-                                    * roomLecture[j][l];
-                        }
-                    }
-
-                    d++;
-                }
-                j++;
-            }
-        }
-        //std::cout<<temp<<std::endl;
-
-        return temp;
-
-    }
 
 
 public:
@@ -419,32 +145,6 @@ public:
     }
 
 
-    GRBLinExpr gapStudentsTimetable() {
-        GRBLinExpr min = 0;
-        for (int i = 0; i < instance->getStudent().size(); ++i) {
-            for (int j = 0; j < instance->getNdays(); ++j) {
-                for (int k = 1; k < instance->getSlotsperday(); ++k) {
-                    GRBLinExpr all = 0;
-                    GRBVar t = model->addVar(0.0, std::numeric_limits<int>::max(), 0.0, GRB_INTEGER);
-                    GRBVar tmin = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                    for (int l = 0; l < instance->getClasses().size(); ++l) {
-                        //std::cout << l << " " << instance->getStudent(i).isEnrolled(l) << std::endl;
-                        if (instance->getStudent(i).isEnrolled(l))
-                            all += lectureTime[j][k][l] + lectureTime[j][k - 1][l];
-                    }
-                    model->addConstr(t == all);
-                    model->addGenConstrIndicator(tmin, 1, t == 1);
-
-                    min += tmin;
-
-                }
-            }
-
-        }
-        return min;
-        //std::cout << min << std::endl;
-    }
-
     void optimizeGapStudentsTimetable() {
         model->setObjective(gapStudentsTimetable(), GRB_MAXIMIZE);
     }
@@ -457,7 +157,7 @@ public:
         loadOutput();
         printsolutionTime();
         printRoomSolution();
-        model->set(GRB_DoubleParam_TimeLimit, 6000.0);
+        model->set(GRB_DoubleParam_TimeLimit, 60.0);
         if (mpp)
             warmStart();
         saveEncoding();
@@ -499,40 +199,15 @@ public:
      * Can be controled by the value of slack of each instance
      */
 
-    void slackStudent() {
-        for (int l = 0; l <
-                        instance->getClasses().size(); l++) {
-            int j = 0;
-            for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
-                 it != instance->getRooms().end(); it++) {
-                model->addConstr(it->second.getCapacity() >=
-                                 ((instance->getClasses()[l]->getLimit() -
-                            (instance->getClasses()[l]->getLimit() * instance->getAlfa())) *
-                           roomLecture[j][l]));
-
-
-                j++;
-            }
-        }
-    }
+    virtual void slackStudent() =0;
 
 
     /***
      * Prints the current distance of the solution with the old solution
      * The distante is base on the weighted Hamming distance of the roomLecture variable (room atributions)
      * The weighted is baed on the number of students moved
-     * @param cplex
      */
-    void printdistanceToSolutionRooms(IloCplex cplex) {
-        int temp = 0;
-        for (int i = 0; i < instance->getRooms().size(); i++) {
-            for (int j = 0; j < instance->getClasses().size(); ++j) {
-                temp += instance->getClasses()[j]->getLimit() * (solutionRoom[i][j]
-                                                                 != roomLecture[i][j].get(GRB_DoubleAttr_X));
-            }
-        }
-        std::cout << temp << std::endl;
-    }
+    virtual void printdistanceToSolutionRooms() =0;
 
     /***
      * The current distance of the solution with the old solution
@@ -543,19 +218,7 @@ public:
      * @return IloExpr
      */
 
-    GRBQuadExpr distanceToSolutionRooms(int **oldRoom, bool weighted) {
-        GRBQuadExpr temp = 0;
-        for (int i = 0; i < instance->getRooms().size(); i++) {
-            for (int j = 0; j < instance->getClasses().size(); ++j) {
-                GRBVar tempv = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                model->addGenConstrIndicator(tempv, 0, oldRoom[i][j] == roomLecture[i][j]);
-                model->addGenConstrIndicator(tempv, 1, roomLecture[i][j] - oldRoom[i][j] - 1 <= 0);
-                temp += instance->getClasses()[j]->getLimit() * tempv;
-            }
-
-        }
-        return temp;
-    }
+    virtual GRBQuadExpr distanceToSolutionRooms(int **oldRoom, bool weighted) =0;
 
     /***
     * The current distance of the solution with the old solution
@@ -567,21 +230,7 @@ public:
     */
 
 
-    GRBQuadExpr distanceToSolutionLectures(int ***oldTime, bool weighted) {
-        GRBQuadExpr temp = 0;
-        for (int i = 0; i < instance->getNdays(); i++) {
-            for (int t = 0; t < instance->getSlotsperday(); t++) {
-                for (int j = 0; j < instance->getClasses().size(); ++j) {
-                    GRBVar tempv = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                    model->addGenConstrIndicator(tempv, 0, oldTime[i][t][j] == lectureTime[i][t][j]);
-                    model->addGenConstrIndicator(tempv, 1, lectureTime[i][t][j] - oldTime[i][t][j] - 1 <= 0);
-                    temp += instance->getClasses()[j]->getLimit() * tempv;
-                }
-
-            }
-        }
-        return temp;
-    }
+    virtual GRBQuadExpr distanceToSolutionLectures(int ***oldTime, bool weighted) =0;
 
     void distanceToSolution() {
         distanceToSolution(solutionRoom, solutionTime, false);
@@ -620,22 +269,7 @@ private:
      * Used the class atributes: solutionTime and roomLecture
      */
 
-    void warmStart() {
-        for (int k = 0; k < instance->getNdays(); k++) {
-            for (int i = 0; i < instance->getSlotsperday(); i++) {
-                for (int j = 0; j < instance->getClasses().size(); j++) {
-                    lectureTime[k][i][j].set(GRB_DoubleAttr_Start, solutionTime[k][i][j]);
-                }
-            }
-        }
-        for (int r = 0; r < instance->getRooms().size(); ++r) {
-            for (int l = 0; l < instance->getClasses().size(); ++l) {
-                roomLecture[r][l].set(GRB_DoubleAttr_Start, solutionRoom[r][l]);
-            }
-
-        }
-
-    }
+    virtual void warmStart()=0;
 
 
 private:
@@ -648,24 +282,7 @@ private:
      *
      */
 
-    void switchSolutionTime() {
-        for (int i = 0; i < instance->getClasses().size(); i++) {
-            for (int k = 0; k < instance->getNdays(); ++k) {
-                for (int j = 0; j < instance->getSlotsperday(); ++j) {
-                    solutionTime[k][j][i] = lectureTime[k][j][i].get(GRB_DoubleAttr_X);
-
-                    if (solutionTime[k][j][i] != 0) {
-                        instance->getClasses()[i]->setSolutionTime(j,
-                                                                   strdup(std::to_string(k).c_str()));
-                    }
-
-                }
-
-            }
-
-        }
-
-    }
+    virtual void switchSolutionTime() =0;
 
     /** Switch solution
     * Updates the solution structures with new data
@@ -684,17 +301,7 @@ private:
      * @Requires delete the previous found solution
      *
      */
-    void switchSolutionRoom() {
-        for (int i = 0; i < instance->getRooms().size(); i++) {
-            for (int j = 0; j < instance->getClasses().size(); ++j) {
-                solutionRoom[i][j] = roomLecture[i][j].get(GRB_DoubleAttr_X);
-                if (roomLecture[i][j].get(GRB_DoubleAttr_X) != 0) {
-                    instance->getClasses()[j]->setSolRoom(i);
-                }
-            }
-
-        }
-    }
+    virtual void switchSolutionRoom() =0;
 
 
 };
