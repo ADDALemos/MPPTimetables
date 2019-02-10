@@ -87,13 +87,11 @@ int main(int argc, char **argv) {
     //runner->roomClosebyDay();
     //runner->assignmentInvalid();
     runner->oneLectureRoom();
-
+    runner->studentConflictSolution();
     runner->oneLectureRoomConflict();
-    std::cout << "here2" << std::endl;
 
     // runner->slackStudent();
-    runner->studentConflictSolution();
-    std::cout << "here3" << std::endl;
+
 
 
 

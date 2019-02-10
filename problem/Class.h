@@ -112,6 +112,16 @@ public:
         return lectures[0]->getDays();
     }
 
+    int getDay() {
+        int i = 0;
+        for (char &c : getDays()) {
+            i++;
+            if (c == '1')
+                return i;
+
+        }
+    }
+
     std::string getWeek() const {
         return lectures[0]->getWeeks();
     }

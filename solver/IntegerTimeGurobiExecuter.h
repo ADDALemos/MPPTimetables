@@ -65,27 +65,32 @@ public:
             GRBVar sameRoom1[3];
 
             for (int i = 0; i < instance->getRooms().size(); i++) {
-                for (int d = 0; d < instance->getNdays() * instance->getSlotsperday(); d++) {
                     for (int j = 0; j < instance->getClasses().size(); j++) {
                         for (int j1 = 1; j1 < instance->getClasses().size(); j1++) {
                             GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                         "temp" + itos(i) + "_" + itos(d) + "_" + itos(j) + "_" +
+                                                         "temp" + itos(i) + "_" + itos(j) + "_" +
                                                          itos(j1));
                             GRBVar tempV1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                          "tempV" + itos(i) + "_" + itos(d) + "_" + itos(j) + "_" +
+                                                          "tempV" + itos(i) + "_" + itos(j) + "_" +
                                                           itos(j1));
                             GRBVar tempX = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                         "tempX" + itos(i) + "_" + itos(d) + "_" + itos(j) + "_" +
+                                                         "tempX" + itos(i) + "_" + itos(j) + "_" +
                                                          itos(j1));
                             GRBVar tempX1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                          "tempY" + itos(i) + "_" + itos(d) + "_" + itos(j) + "_" +
+                                                          "tempY" + itos(i) + "_" + itos(j) + "_" +
                                                           itos(j1));
                             model->addGenConstrIndicator(tempX, 1,
-                                                         (lectureTime[d][j] + instance->getClasses()[j]->getLenght()) <=
-                                                         lectureTime[d][j1]);
-                            model->addGenConstrIndicator(tempX1, 1, (lectureTime[d][j1] +
+                                                         (lectureTime[instance->getClasses()[j]->getStart() *
+                                                                      instance->getClasses()[j]->getDay()][j] +
+                                                          instance->getClasses()[j]->getLenght()) <=
+                                                         lectureTime[instance->getClasses()[j1]->getStart() *
+                                                                     instance->getClasses()[j1]->getDay()][j1]);
+                            model->addGenConstrIndicator(tempX1, 1,
+                                                         (lectureTime[instance->getClasses()[j1]->getStart() *
+                                                                      instance->getClasses()[j1]->getDay()][j1] +
                                                                      instance->getClasses()[j1]->getLenght()) <=
-                                                                    lectureTime[d][j]);
+                                                         lectureTime[instance->getClasses()[j]->getStart() *
+                                                                     instance->getClasses()[j]->getDay()][j]);
                             sameRoom1[0] = roomLecture[i][j];
                             sameRoom1[1] = roomLecture[i][j1];
                             sameRoom1[2] = tempX1;
@@ -98,7 +103,7 @@ public:
                         }
                     }
 
-                }
+
             }
         } catch (GRBException e) {
             printError(e, "oneLectureRoomConflict");
@@ -189,13 +194,16 @@ public:
                             for (int c1 = 1; c1 < sub->second[i]->getClasses().size(); c1++) {
 
                                 GRBVar tempT = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                             "tempT" + itos(i) + "_" + itos(t) + "_" + itos(c) +
+                                                             "tempT" + it->first + "_" + itos(i) + "_" + itos(t) + "_" +
+                                                             itos(c) +
                                                              "_" + itos(c1));
                                 GRBVar tempT1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                              "tempT1" + itos(i) + "_" + itos(t) + "_" + itos(c) +
+                                                              "tempT1" + it->first + "_" + itos(i) + "_" + itos(t) +
+                                                              "_" + itos(c) +
                                                               "_" + itos(c1));
                                 GRBVar tempTA = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                              "tempTA" + itos(i) + "_" + itos(t) + "_" + itos(c) +
+                                                              "tempTA" + it->first + "_" + itos(i) + "_" + itos(t) +
+                                                              "_" + itos(c) +
                                                               "_" + itos(c1));
                                 model->addGenConstrIndicator(tempT, 1, lectureTime[t][c] <= lectureTime[t][c1]);
                                 model->addGenConstrIndicator(tempT1, 1, lectureTime[t][c1] <= (lectureTime[t][c] +
@@ -203,8 +211,8 @@ public:
                                                                                                1));
                                 andV[0] = tempT;
                                 andV[1] = tempT1;
-                                model->addGenConstrAnd(tempT, andV, 2);
-                                conflict += tempT;
+                                model->addGenConstrAnd(tempTA, andV, 2);
+                                conflict += tempTA;
                             }
                         }
                         model->addConstr(conflict <= sub->second[i]->getOverlap());
@@ -225,19 +233,22 @@ public:
         for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
              it != instance->getStudent().end(); it++) {
             for (int d = 0; d < instance->getNdays() * instance->getSlotsperday(); ++d) {
-                for (int c = 0; c < it->second.getCourse().size(); ++c) {
-                    for (int j1 = 1; j1 < instance->getClasses().size(); j1++) {
-                        GRBVar tempX = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                     "tempX" + itos(d) + "_" + itos(c) + "_" + itos(j1));
-                        GRBVar tempX1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                      "tempY" + itos(d) + "_" + itos(c) + "_" + itos(j1));
+                for (int c = 0; c < it->second.getClasses().size(); ++c) {
+                    for (int j1 = 1; j1 < it->second.getClasses().size(); ++j1) {
+                        GRBVar orv[2];
+                        GRBVar tempX = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
+                        GRBVar tempX1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
+                        GRBVar tempX2 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
                         model->addGenConstrIndicator(tempX, 1,
                                                      (lectureTime[d][c] + instance->getClasses()[c]->getLenght()) <=
                                                      lectureTime[d][j1]);
                         model->addGenConstrIndicator(tempX1, 1,
                                                      (lectureTime[d][j1] + instance->getClasses()[j1]->getLenght()) <=
                                                      lectureTime[d][c]);
-                        model->addConstr(tempX + tempX1 <= 1);
+                        orv[0] = tempX1;
+                        orv[01] = tempX2;
+                        model->addGenConstrOr(tempX2, orv, 2);
+                        model->addConstr(tempX2 == 1);
                     }
                 }
             }
@@ -252,26 +263,32 @@ public:
     void studentConflictSolution() {
         for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
              it != instance->getStudent().end(); it++) {
-            for (int d = 0; d < instance->getSlotsperday() * instance->getNdays(); ++d) {
                 for (int c = 0; c < it->second.getClasses().size(); ++c) {
-                    for (int j1 = 1; j1 < instance->getClasses().size(); j1++) {
-                        GRBVar tempX = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                     "tempX" + itos(d) + "_" + itos(c) + "_" + itos(j1));
-                        GRBVar tempX1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                      "tempY" + itos(d) + "_" + itos(c) + "_" + itos(j1));
+                    for (int j1 = 1; j1 < it->second.getClasses().size(); ++j1) {
+                        //GRBVar orv[2];
+                        GRBVar tempX = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
+                        GRBVar tempX1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
+                        //GRBVar tempX2 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
+
+
                         model->addGenConstrIndicator(tempX, 1,
-                                                     (lectureTime[d][c] + instance->getClasses()[c]->getLenght()) <=
-                                                     lectureTime[d][j1]);
+                                                     (lectureTime[it->second.getClasses()[c]->getStart() *
+                                                                  it->second.getClasses()[c]->getDay()][c] +
+                                                      it->second.getClasses()[c]->getLenght()) <=
+                                                     lectureTime[it->second.getClasses()[j1]->getStart() *
+                                                                 it->second.getClasses()[j1]->getDay()][j1]);
                         model->addGenConstrIndicator(tempX1, 1,
-                                                     (lectureTime[d][j1] + instance->getClasses()[j1]->getLenght()) <=
-                                                     lectureTime[d][c]);
+                                                     (lectureTime[it->second.getClasses()[j1]->getStart() *
+                                                                  it->second.getClasses()[j1]->getDay()][j1] +
+                                                      it->second.getClasses()[j1]->getLenght()) <=
+                                                     lectureTime[it->second.getClasses()[c]->getStart() *
+                                                                 it->second.getClasses()[c]->getDay()][c]);
+                        //orv[0]=tempX1;orv[01]=tempX;
+                        //model->addGenConstrOr(tempX2,orv,2);
                         model->addConstr(tempX + tempX1 <= 1);
                     }
-
                 }
-
             }
-        }
     }
 
 
