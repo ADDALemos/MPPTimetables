@@ -55,6 +55,16 @@ public:
         return days;
     }
 
+    int getSolDay() const {
+        int i = 0;
+        for (char &c : getSolDays()) {
+            i++;
+            if (c == '1')
+                return i;
+
+        }
+    }
+
     void setSolRoom(int roomID) {
         Class::roomID = roomID;
     }
@@ -110,6 +120,16 @@ public:
 
     std::string getDays() const {
         return lectures[0]->getDays();
+    }
+
+    int getDay() {
+        int i = 0;
+        for (char &c : getDays()) {
+            i++;
+            if (c == '1')
+                return i;
+
+        }
     }
 
     std::string getWeek() const {

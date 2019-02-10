@@ -157,7 +157,7 @@ public:
         loadOutput();
         printsolutionTime();
         printRoomSolution();
-        model->set(GRB_DoubleParam_TimeLimit, 60.0);
+        model->set(GRB_DoubleParam_TimeLimit, 600.0);
         if (mpp)
             warmStart();
         saveEncoding();
@@ -174,22 +174,20 @@ public:
             }
             if (status != GRB_OPTIMAL) {
                 std::cout << "Optimization was stopped with status " << status << std::endl;
-                return 1;
-            } else {
-                double value = model->get(GRB_DoubleAttr_ObjVal);
-                std::cout << value << std::endl;
-                switchSolution();
-                std::cout << "New Found Solution" << std::endl;
-                printRoomSolution();
-                printsolutionTime();
-
-                return value;
-
             }
+            
         } catch (GRBException e) {
             printError(e, "run");
+            return -1;
         }
-        return -1;
+        double value = model->get(GRB_DoubleAttr_ObjVal);
+        std::cout << value << std::endl;
+        switchSolution();
+        std::cout << "New Found Solution" << std::endl;
+        printRoomSolution();
+        printsolutionTime();
+
+        return value;
 
 
     }

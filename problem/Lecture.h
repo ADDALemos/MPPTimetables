@@ -32,7 +32,7 @@ class Lecture {
     }
 
     int getStart() const {
-        return start - 1;
+        return start;
     }
 
     void setStart(int start) {
