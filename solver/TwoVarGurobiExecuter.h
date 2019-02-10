@@ -17,7 +17,6 @@
 class TwoVarGurobiExecuter : public GurobiExecuter {
 
 protected:
-    GRBVar ***lectureTime;
     GRBVar **roomLecture;
 
 

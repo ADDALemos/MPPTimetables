@@ -21,6 +21,9 @@
 #include "stats/Stats.h"
 #include "solver/BinaryOnlyGurobiExecuter.h"
 
+#include "solver/IntegerTimeGurobiExecuter.h"
+
+using namespace rapidxml;
 
 Instance *readInputXML(std::string filename);
 
@@ -53,7 +56,6 @@ void help() {
 } /* displays help */
 
 
-using namespace rapidxml;
 bool quiet = false; //Print info
 int main(int argc, char **argv) {
     clock_t tStart = clock();
@@ -68,10 +70,11 @@ int main(int argc, char **argv) {
     if (!quiet) std::cout << "Generating Perturbations based on the file: " << std::endl;
     readPerturbations();
     if (!quiet) std::cout << "Generating ILP model" << std::endl;
-    //  printProblemStats(instance);
-    ILPExecuter *runner = new BinaryOnlyGurobiExecuter();
+    //printProblemStats(instance);
+    ILPExecuter *runner = new IntegerTimeGurobiExecuter();
     runner->setInstance(instance);
-//    printSolutionStats(runner);
+    //printSolutionStats(runner);
+    //std::exit(33);
     runner->definedRoomLecture();
     runner->definedLectureTime();
     runner->oneLectureperSlot();
@@ -80,13 +83,20 @@ int main(int argc, char **argv) {
     //runner->roomClose();
     //runner->slotClose();
     runner->teacher();
+
     //runner->roomClosebyDay();
     //runner->assignmentInvalid();
     runner->oneLectureRoom();
-    runner->oneLectureperSlot();
+
+    runner->oneLectureRoomConflict();
+    std::cout << "here2" << std::endl;
+
     // runner->slackStudent();
     runner->studentConflictSolution();
-    runner->oneLectureRoomConflict();
+    std::cout << "here3" << std::endl;
+
+
+
 
     if (!quiet) std::cout << "Add optimization: GapStudentsTimetable" << std::endl;
     runner->optimizeGapStudentsTimetable();
@@ -222,11 +232,15 @@ void readOutputXML(std::string filename, Instance *instance) {
             }
         }
         Class *s = instance->getClass(id);
-        if (roomID.find(room) == roomID.end()) {
-            std::cerr << "Room does not exist: " << room << std::endl;
-            std::exit(11);
-        }
-        s->setSolution(start, roomID[room], room, weeks, days);
+        if (std::strcmp(room.c_str(), " ") != 0) {
+            if (roomID.find(room) == roomID.end()) {
+                std::cerr << "Room does not exist: " << room << std::endl;
+                std::exit(11);
+            }
+            s->setSolution(start, roomID[room], room, weeks, days);
+        } else
+            s->setSolution(start, weeks, days);
+
         std::vector<int> student;
         for (const xml_node<> *stu = n->first_node(); stu; stu = stu->next_sibling()) {
             for (const xml_attribute<> *a = stu->first_attribute(); a; a = a->next_attribute()) {

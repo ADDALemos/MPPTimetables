@@ -97,6 +97,10 @@ public:
     }
 
     int getLenght() const {
+        if (lectures.size() == 0) {
+            std::cerr << "Lecture cannot be schedule id: " << id << std::endl;
+            return 0;
+        }
         return lectures[0]->getLenght();
     }
 
@@ -174,6 +178,13 @@ public:
     void setSolutionTime(int time, char *day) {
         Class::start = time;
         Class::days = day;
+    }
+
+    void setSolution(int time, std::string week, std::string day) {
+        Class::start = time;
+        Class::days = day;
+        Class::week = week;
+
     }
 
     /**

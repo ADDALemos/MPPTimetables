@@ -14,6 +14,7 @@
 #include "../solver/TwoVarGurobiExecuter.h"
 
 class BinaryOnlyGurobiExecuter : public TwoVarGurobiExecuter {
+    GRBVar ***lectureTime;
 
 
 public:
