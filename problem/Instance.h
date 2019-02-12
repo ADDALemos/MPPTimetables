@@ -410,6 +410,25 @@ public:
      * Number of students enrolled
      */
 
+    double frequency() {
+        double used = 0, all = (getNdays() * getSlotsperday() * getNumRoom());
+        for (int k = 0; k < getClasses().size(); ++k) {
+            used += getClasses()[k]->getLenght();
+        }
+        return 100 * used / all;
+    }
+
+
+    double utilization() {
+        double used = 0, all = (getNdays() * getSlotsperday() * getNumRoom() *
+                                getAvCapacity());
+        for (int k = 0; k < getClasses().size(); ++k) {
+            used += getClasses()[k]->getLenght() * getClasses()[k]->getLimit();
+        }
+        return 100 * used / all;
+
+    }
+
 };
 
 

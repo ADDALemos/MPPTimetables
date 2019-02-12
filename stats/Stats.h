@@ -27,6 +27,14 @@ void printProblemStats(Instance *instance) {
     std::cout << "Standard Deviation Capacity by Room: " << instance->getSTDCapacity() << std::endl;
 }
 
+void printStats(Instance *instance) {
+    std::cout << "*****Timetabke Description*****" << std::endl;
+    std::cout << "Frequency: " << instance->frequency() << std::endl;
+    std::cout << "Utilization: " << instance->utilization() << std::endl;
+
+
+}
+
 void printSolutionStats(ILPExecuter *runner) {
     std::cout << "*****Solution Description*****" << std::endl;
     std::cout << "Frequency: " << runner->frequency() << std::endl;
