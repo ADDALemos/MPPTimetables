@@ -20,7 +20,7 @@
 #include "randomGenerator/Perturbation.h"
 #include "stats/Stats.h"
 #include "solver/BinaryOnlyGurobiExecuter.h"
-
+#include "solver/OneVarGurobiExecuter.h"
 #include "solver/IntegerTimeGurobiExecuter.h"
 
 using namespace rapidxml;
@@ -71,8 +71,9 @@ int main(int argc, char **argv) {
     readPerturbations();
     if (!quiet) std::cout << "Generating ILP model" << std::endl;
     //printProblemStats(instance);
+    //printStats(instance);
 
-    ILPExecuter *runner = new IntegerTimeGurobiExecuter();
+    ILPExecuter *runner = new OneVarGurobiExecuter();
     runner->setInstance(instance);
     //printSolutionStats(runner);
     //std::exit(33);
@@ -80,16 +81,22 @@ int main(int argc, char **argv) {
     runner->definedLectureTime();
     runner->oneLectureperSlot();
     runner->saveEncoding();
-
-    //runner->roomClose();
-    //runner->slotClose();
+    runner->roomClose();
+    runner->slotClose();
     runner->teacher();
+    runner->createSol();
+    runner->loadOutput();
 
-    //runner->roomClosebyDay();
-    //runner->assignmentInvalid();
+
+    runner->roomClosebyDay();
+    runner->assignmentInvalid();
     runner->oneLectureRoom();
+
     runner->studentConflictSolution();
+    std::cout << "here" << std::endl;
+
     runner->oneLectureRoomConflict();
+    std::cout << "here" << std::endl;
 
     // runner->slackStudent();
 

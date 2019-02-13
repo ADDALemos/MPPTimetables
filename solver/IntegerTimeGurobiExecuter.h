@@ -115,7 +115,7 @@ public:
         for (int d = 0; d < instance->getNdays(); ++d) {
             for (int i = 0; i < instance->getNumRoom(); i++) {
                 for (int j = 0; j < instance->getNumClasses(); ++j) {
-                    if (instance->isRoomBlockedbyDay(i, d)) {
+                    if (instance->isRoomBlockedbyDay(i + 1, d)) {
                         GRBVar roomC = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
                                                      "roomC_" + itos(d) + "_" + itos(i) + "_" + itos(j));
                         model->addGenConstrIndicator(roomC, 1, lectureTime[j] / instance->getSlotsperday() == d);
@@ -152,13 +152,31 @@ public:
      * to a different room or to a different time slot
      */
     void assignmentInvalid() {
+        int value = 0;
+        for (int j = 0; j < instance->getNdays(); ++j) {
+            for (int i = 0; i < instance->getSlotsperday(); ++i) {
+                for (int k = 0; k < instance->getNumClasses(); ++k) {
+                    if (solutionTime[j][i][k] == 1) {
+                        value = j + i;
+                        goto label;
+                    }
+
+                }
+
+            }
+
+        }
+        label:
         for (int i = 0; i < instance->getNumClasses(); ++i) {
             if (instance->isIncorrectAssignment(i)) {
                 GRBLinExpr temp = 0;
-                temp = lectureTime[i];
                 for (int l = 0; l < instance->getNumRoom(); ++l) {
                     if (solutionRoom[l][i] == 1) {
-                        temp += roomLecture[l][i];
+                        GRBVar t = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
+                        model->addGenConstrIndicator(t, 1, lectureTime[i] == value);
+                        model->addGenConstrIndicator(t, 0, lectureTime[i] <= value - 1);
+                        model->addGenConstrIndicator(t, 0, lectureTime[i] >= value + 1);
+                        temp = t + roomLecture[l][i];
                         model->addConstr(temp <= 1);
                         break;
                     }
@@ -335,7 +353,6 @@ private:
 
     }
 
-//TODO:
     GRBLinExpr gapStudentsTimetable() {
         GRBLinExpr min = 0;
         for (int i = 0; i < instance->getStudent().size(); ++i) {

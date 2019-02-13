@@ -78,11 +78,6 @@ public:
 
     }
 
-    void printError(const GRBException &e, std::string local) const {
-        std::cout << "Error found: " << local << std::endl;
-        std::cout << "Error code = " << e.getErrorCode() << std::endl;
-        std::cout << e.getMessage() << std::endl;
-    }
 
     /**
      * Ensure room r is used to lecture l
@@ -103,7 +98,7 @@ public:
     void roomClose() {
         for (int i = 0; i < instance->getNumRoom(); i++) {
             for (int j = 0; j < instance->getNumClasses(); ++j) {
-                if (instance->isRoomBlocked(i)) {
+                if (instance->isRoomBlocked(i + 1)) {
                     model->addConstr(roomLecture[i][j] == 0);
                 }
             }

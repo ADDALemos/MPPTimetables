@@ -7,6 +7,7 @@
 
 
 #include "/Library/gurobi810/mac64/include/gurobi_c++.h"
+#include <math.h>       /* floor */
 
 #include <exception>
 #include <stdlib.h>
@@ -175,7 +176,7 @@ public:
             if (status != GRB_OPTIMAL) {
                 std::cout << "Optimization was stopped with status " << status << std::endl;
             }
-            
+
         } catch (GRBException e) {
             printError(e, "run");
             return -1;
