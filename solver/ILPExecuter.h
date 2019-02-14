@@ -295,6 +295,28 @@ protected:
         }
     }
 
+    /**
+     * Number of GAPS in a solution
+     */
+
+    int gapsSolution() {
+        int count = 0;
+        for (int i = 0; i < instance->getStudent().size(); ++i) {
+            for (int j = 0; j < instance->getNdays(); ++j) {
+                for (int k = 1; k < instance->getSlotsperday(); ++k) {
+                    for (int l = 0; l < instance->getClasses().size(); ++l) {
+                        if (instance->getStudent(i).isEnrolled(l)) {
+                            if (solutionTime[j][k][l] != solutionTime[j][k - 1][l])
+                                count++;
+                        }
+                    }
+
+                }
+            }
+        }
+        return count;
+    }
+
 
 };
 

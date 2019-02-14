@@ -73,32 +73,30 @@ int main(int argc, char **argv) {
     //printProblemStats(instance);
     //printStats(instance);
 
-    ILPExecuter *runner = new OneVarGurobiExecuter();
+    ILPExecuter *runner = new IntegerTimeGurobiExecuter();
     runner->setInstance(instance);
     //printSolutionStats(runner);
     //std::exit(33);
     runner->definedRoomLecture();
     runner->definedLectureTime();
     runner->oneLectureperSlot();
-    runner->saveEncoding();
-    runner->roomClose();
-    runner->slotClose();
+    //runner->saveEncoding();
+    //runner->roomClose();
+    //runner->slotClose();
     runner->teacher();
     runner->createSol();
     runner->loadOutput();
 
 
-    runner->roomClosebyDay();
-    runner->assignmentInvalid();
+    //runner->roomClosebyDay();
+    //runner->assignmentInvalid();
     runner->oneLectureRoom();
 
     runner->studentConflictSolution();
-    std::cout << "here" << std::endl;
 
     runner->oneLectureRoomConflict();
-    std::cout << "here" << std::endl;
 
-    // runner->slackStudent();
+    runner->slackStudent();
 
 
 

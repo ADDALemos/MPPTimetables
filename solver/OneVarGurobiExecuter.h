@@ -22,6 +22,10 @@ protected:
 
 public:
 
+    void printConfiguration() {
+        std::cout << "One variable type int" << std::endl;
+    }
+
     void definedRoomLecture() {
         try {
             timetable = new GRBVar *[instance->getRooms().size()];
@@ -322,29 +326,51 @@ public:
      *
      */
     void studentConflictSolution() {
-        for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
-             it != instance->getStudent().end(); it++) {
-            for (int c = 0; c < it->second.getClasses().size(); ++c) {
-                for (int j1 = 1; j1 < it->second.getClasses().size(); ++j1) {
-                    for (int r = 0; r < instance->getRooms().size(); ++r) {
+        try {
 
-                        GRBVar tempX = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                        GRBVar tempX1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                        model->addGenConstrIndicator(tempX, 1,
-                                                     (timetable[r][c] + instance->getClasses()[c]->getLenght()) <=
-                                                     timetable[r][j1]);
-                        model->addGenConstrIndicator(tempX1, 1,
-                                                     (timetable[r][j1] + instance->getClasses()[j1]->getLenght()) <=
-                                                     timetable[r][c]);
 
-                        model->addConstr(tempX + tempX1 <= 1);
+            for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
+                 it != instance->getStudent().end(); it++) {
+                for (int c = 0; c < it->second.getClasses().size(); ++c) {
+                    for (int j1 = 1; j1 < it->second.getClasses().size(); ++j1) {
+                        for (int r = 0; r < instance->getRooms().size(); ++r) {
 
+                            GRBVar tempX = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
+                            GRBVar tempX1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
+                            GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
+                            GRBVar tempV1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
+                            GRBVar tempV2 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
+                            GRBVar tempV3 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
+                            model->addGenConstrIndicator(tempV, 1, timetable[r][c] >= 0);
+                            model->addGenConstrIndicator(tempV1, 1, timetable[r][j1] >= 0);
+
+                            model->addGenConstrIndicator(tempX, 1,
+                                                         (timetable[r][c] + instance->getClasses()[c]->getLenght()) <=
+                                                         timetable[r][j1]);
+                            model->addGenConstrIndicator(tempX1, 1,
+                                                         (timetable[r][j1] + instance->getClasses()[j1]->getLenght()) <=
+                                                         timetable[r][c]);
+                            GRBVar tempVs[2];
+                            tempVs[0] = tempV;
+                            tempVs[1] = tempX;
+                            GRBVar tempV1s[2];
+                            tempV1s[0] = tempV1;
+                            tempV1s[1] = tempX1;
+
+                            model->addGenConstrAnd(tempV2, tempVs, 2);
+                            model->addGenConstrAnd(tempV3, tempV1s, 2);
+
+                            model->addConstr(tempV2 + tempV3 <= 1);
+
+                        }
                     }
+
                 }
 
+
             }
-
-
+        } catch (GRBException e) {
+            printError(e, "studentConflictSolution");
         }
     }
 
@@ -357,33 +383,29 @@ public:
 protected:
     GRBLinExpr gapStudentsTimetable() {
         GRBLinExpr min = 0;
-        for (int r = 0; r < instance->getRooms().size(); ++r) {
-            for (int i = 0; i < instance->getStudent().size(); ++i) {
-                for (int d = 0; d < instance->getNdays(); ++d) {
-                    for (int t = 1; t < instance->getSlotsperday(); ++t) {
-                        GRBLinExpr all = 0;
-                        GRBVar num = model->addVar(0.0, std::numeric_limits<int>::max(), 0.0, GRB_INTEGER);
-                        GRBVar tmin = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
+        for (int i = 0; i < instance->getStudent().size(); ++i) {
+            GRBLinExpr all = 0;
+            GRBVar num = model->addVar(0.0, std::numeric_limits<int>::max(), 0.0, GRB_INTEGER);
+            for (int l = 0; l < instance->getClasses().size(); ++l) {
+                GRBVar tmin = model->addVar(0.0, 2.0, 0.0, GRB_INTEGER);
+                for (int l1 = 1; l1 < instance->getClasses().size(); ++l1) {
+                    if (instance->getStudent(i).isEnrolled(l) && instance->getStudent(i).isEnrolled(l1)) {
                         GRBVar before = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                        GRBVar after = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-
-                        for (int l = 0; l < instance->getClasses().size(); ++l) {
-                            if (instance->getStudent(i).isEnrolled(l)) {
-                                model->addGenConstrIndicator(before, 1, timetable[r][l] == (d * (t - 1)));
-                                model->addGenConstrIndicator(after, 1, timetable[r][l] == (d * t));
-                            }
-                        }
-                        all += after + before;
-
-                        model->addConstr(num == all);
-                        model->addGenConstrIndicator(tmin, 1, num == 1);
-
-                        min += tmin;
+                        model->addGenConstrIndicator(before, 1,
+                                                     (timetable[l] + instance->getClasses()[l]->getLenght()) ==
+                                                     (timetable[l1]));
+                        model->addGenConstrIndicator(before, 1,
+                                                     (timetable[l1] + instance->getClasses()[l1]->getLenght()) ==
+                                                     (timetable[l]));
+                        all += before;
                     }
                 }
-
+                model->addConstr(tmin == (2 - all));
+                min += tmin;
 
             }
+
+
         }
 
         return min;

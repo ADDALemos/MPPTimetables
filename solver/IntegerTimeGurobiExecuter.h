@@ -19,6 +19,12 @@ class IntegerTimeGurobiExecuter : public TwoVarGurobiExecuter {
 
 public:
 
+    void printConfiguration() {
+        std::cout << "Two variable: type int for schedule" << std::endl;
+        std::cout << "            : type bool for rooms" << std::endl;
+
+    }
+
 
     void definedLectureTime() {
         lectureTime = new GRBVar[instance->getClasses().size()];
@@ -353,7 +359,39 @@ private:
 
     }
 
+
     GRBLinExpr gapStudentsTimetable() {
+        GRBLinExpr min = 0;
+        for (int i = 0; i < instance->getStudent().size(); ++i) {
+            GRBLinExpr all = 0;
+            GRBVar num = model->addVar(0.0, std::numeric_limits<int>::max(), 0.0, GRB_INTEGER);
+            for (int l = 0; l < instance->getClasses().size(); ++l) {
+                GRBVar tmin = model->addVar(0.0, 2.0, 0.0, GRB_INTEGER);
+                for (int l1 = 1; l1 < instance->getClasses().size(); ++l1) {
+                    if (instance->getStudent(i).isEnrolled(l) && instance->getStudent(i).isEnrolled(l1)) {
+                        GRBVar before = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
+                        model->addGenConstrIndicator(before, 1,
+                                                     (lectureTime[l] + instance->getClasses()[l]->getLenght()) ==
+                                                     (lectureTime[l1]));
+                        model->addGenConstrIndicator(before, 1,
+                                                     (lectureTime[l1] + instance->getClasses()[l1]->getLenght()) ==
+                                                     (lectureTime[l]));
+                        all += before;
+                    }
+                }
+                model->addConstr(tmin == (2 - all));
+                min += tmin;
+
+            }
+
+
+        }
+
+        return min;
+        //std::cout << min << std::endl;
+    }
+
+    /*GRBLinExpr gapStudentsTimetable() {
         GRBLinExpr min = 0;
         for (int i = 0; i < instance->getStudent().size(); ++i) {
             for (int d = 0; d < instance->getNdays(); ++d) {
@@ -361,16 +399,18 @@ private:
                     GRBLinExpr all = 0;
                     GRBVar num = model->addVar(0.0, std::numeric_limits<int>::max(), 0.0, GRB_INTEGER);
                     GRBVar tmin = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                    GRBVar before = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                    GRBVar after = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-
                     for (int l = 0; l < instance->getClasses().size(); ++l) {
                         if (instance->getStudent(i).isEnrolled(l)) {
-                            model->addGenConstrIndicator(before, 1, lectureTime[l] == (d * (t - 1)));
-                            model->addGenConstrIndicator(after, 1, lectureTime[l] == (d * t));
+                            for (int j = 0; j < instance->getClasses()[l]->getLenght(); ++j) {
+                                GRBVar before = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
+                                GRBVar after = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
+                                model->addGenConstrIndicator(before, 1, (lectureTime[l]+j) == (d * (t - 1)));
+                                model->addGenConstrIndicator(after, 1, (lectureTime[l]+j) == (d * t));
+                                all += after + before;
+
+                            }
                         }
                     }
-                    all += after + before;
 
                     model->addConstr(num == all);
                     model->addGenConstrIndicator(tmin, 1, num == 1);
@@ -384,7 +424,7 @@ private:
 
         return min;
         //std::cout << min << std::endl;
-    }
+    }*/
 
 
 public:

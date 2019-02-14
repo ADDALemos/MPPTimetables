@@ -22,6 +22,12 @@ protected:
 
 public:
 
+    void printConfiguration() {
+        std::cout << "Two variable: type bool for schedule" << std::endl;
+        std::cout << "            : type bool for rooms" << std::endl;
+
+    }
+
     void definedRoomLecture() {
         try {
             roomLecture = new GRBVar *[instance->getRooms().size()];

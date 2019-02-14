@@ -150,7 +150,10 @@ public:
         model->setObjective(gapStudentsTimetable(), GRB_MAXIMIZE);
     }
 
+    virtual void printConfiguration()=0;
+
     double run(bool mpp) {
+        printConfiguration();
 
 
         createSol();
