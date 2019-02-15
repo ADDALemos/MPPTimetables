@@ -32,6 +32,11 @@ class CplexExecuter : public ILPExecuter {
 
 public:
 
+    void definedAuxVar() {
+        //Not yet used
+        ;
+    }
+
     void definedRoomLecture() {
         try {
             int size = instance->getNumClasses();

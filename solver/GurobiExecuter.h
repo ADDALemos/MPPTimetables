@@ -31,6 +31,9 @@ protected:
 
 public:
 
+    virtual void definedAuxVar()= 0;
+
+
     virtual void definedRoomLecture()=0;
 
 

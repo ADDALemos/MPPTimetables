@@ -30,6 +30,8 @@ public:
 
     virtual void definedLectureTime()= 0;
 
+    virtual void definedAuxVar()= 0;
+
     /**
      * The lecture can only be scheduled in one slot
      */

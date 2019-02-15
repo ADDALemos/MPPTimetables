@@ -22,6 +22,11 @@ protected:
 
 public:
 
+    void definedAuxVar() {
+        //Not yet used
+        ;
+    }
+
     void printConfiguration() {
         std::cout << "One variable type int" << std::endl;
     }
@@ -386,24 +391,28 @@ protected:
         for (int i = 0; i < instance->getStudent().size(); ++i) {
             GRBLinExpr all = 0;
             GRBVar num = model->addVar(0.0, std::numeric_limits<int>::max(), 0.0, GRB_INTEGER);
-            for (int l = 0; l < instance->getClasses().size(); ++l) {
-                GRBVar tmin = model->addVar(0.0, 2.0, 0.0, GRB_INTEGER);
-                for (int l1 = 1; l1 < instance->getClasses().size(); ++l1) {
-                    if (instance->getStudent(i).isEnrolled(l) && instance->getStudent(i).isEnrolled(l1)) {
-                        GRBVar before = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                        model->addGenConstrIndicator(before, 1,
-                                                     (timetable[l] + instance->getClasses()[l]->getLenght()) ==
-                                                     (timetable[l1]));
-                        model->addGenConstrIndicator(before, 1,
-                                                     (timetable[l1] + instance->getClasses()[l1]->getLenght()) ==
-                                                     (timetable[l]));
-                        all += before;
+            for (int j = 0; j < instance->getRooms().size(); ++j) {
+                for (int l = 0; l < instance->getClasses().size(); ++l) {
+                    GRBVar tmin = model->addVar(0.0, 2.0, 0.0, GRB_INTEGER);
+                    for (int l1 = 1; l1 < instance->getClasses().size(); ++l1) {
+                        if (instance->getStudent(i).isEnrolled(l) && instance->getStudent(i).isEnrolled(l1)) {
+                            GRBVar before = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
+                            model->addGenConstrIndicator(before, 1,
+                                                         (timetable[j][l] + instance->getClasses()[l]->getLenght()) ==
+                                                         (timetable[j][l1]));
+                            model->addGenConstrIndicator(before, 1,
+                                                         (timetable[j][l1] + instance->getClasses()[l1]->getLenght()) ==
+                                                         (timetable[j][l]));
+                            all += before;
+                        }
                     }
+                    model->addConstr(tmin == (2 - all));
+                    min += tmin;
+
                 }
-                model->addConstr(tmin == (2 - all));
-                min += tmin;
 
             }
+
 
 
         }

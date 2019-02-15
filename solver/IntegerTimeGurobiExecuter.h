@@ -15,9 +15,39 @@
 
 class IntegerTimeGurobiExecuter : public TwoVarGurobiExecuter {
     GRBVar *lectureTime;
+    GRBVar **order;
 
 
 public:
+
+    void definedAuxVar() {
+        try {
+            order = new GRBVar *[instance->getClasses().size()];
+            for (int j = 0; j < instance->getClasses().size(); j++) {
+                order[j] = new GRBVar[instance->getClasses().size()];
+                for (int j1 = 0; j1 < instance->getClasses().size(); j1++) {
+                    order[j][j1] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                 "order" + itos(j) + "_" + itos(j1));
+                }
+            }
+
+            for (int j = 0; j < instance->getClasses().size(); j++) {
+                for (int j1 = 1; j1 < instance->getClasses().size(); j1++) {
+                    model->addGenConstrIndicator(order[j][j1], 1,
+                                                 (lectureTime[j] +
+                                                  instance->getClasses()[j]->getLenght()) <=
+                                                 lectureTime[j1]);
+                    model->addGenConstrIndicator(order[j1][j], 1,
+                                                 (lectureTime[j1] +
+                                                  instance->getClasses()[j1]->getLenght()) <=
+                                                 lectureTime[j]);
+
+                }
+            }
+        } catch (GRBException e) {
+            printError(e, "definedAuxVar");
+        }
+    }
 
     void printConfiguration() {
         std::cout << "Two variable: type int for schedule" << std::endl;
@@ -62,10 +92,9 @@ public:
 
 
     /***
-     * The room can only have one lecture per slot
+     * The room can only have one lecture per slot with ands
      */
-
-    void oneLectureRoomConflict() {
+    void oneLectureRoomConflict2() {
         try {
             GRBVar sameRoom[3];
             GRBVar sameRoom1[3];
@@ -79,29 +108,105 @@ public:
                         GRBVar tempV1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
                                                       "tempV" + itos(i) + "_" + itos(j) + "_" +
                                                       itos(j1));
-                        GRBVar tempX = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                     "tempX" + itos(i) + "_" + itos(j) + "_" +
-                                                     itos(j1));
-                        GRBVar tempX1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                      "tempY" + itos(i) + "_" + itos(j) + "_" +
-                                                      itos(j1));
-                        model->addGenConstrIndicator(tempX, 1,
-                                                     (lectureTime[j] +
-                                                      instance->getClasses()[j]->getLenght()) <=
-                                                     lectureTime[j1]);
-                        model->addGenConstrIndicator(tempX1, 1,
-                                                     (lectureTime[j1] +
-                                                      instance->getClasses()[j1]->getLenght()) <=
-                                                     lectureTime[j]);
                         sameRoom1[0] = roomLecture[i][j];
                         sameRoom1[1] = roomLecture[i][j1];
-                        sameRoom1[2] = tempX1;
+                        sameRoom1[2] = order[j][j1];
                         sameRoom[0] = roomLecture[i][j];
                         sameRoom[1] = roomLecture[i][j1];
-                        sameRoom[2] = tempX;
+                        sameRoom[2] = order[j1][j];
                         model->addGenConstrAnd(tempV, sameRoom, 3);
                         model->addGenConstrAnd(tempV1, sameRoom1, 3);
                         model->addConstr(tempV + tempV1 <= 1);
+                    }
+                }
+
+
+            }
+        } catch (GRBException e) {
+            printError(e, "oneLectureRoomConflic: ands");
+        }
+
+    }
+
+    /***
+     * The room can only have one lecture per slot with quadratic and ands
+     */
+
+    void oneLectureRoomConflict1() {
+        try {
+            GRBVar sameRoom[2];
+
+            for (int i = 0; i < instance->getRooms().size(); i++) {
+                for (int j = 0; j < instance->getClasses().size(); j++) {
+                    for (int j1 = 1; j1 < instance->getClasses().size(); j1++) {
+                        GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                     "temp" + itos(i) + "_" + itos(j) + "_" +
+                                                     itos(j1));
+
+                        sameRoom[0] = roomLecture[i][j];
+                        sameRoom[1] = roomLecture[i][j1];
+                        model->addGenConstrAnd(tempV, sameRoom, 2);
+                        model->addQConstr(tempV * (order[j][j1] + order[j1][j]) <= tempV);
+                    }
+                }
+
+
+            }
+        } catch (GRBException e) {
+            printError(e, "oneLectureRoomConflict: quatratic + and");
+        }
+
+    }
+
+    /***
+     * The room can only have one lecture per slot with quadratic
+     */
+
+    void oneLectureRoomConflict3() {
+        try {
+
+            for (int i = 0; i < instance->getRooms().size(); i++) {
+                for (int j = 0; j < instance->getClasses().size(); j++) {
+                    for (int j1 = 1; j1 < instance->getClasses().size(); j1++) {
+                        std::cout << "here" << std::endl;
+                        GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                     "temp" + itos(i) + "_" + itos(j) + "_" +
+                                                     itos(j1));
+
+                        model->addGenConstrIndicator(tempV, 1, roomLecture[i][j] == roomLecture[i][j1]);
+                        model->addQConstr(tempV * (order[j][j1] + order[j1][j]) <= tempV);
+                    }
+                }
+
+
+            }
+        } catch (GRBException e) {
+            printError(e, "oneLectureRoomConflict: quadratic");
+        }
+
+    }
+
+    /***
+     * The room can only have one lecture per slot without and quadratic expressions
+     */
+
+    void oneLectureRoomConflict() {
+        try {
+
+            for (int i = 0; i < instance->getRooms().size(); i++) {
+                for (int j = 0; j < instance->getClasses().size(); j++) {
+                    for (int j1 = 1; j1 < instance->getClasses().size(); j1++) {
+                        GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                     "temp" + itos(i) + "_" + itos(j) + "_" +
+                                                     itos(j1));
+                        GRBVar tempC = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                     "tempC" + itos(i) + "_" + itos(j) + "_" +
+                                                     itos(j1));
+
+                        model->addGenConstrIndicator(tempV, 1, roomLecture[i][j] == roomLecture[i][j1]);
+                        model->addGenConstrIndicator(tempC, 1, (order[j][j1] + order[j1][j]) == 2);
+
+                        model->addConstr(tempV + tempC <= 1);
                     }
                 }
 
@@ -196,7 +301,6 @@ public:
 
     /**Teacher's conflict*/
     void teacher() {
-        GRBVar andV[2];
         for (std::map<std::string, Course *>::const_iterator it = instance->getCourses().begin();
              it != instance->getCourses().end(); it++) {
             for (std::map<int, std::vector<Subpart *>>::iterator sub = it->second->getConfiguratons().begin();
@@ -210,22 +314,9 @@ public:
                                                          "tempT" + it->first + "_" + itos(i) + "_" +
                                                          itos(c) +
                                                          "_" + itos(c1));
-                            GRBVar tempT1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                          "tempT1" + it->first + "_" + itos(i) +
-                                                          "_" + itos(c) +
-                                                          "_" + itos(c1));
-                            GRBVar tempTA = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                          "tempTA" + it->first + "_" + itos(i) +
-                                                          "_" + itos(c) +
-                                                          "_" + itos(c1));
-                            model->addGenConstrIndicator(tempT, 1, lectureTime[c] <= lectureTime[c1]);
-                            model->addGenConstrIndicator(tempT1, 1, lectureTime[c1] <= (lectureTime[c] +
-                                                                                        sub->second[i]->getClasses()[c]->getLenght() -
-                                                                                        1));
-                            andV[0] = tempT;
-                            andV[1] = tempT1;
-                            model->addGenConstrAnd(tempTA, andV, 2);
-                            conflict += tempTA;
+
+                            model->addGenConstrIndicator(tempT, 1, order[c][c1] + order[c1][c] == 0);
+                            conflict += tempT;
                         }
                     }
                     model->addConstr(conflict <= sub->second[i]->getOverlap());
@@ -246,19 +337,12 @@ public:
             for (int c = 0; c < it->second.getClasses().size(); ++c) {
                 for (int j1 = 1; j1 < it->second.getClasses().size(); ++j1) {
                     GRBVar orv[2];
-                    GRBVar tempX = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                    GRBVar tempX1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
                     GRBVar tempX2 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                    model->addGenConstrIndicator(tempX, 1,
-                                                 (lectureTime[c] + instance->getClasses()[c]->getLenght()) <=
-                                                 lectureTime[j1]);
-                    model->addGenConstrIndicator(tempX1, 1,
-                                                 (lectureTime[j1] + instance->getClasses()[j1]->getLenght()) <=
-                                                 lectureTime[c]);
-                    orv[0] = tempX1;
-                    orv[01] = tempX2;
+                    orv[0] = order[c][j1];
+                    orv[01] = order[j1][c];
                     model->addGenConstrOr(tempX2, orv, 2);
                     model->addConstr(tempX2 == 1);
+
                 }
 
             }
@@ -271,29 +355,17 @@ public:
      *
      */
     void studentConflictSolution() {
-        for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
-             it != instance->getStudent().end(); it++) {
-            for (int c = 0; c < it->second.getClasses().size(); ++c) {
-                for (int j1 = 1; j1 < it->second.getClasses().size(); ++j1) {
-                    //GRBVar orv[2];
-                    GRBVar tempX = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                    GRBVar tempX1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                    //GRBVar tempX2 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-
-
-                    model->addGenConstrIndicator(tempX, 1,
-                                                 (lectureTime[c] +
-                                                  it->second.getClasses()[c]->getLenght()) <=
-                                                 lectureTime[j1]);
-                    model->addGenConstrIndicator(tempX1, 1,
-                                                 (lectureTime[j1] +
-                                                  it->second.getClasses()[j1]->getLenght()) <=
-                                                 lectureTime[c]);
-                    //orv[0]=tempX1;orv[01]=tempX;
-                    //model->addGenConstrOr(tempX2,orv,2);
-                    model->addConstr(tempX + tempX1 <= 1);
+        try {
+            for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
+                 it != instance->getStudent().end(); it++) {
+                for (int c = 0; c < it->second.getClasses().size(); ++c) {
+                    for (int j1 = 1; j1 < it->second.getClasses().size(); ++j1) {
+                        model->addConstr(order[c][j1] + order[j1][c] <= 1);
+                    }
                 }
             }
+        } catch (GRBException e) {
+            printError(e, "studentConflictSolution");
         }
     }
 

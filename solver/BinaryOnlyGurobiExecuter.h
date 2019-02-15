@@ -18,7 +18,10 @@ class BinaryOnlyGurobiExecuter : public TwoVarGurobiExecuter {
 
 
 public:
-
+    void definedAuxVar() {
+        //Not yet used
+        ;
+    }
 
     void definedLectureTime() {
         lectureTime = new GRBVar **[instance->getNdays()];

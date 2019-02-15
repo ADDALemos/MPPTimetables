@@ -21,6 +21,8 @@ protected:
 
 
 public:
+    virtual void definedAuxVar()= 0;
+
 
     void printConfiguration() {
         std::cout << "Two variable: type bool for schedule" << std::endl;
