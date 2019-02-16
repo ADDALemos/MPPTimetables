@@ -43,6 +43,31 @@ Perturbation::randomEnrolment(unsigned int classNumber, int change, bool increas
 
 }
 
+
+/**
+ * Random increase/decrease in the number of attending students
+ * @requires This method must be used after randomClassSelection is performed
+ * @param classNumber total number of classes
+ * @param mean for normal distribution
+ * @param Standard deviation
+ * @param factor random factor
+ * @return std::vector<std::pair<int, int>> classes perturbed and the respective increase value
+ */
+std::vector<std::pair<int, int>, std::allocator<std::pair<int, int>>>
+Perturbation::randomEnrolment(unsigned int classNumber, double mean, double deviation, double factor) {
+    unsigned int t = seedHandler();
+    std::set<int> classes = randomClassSelection(classNumber, factor, t);
+    std::default_random_engine generator(t);
+    std::normal_distribution<int> distribution(mean, deviation);
+    std::vector<std::pair<int, int>> number;
+    for (std::set<int>::iterator it = classes.begin(); it != classes.end(); ++it) {
+        number.push_back(std::pair<int, int>(*it, distribution(generator)));
+    }
+    return number;
+
+
+}
+
 /**
  * Random selection of the number classes with wrong assigments
  * @param i problem instance
@@ -95,6 +120,22 @@ std::set<int> Perturbation::randomClassSelection(int classNumber, double factor,
  */
 void Perturbation::randomEnrolmentChanges(Instance *i, int changeLimit, bool increase, double factor) {
     std::vector<std::pair<int, int>> set = randomEnrolment(i->getNumClasses(), changeLimit, increase, factor);
+    for (std::pair<int, int> pair: set) {
+        std::cout << pair.first << " " << pair.second << std::endl;
+        i->updateStudentEnrollment(pair.first, pair.second);
+    }
+}
+
+
+/**
+ * Update the instances with the new students
+ * @param i problem instance
+ * @param mean for normal distribution
+ * @param Standard deviation
+ * @param factor random factor
+ */
+void Perturbation::randomEnrolmentChanges(Instance *i, double mean, double deviation, double factor) {
+    std::vector<std::pair<int, int>> set = randomEnrolment(i->getNumClasses(), mean, deviation, factor);
     for (std::pair<int, int> pair: set) {
         std::cout << pair.first << " " << pair.second << std::endl;
         i->updateStudentEnrollment(pair.first, pair.second);
@@ -192,7 +233,7 @@ void Perturbation::randomSlotClose(Instance *i, double factor) {
 void Perturbation::randomShiftChange(Instance *i, double factorCourse, double factorShift, int limit, bool increase) {
     unsigned int t = seedHandler();
     std::default_random_engine generator(t);
-    std::uniform_int_distribution<int> distribution(1, i->getCourses().size() - 1);//numb of courses not classes
+    std::normal_distribution<int> distribution(1, i->getCourses().size() - 1);//numb of courses not classes
     int course = 0;
     for (int size = 0; size < floor(factorCourse * i->getCourses().size()); size++) {
         course = distribution(generator);
@@ -221,6 +262,33 @@ void Perturbation::randomShiftChange(Instance *i, double factorCourse, double fa
 
 
 /**
+ * Random increase/decrease in the number of shifts with normal distribution
+ * @param i problem instance
+ * @param factorCourse random factor for the courses
+ * @param factorShift random factor for the subparts
+ * @param median
+ * @param Standard deviation
+ * @param increase increase or decrease flag
+ */
+
+void Perturbation::randomShiftChange(Instance *i, double factorCourse, double standard, double mean) {
+    unsigned int t = seedHandler();
+    std::default_random_engine generator(t);
+    std::normal_distribution<int> distribution(1, i->getSubparts().size() - 1);//numb of shifts not classes
+    int subpart = 0;
+    for (int size = 0; size < floor(factorCourse * i->getSubparts().size()); size++) {
+        subpart = distribution(generator);
+        unsigned int t = seedHandler();
+        std::default_random_engine generatorShift(t);
+        std::normal_distribution<int> distributionShift(mean, standard);
+        int amount = distributionShift(generatorShift);
+        i->getSubpart(subpart)->changeShift(amount);
+        std::cout << "Shift: subpartID " << subpart << " number:" << amount << std::endl;
+    }
+}
+
+
+/**TODO:
  *
  */
 void Perturbation::randomAddNewCurriculum(Instance *i) {
@@ -264,5 +332,13 @@ unsigned int Perturbation::seedHandler() {
     seedFile << t << std::endl;
     seedFile.close();
     return t;
+}
+
+void Perturbation::randomTime(Instance *pInstance, double prob, bool isPreference) {
+
+}
+
+void Perturbation::randomRoom(Instance *pInstance, double prob, bool isPreference) {
+
 }
 

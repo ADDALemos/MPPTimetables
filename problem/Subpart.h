@@ -115,6 +115,14 @@ public:
     }
 
 
+    void changeShift(int amount) {
+        std::cout << "Modified number of lectures by: " << amount << std::endl;
+        if (amount < 0)
+            deleteShift(amount);
+        else
+            newShift(amount);
+
+    }
 };
 
 

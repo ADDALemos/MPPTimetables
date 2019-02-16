@@ -44,6 +44,17 @@ public:
 
 
     void randomOverlap(Instance *i, double factor);
+
+    void randomTime(Instance *pInstance, double prob, bool isPreference);
+
+    void randomRoom(Instance *pInstance, double prob, bool isPreference);
+
+    void randomShiftChange(Instance *i, double factorCourse, double standard, double mean);
+
+    void randomEnrolmentChanges(Instance *i, double mean, double deviation, double factor);
+
+    std::vector<std::pair<int, int>, std::allocator<std::pair<int, int>>>
+    randomEnrolment(unsigned int classNumber, double mean, double increase, double factor);
 };
 
 

@@ -37,7 +37,7 @@ void readOutputXML(std::string filename, Instance *instance);
 
 void writeOutputXML(std::string filename, Instance *instance, double time);
 
-void readPerturbations();
+void readPerturbations(std::string filename, Instance *instance);
 
 //TODO: Actually write help
 void help() {
@@ -55,7 +55,6 @@ void help() {
     std::exit(0);
 } /* displays help */
 
-
 bool quiet = false; //Print info
 int main(int argc, char **argv) {
     clock_t tStart = clock();
@@ -67,43 +66,65 @@ int main(int argc, char **argv) {
     Instance *instance = readInputXML(argv[1]);
     if (!quiet) std::cout << "Starting Reading File: " << argv[2] << std::endl;
     readOutputXML(argv[2], instance);
-    if (!quiet) std::cout << "Generating Perturbations based on the file: " << std::endl;
-    readPerturbations();
+    if (!quiet) std::cout << "Generating Perturbations based on the file: " << argv[3] << std::endl;
+    if (argc > 3)
+        readPerturbations(argv[3], instance);
+
+    std::exit(24);
     if (!quiet) std::cout << "Generating ILP model" << std::endl;
     //printProblemStats(instance);
     //printStats(instance);
 
-    ILPExecuter *runner = new IntegerTimeGurobiExecuter();
+    ILPExecuter *runner = new BinaryOnlyGurobiExecuter();
     runner->setInstance(instance);
     //printSolutionStats(runner);
     //std::exit(33);
     runner->definedRoomLecture();
     runner->definedLectureTime();
+    std::cout << "Defined var : Done" << std::endl;
+    runner->definedAuxVar();
+    std::cout << "Defined Auxvar : Done" << std::endl;
+
     runner->oneLectureperSlot();
+    std::cout << "LectureperSlot : Done" << std::endl;
+
     //runner->saveEncoding();
     //runner->roomClose();
     //runner->slotClose();
     runner->teacher();
-    runner->createSol();
-    runner->loadOutput();
-
-
+    std::cout << "Teacher : Done" << std::endl;
     //runner->roomClosebyDay();
     //runner->assignmentInvalid();
     runner->oneLectureRoom();
+    std::cout << "Lecture : Done" << std::endl;
+
 
     runner->studentConflictSolution();
+    std::cout << "Student : Done" << std::endl;
+
 
     runner->oneLectureRoomConflict();
+    std::cout << "Room : Done" << std::endl;
+
 
     runner->slackStudent();
+    std::cout << "Slack : Done" << std::endl;
 
 
+    if (argc > 4) {
+        if (strcmp(argv[4], "Hamming") == 0) {
+            if (!quiet) std::cout << "Add optimization: Hamming Distance" << std::endl;
+            runner->distanceToSolution();
+        } else if (strcmp(argv[4], "Weighted") == 0) {
+            if (!quiet) std::cout << "Add optimization: Weighted Hamming Distance" << std::endl;
+            runner->distanceToSolution();
+        } else if (strcmp(argv[4], "GAP") == 0) {
+            if (!quiet) std::cout << "Add optimization: GAP in a students Timetable" << std::endl;
+            //runner->optimizeGapStudentsTimetable();
+        }
+    }
+    std::cerr << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
-
-
-    if (!quiet) std::cout << "Add optimization: GapStudentsTimetable" << std::endl;
-    runner->optimizeGapStudentsTimetable();
 
     //runner->optimizeRoomUsage();
 
@@ -112,40 +133,61 @@ int main(int argc, char **argv) {
 
     if (!quiet) std::cout << "Running ILP solver" << std::endl;
     double v = runner->run(true);
-    std::exit(42);
-
-    //int **sol = runner->getSolutionRoom();
-    //runner->getSolutionTime();
-
-    std::exit(42);
-    writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10Out.xml", instance,
-                   (double) (clock() - tStart) / CLOCKS_PER_SEC);
-    runner = new BinaryOnlyGurobiExecuter();
-    runner->setInstance(instance);
-    runner->definedRoomLecture();
-    runner->definedLectureTime();
-    runner->oneLectureRoom();
-    //runner->slackStudent();
-    runner->studentConflict();
-    //runner->constraintSeatedStudents(v);
-//    runner->distanceToSolution(sol, nullptr, false);
-    runner->run(false);
+    std::cerr << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
 
-    printf("Time taken: %.2fs\n", (double) (clock() - tStart) / CLOCKS_PER_SEC);
+    //writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10Out.xml", instance,(double) (clock() - tStart) / CLOCKS_PER_SEC);
+
+
+    //printf("Time taken: %.2fs\n", (double) (clock() - tStart) / CLOCKS_PER_SEC);
 
 
     return 0;
 }
 
-void readPerturbations() {/*Perturbation *p = new Perturbation();
+void readPerturbations(std::string filename, Instance *instance) {
+    std::ifstream file(filename);
+    if (file.fail()) {
+        std::cerr << "File not found: " + filename << std::endl;
+        std::cerr << "Method: readPerturbations" << std::endl;
+        std::exit(11);
+    }
+    std::string perturbation;
+    Perturbation *p = new Perturbation();
+    double percentage, mean, std;
+    while (file >> perturbation >> percentage) {
+        if (std::strcmp(perturbation.c_str(), "Preference_Time") == 0) {
+            //p->randomTime(instance, percentage, true);
+        } else if (strcmp(perturbation.c_str(), "Invalid_Time") == 0) {
+            p->randomSlotClose(instance, percentage);
+        } else if (strcmp(perturbation.c_str(), "Preference_Room") == 0) {
+            //p->randomRoom(instance, percentage, true);
+        } else if (strcmp(perturbation.c_str(), "Invalid_Room") == 0) {
+            p->randomCloseRoom(instance, percentage);
+        } else if (strcmp(perturbation.c_str(), "Overlap") == 0) {
+            p->randomOverlap(instance, percentage);
+        } else if (strcmp(perturbation.c_str(), "Modify_Enrolments") == 0) {
+            file >> mean >> std;
+            p->randomEnrolmentChanges(instance, mean, std, percentage);
+        } else if (strcmp(perturbation.c_str(), "Modify_N_Lectures") == 0) {
+            file >> mean >> std;
+            p->randomShiftChange(instance, percentage, mean, std);
+        }
+
+
+    }
+
+
+
+    /*Perturbation *p = new Perturbation();
     p->randomAddNewCurriculum(instance);
     p->randomClassSelection(instance, 0);
     p->randomEnrolmentChanges(instance, 15, false, .5);
     p->randomCloseRoom(instance, 0);
     p->randomSlotClose(instance, 0);
     p->randomCloseRoomDay(instance, 0);
-    p->randomShiftChange(instance, 1, 1, 150, false);*/}
+    p->randomShiftChange(instance, 1, 1, 150, false);*/
+}
 
 
 void writeOutputXML(std::string filename, Instance *instance, double time) {
@@ -658,7 +700,7 @@ Instance *readOutputXML2007(std::string filename, Instance *instance) {
     std::ifstream file(filename);
     if (file.fail()) {
         std::cerr << "File not found: " + filename << std::endl;
-        std::cerr << "Method: readOutputXM2007L" << std::endl;
+        std::cerr << "Method: readOutputXML2007" << std::endl;
         std::exit(11);
     }
     std::string course, room;

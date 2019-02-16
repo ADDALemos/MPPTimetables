@@ -50,6 +50,19 @@ public:
 
     }
 
+    std::vector<Subpart *> getSubpart() {
+        std::vector<Subpart *> result;
+        for (std::map<int, std::vector<Subpart *>>::iterator i = configuration.begin();
+             i != configuration.end(); i++) {
+            std::vector<Subpart *> temp = (*i).second;
+            result.insert(result.end(), temp.begin(), temp.end());
+
+        }
+        return result;
+
+    }
+
+
     int getNumClasses() {
         unsigned int size = 0;
         for (std::map<int, std::vector<Subpart *>>::iterator i = configuration.begin();

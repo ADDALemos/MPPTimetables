@@ -220,6 +220,16 @@ public:
 
     }
 
+    std::vector<Subpart *> getSubparts() {
+        std::vector<Subpart *> result;
+        for (std::map<std::string, Course *>::iterator i = courses.begin(); i != courses.end(); ++i) {
+            std::vector<Subpart *> temp = (*i).second->getSubpart();
+            result.insert(result.end(), temp.begin(), temp.end());
+        }
+        return result;
+
+    }
+
     double getAlfa() {
         return alfa;
     }
@@ -429,6 +439,13 @@ public:
 
     }
 
+    Subpart *getSubpart(int subpartID) {
+        if (getSubparts().size() <= subpartID) {
+            std::cerr << "Subpart does not exist: " << subpartID << std::endl;
+            std::exit(11);
+        }
+        return getSubparts()[subpartID];
+    }
 };
 
 
