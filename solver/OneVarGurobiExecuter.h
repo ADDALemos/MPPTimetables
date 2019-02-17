@@ -18,13 +18,45 @@ class OneVarGurobiExecuter : public GurobiExecuter {
 
 protected:
     GRBVar **timetable;
+    GRBVar ***order;
+
 
 
 public:
 
     void definedAuxVar() {
-        //Not yet used
-        ;
+        try {
+            order = new GRBVar **[instance->getRooms().size()];
+            for (int r = 0; r < instance->getRooms().size(); r++) {
+                order[r] = new GRBVar *[instance->getClasses().size()];
+                for (int j = 0; j < instance->getClasses().size(); j++) {
+                    order[r][j] = new GRBVar[instance->getClasses().size()];
+                    for (int j1 = 0; j1 < instance->getClasses().size(); j1++) {
+                        order[r][j][j1] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                        "order" + itos(r) + "_" + itos(j) + "_" + itos(j1));
+                    }
+                }
+            }
+
+            for (int i = 0; i < instance->getRooms().size(); i++) {
+                for (int j = 0; j < instance->getClasses().size(); j++) {
+                    for (int j1 = 1; j1 < instance->getClasses().size(); j1++) {
+                        model->addGenConstrIndicator(order[i][j][j1], 1,
+                                                     (timetable[i][j] +
+                                                      instance->getClasses()[j]->getLenght()) <=
+                                                     timetable[i][j1]);
+                        model->addGenConstrIndicator(order[i][j1][j], 1,
+                                                     (timetable[i][j1] +
+                                                      instance->getClasses()[j1]->getLenght()) <=
+                                                     timetable[i][j]);
+
+                    }
+                }
+            }
+        } catch (GRBException e) {
+            printError(e, "definedAuxVar");
+        }
+
     }
 
     void printConfiguration() {
@@ -38,7 +70,7 @@ public:
                 timetable[i] = new GRBVar[instance->getClasses().size()];
                 for (int j = 0; j < instance->getNumClasses(); ++j) {
                     std::string name = "X_" + itos(i) + "_" + itos(j);
-                    timetable[i][j] = model->addVar(0.0, instance->getNdays() * instance->getSlotsperday(), -1,
+                    timetable[i][j] = model->addVar(-1, instance->getNdays() * instance->getSlotsperday(), -1,
                                                     GRB_INTEGER, name);
                 }
 
@@ -125,23 +157,7 @@ public:
             for (int i = 0; i < instance->getRooms().size(); i++) {
                 for (int j = 0; j < instance->getClasses().size(); j++) {
                     for (int j1 = 1; j1 < instance->getClasses().size(); j1++) {
-
-                        GRBVar tempX = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                     "tempX" + itos(i) + "_" + itos(j) + "_" +
-                                                     itos(j1));
-                        GRBVar tempX1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                      "tempY" + itos(i) + "_" + itos(j) + "_" +
-                                                      itos(j1));
-                        model->addGenConstrIndicator(tempX, 1,
-                                                     (timetable[i][j] +
-                                                      instance->getClasses()[j]->getLenght()) <=
-                                                     timetable[i][j1]);
-                        model->addGenConstrIndicator(tempX1, 1,
-                                                     (timetable[i][j1] +
-                                                      instance->getClasses()[j1]->getLenght()) <=
-                                                     timetable[i][j]);
-
-                        model->addConstr(tempX + tempX1 <= 1);
+                        model->addConstr(order[i][j][j1] + order[i][j1][j] <= 1);
                     }
                 }
 
@@ -265,23 +281,10 @@ public:
                                 GRBVar tempT = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
                                                              "tempT" + it->first + "_" + itos(i) + "_" +
                                                              itos(c) +
-                                                             "_" + itos(c1));
-                                GRBVar tempT1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                              "tempT1" + it->first + "_" + itos(i) +
-                                                              "_" + itos(c) +
-                                                              "_" + itos(c1));
-                                GRBVar tempTA = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                              "tempTA" + it->first + "_" + itos(i) +
-                                                              "_" + itos(c) +
-                                                              "_" + itos(c1));
-                                model->addGenConstrIndicator(tempT, 1, timetable[r][c] <= timetable[r][c1]);
-                                model->addGenConstrIndicator(tempT1, 1, timetable[r][c1] <= (timetable[r][c] +
-                                                                                             sub->second[i]->getClasses()[c]->getLenght() -
-                                                                                             1));
-                                andV[0] = tempT;
-                                andV[1] = tempT1;
-                                model->addGenConstrAnd(tempTA, andV, 2);
-                                conflict += tempTA;
+                                                             "_" + itos(c1) + "_" + itos(r));
+
+                                model->addGenConstrIndicator(tempT, 1, order[r][c][c1] + order[r][c1][c] == 0);
+                                conflict += tempT;
                             }
                         }
                     }
@@ -302,22 +305,13 @@ public:
             for (int c = 0; c < it->second.getClasses().size(); ++c) {
                 for (int j1 = 1; j1 < it->second.getClasses().size(); ++j1) {
                     for (int r = 0; r < instance->getRooms().size(); ++r) {
-
-
                         GRBVar orv[2];
                         GRBVar tempX = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                        GRBVar tempX1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                        GRBVar tempX2 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                        model->addGenConstrIndicator(tempX, 1,
-                                                     (timetable[r][c] + instance->getClasses()[c]->getLenght()) <=
-                                                     timetable[r][j1]);
-                        model->addGenConstrIndicator(tempX1, 1,
-                                                     (timetable[r][j1] + instance->getClasses()[j1]->getLenght()) <=
-                                                     timetable[r][c]);
-                        orv[0] = tempX1;
-                        orv[01] = tempX2;
-                        model->addGenConstrOr(tempX2, orv, 2);
-                        model->addConstr(tempX2 == 1);
+
+                        orv[0] = order[r][c][j1];
+                        orv[01] = order[r][c][j1];
+                        model->addGenConstrOr(tempX, orv, 2);
+                        model->addConstr(tempX == 1);
                     }
                 }
 
@@ -340,32 +334,8 @@ public:
                     for (int j1 = 1; j1 < it->second.getClasses().size(); ++j1) {
                         for (int r = 0; r < instance->getRooms().size(); ++r) {
 
-                            GRBVar tempX = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                            GRBVar tempX1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                            GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                            GRBVar tempV1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                            GRBVar tempV2 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                            GRBVar tempV3 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                            model->addGenConstrIndicator(tempV, 1, timetable[r][c] >= 0);
-                            model->addGenConstrIndicator(tempV1, 1, timetable[r][j1] >= 0);
+                            model->addConstr(order[r][c][j1] + order[r][j1][c] <= 1);
 
-                            model->addGenConstrIndicator(tempX, 1,
-                                                         (timetable[r][c] + instance->getClasses()[c]->getLenght()) <=
-                                                         timetable[r][j1]);
-                            model->addGenConstrIndicator(tempX1, 1,
-                                                         (timetable[r][j1] + instance->getClasses()[j1]->getLenght()) <=
-                                                         timetable[r][c]);
-                            GRBVar tempVs[2];
-                            tempVs[0] = tempV;
-                            tempVs[1] = tempX;
-                            GRBVar tempV1s[2];
-                            tempV1s[0] = tempV1;
-                            tempV1s[1] = tempX1;
-
-                            model->addGenConstrAnd(tempV2, tempVs, 2);
-                            model->addGenConstrAnd(tempV3, tempV1s, 2);
-
-                            model->addConstr(tempV2 + tempV3 <= 1);
 
                         }
                     }
@@ -391,18 +361,18 @@ protected:
         for (int i = 0; i < instance->getStudent().size(); ++i) {
             GRBLinExpr all = 0;
             GRBVar num = model->addVar(0.0, std::numeric_limits<int>::max(), 0.0, GRB_INTEGER);
-            for (int j = 0; j < instance->getRooms().size(); ++j) {
+            for (int r = 0; r < instance->getRooms().size(); ++r) {
                 for (int l = 0; l < instance->getClasses().size(); ++l) {
                     GRBVar tmin = model->addVar(0.0, 2.0, 0.0, GRB_INTEGER);
                     for (int l1 = 1; l1 < instance->getClasses().size(); ++l1) {
                         if (instance->getStudent(i).isEnrolled(l) && instance->getStudent(i).isEnrolled(l1)) {
                             GRBVar before = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
                             model->addGenConstrIndicator(before, 1,
-                                                         (timetable[j][l] + instance->getClasses()[l]->getLenght()) ==
-                                                         (timetable[j][l1]));
+                                                         (timetable[r][l] + instance->getClasses()[l]->getLenght()) ==
+                                                         (timetable[r][l1]));
                             model->addGenConstrIndicator(before, 1,
-                                                         (timetable[j][l1] + instance->getClasses()[l1]->getLenght()) ==
-                                                         (timetable[j][l]));
+                                                         (timetable[r][l1] + instance->getClasses()[l1]->getLenght()) ==
+                                                         (timetable[r][l]));
                             all += before;
                         }
                     }
