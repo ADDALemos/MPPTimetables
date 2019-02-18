@@ -28,20 +28,24 @@ void printProblemStats(Instance *instance) {
 }
 
 void printStats(Instance *instance) {
-    std::cout << "*****Timetabke Description*****" << std::endl;
+    std::cout << "*****Timetable Description*****" << std::endl;
     std::cout << "Frequency: " << instance->frequency() << std::endl;
     std::cout << "Utilization: " << instance->utilization() << std::endl;
-
-
 }
 
 void printSolutionStats(ILPExecuter *runner) {
     std::cout << "*****Solution Description*****" << std::endl;
     std::cout << "Frequency: " << runner->frequency() << std::endl;
     std::cout << "Utilization: " << runner->utilization() << std::endl;
-
-
 }
 
+
+void printCorrectedStats(Instance *instance) {
+    std::cout << "*****Timetable Description with Correction*****" << std::endl;
+    std::cout << "Number of Slots: " << instance->actualSpace() << std::endl;
+    std::cout << "Number of Days: " << instance->actualSpaceDay() << std::endl;
+    std::cout << "Frequency: " << instance->frequencyCorrected() << std::endl;
+    std::cout << "Utilization: " << instance->utilizationCorrected() << std::endl;
+}
 
 #endif //PROJECT_STATS_H

@@ -25,7 +25,7 @@ private:
     int min = -1, max = -1;
 
     std::set<int> uva;
-    std::set<int> incorrentAssignments;//TODO: Passar para a class class
+    std::set<int> incorrentAssignments;
 
 
     std::map<std::string, Course *> courses;
@@ -445,6 +445,79 @@ public:
             std::exit(11);
         }
         return getSubparts()[subpartID];
+    }
+
+    int maxTimeSlot() {
+        int max = 0;
+        for (int i = 0; i < getClasses().size(); ++i) {
+            if ((getClasses()[i]->getStart() + getClasses()[i]->getLenght()) > max) {
+                max = (getClasses()[i]->getStart() + getClasses()[i]->getLenght());
+            }
+        }
+        return max;
+    }
+
+    int minTimeSlot() {
+        int min = maxTimeSlot();
+        for (int i = 0; i < getClasses().size(); ++i) {
+            if (getClasses()[i]->getStart() < min) {
+                min = getClasses()[i]->getStart();
+            }
+        }
+        return min;
+    }
+
+    int actualSpace() {
+        return maxTimeSlot() - minTimeSlot() + 1;
+    }
+
+    int maxDay() {
+        int max = 0;
+        for (int i = 0; i < getClasses().size(); ++i) {
+            int j = 0;
+            for (char &c : getClasses()[i]->getDays()) {
+                if (c == '1' && j > max)
+                    max = j;
+                j++;
+            }
+        }
+        return max;
+    }
+
+    int minDay() {
+        int min = maxDay();
+        for (int i = 0; i < getClasses().size(); ++i) {
+            int j = 0;
+            for (char &c : getClasses()[i]->getDays()) {
+                if (c == '1' && j < min)
+                    min = j;
+                j++;
+            }
+        }
+        return min;
+    }
+
+    int actualSpaceDay() {
+        return maxDay() - minDay() + 1;
+    }
+
+    double frequencyCorrected() {
+        double used = 0, all = (actualSpaceDay() * actualSpace() * getNumRoom());
+        for (int k = 0; k < getClasses().size(); ++k) {
+            used += getClasses()[k]->getLenght();
+        }
+        return 100 * used / all;
+    }
+
+
+    double utilizationCorrected() {
+        double used = 0, all = (actualSpaceDay() * actualSpace() * getNumRoom() *
+                                getAvCapacity());
+        for (int k = 0; k < getClasses().size(); ++k) {
+            used += getClasses()[k]->getLenght() * getClasses()[k]->getLimit();
+        }
+        return 100 * used / all;
+
     }
 };
 
