@@ -16,6 +16,7 @@
 class IntegerTimeGurobiExecuter : public TwoVarGurobiExecuter {
     GRBVar *lectureTime;
     GRBVar **order;
+    GRBVar **gap;
 
 
 public:
@@ -453,28 +454,48 @@ private:
 
     }
 
+    void gapStudentsTimetableVar() {
+        gap = new GRBVar *[instance->getClasses().size()];
+        for (int j = 0; j < instance->getClasses().size(); j++) {
+            gap[j] = new GRBVar[instance->getClasses().size()];
+            for (int j1 = 0; j1 < instance->getClasses().size(); j1++) {
+                gap[j][j1] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                           "gap" + itos(j) + "_" + itos(j1));
+            }
+        }
+        for (int l = 0; l < instance->getClasses().size(); ++l) {
+            instance->getClasses()[l]->setOrderID(l);
+            for (int l1 = 1; l1 < instance->getClasses().size(); ++l1) {
+                model->addGenConstrIndicator(gap[l][l1], 1,
+                                             (lectureTime[l] + instance->getClasses()[l]->getLenght()) ==
+                                             (lectureTime[l1]));
+                model->addGenConstrIndicator(gap[l1][l], 1,
+                                             (lectureTime[l1] + instance->getClasses()[l1]->getLenght()) ==
+                                             (lectureTime[l]));
+            }
+        }
+
+    }
+
+
+
+
 
     GRBLinExpr gapStudentsTimetable() {
+        gapStudentsTimetableVar();
+        std::cout << "Aux Var: Done" << std::endl;
         GRBLinExpr min = 0;
         for (int i = 0; i < instance->getStudent().size(); ++i) {
-            GRBLinExpr all = 0;
-            GRBVar num = model->addVar(0.0, std::numeric_limits<int>::max(), 0.0, GRB_INTEGER);
-            for (int l = 0; l < instance->getClasses().size(); ++l) {
-                GRBVar tmin = model->addVar(0.0, 2.0, 0.0, GRB_INTEGER);
-                for (int l1 = 1; l1 < instance->getClasses().size(); ++l1) {
-                    if (instance->getStudent(i + 1).isEnrolled(l) && instance->getStudent(i + 1).isEnrolled(l1)) {
-                        GRBVar before = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                        model->addGenConstrIndicator(before, 1,
-                                                     (lectureTime[l] + instance->getClasses()[l]->getLenght()) ==
-                                                     (lectureTime[l1]));
-                        model->addGenConstrIndicator(before, 1,
-                                                     (lectureTime[l1] + instance->getClasses()[l1]->getLenght()) ==
-                                                     (lectureTime[l]));
-                        all += before;
-                    }
+            for (int l = 0; l < instance->getStudent(i + 1).getClasses().size(); ++l) {
+                GRBLinExpr all = 0;
+                for (int l1 = 1; l1 < instance->getStudent(i + 1).getClasses().size(); ++l1) {
+                    all += gap[instance->getStudent(i + 1).getClass(l)->getOrderID()][instance->getStudent(
+                            i + 1).getClass(l1)->getOrderID()]
+                           + gap[instance->getStudent(i + 1).getClass(l1)->getOrderID()][instance->getStudent(
+                            i + 1).getClass(l)->getOrderID()];
+
                 }
-                model->addConstr(tmin == (2 - all));
-                min += tmin;
+                min += (2 - all);
 
             }
 

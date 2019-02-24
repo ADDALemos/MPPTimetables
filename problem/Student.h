@@ -23,7 +23,6 @@ public:
         Student::classes = classes;
     }
 
-public:
     int getId() const {
         return id;
     }
@@ -42,6 +41,10 @@ public:
 
     void addClass(Class *c) {
         Student::classes.push_back(c);
+    }
+
+    Class *getClass(int c) {
+        return Student::classes[c];
     }
 
     bool isEnrolled(int idClass) {

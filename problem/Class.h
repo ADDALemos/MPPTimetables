@@ -14,10 +14,10 @@
 class Class {
     bool modified = false;
     int id;
+    int orderID; //easy handle for the arrays of gurobi
+private:
     int limit;//limit number of students
     int parent;
-
-private:
     //Solution
     int roomID = -1;
     int start = -1;
@@ -27,6 +27,13 @@ private:
     std::vector<int> student;
 
 public:
+    int getOrderID() const {
+        return orderID;
+    }
+
+    void setOrderID(int orderID) {
+        Class::orderID = orderID;
+    }
     int getSteatedStudents() {
         return (limit > student.size() ? student.size() : limit);
     }
