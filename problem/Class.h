@@ -94,6 +94,18 @@ private:
     std::map<Room, int> possibleRooms;
 
 public:
+    void addRoom(Room r) {
+        possibleRooms.insert(std::pair<Room, int>(r, 1));
+    }
+
+    Room getFirstPossibleRoom() {
+        return possibleRooms.begin()->first;
+    }
+
+    bool containsRoom(Room id) {
+        return possibleRooms.find(id) != possibleRooms.end();
+    }
+
     inline bool isModified() { return modified; }
     Class(int id, int limit, const std::vector<Lecture *, std::allocator<Lecture *>> &lectures,
           std::map<Room, int> possibleRooms) : id(id), limit(limit), lectures(lectures), possibleRooms(possibleRooms),
@@ -160,7 +172,7 @@ public:
         Class::lectures = lectures;
     }
 
-    const std::map<Room, int> &getPossibleRooms() const {
+    const std::map<Room, int> getPossibleRooms() {
         return possibleRooms;
     }
 

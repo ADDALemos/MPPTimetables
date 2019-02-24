@@ -112,7 +112,9 @@ public:
                     for (int k = 0; k < instance->getSlotsperday(); k++) {
                         GRBQuadExpr temp = 0;
                         for (int j = 0; j < instance->getClasses().size(); j++) {
-                            temp += (lectureTime[d][k][j] * roomLecture[i][j]);
+                            if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1)))
+                                temp += (lectureTime[d][k][j] * roomLecture[j][i]);
+
                             //lectureTime[Qui][12]["ACED"]*roomLecture["FA1"]["ACED"]+lectureTime[Qui][12]["LP"]*roomLecture["FA1"]["LP"]
                         }
                         model->addQConstr(temp <= 1);
@@ -134,8 +136,9 @@ public:
             for (int t = 0; t < instance->getSlotsperday(); ++t) {
                 for (int i = 0; i < instance->getNumRoom(); i++) {
                     for (int j = 0; j < instance->getNumClasses(); ++j) {
-                        if (instance->isRoomBlockedbyDay(i, d)) {
-                            model->addConstr(roomLecture[i][j] * lectureTime[d][t][j] == 0);
+                        if (instance->isRoomBlockedbyDay(i, d) &&
+                            instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
+                            model->addConstr(roomLecture[j][i] * lectureTime[d][t][j] == 0);
                         }
                     }
                 }
@@ -176,8 +179,9 @@ public:
                             GRBLinExpr temp = 0;
                             temp = lectureTime[j][k][i];
                             for (int l = 0; l < instance->getNumRoom(); ++l) {
-                                if (solutionRoom[l][i] == 1) {
-                                    temp += roomLecture[l][i];
+                                if (solutionRoom[l][i] == 1 &&
+                                    instance->getClasses()[i]->containsRoom(instance->getRoom(l + 1))) {
+                                    temp += roomLecture[i][l];
                                     model->addConstr(temp <= 1);
                                     break;
                                 }
@@ -267,14 +271,15 @@ private:
                 for (char &c :instance->getClasses()[l]->getDays()) {
                     if (c != '0') {
                         for (int i = 0; i < instance->getClasses()[l]->getLenght(); i++) {
-                            if (it->second.getCapacity() >= instance->getClasses()[l]->getLimit()) {
+                            if (it->second.getCapacity() >= instance->getClasses()[l]->getLimit() &&
+                                instance->getClasses()[l]->containsRoom(instance->getRoom(j + 1))) {
                                 temp += instance->getClasses()[l]->getLimit() *
                                         lectureTime[d][instance->getClasses()[l]->getStart() + i][l]
-                                        * roomLecture[j][l];
-                            } else {
+                                        * roomLecture[l][j];
+                            } else if (instance->getClasses()[l]->containsRoom(instance->getRoom(j + 1))) {
                                 temp += it->second.getCapacity() *
                                         lectureTime[d][instance->getClasses()[l]->getStart() + i][l]
-                                        * roomLecture[j][l];
+                                        * roomLecture[l][j];
                             }
                         }
                     }
@@ -298,10 +303,10 @@ private:
                 for (char &c :instance->getClasses()[l]->getDays()) {
                     if (c != '0') {
                         for (int i = 0; i < instance->getClasses()[l]->getLenght(); i++) {
-
-                            temp += abs(it->second.getCapacity() - instance->getClasses()[l]->getLimit()) *
-                                    lectureTime[d][instance->getClasses()[l]->getStart() + i][l]
-                                    * roomLecture[j][l];
+                            if (instance->getClasses()[l]->containsRoom(instance->getRoom(j + 1)))
+                                temp += abs(it->second.getCapacity() - instance->getClasses()[l]->getLimit()) *
+                                        lectureTime[d][instance->getClasses()[l]->getStart() + i][l]
+                                        * roomLecture[l][j];
                         }
                     }
 
@@ -389,7 +394,8 @@ private:
         }
         for (int r = 0; r < instance->getRooms().size(); ++r) {
             for (int l = 0; l < instance->getClasses().size(); ++l) {
-                roomLecture[r][l].set(GRB_DoubleAttr_Start, solutionRoom[r][l]);
+                if (instance->getClasses()[l]->containsRoom(instance->getRoom(r + 1)))
+                    roomLecture[l][r].set(GRB_DoubleAttr_Start, solutionRoom[r][l]);
             }
 
         }

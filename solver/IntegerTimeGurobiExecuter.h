@@ -101,25 +101,30 @@ public:
 
             for (int i = 0; i < instance->getRooms().size(); i++) {
                 for (int j = 0; j < instance->getClasses().size(); j++) {
-                    for (int j1 = 1; j1 < instance->getClasses().size(); j1++) {
-                        GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                     "temp" + itos(i) + "_" + itos(j) + "_" +
-                                                     itos(j1));
-                        GRBVar tempV1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                      "tempV" + itos(i) + "_" + itos(j) + "_" +
-                                                      itos(j1));
-                        sameRoom1[0] = roomLecture[i][j];
-                        sameRoom1[1] = roomLecture[i][j1];
-                        sameRoom1[2] = order[j][j1];
-                        sameRoom[0] = roomLecture[i][j];
-                        sameRoom[1] = roomLecture[i][j1];
-                        sameRoom[2] = order[j1][j];
-                        model->addGenConstrAnd(tempV, sameRoom, 3);
-                        model->addGenConstrAnd(tempV1, sameRoom1, 3);
-                        model->addConstr(tempV + tempV1 <= 1);
+                    if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
+                        for (int j1 = 1; j1 < instance->getClasses().size(); j1++) {
+                            if (instance->getClasses()[j1]->containsRoom(
+                                    instance->getRoom(i + 1))) {
+
+                                GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                             "temp" + itos(i) + "_" + itos(j) + "_" +
+                                                             itos(j1));
+                                GRBVar tempV1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                              "tempV" + itos(i) + "_" + itos(j) + "_" +
+                                                              itos(j1));
+                                sameRoom1[0] = roomLecture[j][i];
+                                sameRoom1[1] = roomLecture[j1][i];
+                                sameRoom1[2] = order[j][j1];
+                                sameRoom[0] = roomLecture[j][i];
+                                sameRoom[1] = roomLecture[j1][i];
+                                sameRoom[2] = order[j1][j];
+                                model->addGenConstrAnd(tempV, sameRoom, 3);
+                                model->addGenConstrAnd(tempV1, sameRoom1, 3);
+                                model->addConstr(tempV + tempV1 <= 1);
+                            }
+                        }
                     }
                 }
-
 
             }
         } catch (GRBException e) {
@@ -138,15 +143,20 @@ public:
 
             for (int i = 0; i < instance->getRooms().size(); i++) {
                 for (int j = 0; j < instance->getClasses().size(); j++) {
-                    for (int j1 = 1; j1 < instance->getClasses().size(); j1++) {
-                        GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                     "temp" + itos(i) + "_" + itos(j) + "_" +
-                                                     itos(j1));
+                    if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
+                        for (int j1 = 1; j1 < instance->getClasses().size(); j1++) {
+                            if (instance->getClasses()[j1]->containsRoom(instance->getRoom(i + 1))) {
 
-                        sameRoom[0] = roomLecture[i][j];
-                        sameRoom[1] = roomLecture[i][j1];
-                        model->addGenConstrAnd(tempV, sameRoom, 2);
-                        model->addQConstr(tempV * (order[j][j1] + order[j1][j]) <= tempV);
+                                GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                             "temp" + itos(i) + "_" + itos(j) + "_" +
+                                                             itos(j1));
+
+                                sameRoom[0] = roomLecture[j][i];
+                                sameRoom[1] = roomLecture[j1][i];
+                                model->addGenConstrAnd(tempV, sameRoom, 2);
+                                model->addQConstr(tempV * (order[j][j1] + order[j1][j]) <= tempV);
+                            }
+                        }
                     }
                 }
 
@@ -167,14 +177,18 @@ public:
 
             for (int i = 0; i < instance->getRooms().size(); i++) {
                 for (int j = 0; j < instance->getClasses().size(); j++) {
-                    for (int j1 = 1; j1 < instance->getClasses().size(); j1++) {
-                        std::cout << "here" << std::endl;
-                        GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                     "temp" + itos(i) + "_" + itos(j) + "_" +
-                                                     itos(j1));
+                    if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
+                        for (int j1 = 1; j1 < instance->getClasses().size(); j1++) {
+                            if (instance->getClasses()[j1]->containsRoom(instance->getRoom(i + 1))) {
+                                std::cout << "here" << std::endl;
+                                GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                             "temp" + itos(i) + "_" + itos(j) + "_" +
+                                                             itos(j1));
 
-                        model->addGenConstrIndicator(tempV, 1, roomLecture[i][j] == roomLecture[i][j1]);
-                        model->addQConstr(tempV * (order[j][j1] + order[j1][j]) <= tempV);
+                                model->addGenConstrIndicator(tempV, 1, roomLecture[j][i] == roomLecture[j1][i]);
+                                model->addQConstr(tempV * (order[j][j1] + order[j1][j]) <= tempV);
+                            }
+                        }
                     }
                 }
 
@@ -195,20 +209,22 @@ public:
 
             for (int i = 0; i < instance->getRooms().size(); i++) {
                 for (int j = 0; j < instance->getClasses().size(); j++) {
-                    for (int j1 = 1; j1 < instance->getClasses().size(); j1++) {
-                        if (instance->getClasses()[j]->getPossibleRooms().size() > 0) {
+                    if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
+                        for (int j1 = 1; j1 < instance->getClasses().size(); j1++) {
+                            if (instance->getClasses()[j1]->containsRoom(instance->getRoom(i + 1))) {
 
-                            GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                         "temp" + itos(i) + "_" + itos(j) + "_" +
-                                                         itos(j1));
-                            GRBVar tempC = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                         "tempC" + itos(i) + "_" + itos(j) + "_" +
-                                                         itos(j1));
+                                GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                             "temp" + itos(i) + "_" + itos(j) + "_" +
+                                                             itos(j1));
+                                GRBVar tempC = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                             "tempC" + itos(i) + "_" + itos(j) + "_" +
+                                                             itos(j1));
 
-                            model->addGenConstrIndicator(tempV, 1, roomLecture[i][j] == roomLecture[i][j1]);
-                            model->addGenConstrIndicator(tempC, 1, (order[j][j1] + order[j1][j]) == 2);
+                                model->addGenConstrIndicator(tempV, 1, roomLecture[j][i] == roomLecture[j1][i]);
+                                model->addGenConstrIndicator(tempC, 1, (order[j][j1] + order[j1][j]) == 2);
 
-                            model->addConstr(tempV + tempC <= 1);
+                                model->addConstr(tempV + tempC <= 1);
+                            }
                         }
                     }
                 }
@@ -229,13 +245,15 @@ public:
         for (int d = 0; d < instance->getNdays(); ++d) {
             for (int i = 0; i < instance->getNumRoom(); i++) {
                 for (int j = 0; j < instance->getNumClasses(); ++j) {
-                    if (instance->isRoomBlockedbyDay(i + 1, d)) {
-                        GRBVar roomC = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                     "roomC_" + itos(d) + "_" + itos(i) + "_" + itos(j));
-                        model->addGenConstrIndicator(roomC, 1, lectureTime[j] / instance->getSlotsperday() == d);
-                        model->addConstr(
-                                roomLecture[i][j] * roomC == 0);
+                    if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
+                        if (instance->isRoomBlockedbyDay(i + 1, d)) {
+                            GRBVar roomC = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                         "roomC_" + itos(d) + "_" + itos(i) + "_" + itos(j));
+                            model->addGenConstrIndicator(roomC, 1, lectureTime[j] / instance->getSlotsperday() == d);
+                            model->addConstr(
+                                    roomLecture[j][i] * roomC == 0);
 
+                        }
                     }
                 }
             }
@@ -385,14 +403,15 @@ private:
                 for (char &c :instance->getClasses()[l]->getDays()) {
                     if (c != '0') {
                         for (int i = 0; i < instance->getClasses()[l]->getLenght(); i++) {
-                            if (it->second.getCapacity() >= instance->getClasses()[l]->getLimit()) {
+                            if (it->second.getCapacity() >= instance->getClasses()[l]->getLimit() &&
+                                instance->getClasses()[l]->containsRoom(instance->getRoom(j + 1))) {
                                 temp += instance->getClasses()[l]->getLimit() *
                                         lectureTime[l]
-                                        * roomLecture[j][l];
-                            } else {
+                                        * roomLecture[l][j];
+                            } else if (instance->getClasses()[l]->containsRoom(instance->getRoom(j + 1))) {
                                 temp += it->second.getCapacity() *
                                         lectureTime[l]
-                                        * roomLecture[j][l];
+                                        * roomLecture[l][j];
                             }
                         }
                     }
@@ -416,10 +435,10 @@ private:
                 for (char &c :instance->getClasses()[l]->getDays()) {
                     if (c != '0') {
                         for (int i = 0; i < instance->getClasses()[l]->getLenght(); i++) {
-
-                            temp += abs(it->second.getCapacity() - instance->getClasses()[l]->getLimit()) *
-                                    lectureTime[l]
-                                    * roomLecture[j][l];
+                            if (instance->getClasses()[l]->containsRoom(instance->getRoom(j + 1)))
+                                temp += abs(it->second.getCapacity() - instance->getClasses()[l]->getLimit()) *
+                                        lectureTime[l]
+                                        * roomLecture[l][j];
                         }
                     }
 
@@ -553,7 +572,9 @@ private:
         }
         for (int r = 0; r < instance->getRooms().size(); ++r) {
             for (int l = 0; l < instance->getClasses().size(); ++l) {
-                roomLecture[r][l].set(GRB_DoubleAttr_Start, solutionRoom[r][l]);
+                if (instance->getClasses()[l]->containsRoom(instance->getRoom(r + 1))) {
+                    roomLecture[l][r].set(GRB_DoubleAttr_Start, solutionRoom[r][l]);
+                }
             }
 
         }

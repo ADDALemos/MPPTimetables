@@ -15,8 +15,7 @@ class Room {
 private:
     int id;
     std::string name;
-
-private:
+    std::string type;
     int capacity;
     bool close = false;
     std::map<int,int> travel;//room time
@@ -63,6 +62,14 @@ public:
         return capacity;
     }
 
+    const std::string &getType() const {
+        return type;
+    }
+
+    void setType(const std::string &type) {
+        Room::type = type;
+    }
+
     void setCapacity(int capacity) {
         Room::capacity = capacity;
     }
@@ -94,9 +101,9 @@ public:
         return id < rhs.id;
     }
 
-    Room(int i, std::string name, int i1, std::map<int, int> map,
-         std::vector<Unavailability, std::allocator<Unavailability>> vector)
-            : id(i), name(name), capacity(i1), travel(map), slots(vector) {
+    Room(int &i, std::string name, int i1, std::map<int, int> map,
+         std::vector<Unavailability, std::allocator<Unavailability>> vector, std::string string)
+            : id(i), name(name), capacity(i1), travel(map), slots(vector), type(string) {
 
     }
 

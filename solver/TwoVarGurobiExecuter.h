@@ -32,10 +32,10 @@ public:
 
     void definedRoomLecture() {
         try {
-            roomLecture = new GRBVar *[instance->getRooms().size()];
-            for (int i = 0; i < instance->getRooms().size(); i++) {
-                roomLecture[i] = new GRBVar[instance->getClasses().size()];
-                for (int j = 0; j < instance->getNumClasses(); ++j) {
+            roomLecture = new GRBVar *[instance->getNumClasses()];
+            for (int i = 0; i < instance->getNumClasses(); i++) {
+                roomLecture[i] = new GRBVar[instance->getRooms().size()];
+                for (int j = 0; j < instance->getRooms().size(); ++j) {
                     std::string name = "X_" + itos(i) + "_" + itos(j);
                     roomLecture[i][j] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY, name);
                 }
@@ -76,7 +76,8 @@ public:
                 GRBLinExpr temp = 0;
                 if (instance->getClasses()[j]->getPossibleRooms().size() > 0) {
                     for (int i = 0; i < instance->getRooms().size(); i++) {
-                        temp += roomLecture[i][j];
+                        if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1)))
+                            temp += roomLecture[j][i];
                     }
                     model->addConstr(temp == 1);
                 }
@@ -92,7 +93,7 @@ public:
      * Ensure room r is used to lecture l
      */
     void roomPreference(int r, int l) {
-        model->addConstr(roomLecture[r][l] == 1);
+        model->addConstr(roomLecture[l][r] == 1);
     }
 
     /***
@@ -107,8 +108,9 @@ public:
     void roomClose() {
         for (int i = 0; i < instance->getNumRoom(); i++) {
             for (int j = 0; j < instance->getNumClasses(); ++j) {
-                if (instance->isRoomBlocked(i + 1)) {
-                    model->addConstr(roomLecture[i][j] == 0);
+                if (instance->isRoomBlocked(i + 1) &&
+                    instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
+                    model->addConstr(roomLecture[j][i] == 0);
                 }
             }
         }
@@ -173,10 +175,13 @@ public:
             int j = 0;
             for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
                  it != instance->getRooms().end(); it++) {
-                model->addConstr(it->second.getCapacity() >=
-                                 ((instance->getClasses()[l]->getLimit() -
-                                   (instance->getClasses()[l]->getLimit() * instance->getAlfa())) *
-                                  roomLecture[j][l]));
+                if (
+                        instance->getClasses()[l]->containsRoom(instance->getRoom(j + 1))) {
+                    model->addConstr(it->second.getCapacity() >=
+                                     ((instance->getClasses()[l]->getLimit() -
+                                       (instance->getClasses()[l]->getLimit() * instance->getAlfa())) *
+                                      roomLecture[l][j]));
+                }
 
 
                 j++;
@@ -269,8 +274,8 @@ private:
     void switchSolutionRoom() {
         for (int i = 0; i < instance->getRooms().size(); i++) {
             for (int j = 0; j < instance->getClasses().size(); ++j) {
-                solutionRoom[i][j] = roomLecture[i][j].get(GRB_DoubleAttr_X);
-                if (roomLecture[i][j].get(GRB_DoubleAttr_X) != 0) {
+                solutionRoom[i][j] = roomLecture[j][i].get(GRB_DoubleAttr_X);
+                if (roomLecture[j][i].get(GRB_DoubleAttr_X) != 0) {
                     instance->getClasses()[j]->setSolRoom(i);
                 }
             }

@@ -39,6 +39,8 @@ void writeOutputXML(std::string filename, Instance *instance, double time);
 
 void readPerturbations(std::string filename, Instance *instance);
 
+void addPossibleRooms(Class *c, Instance *instance);
+
 //TODO: Actually write help
 void help() {
     std::cout << "For help press -- h" << std::endl <<
@@ -67,15 +69,13 @@ int main(int argc, char **argv) {
     if (!quiet) std::cout << "Starting Reading File: " << argv[2] << std::endl;
     readOutputXML(argv[2], instance);
     if (!quiet) std::cout << "Generating Perturbations based on the file: " << argv[3] << std::endl;
-    if (argc > 3)
-        readPerturbations(argv[3], instance);
+    //if(argc > 3)
+    //  readPerturbations(argv[3],instance);
 
-    std::exit(24);
+    //std::exit(24);
     if (!quiet) std::cout << "Generating ILP model" << std::endl;
-    //printProblemStats(instance);
-    //printStats(instance);
 
-    ILPExecuter *runner = new BinaryOnlyGurobiExecuter();
+    ILPExecuter *runner = new IntegerTimeGurobiExecuter();
     runner->setInstance(instance);
     //printSolutionStats(runner);
     //std::exit(33);
@@ -157,7 +157,7 @@ void readPerturbations(std::string filename, Instance *instance) {
     double percentage, mean, std;
     while (file >> perturbation >> percentage) {
         if (std::strcmp(perturbation.c_str(), "Preference_Time") == 0) {
-            //p->randomTime(instance, percentage, true);
+            p->randomTime(instance, percentage, true);
         } else if (strcmp(perturbation.c_str(), "Invalid_Time") == 0) {
             p->randomSlotClose(instance, percentage);
         } else if (strcmp(perturbation.c_str(), "Preference_Room") == 0) {
@@ -172,6 +172,9 @@ void readPerturbations(std::string filename, Instance *instance) {
         } else if (strcmp(perturbation.c_str(), "Modify_N_Lectures") == 0) {
             file >> mean >> std;
             p->randomShiftChange(instance, percentage, mean, std);
+        } else if (strcmp(perturbation.c_str(), "Curriculum") == 0) {
+            file >> mean >> std;
+            p->addNewCurriculum(instance, percentage, mean, std);
         }
 
 
@@ -345,13 +348,15 @@ Instance *readInputXML(std::string filename) {//parent flag missing
             }
         } else if (strcmp(n->name(), "rooms") == 0) {
             for (const xml_node<> *s = n->first_node(); s; s = s->next_sibling()) {
-                std::string id = " ";
+                std::string id = " ", type = " ";
                 int capacity = -1;
                 for (const xml_attribute<> *a = s->first_attribute(); a; a = a->next_attribute()) {
                     if (strcmp(a->name(), "capacity") == 0) {
                         capacity=atoi(a->value());
                     } else if (strcmp(a->name(), "id") == 0) {
                         id = a->value();
+                    } else if (strcmp(a->name(), "type") == 0) {
+                        type = a->value();
                     }
                 }
                 std::map<int, int> travel;
@@ -395,7 +400,8 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                     size++;
                     roomID.insert(std::pair<std::string, int>(id, size));
                 }
-                Room *r = new Room(roomID[id], id, capacity, travel, una);
+                Room *r = new Room(roomID[id], id, capacity, travel,
+                                   una, type);
                 //   std::cout<<*r<<std::endl;
                 //      std::cout<<r->getSlots().size()<<std::endl;
                 instance->addRoom(r);
@@ -483,6 +489,7 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                             }
 
                             Class *c = new Class(idclass, limit, lecv, roomsv);
+                            addPossibleRooms(c, instance);
                             if (parent != -1)
                                 c->setParent(parent);
                             clasv.push_back(c);
@@ -721,6 +728,17 @@ Instance *readOutputXML2007(std::string filename, Instance *instance) {
         }
         instance->getCourse(course)->addSol(lec, roomID[room], room, days, slot);
         lec++;
+    }
+
+
+}
+
+void addPossibleRooms(Class *c, Instance *instance) {
+    if (c->getPossibleRooms().size() > 0) {
+        for (int i = 0; i < instance->getRooms().size(); ++i) {
+            if (instance->getRoom(i + 1).getType().compare(c->getFirstPossibleRoom().getType()) == 0)
+                c->addRoom(instance->getRoom(i + 1));
+        }
     }
 
 }
