@@ -320,6 +320,34 @@ protected:
     }
 
 
+    void validator() {
+        for (int l = 0; l < instance->getClasses().size(); ++l) {
+            int lecture = 0;
+            for (int r = 0; r < instance->getRooms().size(); ++r) {
+                lecture += solutionRoom[r][l];
+            }
+            if (lecture != 1)
+                std::cerr << "Ivalid solution lecture: " + l << std::endl;
+
+        }
+        for (int r = 0; r < instance->getRooms().size(); ++r) {
+            for (int d = 0; d < instance->getNdays(); d++) {
+                for (int t = 0; t < instance->getSlotsperday(); t++) {
+                    int lecture = 0;
+                    for (int i = 0; i < instance->getClasses().size(); i++)
+                        lecture += solutionTime[d][t][i] * solutionRoom[r][i];
+                    if (lecture > 1)
+                        std::cerr << "Ivalid solution room: " + r << " " << d << " " << t << std::endl;
+                }
+            }
+
+
+        }
+
+
+    }
+
+
 };
 
 

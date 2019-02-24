@@ -159,7 +159,7 @@ public:
     }
 
     /***
-     * The room can only have one lecture per slot with quadratic
+     * The room can only have one lecture per slot with quadratic worst
      */
 
     void oneLectureRoomConflict3() {
@@ -196,17 +196,20 @@ public:
             for (int i = 0; i < instance->getRooms().size(); i++) {
                 for (int j = 0; j < instance->getClasses().size(); j++) {
                     for (int j1 = 1; j1 < instance->getClasses().size(); j1++) {
-                        GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                     "temp" + itos(i) + "_" + itos(j) + "_" +
-                                                     itos(j1));
-                        GRBVar tempC = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                     "tempC" + itos(i) + "_" + itos(j) + "_" +
-                                                     itos(j1));
+                        if (instance->getClasses()[j]->getPossibleRooms().size() > 0) {
 
-                        model->addGenConstrIndicator(tempV, 1, roomLecture[i][j] == roomLecture[i][j1]);
-                        model->addGenConstrIndicator(tempC, 1, (order[j][j1] + order[j1][j]) == 2);
+                            GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                         "temp" + itos(i) + "_" + itos(j) + "_" +
+                                                         itos(j1));
+                            GRBVar tempC = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                         "tempC" + itos(i) + "_" + itos(j) + "_" +
+                                                         itos(j1));
 
-                        model->addConstr(tempV + tempC <= 1);
+                            model->addGenConstrIndicator(tempV, 1, roomLecture[i][j] == roomLecture[i][j1]);
+                            model->addGenConstrIndicator(tempC, 1, (order[j][j1] + order[j1][j]) == 2);
+
+                            model->addConstr(tempV + tempC <= 1);
+                        }
                     }
                 }
 
@@ -440,7 +443,7 @@ private:
             for (int l = 0; l < instance->getClasses().size(); ++l) {
                 GRBVar tmin = model->addVar(0.0, 2.0, 0.0, GRB_INTEGER);
                 for (int l1 = 1; l1 < instance->getClasses().size(); ++l1) {
-                    if (instance->getStudent(i).isEnrolled(l) && instance->getStudent(i).isEnrolled(l1)) {
+                    if (instance->getStudent(i + 1).isEnrolled(l) && instance->getStudent(i + 1).isEnrolled(l1)) {
                         GRBVar before = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
                         model->addGenConstrIndicator(before, 1,
                                                      (lectureTime[l] + instance->getClasses()[l]->getLenght()) ==

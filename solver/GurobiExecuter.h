@@ -162,8 +162,9 @@ public:
         createSol();
         std::cout << "Original Solution" << std::endl;
         loadOutput();
-        printsolutionTime();
-        printRoomSolution();
+        //printsolutionTime();
+        //printRoomSolution();
+        validator();
         model->set(GRB_DoubleParam_TimeLimit, 600.0);
         if (mpp)
             warmStart();
@@ -189,10 +190,12 @@ public:
         }
         double value = model->get(GRB_DoubleAttr_ObjVal);
         std::cout << value << std::endl;
+        double time = model->get(GRB_DoubleAttr_Runtime);
+        std::cout << time << std::endl;
         switchSolution();
         std::cout << "New Found Solution" << std::endl;
-        printRoomSolution();
-        printsolutionTime();
+        //printRoomSolution();
+        //printsolutionTime();
 
         return value;
 

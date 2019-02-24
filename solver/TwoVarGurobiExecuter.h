@@ -74,11 +74,12 @@ public:
             for (int j = 0; j <
                             instance->getClasses().size(); j++) {
                 GRBLinExpr temp = 0;
-                for (int i = 0; i < instance->getRooms().size(); i++) {
-                    if (instance->getClasses()[j]->getPossibleRooms().size() > 0)
+                if (instance->getClasses()[j]->getPossibleRooms().size() > 0) {
+                    for (int i = 0; i < instance->getRooms().size(); i++) {
                         temp += roomLecture[i][j];
+                    }
+                    model->addConstr(temp == 1);
                 }
-                model->addConstr(temp == 1);
             }
         } catch (GRBException e) {
             printError(e, "oneLectureRoom");
