@@ -196,16 +196,25 @@ public:
      * The weighted is baed on the number of students moved
 
      */
-    void printdistanceToSolutionRooms() {
+    void printdistanceToSolutionRooms(bool w) {
         int temp = 0;
         for (int i = 0; i < instance->getRooms().size(); i++) {
             for (int j = 0; j < instance->getClasses().size(); ++j) {
-                temp += instance->getClasses()[j]->getLimit() * (solutionRoom[i][j]
-                                                                 != roomLecture[i][j].get(GRB_DoubleAttr_X));
+                if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1)))
+                    temp += (w ? instance->getClasses()[j]->getLimit() : 1) * (solutionRoom[i][j]
+                                                                               !=
+                                                                               roomLecture[j][i].get(GRB_DoubleAttr_X));
             }
         }
         std::cout << temp << std::endl;
     }
+
+    void printdistanceToSolutionLectures(bool w) {
+
+    }
+
+
+
 
     /***
      * The current distance of the solution with the old solution
@@ -220,10 +229,12 @@ public:
         GRBQuadExpr temp = 0;
         for (int i = 0; i < instance->getRooms().size(); i++) {
             for (int j = 0; j < instance->getClasses().size(); ++j) {
-                GRBVar tempv = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                model->addGenConstrIndicator(tempv, 0, oldRoom[i][j] == roomLecture[i][j]);
-                model->addGenConstrIndicator(tempv, 1, roomLecture[i][j] - oldRoom[i][j] - 1 <= 0);
-                temp += instance->getClasses()[j]->getLimit() * tempv;
+                if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
+                    GRBVar tempv = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
+                    model->addGenConstrIndicator(tempv, 0, oldRoom[i][j] == roomLecture[j][i]);
+                    model->addGenConstrIndicator(tempv, 1, roomLecture[j][i] - oldRoom[i][j] - 1 <= 0);
+                    temp += (weighted ? instance->getClasses()[j]->getLimit() : 1) * tempv;
+                }
             }
 
         }

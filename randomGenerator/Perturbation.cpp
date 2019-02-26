@@ -57,11 +57,11 @@ std::vector<std::pair<int, int>, std::allocator<std::pair<int, int>>>
 Perturbation::randomEnrolment(unsigned int classNumber, double mean, double deviation, double factor) {
     unsigned int t = seedHandler();
     std::set<int> classes = randomClassSelection(classNumber, factor, t);
-    std::default_random_engine generator(t);
-    std::normal_distribution<int> distribution(mean, deviation);
+    std::default_random_engine generator;
+    std::normal_distribution<double> distribution(mean, deviation);
     std::vector<std::pair<int, int>> number;
     for (std::set<int>::iterator it = classes.begin(); it != classes.end(); ++it) {
-        number.push_back(std::pair<int, int>(*it, distribution(generator)));
+        number.push_back(std::pair<int, int>(*it, floor(distribution(generator))));
     }
     return number;
 
@@ -97,7 +97,6 @@ void Perturbation::randomClassSelection(Instance *i, double factor) {
  */
 
 std::set<int> Perturbation::randomClassSelection(int classNumber, double factor, unsigned int t) {
-
     std::default_random_engine generator(t);
     std::uniform_int_distribution<int> distribution(1, classNumber);
     std::set<int> number;
@@ -106,6 +105,7 @@ std::set<int> Perturbation::randomClassSelection(int classNumber, double factor,
         n = distribution(generator);
         number.insert(n);
     }
+
     return number;
 
 
@@ -121,7 +121,6 @@ std::set<int> Perturbation::randomClassSelection(int classNumber, double factor,
 void Perturbation::randomEnrolmentChanges(Instance *i, int changeLimit, bool increase, double factor) {
     std::vector<std::pair<int, int>> set = randomEnrolment(i->getNumClasses(), changeLimit, increase, factor);
     for (std::pair<int, int> pair: set) {
-        std::cout << pair.first << " " << pair.second << std::endl;
         i->updateStudentEnrollment(pair.first, pair.second);
     }
 }
@@ -288,23 +287,23 @@ void Perturbation::randomShiftChange(Instance *i, double factorCourse, double st
 }
 
 
-/**TODO:
+/**
  *
  */
-void Perturbation::randomAddNewCurriculum(Instance *i) {
-    unsigned int t = seedHandler();
-    std::default_random_engine generator(t);
-    std::uniform_int_distribution<int> distribution(1, i->getCourses().size() - 1);
-    int course;
-    for (int j = 0; j < NUMBER_OF_COURSES; ++j) {
-        course = distribution(generator);
-
-
+void Perturbation::addNewCurriculum(Instance *i, double lecture, double lenght, double student) {
+    std::vector<Subpart *> vector;
+    for (int j = 0; j < lecture; ++j) {
+        std::vector<Class *> cl;
+        Class *c = new Class(i->getClasses().size() + 1, student, new Lecture(lenght));
+        cl.push_back(c);
+        Subpart *s = new Subpart(" " + (i->getClasses().size() + 1), cl);
+        vector.push_back(s);
     }
-
-    std::cout << id << std::endl;
-    id--;
-
+    std::map<int, std::vector<Subpart *>> ss;
+    ss.insert(std::pair<int, std::vector<Subpart *>>(0, vector));
+    char *id = (char *) ((i->getCourses().size() + 1) + '0');
+    Course *c = new Course(id, ss);
+    i->addCourse(c);
 }
 
 
@@ -334,7 +333,20 @@ unsigned int Perturbation::seedHandler() {
     return t;
 }
 
-void Perturbation::randomTime(Instance *pInstance, double prob, bool isPreference) {
+void Perturbation::randomTime(Instance *i, double factor, bool isPreference) {
+    unsigned int t = seedHandler();
+    std::default_random_engine generator(t);
+    std::uniform_int_distribution<int> distribution(1, i->getSlotsperday() * i->getNdays());
+    int n = 0;
+    for (int size = 0; size < floor(factor * i->getSlotsperday() * i->getNdays()); size++) {
+        n = distribution(generator);
+        if (i->isTimeUnavailable(n))
+            size--;
+        else {
+            i->setTimeUnavailable(n);
+            std::cout << "Block time slot:" << n << std::endl;
+        }
+    }
 
 }
 

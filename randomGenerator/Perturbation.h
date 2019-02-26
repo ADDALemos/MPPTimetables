@@ -40,7 +40,7 @@ public:
     //Change the number of shifts
     void randomShiftChange(Instance *i, double factorCourse, double factorShift, int limit, bool increase);
 
-    void randomAddNewCurriculum(Instance *i);
+    void addNewCurriculum(Instance *i, double lecture, double lenght, double student);
 
 
     void randomOverlap(Instance *i, double factor);

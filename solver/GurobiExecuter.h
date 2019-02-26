@@ -20,13 +20,12 @@ protected:
     GRBEnv env = GRBEnv();
 
     GRBModel *model = new GRBModel(env);
+
     std::string itos(int i) {
         std::stringstream s;
         s << i;
         return s.str();
     }
-
-
 
 
 public:
@@ -74,6 +73,7 @@ public:
      */
 
     virtual void oneLectureRoomConflict() =0;
+
     /**
     * Ensure Room closed cannot be used
     */
@@ -111,8 +111,6 @@ public:
     virtual void studentConflictSolution() =0;
 
 
-
-
     void saveEncoding() {
         model->write("/Volumes/MAC/ClionProjects/timetabler/model.lp");
 
@@ -125,7 +123,6 @@ protected:
     virtual GRBQuadExpr usage() =0;
 
     virtual GRBLinExpr gapStudentsTimetable() =0;
-
 
 
 public:
@@ -150,7 +147,7 @@ public:
 
 
     void optimizeGapStudentsTimetable() {
-        model->setObjective(gapStudentsTimetable(), GRB_MAXIMIZE);
+        model->setObjective(gapStudentsTimetable(), GRB_MINIMIZE);
     }
 
     virtual void printConfiguration()=0;
@@ -159,11 +156,10 @@ public:
         printConfiguration();
 
 
-        createSol();
-        std::cout << "Original Solution" << std::endl;
-        loadOutput();
+
         //printsolutionTime();
         //printRoomSolution();
+        gapsSolution();
         validator();
         model->set(GRB_DoubleParam_TimeLimit, 600.0);
         if (mpp)
@@ -192,6 +188,15 @@ public:
         std::cout << value << std::endl;
         double time = model->get(GRB_DoubleAttr_Runtime);
         std::cout << time << std::endl;
+        std::cout << "Unweighted Distance" << std::endl;
+        printdistanceToSolutionRooms(false);
+        printdistanceToSolutionLectures(false);
+        std::cout << "Weighted Distance" << std::endl;
+        printdistanceToSolutionRooms(true);
+        printdistanceToSolutionLectures(true);
+        std::cout << "GAP" << std::endl;
+        gapsSolution();
+
         switchSolution();
         std::cout << "New Found Solution" << std::endl;
         //printRoomSolution();
@@ -215,7 +220,9 @@ public:
      * The distante is base on the weighted Hamming distance of the roomLecture variable (room atributions)
      * The weighted is baed on the number of students moved
      */
-    virtual void printdistanceToSolutionRooms() =0;
+    virtual void printdistanceToSolutionRooms(bool w) =0;
+
+    virtual void printdistanceToSolutionLectures(bool w)=0;
 
     /***
      * The current distance of the solution with the old solution
@@ -240,8 +247,8 @@ public:
 
     virtual GRBQuadExpr distanceToSolutionLectures(int ***oldTime, bool weighted) =0;
 
-    void distanceToSolution() {
-        distanceToSolution(solutionRoom, solutionTime, false);
+    void distanceToSolution(bool w) {
+        distanceToSolution(solutionRoom, solutionTime, w);
     }
 
     /**
@@ -254,7 +261,8 @@ public:
 
     void distanceToSolution(int **oldRoom, int ***oldTime, bool weighted) {
 
-        model->setObjective(distanceToSolutionRooms(oldRoom, weighted), GRB_MINIMIZE);
+        model->setObjective(distanceToSolutionRooms(oldRoom, weighted) +
+                            distanceToSolutionLectures(oldTime, weighted), GRB_MINIMIZE);
 
     }
 

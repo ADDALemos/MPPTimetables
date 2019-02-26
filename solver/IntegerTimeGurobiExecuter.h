@@ -543,7 +543,18 @@ private:
 
 
 public:
+    void printdistanceToSolutionLectures(bool w) {
+        int temp = 0;
 
+        for (int j = 0; j < instance->getClasses().size(); j++) {
+            int day = lectureTime[j].get(GRB_DoubleAttr_X) / instance->getSlotsperday();
+            int slot = lectureTime[j].get(GRB_DoubleAttr_X) - day * instance->getSlotsperday();
+            temp += (w ? instance->getClasses()[j]->getLimit() : 1) * (solutionTime[day][slot][j] != 1);
+        }
+        std::cout << temp << std::endl;
+
+
+    }
 
     /***
     * The current distance of the solution with the old solution
@@ -562,13 +573,13 @@ public:
             GRBVar tempT = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
             model->addGenConstrIndicator(tempT, 1, lectureTime[j] - instance->getClasses()[j]->getSolDay() *
                                                                     instance->getSlotsperday() <=
-                                                   (instance->getClasses()[j]->getSolStart() - 1));
+                                                   (instance->getClasses()[j]->getSolStart()) - 1);
             model->addGenConstrIndicator(tempT, 1, lectureTime[j] - instance->getClasses()[j]->getSolDay() *
                                                                     instance->getSlotsperday() >=
-                                                   (instance->getClasses()[j]->getSolStart() + 1));
+                                                   (instance->getClasses()[j]->getSolStart()) + 1);
 
 
-            temp += instance->getClasses()[j]->getLimit() * tempT;
+            temp += (weighted ? instance->getClasses()[j]->getLimit() : 1) * tempT;
         }
 
 

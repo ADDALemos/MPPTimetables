@@ -170,7 +170,7 @@ public:
     }
 
 
-    virtual void distanceToSolution()= 0;
+    virtual void distanceToSolution(bool w)= 0;
 
     /**
      * Minimization statement distance solutions
@@ -316,6 +316,7 @@ protected:
                 }
             }
         }
+        std::cout << count << std::endl;
         return count;
     }
 
