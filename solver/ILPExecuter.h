@@ -306,17 +306,17 @@ protected:
         for (int i = 0; i < instance->getStudent().size(); ++i) {
             for (int j = 0; j < instance->getNdays(); ++j) {
                 for (int k = 1; k < instance->getSlotsperday(); ++k) {
-                    for (int l = 0; l < instance->getClasses().size(); ++l) {
-                        if (instance->getStudent(i).isEnrolled(l)) {
-                            if (solutionTime[j][k][l] != solutionTime[j][k - 1][l])
-                                count++;
-                        }
+                    int before = 0, after = 0;
+                    for (int l = 0; l < instance->getStudent(i + 1).getClasses().size(); ++l) {
+                        before += solutionTime[j][k][l];
+                        after += solutionTime[j][k - 1][l];
                     }
+                    if (before != after)
+                        count++;
 
                 }
             }
         }
-        std::cout << count << std::endl;
         return count;
     }
 
@@ -328,7 +328,7 @@ protected:
                 lecture += solutionRoom[r][l];
             }
             if (lecture != 1)
-                std::cerr << "Ivalid solution lecture: " + l << std::endl;
+                std::cout << "Invalid solution lecture: " << instance->getClasses()[l]->getId() << std::endl;
 
         }
         for (int r = 0; r < instance->getRooms().size(); ++r) {
@@ -337,8 +337,16 @@ protected:
                     int lecture = 0;
                     for (int i = 0; i < instance->getClasses().size(); i++)
                         lecture += solutionTime[d][t][i] * solutionRoom[r][i];
-                    if (lecture > 1)
-                        std::cerr << "Ivalid solution room: " + r << " " << d << " " << t << std::endl;
+                    if (lecture > 1) {
+                        std::cout << "!!Invalid solution room!!: " << instance->getRoom(r).getName() << " " << d << " "
+                                  << t << " lectures: ";
+                        for (int i = 0; i < instance->getClasses().size(); i++)
+                            if (solutionTime[d][t][i] * solutionRoom[r][i] == 1)
+                                std::cout << instance->getClasses()[i]->getDay() << " "
+                                          << instance->getRoom(instance->getClasses()[i]->getSolRoom()).getName() << " "
+                                          << instance->getClasses()[i]->getSolStart() << " \n";
+                        std::cout << std::endl;
+                    }
                 }
             }
 

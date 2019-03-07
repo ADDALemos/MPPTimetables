@@ -153,15 +153,21 @@ public:
     virtual void printConfiguration()=0;
 
     double run(bool mpp) {
+        std::cout << "GAP Min " << gapsSolution() << std::endl;
+        //validator();
+        //std::exit(42);
         printConfiguration();
 
 
 
         //printsolutionTime();
         //printRoomSolution();
-        gapsSolution();
-        validator();
+        std::cout << "No presolver" << std::endl;
+        //model->set(GRB_IntParam_Presolve,0);
+
+        model->set(GRB_IntParam_Threads, 3);
         model->set(GRB_DoubleParam_TimeLimit, 600.0);
+
         if (mpp)
             warmStart();
         saveEncoding();
@@ -194,10 +200,11 @@ public:
         std::cout << "Weighted Distance" << std::endl;
         printdistanceToSolutionRooms(true);
         printdistanceToSolutionLectures(true);
-        std::cout << "GAP" << std::endl;
-        gapsSolution();
+
 
         switchSolution();
+        std::cout << "GAP" << gapsSolution() << std::endl;
+
         std::cout << "New Found Solution" << std::endl;
         //printRoomSolution();
         //printsolutionTime();
@@ -260,9 +267,8 @@ public:
      */
 
     void distanceToSolution(int **oldRoom, int ***oldTime, bool weighted) {
-
-        model->setObjective(distanceToSolutionRooms(oldRoom, weighted) +
-                            distanceToSolutionLectures(oldTime, weighted), GRB_MINIMIZE);
+        //+distanceToSolutionLectures(oldTime, weighted)
+        model->setObjective(distanceToSolutionRooms(oldRoom, weighted), GRB_MINIMIZE);
 
     }
 

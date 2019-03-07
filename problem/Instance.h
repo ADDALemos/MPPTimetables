@@ -23,6 +23,8 @@ private:
     std::string name;
     int totalNumberSteatedStudent = -1;
     int min = -1, max = -1;
+    unsigned int nClasses = 0;
+    std::vector<Class *> classes;
 
     std::set<int> uva;
     std::set<int> incorrentAssignments;
@@ -202,15 +204,25 @@ public:
         }
     }
 
+    void setNumClasses() {
+        nClasses = computeNumClasses();
+
+    }
+
     unsigned int getNumClasses() {
-        unsigned int size = 0;
-        for (std::map<std::string, Course *>::iterator i = courses.begin(); i != courses.end(); ++i) {
-            size += (*i).second->getNumClasses();
-        }
-        return size;
+        return nClasses;
     }
 
     std::vector<Class *> getClasses() {
+        return classes;
+    }
+
+    unsigned int computeNumClasses() {
+        classes = computeClasses();
+        return classes.size();
+    }
+
+    std::vector<Class *> computeClasses() {
         std::vector<Class *> result;
         for (std::map<std::string, Course *>::iterator i = courses.begin(); i != courses.end(); ++i) {
             std::vector<Class *> temp = (*i).second->getClasses();

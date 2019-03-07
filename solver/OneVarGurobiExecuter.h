@@ -29,10 +29,10 @@ public:
 
             order = new GRBVar **[instance->getRooms().size()];
             for (int r = 0; r < instance->getRooms().size(); r++) {
-                order[r] = new GRBVar *[instance->getClasses().size()];
-                for (int j = 0; j < instance->getClasses().size(); j++) {
-                    order[r][j] = new GRBVar[instance->getClasses().size()];
-                    for (int j1 = 0; j1 < instance->getClasses().size(); j1++) {
+                order[r] = new GRBVar *[instance->getNumClasses()];
+                for (int j = 0; j < instance->getNumClasses(); j++) {
+                    order[r][j] = new GRBVar[instance->getNumClasses()];
+                    for (int j1 = 0; j1 < instance->getNumClasses(); j1++) {
                         if (instance->getClasses()[j]->containsRoom(instance->getRoom(r + 1)) &&
                             instance->getClasses()[j1]->containsRoom(instance->getRoom(r + 1)))
                             order[r][j][j1] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
@@ -42,8 +42,8 @@ public:
             }
 
             for (int i = 0; i < instance->getRooms().size(); i++) {
-                for (int j = 0; j < instance->getClasses().size(); j++) {
-                    for (int j1 = 1; j1 < instance->getClasses().size(); j1++) {
+                for (int j = 0; j < instance->getNumClasses(); j++) {
+                    for (int j1 = 1; j1 < instance->getNumClasses(); j1++) {
                         if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1)) &&
                             instance->getClasses()[j1]->containsRoom(instance->getRoom(i + 1))) {
                             model->addGenConstrIndicator(order[i][j][j1], 1,
@@ -71,7 +71,7 @@ public:
 
     void definedRoomLecture() {
         try {
-            timetable = new GRBVar *[instance->getClasses().size()];
+            timetable = new GRBVar *[instance->getNumClasses()];
             for (int j = 0; j < instance->getNumClasses(); ++j) {
                 timetable[j] = new GRBVar[instance->getRooms().size()];
                 for (int i = 0; i < instance->getRooms().size(); i++) {
@@ -95,7 +95,7 @@ public:
     void definedLectureTime() {
         //Deleted constraint
         for (int r = 0; r < instance->getRooms().size(); ++r) {
-            for (int i = 0; i < instance->getClasses().size(); ++i) {
+            for (int i = 0; i < instance->getNumClasses(); ++i) {
                 if (instance->getClasses()[i]->containsRoom(instance->getRoom(r + 1)))
                     model->addConstr(timetable[i][r] + instance->getClasses()[i]->getLenght() <=
                                      (((timetable[i][r] / instance->getSlotsperday()) + 1) *
@@ -131,7 +131,7 @@ public:
     void oneLectureRoom() {
         try {
             for (int j = 0; j <
-                            instance->getClasses().size(); j++) {
+                            instance->getNumClasses(); j++) {
                 GRBLinExpr temp = 0;
                 for (int i = 0; i < instance->getRooms().size(); i++) {
                     if (instance->getClasses()[j]->getPossibleRooms().size() > 0) {
@@ -168,8 +168,8 @@ public:
         try {
 
             for (int i = 0; i < instance->getRooms().size(); i++) {
-                for (int j = 0; j < instance->getClasses().size(); j++) {
-                    for (int j1 = 1; j1 < instance->getClasses().size(); j1++) {
+                for (int j = 0; j < instance->getNumClasses(); j++) {
+                    for (int j1 = 1; j1 < instance->getNumClasses(); j1++) {
                         if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1)) &&
                             instance->getClasses()[j1]->containsRoom(instance->getRoom(i + 1))) {
                             model->addConstr(order[i][j][j1] + order[i][j1][j] <= 1);
@@ -229,7 +229,7 @@ public:
     * Ensure times lot in a day is closed cannot be used
     */
     void slotClose() {
-        for (int i = 0; i < instance->getClasses().size(); i++) {
+        for (int i = 0; i < instance->getNumClasses(); i++) {
             for (int j = 0; j < instance->getRooms().size(); ++j) {
                 for (int t = 0; t < instance->getNdays() * instance->getSlotsperday(); ++t) {
                     if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
@@ -394,9 +394,9 @@ protected:
             GRBLinExpr all = 0;
             GRBVar num = model->addVar(0.0, std::numeric_limits<int>::max(), 0.0, GRB_INTEGER);
             for (int r = 0; r < instance->getRooms().size(); ++r) {
-                for (int l = 0; l < instance->getClasses().size(); ++l) {
+                for (int l = 0; l < instance->getNumClasses(); ++l) {
                     GRBVar tmin = model->addVar(0.0, 2.0, 0.0, GRB_INTEGER);
-                    for (int l1 = 1; l1 < instance->getClasses().size(); ++l1) {
+                    for (int l1 = 1; l1 < instance->getNumClasses(); ++l1) {
                         if (instance->getStudent(i).isEnrolled(l) && instance->getStudent(i).isEnrolled(l1)) {
                             if (instance->getClasses()[l1]->containsRoom(instance->getRoom(r + 1)) &&
                                 instance->getClasses()[l]->containsRoom(instance->getRoom(r + 1))) {
@@ -439,7 +439,7 @@ protected:
 
     GRBQuadExpr numberSeatedStudents() {
         GRBQuadExpr temp = 0;
-        for (int l = 0; l < instance->getClasses().size(); l++) {
+        for (int l = 0; l < instance->getNumClasses(); l++) {
             int j = 0;
             for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
                  it != instance->getRooms().end(); it++) {
@@ -479,7 +479,7 @@ public:
 
     void slackStudent() {
         for (int l = 0; l <
-                        instance->getClasses().size(); l++) {
+                        instance->getNumClasses(); l++) {
             int j = 0;
             for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
                  it != instance->getRooms().end(); it++) {
@@ -508,7 +508,7 @@ public:
     void printdistanceToSolutionRooms() {
         int temp = 0;
         for (int i = 0; i < instance->getRooms().size(); i++) {
-            for (int j = 0; j < instance->getClasses().size(); ++j) {
+            for (int j = 0; j < instance->getNumClasses(); ++j) {
                 if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1)))
                     if (solutionRoom[i][j] == 1)
                     temp += instance->getClasses()[j]->getLimit() * (-1
@@ -530,7 +530,7 @@ public:
     GRBQuadExpr distanceToSolutionRooms(int **oldRoom, bool weighted) {
         GRBQuadExpr temp = 0;
         for (int i = 0; i < instance->getRooms().size(); i++) {
-            for (int j = 0; j < instance->getClasses().size(); ++j) {
+            for (int j = 0; j < instance->getNumClasses(); ++j) {
                 if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
                     GRBVar tempv = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
                     if (oldRoom[i][j] == 1) {
@@ -562,7 +562,7 @@ public:
     GRBQuadExpr distanceToSolutionLectures(int ***oldTime, bool weighted) {
         GRBQuadExpr temp = 0;
 
-        for (int j = 0; j < instance->getClasses().size(); ++j) {
+        for (int j = 0; j < instance->getNumClasses(); ++j) {
             for (int r = 0; r < instance->getRooms().size(); ++r) {
                 if (instance->getClasses()[j]->containsRoom(instance->getRoom(r + 1))) {
 
@@ -601,7 +601,7 @@ private:
         for (int k = 0; k < instance->getNdays(); k++) {
             for (int i = 0; i < instance->getSlotsperday(); i++) {
                 for (int r = 0; r < instance->getRooms().size(); ++r) {
-                    for (int l = 0; l < instance->getClasses().size(); ++l) {
+                    for (int l = 0; l < instance->getNumClasses(); ++l) {
                         if (instance->getClasses()[l]->containsRoom(instance->getRoom(r + 1))) {
                             if (solutionRoom[r][l] == 1 && solutionTime[k][i][l] == 1)
                                 timetable[l][r].set(GRB_DoubleAttr_Start, k * i);
@@ -621,6 +621,10 @@ private:
 
 private:
 
+    void printdistanceToSolutionRooms(bool w) {}
+
+    void printdistanceToSolutionLectures(bool w) {}
+
 
     /**
      * Switch solution time
@@ -631,7 +635,7 @@ private:
 
     void switchSolutionTime() {
         for (int r = 0; r < instance->getRooms().size(); r++) {
-            for (int i = 0; i < instance->getClasses().size(); i++) {
+            for (int i = 0; i < instance->getNumClasses(); i++) {
                 if (timetable[i][r].get(GRB_DoubleAttr_X) != -1) {
                     if (instance->getClasses()[i]->containsRoom(instance->getRoom(r + 1))) {
                         int day = timetable[i][r].get(GRB_DoubleAttr_X) / instance->getSlotsperday();
@@ -659,7 +663,7 @@ private:
      */
     void switchSolutionRoom() {
         for (int i = 0; i < instance->getRooms().size(); i++) {
-            for (int j = 0; j < instance->getClasses().size(); ++j) {
+            for (int j = 0; j < instance->getNumClasses(); ++j) {
                 if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
                     solutionRoom[i][j] = (timetable[j][i].get(GRB_DoubleAttr_X) == -1 ? 0 : 1);
                     if (timetable[j][i].get(GRB_DoubleAttr_X) != -1) {

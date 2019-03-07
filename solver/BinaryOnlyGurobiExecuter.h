@@ -28,8 +28,8 @@ public:
         for (int i = 0; i < instance->getNdays(); i++) {
             lectureTime[i] = new GRBVar *[instance->getSlotsperday()];
             for (int k = 0; k < instance->getSlotsperday(); ++k) {
-                lectureTime[i][k] = new GRBVar[instance->getClasses().size()];
-                for (int j = 0; j < instance->getClasses().size(); ++j) {
+                lectureTime[i][k] = new GRBVar[instance->getNumClasses()];
+                for (int j = 0; j < instance->getNumClasses(); ++j) {
                     std::string name = "A_" + itos(i) + "_" + itos(k) + "_" + itos(j);
                     lectureTime[i][k][j] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY, name);
                 }
@@ -48,7 +48,7 @@ public:
     void oneLectureperSlot() {
         try {
             for (int j = 0; j <
-                            instance->getClasses().size(); j++) {
+                            instance->getNumClasses(); j++) {
                 GRBLinExpr expr = 0;
                 for (int d = 0; d < instance->getNdays(); d++) {
                     for (int t = 0; t < instance->getSlotsperday(); t++) {
@@ -81,7 +81,7 @@ public:
     void oneLectureSlot() {
         try {
             for (int j = 0; j <
-                            instance->getClasses().size(); j++) {
+                            instance->getNumClasses(); j++) {
                 for (int i = 0; i < instance->getClasses()[j]->getLenght(); i++) {
                     int k = 0;
                     for (char &c :instance->getClasses()[j]->getDays()) {
@@ -111,7 +111,7 @@ public:
                 for (int d = 0; d < instance->getNdays(); d++) {
                     for (int k = 0; k < instance->getSlotsperday(); k++) {
                         GRBQuadExpr temp = 0;
-                        for (int j = 0; j < instance->getClasses().size(); j++) {
+                        for (int j = 0; j < instance->getNumClasses(); j++) {
                             if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1)))
                                 temp += (lectureTime[d][k][j] * roomLecture[j][i]);
 
@@ -154,7 +154,7 @@ public:
     * Ensure times lot in a day is closed cannot be used
     */
     void slotClose() {
-        for (int i = 0; i < instance->getClasses().size(); i++) {
+        for (int i = 0; i < instance->getNumClasses(); i++) {
             for (int d = 0; d < instance->getNdays(); d++) {
                 for (int t = 0; t < instance->getSlotsperday(); ++t) {
                     if (instance->isTimeUnavailable(i * t))
@@ -263,7 +263,7 @@ private:
 //Number of seated students for optimization or constraint
     GRBQuadExpr numberSeatedStudents() {
         GRBQuadExpr temp = 0;
-        for (int l = 0; l < instance->getClasses().size(); l++) {
+        for (int l = 0; l < instance->getNumClasses(); l++) {
             int j = 0;
             for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
                  it != instance->getRooms().end(); it++) {
@@ -295,7 +295,7 @@ private:
 
     GRBQuadExpr usage() {
         GRBQuadExpr temp = 0;
-        for (int l = 0; l < instance->getClasses().size(); l++) {
+        for (int l = 0; l < instance->getNumClasses(); l++) {
             int j = 0;
             for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
                  it != instance->getRooms().end(); it++) {
@@ -329,7 +329,7 @@ private:
                     GRBLinExpr all = 0;
                     GRBVar t = model->addVar(0.0, std::numeric_limits<int>::max(), 0.0, GRB_INTEGER);
                     GRBVar tmin = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                    for (int l = 0; l < instance->getClasses().size(); ++l) {
+                    for (int l = 0; l < instance->getNumClasses(); ++l) {
                         //std::cout << l << " " << instance->getStudent(i).isEnrolled(l) << std::endl;
                         if (instance->getStudent(i).isEnrolled(l))
                             all += lectureTime[j][k][l] + lectureTime[j][k - 1][l];
@@ -365,7 +365,7 @@ public:
         GRBQuadExpr temp = 0;
         for (int i = 0; i < instance->getNdays(); i++) {
             for (int t = 0; t < instance->getSlotsperday(); t++) {
-                for (int j = 0; j < instance->getClasses().size(); ++j) {
+                for (int j = 0; j < instance->getNumClasses(); ++j) {
                     GRBVar tempv = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
                     model->addGenConstrIndicator(tempv, 0, oldTime[i][t][j] == lectureTime[i][t][j]);
                     model->addGenConstrIndicator(tempv, 1, lectureTime[i][t][j] - oldTime[i][t][j] - 1 <= 0);
@@ -387,13 +387,13 @@ private:
     void warmStart() {
         for (int k = 0; k < instance->getNdays(); k++) {
             for (int i = 0; i < instance->getSlotsperday(); i++) {
-                for (int j = 0; j < instance->getClasses().size(); j++) {
+                for (int j = 0; j < instance->getNumClasses(); j++) {
                     lectureTime[k][i][j].set(GRB_DoubleAttr_Start, solutionTime[k][i][j]);
                 }
             }
         }
         for (int r = 0; r < instance->getRooms().size(); ++r) {
-            for (int l = 0; l < instance->getClasses().size(); ++l) {
+            for (int l = 0; l < instance->getNumClasses(); ++l) {
                 if (instance->getClasses()[l]->containsRoom(instance->getRoom(r + 1)))
                     roomLecture[l][r].set(GRB_DoubleAttr_Start, solutionRoom[r][l]);
             }
@@ -411,7 +411,7 @@ private:
      */
 
     void switchSolutionTime() {
-        for (int i = 0; i < instance->getClasses().size(); i++) {
+        for (int i = 0; i < instance->getNumClasses(); i++) {
             for (int k = 0; k < instance->getNdays(); ++k) {
                 for (int j = 0; j < instance->getSlotsperday(); ++j) {
                     solutionTime[k][j][i] = lectureTime[k][j][i].get(GRB_DoubleAttr_X);
