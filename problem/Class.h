@@ -164,11 +164,11 @@ public:
     }
 
     int getLimit() const {
-        return limit;
+        return (limit > 0 ? limit : 1);
     }
 
     void setLimit(int limit) {
-        Class::limit = limit;
+        Class::limit = (limit > 0 ? limit : 1);
     }
 
     const std::vector<Lecture *, std::allocator<Lecture *>> &getLectures() const {

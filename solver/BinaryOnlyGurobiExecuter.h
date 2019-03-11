@@ -12,12 +12,29 @@
 #include <stdlib.h>
 #include "../problem/Instance.h"
 #include "../solver/TwoVarGurobiExecuter.h"
+#include "../solver/roomLectureGRB.h"
+#include "../solver/roomLectureBool.h"
+
+
 
 class BinaryOnlyGurobiExecuter : public TwoVarGurobiExecuter {
     GRBVar ***lectureTime;
 
 
 public:
+    BinaryOnlyGurobiExecuter(Instance *i) {
+        setInstance(i);
+        roomLecture = new roomLectureGRB(instance);
+    }
+
+    BinaryOnlyGurobiExecuter(bool isStatic, Instance *i) {
+        setInstance(i);
+        if (isStatic)
+            roomLecture = new roomLectureBool(instance);
+        else
+            roomLecture = new roomLectureGRB(instance);
+    }
+
     void definedAuxVar() {
         //Not yet used
         ;
@@ -112,9 +129,12 @@ public:
                     for (int k = 0; k < instance->getSlotsperday(); k++) {
                         GRBQuadExpr temp = 0;
                         for (int j = 0; j < instance->getNumClasses(); j++) {
-                            if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1)))
-                                temp += (lectureTime[d][k][j] * roomLecture[j][i]);
-
+                            if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
+                                if (roomLecture->isStatic())
+                                    temp += (lectureTime[d][k][j] * roomLecture->getBool()[j][i]);
+                                else
+                                    temp += (lectureTime[d][k][j] * roomLecture->getGRB()[j][i]);
+                            }
                             //lectureTime[Qui][12]["ACED"]*roomLecture["FA1"]["ACED"]+lectureTime[Qui][12]["LP"]*roomLecture["FA1"]["LP"]
                         }
                         model->addQConstr(temp <= 1);
@@ -124,6 +144,7 @@ public:
         } catch (GRBException e) {
             printError(e, "oneLectureRoomConflict");
         }
+
 
     }
 
@@ -138,7 +159,11 @@ public:
                     for (int j = 0; j < instance->getNumClasses(); ++j) {
                         if (instance->isRoomBlockedbyDay(i, d) &&
                             instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
-                            model->addConstr(roomLecture[j][i] * lectureTime[d][t][j] == 0);
+                            if (roomLecture->isStatic())
+                                model->addConstr(roomLecture->getBool()[j][i] * lectureTime[d][t][j] == 0);
+                            else
+                                model->addConstr(roomLecture->getGRB()[j][i] * lectureTime[d][t][j] == 0);
+
                         }
                     }
                 }
@@ -181,7 +206,8 @@ public:
                             for (int l = 0; l < instance->getNumRoom(); ++l) {
                                 if (solutionRoom[l][i] == 1 &&
                                     instance->getClasses()[i]->containsRoom(instance->getRoom(l + 1))) {
-                                    temp += roomLecture[i][l];
+                                    if (!roomLecture->isStatic())
+                                        temp += roomLecture->getGRB()[i][l];
                                     model->addConstr(temp <= 1);
                                     break;
                                 }
@@ -273,13 +299,23 @@ private:
                         for (int i = 0; i < instance->getClasses()[l]->getLenght(); i++) {
                             if (it->second.getCapacity() >= instance->getClasses()[l]->getLimit() &&
                                 instance->getClasses()[l]->containsRoom(instance->getRoom(j + 1))) {
-                                temp += instance->getClasses()[l]->getLimit() *
-                                        lectureTime[d][instance->getClasses()[l]->getStart() + i][l]
-                                        * roomLecture[l][j];
+                                if (roomLecture->isStatic())
+                                    temp += instance->getClasses()[l]->getLimit() *
+                                            lectureTime[d][instance->getClasses()[l]->getStart() + i][l]
+                                            * roomLecture->getBool()[l][j];
+                                else
+                                    temp += instance->getClasses()[l]->getLimit() *
+                                            lectureTime[d][instance->getClasses()[l]->getStart() + i][l]
+                                            * roomLecture->getGRB()[l][j];
                             } else if (instance->getClasses()[l]->containsRoom(instance->getRoom(j + 1))) {
-                                temp += it->second.getCapacity() *
-                                        lectureTime[d][instance->getClasses()[l]->getStart() + i][l]
-                                        * roomLecture[l][j];
+                                if (roomLecture->isStatic())
+                                    temp += it->second.getCapacity() *
+                                            lectureTime[d][instance->getClasses()[l]->getStart() + i][l]
+                                            * roomLecture->getBool()[l][j];
+                                else
+                                    temp += it->second.getCapacity() *
+                                            lectureTime[d][instance->getClasses()[l]->getStart() + i][l]
+                                            * roomLecture->getGRB()[l][j];
                             }
                         }
                     }
@@ -304,9 +340,14 @@ private:
                     if (c != '0') {
                         for (int i = 0; i < instance->getClasses()[l]->getLenght(); i++) {
                             if (instance->getClasses()[l]->containsRoom(instance->getRoom(j + 1)))
+                                if (roomLecture->isStatic())
+                                    temp += abs(it->second.getCapacity() - instance->getClasses()[l]->getLimit()) *
+                                            lectureTime[d][instance->getClasses()[l]->getStart() + i][l]
+                                            * roomLecture->getBool()[l][j];
+                            if (roomLecture->isStatic())
                                 temp += abs(it->second.getCapacity() - instance->getClasses()[l]->getLimit()) *
                                         lectureTime[d][instance->getClasses()[l]->getStart() + i][l]
-                                        * roomLecture[l][j];
+                                        * roomLecture->getGRB()[l][j];
                         }
                     }
 
@@ -394,8 +435,13 @@ private:
         }
         for (int r = 0; r < instance->getRooms().size(); ++r) {
             for (int l = 0; l < instance->getNumClasses(); ++l) {
-                if (instance->getClasses()[l]->containsRoom(instance->getRoom(r + 1)))
-                    roomLecture[l][r].set(GRB_DoubleAttr_Start, solutionRoom[r][l]);
+                if (instance->getClasses()[l]->containsRoom(instance->getRoom(r + 1))) {
+                    if (roomLecture->isStatic())
+                        roomLecture->getBool()[l][r] = solutionRoom[r][l];
+                    else
+                        roomLecture->getGRB()[l][r].set(GRB_DoubleAttr_Start, solutionRoom[r][l]);
+                }
+
             }
 
         }

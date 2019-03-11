@@ -6,7 +6,6 @@
 #define PROJECT_ONEVARGUROBIEXECUTER_H
 
 
-#include "/Library/gurobi810/mac64/include/gurobi_c++.h"
 
 #include <exception>
 #include <stdlib.h>

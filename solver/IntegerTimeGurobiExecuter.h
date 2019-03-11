@@ -6,12 +6,13 @@
 #define PROJECT_INTEGERTIMEGUROBIEXECUTER_H
 
 
-#include "/Library/gurobi810/mac64/include/gurobi_c++.h"
 
 #include <exception>
 #include <stdlib.h>
 #include "../problem/Instance.h"
 #include "../solver/TwoVarGurobiExecuter.h"
+#include "../solver/roomLectureGRB.h"
+#include "../solver/roomLectureBool.h"
 
 class IntegerTimeGurobiExecuter : public TwoVarGurobiExecuter {
     GRBVar *lectureTime;
@@ -20,6 +21,18 @@ class IntegerTimeGurobiExecuter : public TwoVarGurobiExecuter {
 
 
 public:
+    IntegerTimeGurobiExecuter(Instance *i) {
+        setInstance(i);
+        roomLecture = new roomLectureGRB(instance);
+    }
+
+    IntegerTimeGurobiExecuter(bool isStatic, Instance *i) {
+        setInstance(i);
+        if (isStatic)
+            roomLecture = new roomLectureBool(instance);
+        else
+            roomLecture = new roomLectureGRB(instance);
+    }
 
     void definedAuxVar() {
         try {
@@ -103,7 +116,7 @@ public:
 
     /***
      * The room can only have one lecture per slot with ands
-     */
+
     void oneLectureRoomConflict2() {
         try {
             GRBVar sameRoom[3];
@@ -140,11 +153,11 @@ public:
             printError(e, "oneLectureRoomConflic: ands");
         }
 
-    }
+    }*/
 
     /***
      * The room can only have one lecture per slot with quadratic and ands
-     */
+     *
 
     void oneLectureRoomConflict1() {
         try {
@@ -175,7 +188,7 @@ public:
             printError(e, "oneLectureRoomConflict: quatratic + and");
         }
 
-    }
+    }*/
 
 
 
@@ -190,21 +203,20 @@ public:
                 for (int i = 0; i < instance->getClasses()[j]->getPossibleRooms().size(); i++) {
                     for (int j1 = 1; j1 < instance->getNumClasses(); j1++) {
                             if (instance->getClasses()[j1]->containsRoom(instance->getRoom(i + 1))) {
-//Extract vars
-                                GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                             "temp" + itos(i) + "_" + itos(j) + "_" +
-                                                             itos(j1));
-                                GRBVar tempC = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                             "tempC" + itos(i) + "_" + itos(j) + "_" +
-                                                             itos(j1));
+                                /* GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                              "temp" + itos(i) + "_" + itos(j) + "_" +
+                                                              itos(j1));
+                                 GRBVar tempC = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                              "tempC" + itos(i) + "_" + itos(j) + "_" +
+                                                              itos(j1));
 
-                                model->addGenConstrIndicator(tempV, 1, roomLecture[j][i] + roomLecture[j1][i] == 2);
-                                model->addGenConstrIndicator(tempV, 0, roomLecture[j][i] + roomLecture[j1][i] <= 1);
-                                model->addGenConstrIndicator(tempC, 1, (order[j][j1] + order[j1][j]) == 2);
-                                model->addGenConstrIndicator(tempC, 0, (order[j][j1] + order[j1][j]) <= 1);
+                                 model->addGenConstrIndicator(tempV, 1, roomLecture[j][i] + roomLecture[j1][i] == 2);
+                                 model->addGenConstrIndicator(tempV, 0, roomLecture[j][i] + roomLecture[j1][i] <= 1);
+                                 model->addGenConstrIndicator(tempC, 1, (order[j][j1] + order[j1][j]) == 2);
+                                 model->addGenConstrIndicator(tempC, 0, (order[j][j1] + order[j1][j]) <= 1);
 
 
-                                model->addConstr(tempV + tempC <= 1);
+                                 model->addConstr(tempV + tempC <= 1);*/
                             }
                         }
                     }
@@ -232,8 +244,9 @@ public:
                             model->addGenConstrIndicator(roomC, 1, lectureTime[j] / instance->getSlotsperday() == d);
                             //model->addGenConstrIndicator(roomC, 0, lectureTime[j] / instance->getSlotsperday() <= (d-1));
                             //model->addGenConstrIndicator(roomC, 0, lectureTime[j] / instance->getSlotsperday() >= (d+1));
-                            model->addConstr(
-                                    roomLecture[j][i] * roomC == 0);
+                            if (!roomLecture->isStatic())
+                                model->addConstr(
+                                        roomLecture->getGRB()[j][i] * roomC == 0);
 
                         }
                     }
@@ -250,18 +263,29 @@ public:
     * Ensure times lot in a day is closed cannot be used
     */
     void slotClose() {
-        for (int i = 0; i < instance->getNumClasses(); i++) {
-            for (int t = 0; t < instance->getNdays() * instance->getSlotsperday(); ++t) {
-                if (instance->isTimeUnavailable(i * t))
-                    model->addConstr(lectureTime[i] == t);
+        try {
+            for (int i = 0; i < instance->getNumClasses(); i++) {
+                for (int t = 0; t < instance->getNdays() * instance->getSlotsperday(); ++t) {
+                    if (instance->isTimeUnavailable(t)) {
+                        GRBVar temp = model->addVar(0, 1.0, 0.0, GRB_BINARY);
+                        model->addGenConstrIndicator(temp, 1, lectureTime[i] >= t + 1);
+                        model->addGenConstrIndicator(temp, 0, lectureTime[i] == t);
+                        GRBVar temp1 = model->addVar(0, 1.0, 0.0, GRB_BINARY);
+                        model->addGenConstrIndicator(temp1, 0, lectureTime[i] == t);
+                        model->addGenConstrIndicator(temp1, 1, lectureTime[i] <= t - 1);
+                        model->addConstr((temp1 + temp) >= 1);
+                    }
+
+                }
+
 
             }
-
-
+        } catch (GRBException e) {
+            printError(e, "slotclose");
         }
     }
 
-    /**
+    /**TODO::
      * One assignment, is invalid and needs to be assigned
      * to a different room or to a different time slot
      */
@@ -290,7 +314,7 @@ public:
                         model->addGenConstrIndicator(t, 1, lectureTime[i] == value);
                         // model->addGenConstrIndicator(t, 0, lectureTime[i] <= value - 1);
                         // model->addGenConstrIndicator(t, 0, lectureTime[i] >= value + 1);
-                        temp = t + roomLecture[l][i];
+                        temp = t;// + roomLecture[l][i];
                         model->addConstr(temp <= 1);
                         break;
                     }
@@ -390,13 +414,23 @@ private:
                         for (int i = 0; i < instance->getClasses()[l]->getLenght(); i++) {
                             if (it->second.getCapacity() >= instance->getClasses()[l]->getLimit() &&
                                 instance->getClasses()[l]->containsRoom(instance->getRoom(j + 1))) {
-                                temp += instance->getClasses()[l]->getLimit() *
-                                        lectureTime[l]
-                                        * roomLecture[l][j];
+                                if (roomLecture->isStatic())
+                                    temp += instance->getClasses()[l]->getLimit() *
+                                            lectureTime[l]
+                                            * roomLecture->getBool()[l][j];
+                                else
+                                    temp += instance->getClasses()[l]->getLimit() *
+                                            lectureTime[l]
+                                            * roomLecture->getGRB()[l][j];
                             } else if (instance->getClasses()[l]->containsRoom(instance->getRoom(j + 1))) {
-                                temp += it->second.getCapacity() *
-                                        lectureTime[l]
-                                        * roomLecture[l][j];
+                                if (roomLecture->isStatic())
+                                    temp += it->second.getCapacity() *
+                                            lectureTime[l]
+                                            * roomLecture->getBool()[l][j];
+                                else
+                                    temp += it->second.getCapacity() *
+                                            lectureTime[l]
+                                            * roomLecture->getGRB()[l][j];
                             }
                         }
                     }
@@ -420,10 +454,16 @@ private:
                 for (char &c :instance->getClasses()[l]->getDays()) {
                     if (c != '0') {
                         for (int i = 0; i < instance->getClasses()[l]->getLenght(); i++) {
-                            if (instance->getClasses()[l]->containsRoom(instance->getRoom(j + 1)))
-                                temp += abs(it->second.getCapacity() - instance->getClasses()[l]->getLimit()) *
-                                        lectureTime[l]
-                                        * roomLecture[l][j];
+                            if (instance->getClasses()[l]->containsRoom(instance->getRoom(j + 1))) {
+                                if (roomLecture->isStatic())
+                                    temp += abs(it->second.getCapacity() - instance->getClasses()[l]->getLimit()) *
+                                            lectureTime[l]
+                                            * roomLecture->getBool()[l][j];
+                                else
+                                    temp += abs(it->second.getCapacity() - instance->getClasses()[l]->getLimit()) *
+                                            lectureTime[l]
+                                            * roomLecture->getGRB()[l][j];
+                            }
                         }
                     }
 
@@ -561,18 +601,12 @@ private:
         for (int k = 0; k < instance->getNdays(); k++) {
             for (int i = 0; i < instance->getSlotsperday(); i++) {
                 for (int j = 0; j < instance->getNumClasses(); j++) {
-                    if (solutionTime[k][i][j])
+                    if (solutionTime[k][i][j] && !instance->isTimeUnavailable(k * i))
                         lectureTime[j].set(GRB_DoubleAttr_Start, k * i);
                 }
             }
         }
-        for (int l = 0; l < instance->getNumClasses(); ++l) {
-            for (int r = 0; r < instance->getClasses()[l]->getPossibleRooms().size(); ++r) {
-                    roomLecture[l][r].set(GRB_DoubleAttr_Start, solutionRoom[r][l]);
-            }
-        }
-
-
+        roomLecture->warmStart(solutionRoom);
     }
 
 

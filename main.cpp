@@ -69,17 +69,14 @@ int main(int argc, char **argv) {
     if (!quiet) std::cout << "Starting Reading File: " << argv[2] << std::endl;
     readOutputXML(argv[2], instance);
     if (!quiet) std::cout << "Generating Perturbations based on the file: " << argv[3] << std::endl;
-    //if (argc > 3)
-    //  readPerturbations(argv[3], instance);
+    if (argc > 3);//readPerturbations(argv[3], instance);
 
-    //std::exit(24);
     if (!quiet) std::cout << "Generating ILP model" << std::endl;
 
-    ILPExecuter *runner = new IntegerTimeGurobiExecuter();
-    runner->setInstance(instance);
-    //printSolutionStats(runner);
-    //std::exit(33);
+    ILPExecuter *runner = new IntegerTimeGurobiExecuter(false, instance);
+
     runner->definedRoomLecture();
+
     runner->definedLectureTime();
     std::cout << "Defined var : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
     runner->definedAuxVar();
@@ -89,7 +86,7 @@ int main(int argc, char **argv) {
 
     //runner->saveEncoding();
     //runner->roomClose();
-    //runner->slotClose();
+    runner->slotClose();
     runner->teacher();
     std::cout << "Teacher : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
     //runner->assignmentInvalid();
@@ -116,7 +113,7 @@ int main(int argc, char **argv) {
     if (argc > 4) {
         if (strcmp(argv[4], "Hamming") == 0) {
             if (!quiet) std::cout << "Add optimization: Hamming Distance" << std::endl;
-            //runner->distanceToSolution(false);
+            runner->distanceToSolution(false);
         } else if (strcmp(argv[4], "Weighted") == 0) {
             if (!quiet) std::cout << "Add optimization: Weighted Hamming Distance" << std::endl;
             //runner->distanceToSolution(true);

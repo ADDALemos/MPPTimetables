@@ -6,26 +6,17 @@
 #define PROJECT_GUROBIEXECUTER_H
 
 
-#include "/Library/gurobi810/mac64/include/gurobi_c++.h"
+#include <gurobi_c++.h>
 #include <math.h>       /* floor */
-
+#include "GurobiAux.h"
 #include <exception>
 #include <stdlib.h>
 #include "../problem/Instance.h"
 
 
 class GurobiExecuter : public ILPExecuter {
-protected:
 
-    GRBEnv env = GRBEnv();
 
-    GRBModel *model = new GRBModel(env);
-
-    std::string itos(int i) {
-        std::stringstream s;
-        s << i;
-        return s.str();
-    }
 
 
 public:
@@ -57,11 +48,6 @@ public:
 
     virtual void oneLectureRoom() =0;
 
-    void printError(const GRBException &e, std::string local) const {
-        std::cout << "Error found: " << local << std::endl;
-        std::cout << "Error code = " << e.getErrorCode() << std::endl;
-        std::cout << e.getMessage() << std::endl;
-    }
 
     /**
      * Ensure room r is used to lecture l
@@ -162,8 +148,7 @@ public:
 
         //printsolutionTime();
         //printRoomSolution();
-        std::cout << "No presolver" << std::endl;
-        //model->set(GRB_IntParam_Presolve,0);
+        model->set(GRB_IntParam_Presolve, 0);
 
         model->set(GRB_IntParam_Threads, 3);
         model->set(GRB_DoubleParam_TimeLimit, 600.0);
@@ -203,7 +188,7 @@ public:
 
 
         switchSolution();
-        std::cout << "GAP" << gapsSolution() << std::endl;
+        std::cout << "GAP: " << gapsSolution() << std::endl;
 
         std::cout << "New Found Solution" << std::endl;
         //printRoomSolution();

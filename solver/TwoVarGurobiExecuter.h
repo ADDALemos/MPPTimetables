@@ -6,18 +6,18 @@
 #define PROJECT_TWOVARGUROBIEXECUTER_H
 
 
-#include "/Library/gurobi810/mac64/include/gurobi_c++.h"
-
 #include <exception>
 #include <stdlib.h>
+#include <fstream>
 #include "../problem/Instance.h"
 #include "../solver/GurobiExecuter.h"
+#include "../solver/roomLecture.h"
 
 
 class TwoVarGurobiExecuter : public GurobiExecuter {
 
 protected:
-    GRBVar **roomLecture;
+    roomLecture *roomLecture;
 
 
 public:
@@ -31,22 +31,7 @@ public:
     }
 
     void definedRoomLecture() {
-        try {
-            roomLecture = new GRBVar *[instance->getNumClasses()];
-            for (int i = 0; i < instance->getNumClasses(); i++) {
-                roomLecture[i] = new GRBVar[instance->getRooms().size()];
-                for (int j = 0; j < instance->getRooms().size(); ++j) {
-                    std::string name = "X_" + itos(i) + "_" + itos(j);
-                    roomLecture[i][j] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY, name);
-                }
-
-            }
-        } catch (GRBException e) {
-            printError(e, "definedRoomLecture");
-
-        }
-
-
+        roomLecture->definedRoomLecture();
     }
 
 
@@ -70,22 +55,7 @@ public:
      */
 
     void oneLectureRoom() {
-        try {
-            for (int j = 0; j <
-                            instance->getNumClasses(); j++) {
-                GRBLinExpr temp = 0;
-                if (instance->getClasses()[j]->getPossibleRooms().size() > 0) {
-                    for (int i = 0; i < instance->getRooms().size(); i++) {
-                        if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1)))
-                            temp += roomLecture[j][i];
-                    }
-                    model->addConstr(temp == 1);
-                }
-            }
-        } catch (GRBException e) {
-            printError(e, "oneLectureRoom");
-        }
-
+        roomLecture->oneLectureRoom();
     }
 
 
@@ -93,7 +63,7 @@ public:
      * Ensure room r is used to lecture l
      */
     void roomPreference(int r, int l) {
-        model->addConstr(roomLecture[l][r] == 1);
+        roomLecture->roomPreference(r, l);
     }
 
     /***
@@ -110,7 +80,7 @@ public:
             for (int j = 0; j < instance->getNumClasses(); ++j) {
                 if (instance->isRoomBlocked(i + 1) &&
                     instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
-                    model->addConstr(roomLecture[j][i] == 0);
+//                    model->addConstr(roomLecture[j][i] == 0);
                 }
             }
         }
@@ -170,23 +140,7 @@ public:
      */
 
     void slackStudent() {
-        for (int l = 0; l <
-                        instance->getNumClasses(); l++) {
-            int j = 0;
-            for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
-                 it != instance->getRooms().end(); it++) {
-                if (
-                        instance->getClasses()[l]->containsRoom(instance->getRoom(j + 1))) {
-                    model->addConstr(it->second.getCapacity() >=
-                                     ((instance->getClasses()[l]->getLimit() -
-                                       (instance->getClasses()[l]->getLimit() * instance->getAlfa())) *
-                                      roomLecture[l][j]));
-                }
-
-
-                j++;
-            }
-        }
+        roomLecture->slackStudent();
     }
 
 
@@ -196,14 +150,15 @@ public:
      * The weighted is baed on the number of students moved
 
      */
+    std::ofstream File;
     void printdistanceToSolutionRooms(bool w) {
         int temp = 0;
         for (int i = 0; i < instance->getRooms().size(); i++) {
             for (int j = 0; j < instance->getNumClasses(); ++j) {
-                if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1)))
-                    temp += (w ? instance->getClasses()[j]->getLimit() : 1) * (solutionRoom[i][j]
-                                                                               !=
-                                                                               roomLecture[j][i].get(GRB_DoubleAttr_X));
+                if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
+                    /*temp += (w ? instance->getClasses()[j]->getLimit() : 1) * (solutionRoom[i][j]
+                                                                               !=roomLecture[j][i].get(GRB_DoubleAttr_X));
+                */}
             }
         }
         std::cout << temp << std::endl;
@@ -229,18 +184,18 @@ public:
         GRBLinExpr temp = 0;
         for (int j = 0; j < instance->getNumClasses(); ++j) {
             for (int i = 0; i < instance->getClasses()[j]->getPossibleRooms().size(); i++) {
-                    GRBVar tempv = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                    model->addGenConstrIndicator(tempv, 0, oldRoom[i][j] == roomLecture[j][i]);
+                //GRBVar tempv = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
+/*                    model->addGenConstrIndicator(tempv, 0, oldRoom[i][j] == roomLecture[j][i]);
                 if (oldRoom[i][j])
                     model->addGenConstrIndicator(tempv, 1, roomLecture[j][i] - oldRoom[i][j] == -1);
                 if (!oldRoom[i][j])
                     model->addGenConstrIndicator(tempv, 1, roomLecture[j][i] - oldRoom[i][j] == 1);
-                    temp += (weighted ? instance->getClasses()[j]->getLimit() : 1) * tempv;
+                    temp += (weighted ? instance->getClasses()[j]->getLimit() : 1) * tempv;*/
 
             }
 
         }
-        model->addConstr(temp >= 0);
+        // model->addConstr(temp >= 0);
         return temp;
     }
 
@@ -288,10 +243,10 @@ private:
     void switchSolutionRoom() {
         for (int i = 0; i < instance->getRooms().size(); i++) {
             for (int j = 0; j < instance->getNumClasses(); ++j) {
-                solutionRoom[i][j] = roomLecture[j][i].get(GRB_DoubleAttr_X);
+/*                solutionRoom[i][j] = roomLecture[j][i].get(GRB_DoubleAttr_X);
                 if (roomLecture[j][i].get(GRB_DoubleAttr_X) != 0) {
                     instance->getClasses()[j]->setSolRoom(i);
-                }
+                }*/
             }
 
         }
