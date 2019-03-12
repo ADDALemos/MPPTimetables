@@ -20,11 +20,15 @@ public:
 
     virtual void roomPreference(int r, int l) {}
 
+    virtual void roomClose() {}
+
     virtual void slackStudent()=0;
 
     virtual void warmStart(int **sol)=0;
 
     virtual bool isStatic()=0;
+
+    virtual void oneLectureRoomConflict(GRBVar **order)=0;
 
     bool **getBool() {}
 

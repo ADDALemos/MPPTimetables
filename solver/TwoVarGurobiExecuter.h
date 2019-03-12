@@ -76,14 +76,7 @@ public:
     * Ensure Room closed cannot be used
     */
     void roomClose() {
-        for (int i = 0; i < instance->getNumRoom(); i++) {
-            for (int j = 0; j < instance->getNumClasses(); ++j) {
-                if (instance->isRoomBlocked(i + 1) &&
-                    instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
-//                    model->addConstr(roomLecture[j][i] == 0);
-                }
-            }
-        }
+        roomLecture->roomClose();
     }
 
     /**
@@ -156,9 +149,11 @@ public:
         for (int i = 0; i < instance->getRooms().size(); i++) {
             for (int j = 0; j < instance->getNumClasses(); ++j) {
                 if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
-                    /*temp += (w ? instance->getClasses()[j]->getLimit() : 1) * (solutionRoom[i][j]
-                                                                               !=roomLecture[j][i].get(GRB_DoubleAttr_X));
-                */}
+                    if (!roomLecture->isStatic())
+                        temp += (w ? instance->getClasses()[j]->getLimit() : 1) * (solutionRoom[i][j]
+                                                                                   != roomLecture->getGRB()[j][i].get(
+                                GRB_DoubleAttr_X));
+                }
             }
         }
         std::cout << temp << std::endl;
@@ -184,13 +179,15 @@ public:
         GRBLinExpr temp = 0;
         for (int j = 0; j < instance->getNumClasses(); ++j) {
             for (int i = 0; i < instance->getClasses()[j]->getPossibleRooms().size(); i++) {
-                //GRBVar tempv = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-/*                    model->addGenConstrIndicator(tempv, 0, oldRoom[i][j] == roomLecture[j][i]);
-                if (oldRoom[i][j])
-                    model->addGenConstrIndicator(tempv, 1, roomLecture[j][i] - oldRoom[i][j] == -1);
-                if (!oldRoom[i][j])
-                    model->addGenConstrIndicator(tempv, 1, roomLecture[j][i] - oldRoom[i][j] == 1);
-                    temp += (weighted ? instance->getClasses()[j]->getLimit() : 1) * tempv;*/
+                if (!roomLecture->isStatic()) {
+                    GRBVar tempv = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
+                    model->addGenConstrIndicator(tempv, 0, oldRoom[i][j] == roomLecture->getGRB()[j][i]);
+                    if (oldRoom[i][j])
+                        model->addGenConstrIndicator(tempv, 1, roomLecture->getGRB()[j][i] - oldRoom[i][j] == -1);
+                    if (!oldRoom[i][j])
+                        model->addGenConstrIndicator(tempv, 1, roomLecture->getGRB()[j][i] - oldRoom[i][j] == 1);
+                    temp += (weighted ? instance->getClasses()[j]->getLimit() : 1) * tempv;
+                }
 
             }
 
@@ -243,10 +240,12 @@ private:
     void switchSolutionRoom() {
         for (int i = 0; i < instance->getRooms().size(); i++) {
             for (int j = 0; j < instance->getNumClasses(); ++j) {
-/*                solutionRoom[i][j] = roomLecture[j][i].get(GRB_DoubleAttr_X);
-                if (roomLecture[j][i].get(GRB_DoubleAttr_X) != 0) {
+                if (roomLecture->isStatic()) {
+                    solutionRoom[i][j] = roomLecture->getGRB()[j][i].get(GRB_DoubleAttr_X);
+                    if (roomLecture->getGRB()[j][i].get(GRB_DoubleAttr_X) != 0) {
                     instance->getClasses()[j]->setSolRoom(i);
-                }*/
+                    }
+                }
             }
 
         }

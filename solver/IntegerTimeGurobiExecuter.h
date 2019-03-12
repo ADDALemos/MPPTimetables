@@ -197,36 +197,7 @@ public:
      */
 
     void oneLectureRoomConflict() {
-        try {
-
-            for (int j = 0; j < instance->getNumClasses(); j++) {
-                for (int i = 0; i < instance->getClasses()[j]->getPossibleRooms().size(); i++) {
-                    for (int j1 = 1; j1 < instance->getNumClasses(); j1++) {
-                            if (instance->getClasses()[j1]->containsRoom(instance->getRoom(i + 1))) {
-                                /* GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                              "temp" + itos(i) + "_" + itos(j) + "_" +
-                                                              itos(j1));
-                                 GRBVar tempC = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                              "tempC" + itos(i) + "_" + itos(j) + "_" +
-                                                              itos(j1));
-
-                                 model->addGenConstrIndicator(tempV, 1, roomLecture[j][i] + roomLecture[j1][i] == 2);
-                                 model->addGenConstrIndicator(tempV, 0, roomLecture[j][i] + roomLecture[j1][i] <= 1);
-                                 model->addGenConstrIndicator(tempC, 1, (order[j][j1] + order[j1][j]) == 2);
-                                 model->addGenConstrIndicator(tempC, 0, (order[j][j1] + order[j1][j]) <= 1);
-
-
-                                 model->addConstr(tempV + tempC <= 1);*/
-                            }
-                        }
-                    }
-                }
-
-
-
-        } catch (GRBException e) {
-            printError(e, "oneLectureRoomConflict");
-        }
+        roomLecture->oneLectureRoomConflict(order);
 
     }
 
@@ -238,7 +209,7 @@ public:
         for (int d = 0; d < instance->getNdays(); ++d) {
                 for (int j = 0; j < instance->getNumClasses(); ++j) {
                     for (int i = 0; i < instance->getClasses()[j]->getPossibleRooms().size(); i++) {
-                        if (instance->isRoomBlockedbyDay(i + 1, d)) {
+                        if (instance->isRoomBlockedbyDay(i + 1, d) && !roomLecture->isStatic()) {
                             GRBVar roomC = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
                                                          "roomC_" + itos(d) + "_" + itos(i) + "_" + itos(j));
                             model->addGenConstrIndicator(roomC, 1, lectureTime[j] / instance->getSlotsperday() == d);
@@ -268,12 +239,12 @@ public:
                 for (int t = 0; t < instance->getNdays() * instance->getSlotsperday(); ++t) {
                     if (instance->isTimeUnavailable(t)) {
                         GRBVar temp = model->addVar(0, 1.0, 0.0, GRB_BINARY);
-                        model->addGenConstrIndicator(temp, 1, lectureTime[i] >= t + 1);
-                        model->addGenConstrIndicator(temp, 0, lectureTime[i] == t);
+                        model->addGenConstrIndicator(temp, 0, lectureTime[i] >= t + 1);
+                        model->addGenConstrIndicator(temp, 1, lectureTime[i] <= t);
                         GRBVar temp1 = model->addVar(0, 1.0, 0.0, GRB_BINARY);
-                        model->addGenConstrIndicator(temp1, 0, lectureTime[i] == t);
-                        model->addGenConstrIndicator(temp1, 1, lectureTime[i] <= t - 1);
-                        model->addConstr((temp1 + temp) >= 1);
+                        model->addGenConstrIndicator(temp1, 1, lectureTime[i] >= t);
+                        model->addGenConstrIndicator(temp1, 0, lectureTime[i] <= t - 1);
+                        model->addConstr((temp1 + temp) <= 1);
                     }
 
                 }

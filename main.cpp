@@ -32,7 +32,6 @@ Instance *readInputXML2007(std::string filename);
 Instance *readOutputXML2007(std::string filename, Instance *instance);
 
 
-
 void readOutputXML(std::string filename, Instance *instance);
 
 void writeOutputXML(std::string filename, Instance *instance, double time);
@@ -41,27 +40,10 @@ void readPerturbations(std::string filename, Instance *instance);
 
 void addPossibleRooms(Class *c, Instance *instance);
 
-//TODO: Actually write help
-void help() {
-    std::cout << "For help press -- h" << std::endl <<
-              "Program execution ./program -o OriginalProblem.xml [-s OriginalSolution.xml] [-p  Perturbations.xml] [-c Cost function]"
-              << std::endl <<
-              "The Problem instance should be encoding with ITC-2019 format;" << std::endl <<
-              "Without the file OriginalSolution.xml the program will first solve the first problem and then solve the MPP;"
-              << std::endl <<
-              "It is possible provide the perturbations in file or use random generated default;"//TODO: Random Perturbations ?
-                      "It is possible to choose the cost function from the ones shown bellow:" << std::endl <<
-              " -c 1 The Hamming distance;" << std::endl <<
-              " -c 2 The Hamming distance weighted with the number of students which scheduled changed;" << std::endl <<
-              " -c 3 The number of students seated." << std::endl;
-    std::exit(0);
-} /* displays help */
 
 bool quiet = false; //Print info
 int main(int argc, char **argv) {
     clock_t tStart = clock();
-    if (argc < 3)
-        help();
 
 
     if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
@@ -69,12 +51,21 @@ int main(int argc, char **argv) {
     if (!quiet) std::cout << "Starting Reading File: " << argv[2] << std::endl;
     readOutputXML(argv[2], instance);
     if (!quiet) std::cout << "Generating Perturbations based on the file: " << argv[3] << std::endl;
-    if (argc > 3);//readPerturbations(argv[3], instance);
+    readPerturbations(argv[3], instance);
 
     if (!quiet) std::cout << "Generating ILP model" << std::endl;
-
-    ILPExecuter *runner = new IntegerTimeGurobiExecuter(false, instance);
-
+    ILPExecuter *runner;
+    if (strcmp(argv[5], "Integer") == 0) {
+        runner = new OneVarGurobiExecuter();
+        runner->setInstance(instance);
+    } else if (strcmp(argv[5], "Binary") == 0) {
+        runner = new BinaryOnlyGurobiExecuter(std::stoi(argv[6]), instance);
+    } else if (strcmp(argv[5], "Mixed") == 0) {
+        runner = new IntegerTimeGurobiExecuter(1, instance);
+    }
+    runner->createSol();
+    std::cout << "Original Solution" << std::endl;
+    runner->loadOutput();
     runner->definedRoomLecture();
 
     runner->definedLectureTime();
@@ -105,30 +96,20 @@ int main(int argc, char **argv) {
     runner->slackStudent();
     std::cout << "Slack : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
-    runner->createSol();
-    std::cout << "Original Solution" << std::endl;
-    runner->loadOutput();
 
-
-    if (argc > 4) {
-        if (strcmp(argv[4], "Hamming") == 0) {
-            if (!quiet) std::cout << "Add optimization: Hamming Distance" << std::endl;
-            runner->distanceToSolution(false);
-        } else if (strcmp(argv[4], "Weighted") == 0) {
-            if (!quiet) std::cout << "Add optimization: Weighted Hamming Distance" << std::endl;
-            //runner->distanceToSolution(true);
-        } else if (strcmp(argv[4], "GAP") == 0) {
-            if (!quiet) std::cout << "Add optimization: GAP in a students Timetable" << std::endl;
-            //runner->optimizeGapStudentsTimetable();
-        }
+    if (strcmp(argv[4], "Hamming") == 0) {
+        if (!quiet) std::cout << "Add optimization: Hamming Distance" << std::endl;
+        runner->distanceToSolution(false);
+    } else if (strcmp(argv[4], "Weighted") == 0) {
+        if (!quiet) std::cout << "Add optimization: Weighted Hamming Distance" << std::endl;
+        runner->distanceToSolution(true);
+    } else if (strcmp(argv[4], "GAP") == 0) {
+        if (!quiet) std::cout << "Add optimization: GAP in a students Timetable" << std::endl;
+        runner->optimizeGapStudentsTimetable();
     }
+
     std::cerr << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
-
-    //runner->optimizeRoomUsage();
-
-
-    //runner->optimizeSeatedStudents();
 
     if (!quiet) std::cout << "Running ILP solver" << std::endl;
     double v = runner->run(true);
@@ -172,6 +153,7 @@ void readPerturbations(std::string filename, Instance *instance) {
         } else if (strcmp(perturbation.c_str(), "Modify_N_Lectures") == 0) {
             file >> mean >> std;
             p->randomShiftChange(instance, percentage, mean, std);
+            instance->setNumClasses();
         } else if (strcmp(perturbation.c_str(), "Curriculum") == 0) {
             file >> mean >> std;
             p->addNewCurriculum(instance, percentage, mean, std);
@@ -179,17 +161,6 @@ void readPerturbations(std::string filename, Instance *instance) {
 
 
     }
-
-
-
-    /*Perturbation *p = new Perturbation();
-    p->randomAddNewCurriculum(instance);
-    p->randomClassSelection(instance, 0);
-    p->randomEnrolmentChanges(instance, 15, false, .5);
-    p->randomCloseRoom(instance, 0);
-    p->randomSlotClose(instance, 0);
-    p->randomCloseRoomDay(instance, 0);
-    p->randomShiftChange(instance, 1, 1, 150, false);*/
 }
 
 
@@ -325,7 +296,7 @@ Instance *readInputXML(std::string filename) {//parent flag missing
     Instance *instance;
     for (const xml_attribute<> *a = pRoot->first_attribute(); a; a = a->next_attribute()) {
         if (strcmp(a->name(), "name") == 0)
-            instance= new Instance(a->value());
+            instance = new Instance(a->value());
         else if (strcmp(a->name(), "nrDays") == 0)
             instance->setNdays(atoi(a->value()));
         else if (strcmp(a->name(), "slotsPerDay") == 0)
@@ -352,7 +323,7 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                 int capacity = -1;
                 for (const xml_attribute<> *a = s->first_attribute(); a; a = a->next_attribute()) {
                     if (strcmp(a->name(), "capacity") == 0) {
-                        capacity=atoi(a->value());
+                        capacity = atoi(a->value());
                     } else if (strcmp(a->name(), "id") == 0) {
                         id = a->value();
                     } else if (strcmp(a->name(), "type") == 0) {
@@ -363,29 +334,29 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                 std::vector<Unavailability> una;
                 for (const xml_node<> *rs = s->first_node(); rs; rs = rs->next_sibling()) {
                     if (strcmp(rs->name(), "travel") == 0) {
-                        int value=-1,room=-1;
+                        int value = -1, room = -1;
                         for (const xml_attribute<> *a = rs->first_attribute(); a; a = a->next_attribute()) {
                             if (strcmp(a->name(), "room") == 0) {
-                                room=atoi(a->value());
+                                room = atoi(a->value());
                             } else if (strcmp(a->name(), "value") == 0) {
-                                value=atoi(a->value());
+                                value = atoi(a->value());
                             }
                         }
                         travel.insert(std::pair<int, int>(room, value));
 
 
                     } else if (strcmp(rs->name(), "unavailable") == 0) {
-                        char* days,*weeks;
-                        int length=-1,start=-1;
+                        char *days, *weeks;
+                        int length = -1, start = -1;
                         for (const xml_attribute<> *a = rs->first_attribute(); a; a = a->next_attribute()) {
                             if (strcmp(a->name(), "days") == 0) {
-                                days=a->value();
+                                days = a->value();
                             } else if (strcmp(a->name(), "start") == 0) {
-                                start=atoi(a->value());
+                                start = atoi(a->value());
                             } else if (strcmp(a->name(), "length") == 0) {
-                                length=atoi(a->value());
+                                length = atoi(a->value());
                             } else if (strcmp(a->name(), "weeks") == 0) {
-                                weeks=a->value();
+                                weeks = a->value();
                             }
                         }
                         Unavailability *u = new Unavailability(days, start, length, weeks);
@@ -413,7 +384,7 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                 char *id;
                 std::__1::map<int, std::__1::vector<Subpart *>> config;
                 for (const xml_attribute<> *a = s->first_attribute(); a; a = a->next_attribute()) {
-                    id=a->value();
+                    id = a->value();
                 }
                 for (const xml_node<> *rs = s->first_node(); rs; rs = rs->next_sibling()) {
                     int idConf = -1;
@@ -436,7 +407,7 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                             std::vector<Lecture *> lecv;
                             for (const xml_attribute<> *a = cla->first_attribute(); a; a = a->next_attribute()) {
                                 if (strcmp(a->name(), "id") == 0)
-                                    idclass=atoi(a->value());
+                                    idclass = atoi(a->value());
                                 else if (strcmp(a->name(), "limit") == 0)
                                     limit = atoi(a->value());
                                 else if (strcmp(a->name(), "parent") == 0)
