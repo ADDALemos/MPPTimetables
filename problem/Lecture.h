@@ -31,6 +31,16 @@ class Lecture {
         Lecture::days = days;
     }
 
+    int getNumbWeeks() {
+        int value = 0;
+        for (char &c : weeks) {
+            if (c == '1')
+                value++;
+
+        }
+        return value;
+    }
+
     int getStart() const {
         return start;
     }

@@ -29,6 +29,16 @@ public:
         return classes;
     }
 
+    std::vector<Class *> getClassesWeek(int w) {
+        std::vector<Class *> classesWeek;
+        for (int i = 0; i < classes.size(); ++i) {
+            if (classes[i]->isTaughtWeek(w))
+                classesWeek.push_back(classes[i]);
+        }
+        return classesWeek;
+    }
+
+
     void setClasses(const std::vector<Class *, std::allocator<Class *>> &classes) {
         Subpart::classes = classes;
     }

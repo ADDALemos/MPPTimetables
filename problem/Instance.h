@@ -9,6 +9,7 @@
 #include <string>
 #include <ostream>
 #include <cmath>
+#include <set>
 #include "Course.h"
 #include "distribution.h"
 #include "Room.h"
@@ -226,6 +227,16 @@ public:
         std::vector<Class *> result;
         for (std::map<std::string, Course *>::iterator i = courses.begin(); i != courses.end(); ++i) {
             std::vector<Class *> temp = (*i).second->getClasses();
+            result.insert(result.end(), temp.begin(), temp.end());
+        }
+        return result;
+
+    }
+
+    std::vector<Class *> getClassesWeek(int w) {
+        std::vector<Class *> result;
+        for (std::map<std::string, Course *>::iterator i = courses.begin(); i != courses.end(); ++i) {
+            std::vector<Class *> temp = (*i).second->getClassesWeek(w);
             result.insert(result.end(), temp.begin(), temp.end());
         }
         return result;

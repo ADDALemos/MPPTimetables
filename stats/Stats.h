@@ -48,4 +48,32 @@ void printCorrectedStats(Instance *instance) {
     std::cout << "Utilization: " << instance->utilizationCorrected() << std::endl;
 }
 
+void printWeekStats(Instance *instance) {
+    std::cout << "Number of Classes " << instance->getClasses().size() << std::endl;
+    int value = 0;
+    for (int i = 0; i < instance->getNweek(); ++i) {
+        value += instance->getClassesWeek(i).size();
+        std::cout << "Number of Classes in " << i << " week " << instance->getClassesWeek(i).size() << std::endl;
+    }
+    std::cout << "Number of Classes by Week: " << ((double) value / instance->getNweek()) << std::endl;
+    int max = 0;
+    for (int j = 0; j < instance->getClasses().size(); ++j) {
+        if (instance->getClasses()[j]->getMaxWeek() > max)
+            max = instance->getClasses()[j]->getMaxWeek();
+    }
+    std::cout << "Max number of Week in a single class: " << (double) max / instance->getNweek() << std::endl;
+    std::ofstream myfile;
+    myfile.open("example1.csv");
+    myfile << "source, target" << std::endl;
+    for (int i = 0; i < 2; ++i) {
+        for (Class *c: instance->getClassesWeek(i))
+            for (Class *c1: instance->getClassesWeek(i))
+                if (c1->getId() != c->getId())
+                    myfile << c->getId() << "," << c1->getId() << std::endl;
+    }
+    myfile.close();
+
+
+}
+
 #endif //PROJECT_STATS_H

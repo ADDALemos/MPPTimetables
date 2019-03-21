@@ -48,6 +48,8 @@ int main(int argc, char **argv) {
 
     if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
     Instance *instance = readInputXML(argv[1]);
+    printWeekStats(instance);
+    std::exit(42);
     if (!quiet) std::cout << "Starting Reading File: " << argv[2] << std::endl;
     readOutputXML(argv[2], instance);
     if (!quiet) std::cout << "Generating Perturbations based on the file: " << argv[3] << std::endl;
@@ -61,7 +63,7 @@ int main(int argc, char **argv) {
     } else if (strcmp(argv[5], "Binary") == 0) {
         runner = new BinaryOnlyGurobiExecuter(std::stoi(argv[6]), instance);
     } else if (strcmp(argv[5], "Mixed") == 0) {
-        runner = new IntegerTimeGurobiExecuter(1, instance);
+        runner = new IntegerTimeGurobiExecuter(0, instance);
     }
     runner->createSol();
     std::cout << "Original Solution" << std::endl;
@@ -76,11 +78,11 @@ int main(int argc, char **argv) {
     std::cout << "LectureperSlot : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
     //runner->saveEncoding();
-    //runner->roomClose();
+    runner->roomClose();
     runner->slotClose();
     runner->teacher();
     std::cout << "Teacher : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
-    //runner->assignmentInvalid();
+    runner->assignmentInvalid();
     runner->oneLectureRoom();
     std::cout << "Lecture : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 

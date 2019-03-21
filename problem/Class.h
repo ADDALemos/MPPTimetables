@@ -8,6 +8,7 @@
 #include <vector>
 #include <utility>
 #include <ostream>
+#include <iostream>
 #include "Lecture.h"
 #include "Room.h"
 
@@ -27,6 +28,12 @@ private:
     std::vector<int> student;
 
 public:
+    bool isTaughtWeek(int w) {
+        if (lectures[0]->getWeeks()[w] == '1')
+            return true;
+        return false;
+    }
+
     int getOrderID() const {
         return orderID;
     }
@@ -58,6 +65,15 @@ public:
         return week;
     }
 
+    int getMaxWeek() {
+        int max = 0;
+        for (int i = 0; i < lectures.size(); ++i) {
+            if (max < lectures[i]->getNumbWeeks())
+                max = lectures[i]->getNumbWeeks();
+        }
+        return max;
+    }
+
     std::string getSolDays() const {
         return days;
     }
@@ -70,6 +86,7 @@ public:
                 return i;
 
         }
+        return -1;
     }
 
     void setSolRoom(int roomID) {
@@ -149,6 +166,7 @@ public:
                 return i;
 
         }
+        return -1;
     }
 
     std::string getWeek() const {

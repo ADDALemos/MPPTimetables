@@ -97,9 +97,13 @@ public:
     virtual void studentConflictSolution() =0;
 
 
-    void saveEncoding() {
-        model->write("/Volumes/MAC/ClionProjects/timetabler/model.lp");
+    void saveEncoding(std::string name) {
+        saveEncoding(name, *model);
 
+    }
+
+    void saveEncoding(std::string name, GRBModel m) {
+        m.write("/Volumes/MAC/ClionProjects/timetabler/" + name + ".lp");
     }
 
 protected:
@@ -148,16 +152,18 @@ public:
 
         //printsolutionTime();
         //printRoomSolution();
-        model->set(GRB_IntParam_Presolve, 0);
+        //model->set(GRB_IntParam_Presolve, 0);
 
         model->set(GRB_IntParam_Threads, 3);
-        model->set(GRB_DoubleParam_TimeLimit, 600.0);
+        //model->set(GRB_DoubleParam_TimeLimit, 600.0);
 
         if (mpp)
             warmStart();
-        saveEncoding();
+        saveEncoding("model" + instance->getName());
         try {
-            model->optimize();
+            GRBModel p = model->presolve();
+            saveEncoding("modelAfter" + instance->getName(), p);
+            //model->optimize();
             int status = model->get(GRB_IntAttr_Status);
 
             if (status == GRB_INF_OR_UNBD ||
