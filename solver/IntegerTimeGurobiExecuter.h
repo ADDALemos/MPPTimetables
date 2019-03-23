@@ -306,18 +306,20 @@ public:
                 for (int i = 0; i < sub->second.size(); ++i) {
                     GRBLinExpr conflict = 0;
                     for (int c = 0; c < sub->second[i]->getClasses().size(); c++) {
-                        for (int c1 = 1; c1 < sub->second[i]->getClasses().size(); c1++) {
+                        for (int c1 = 0; c1 < sub->second[i]->getClasses().size(); c1++) {
+                            if (c1 != c) {
 
-                            GRBVar tempT = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                         "tempT" + it->first + "_" + itos(i) + "_" +
-                                                         itos(c) +
-                                                         "_" + itos(c1));
+                                GRBVar tempT = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                             "tempT" + it->first + "_" + itos(i) + "_" +
+                                                             itos(c) +
+                                                             "_" + itos(c1));
 
-                            model->addGenConstrIndicator(tempT, 1, order[c][c1] + order[c1][c] >= 2);
-                            model->addGenConstrIndicator(tempT, 0, order[c][c1] + order[c1][c] <= 1);
+                                model->addGenConstrIndicator(tempT, 1, order[c][c1] + order[c1][c] >= 2);
+                                model->addGenConstrIndicator(tempT, 0, order[c][c1] + order[c1][c] <= 1);
 
 
-                            conflict += tempT;
+                                conflict += tempT;
+                            }
                         }
                     }
                     model->addConstr(conflict <= sub->second[i]->getOverlap());
@@ -454,21 +456,24 @@ private:
         for (int j = 0; j < instance->getNumClasses(); j++) {
             gap[j] = new GRBVar[instance->getNumClasses()];
             for (int j1 = 0; j1 < instance->getNumClasses(); j1++) {
-                gap[j][j1] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                if (j1 != j)
+                    gap[j][j1] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
                                            "gap" + itos(j) + "_" + itos(j1));
             }
         }
         for (int l = 0; l < instance->getNumClasses(); ++l) {
             instance->getClasses()[l]->setOrderID(l);
             for (int l1 = 1; l1 < instance->getNumClasses(); ++l1) {
-                model->addGenConstrIndicator(gap[l][l1], 1,
-                                             (lectureTime[l] + instance->getClasses()[l]->getLenght()) ==
-                                             (lectureTime[l1]));
-                model->addGenConstrIndicator(gap[l][l1], 0, order[l][l1] + gap[l][l1] <= 1);
-                model->addGenConstrIndicator(gap[l1][l], 1,
-                                             (lectureTime[l1] + instance->getClasses()[l1]->getLenght()) ==
-                                             (lectureTime[l]));
-                model->addGenConstrIndicator(gap[l1][l], 0, order[l1][l] + gap[l1][l] <= 1);
+                if (l != l1) {
+                    model->addGenConstrIndicator(gap[l][l1], 1,
+                                                 (lectureTime[l] + instance->getClasses()[l]->getLenght()) ==
+                                                 (lectureTime[l1]));
+                    model->addGenConstrIndicator(gap[l][l1], 0, order[l][l1] + gap[l][l1] <= 1);
+                    model->addGenConstrIndicator(gap[l1][l], 1,
+                                                 (lectureTime[l1] + instance->getClasses()[l1]->getLenght()) ==
+                                                 (lectureTime[l]));
+                    model->addGenConstrIndicator(gap[l1][l], 0, order[l1][l] + gap[l1][l] <= 1);
+                }
 
             }
         }

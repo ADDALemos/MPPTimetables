@@ -152,18 +152,18 @@ public:
 
         //printsolutionTime();
         //printRoomSolution();
-        //model->set(GRB_IntParam_Presolve, 0);
+        model->set(GRB_IntParam_Presolve, 0);
 
         model->set(GRB_IntParam_Threads, 3);
         //model->set(GRB_DoubleParam_TimeLimit, 600.0);
 
         if (mpp)
             warmStart();
-        saveEncoding("model" + instance->getName());
         try {
-            GRBModel p = model->presolve();
-            saveEncoding("modelAfter" + instance->getName(), p);
-            //model->optimize();
+            //GRBModel p = model->presolve();
+            //saveEncoding("modelAfter" + instance->getName(), p);
+            model->optimize();
+            saveEncoding("model1" + instance->getName());
             int status = model->get(GRB_IntAttr_Status);
 
             if (status == GRB_INF_OR_UNBD ||

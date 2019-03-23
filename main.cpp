@@ -22,6 +22,7 @@
 #include "solver/BinaryOnlyGurobiExecuter.h"
 #include "solver/OneVarGurobiExecuter.h"
 #include "solver/IntegerTimeGurobiExecuter.h"
+#include "solver/GRASP.h"
 
 using namespace rapidxml;
 
@@ -48,12 +49,17 @@ int main(int argc, char **argv) {
 
     if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
     Instance *instance = readInputXML(argv[1]);
-    printWeekStats(instance);
-    std::exit(42);
     if (!quiet) std::cout << "Starting Reading File: " << argv[2] << std::endl;
     readOutputXML(argv[2], instance);
     if (!quiet) std::cout << "Generating Perturbations based on the file: " << argv[3] << std::endl;
     readPerturbations(argv[3], instance);
+    GRASP *g = new GRASP(3, 0.1, instance);
+    std::cout << "GRASP" << std::endl;
+    g->run();
+
+    //printWeekStats(instance);
+    std::exit(42);
+
 
     if (!quiet) std::cout << "Generating ILP model" << std::endl;
     ILPExecuter *runner;
@@ -63,7 +69,12 @@ int main(int argc, char **argv) {
     } else if (strcmp(argv[5], "Binary") == 0) {
         runner = new BinaryOnlyGurobiExecuter(std::stoi(argv[6]), instance);
     } else if (strcmp(argv[5], "Mixed") == 0) {
-        runner = new IntegerTimeGurobiExecuter(0, instance);
+        runner = new IntegerTimeGurobiExecuter(std::stoi(argv[6]), instance);
+    } else if (strcmp(argv[5], "GRASP") == 0) {
+        GRASP *g = new GRASP(std::stoi(argv[6]), std::stoi(argv[7]), instance);
+        std::cout << "GRASP" << std::endl;
+        g->run();
+        std::exit(42);
     }
     runner->createSol();
     std::cout << "Original Solution" << std::endl;

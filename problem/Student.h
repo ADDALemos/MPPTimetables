@@ -39,6 +39,14 @@ public:
         Student::course = course;
     }
 
+    const bool containsClass(Class *c) const {
+        for (int i = 0; i < getClasses().size(); ++i) {
+            if (getClasses()[i]->getId() == c->getId())
+                return true;
+        }
+        return false;
+    }
+
     void addClass(Class *c) {
         Student::classes.push_back(c);
     }
