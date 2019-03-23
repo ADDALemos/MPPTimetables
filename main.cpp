@@ -22,7 +22,7 @@
 #include "solver/BinaryOnlyGurobiExecuter.h"
 #include "solver/OneVarGurobiExecuter.h"
 #include "solver/IntegerTimeGurobiExecuter.h"
-#include "solver/GRASP.h"
+#include "solver/LocalSearch.h"
 
 using namespace rapidxml;
 
@@ -53,9 +53,9 @@ int main(int argc, char **argv) {
     readOutputXML(argv[2], instance);
     if (!quiet) std::cout << "Generating Perturbations based on the file: " << argv[3] << std::endl;
     readPerturbations(argv[3], instance);
-    GRASP *g = new GRASP(3, 0.1, instance);
-    std::cout << "GRASP" << std::endl;
-    g->run();
+    LocalSearch *g = new LocalSearch(instance);
+    std::cout << "LocalSearch" << std::endl;
+    g->LNS();
 
     //printWeekStats(instance);
     std::exit(42);
@@ -71,9 +71,12 @@ int main(int argc, char **argv) {
     } else if (strcmp(argv[5], "Mixed") == 0) {
         runner = new IntegerTimeGurobiExecuter(std::stoi(argv[6]), instance);
     } else if (strcmp(argv[5], "GRASP") == 0) {
-        GRASP *g = new GRASP(std::stoi(argv[6]), std::stoi(argv[7]), instance);
-        std::cout << "GRASP" << std::endl;
-        g->run();
+        LocalSearch *g = new LocalSearch(std::stoi(argv[6]), std::stoi(argv[7]), instance);
+        g->GRASP();
+        std::exit(42);
+    } else if (strcmp(argv[5], "LNS") == 0) {
+        LocalSearch *g = new LocalSearch(instance);
+        g->LNS();
         std::exit(42);
     }
     runner->createSol();

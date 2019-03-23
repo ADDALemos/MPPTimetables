@@ -9,7 +9,7 @@
 #include <fstream>
 #include "../problem/Instance.h"
 
-class GRASP {
+class LocalSearch {
     int MAX_ITERATIONS = 5;
     Instance *instance;
     bool **room;
@@ -19,10 +19,13 @@ class GRASP {
     int sizeRCL;
 
 public:
-    GRASP(int MAX_ITERATIONS, double rcl, Instance *instance);
+    LocalSearch(int MAX_ITERATIONS, double rcl, Instance *instance);
 
-    void run();
+    void GRASP();
 
+    void LNS();
+
+    LocalSearch(Instance *pInstance);
 
 private:
 

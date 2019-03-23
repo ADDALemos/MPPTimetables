@@ -4,14 +4,22 @@
 
 #include <cfloat>
 #include <random>
-#include "GRASP.h"
+#include "LocalSearch.h"
 
-
-void GRASP::run() {
+void LocalSearch::LNS() {
     init();
-    std::cout << "Greedy" << std::endl;
+    std::cout << "init: done" << std::endl;
+    Local();
+    std::cout << "local: done" << std::endl;
+    printFinal();
+
+
+}
+
+
+void LocalSearch::GRASP() {
+    init();
     Greedy();
-    std::cout << "Local" << std::endl;
     Local();
     printStatus(0);
     for (int i = 1; i < MAX_ITERATIONS; i++) {
@@ -30,13 +38,14 @@ void GRASP::run() {
 
 }
 
-bool GRASP::eval() {
+bool LocalSearch::eval() {
 
     return getGAP() < getGAPStored();
 
 }
 
-GRASP::GRASP(int MAX_ITERATIONS, double rcl, Instance *instance) : MAX_ITERATIONS(MAX_ITERATIONS), instance(instance) {
+LocalSearch::LocalSearch(int MAX_ITERATIONS, double rcl, Instance *instance) : MAX_ITERATIONS(MAX_ITERATIONS),
+                                                                               instance(instance) {
     init();
     sizeRCL = instance->getClasses().size() * rcl;
     allocated = new bool[instance->getClasses().size()];
@@ -45,14 +54,14 @@ GRASP::GRASP(int MAX_ITERATIONS, double rcl, Instance *instance) : MAX_ITERATION
     }
 }
 
-void GRASP::init() {
+void LocalSearch::init() {
     room = new bool *[instance->getClasses().size()];
     for (int i = 0; i < instance->getClasses().size(); ++i) {
         room[i] = new bool[instance->getClasses()[i]->getPossibleRooms().size()];
-        //for (int j = 0; j < instance->getClasses()[i]->getPossibleRooms().size(); ++j) {
+        for (int j = 0; j < instance->getClasses()[i]->getPossibleRooms().size(); ++j) {
         //warm-start
-        //room[i][j]=1;
-        //}
+            room[i][j] = 1;
+        }
     }
     time = new bool **[instance->getNdays()];
     for (int k = 0; k < instance->getNdays(); ++k) {
@@ -65,7 +74,7 @@ void GRASP::init() {
 }
 
 
-void GRASP::store() {
+void LocalSearch::store() {
     for (int i = 0; i < instance->getClasses().size(); ++i) {
         for (int j = 0; j < instance->getClasses()[i]->getPossibleRooms().size(); ++j) {
             if (room[i][j])
@@ -83,15 +92,15 @@ void GRASP::store() {
 
 }
 
-void GRASP::printStatus(int ite) {
+void LocalSearch::printStatus(int ite) {
     std::cout << "Iteration: " << ite << getGAP() << std::endl;
 }
 
-void GRASP::printFinal() {
+void LocalSearch::printFinal() {
     std::cout << "Best result: " << getGAP() << std::endl;
 }
 
-int GRASP::getGAP() const {
+int LocalSearch::getGAP() const {
     int count = 0;
     for (int i = 0; i < instance->getStudent().size(); ++i) {
         for (int j = 0; j < instance->getNdays(); ++j) {
@@ -110,7 +119,7 @@ int GRASP::getGAP() const {
     return count;
 }
 
-void GRASP::Greedy() {
+void LocalSearch::Greedy() {
     std::vector<int> room;
     std::vector<int> lecture;
     std::vector<int> day;
@@ -182,7 +191,7 @@ void GRASP::Greedy() {
     }
 }
 
-void GRASP::Local() {
+void LocalSearch::Local() {
     bool move = true;
     while (move) {
         bool swamp = false;
@@ -216,13 +225,13 @@ void GRASP::Local() {
 
 }
 
-bool GRASP::isAllocable(int lectureID, int roomID, int day, int times) {
+bool LocalSearch::isAllocable(int lectureID, int roomID, int day, int times) {
     //Students
     for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
          it != instance->getStudent().end(); it++) {
         if (it->second.containsClass(instance->getClasses()[lectureID])) {
             for (int c = 0; c < it->second.getClasses().size(); ++c) {
-                if (GRASP::time[day][times][c] == 1 &&
+                if (LocalSearch::time[day][times][c] == 1 &&
                     instance->getClasses()[lectureID]->getId() != instance->getClasses()[c]->getId())
                     return false;
             }
@@ -233,7 +242,7 @@ bool GRASP::isAllocable(int lectureID, int roomID, int day, int times) {
         if (instance->getClasses()[j]->containsRoom(instance->getRoom(roomID + 1))) {
             for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
                  it != instance->getRooms().end(); it++) {
-                if (instance->getRoom(roomID + 1).getId() == it->second.getId() && GRASP::time[day][times][j]
+                if (instance->getRoom(roomID + 1).getId() == it->second.getId() && LocalSearch::time[day][times][j]
                     && instance->getClasses()[lectureID]->getId() != instance->getClasses()[j]->getId())
                     return false;
 
@@ -248,7 +257,7 @@ bool GRASP::isAllocable(int lectureID, int roomID, int day, int times) {
             for (int i = 0; i < sub->second.size(); ++i) {
                 int over = 0;
                 for (int c = 0; c < sub->second[i]->getClasses().size(); c++) {
-                    if (GRASP::time[day][times][c] == 1 &&
+                    if (LocalSearch::time[day][times][c] == 1 &&
                         instance->getClasses()[lectureID]->getId() != instance->getClasses()[c]->getId())
                         over++;
 
@@ -268,7 +277,7 @@ bool GRASP::isAllocable(int lectureID, int roomID, int day, int times) {
     return true;
 }
 
-double GRASP::cost(int lectureID, int roomID, int day, int timeS) {
+double LocalSearch::cost(int lectureID, int roomID, int day, int timeS) {
     int count = 0;
     for (int i = 0; i < instance->getStudent().size(); ++i) {
         for (int j = 0; j < instance->getNdays(); ++j) {
@@ -299,7 +308,7 @@ double GRASP::cost(int lectureID, int roomID, int day, int timeS) {
  * Generate a seed based on the clock
  * @return seed
  */
-unsigned int GRASP::seedHandler() {
+unsigned int LocalSearch::seedHandler() {
     unsigned int t = std::chrono::steady_clock::now().time_since_epoch().count();
     seedFile.open("../log/seed.txt", std::ios_base::app);
     seedFile << t << std::endl;
@@ -307,7 +316,7 @@ unsigned int GRASP::seedHandler() {
     return t;
 }
 
-bool GRASP::assign(int lectureID, int roomID, int day, int time) {
+bool LocalSearch::assign(int lectureID, int roomID, int day, int time) {
     if (!isAllocable(lectureID, roomID, day, time))
         return false;
     for (int l = 0; l < instance->getClasses().size(); ++l) {
@@ -330,7 +339,7 @@ bool GRASP::assign(int lectureID, int roomID, int day, int time) {
     return false;
 }
 
-bool GRASP::tryswampLectures(int l1, int l2, int d1, int t1, int le1, int d2, int t2, int le2) {
+bool LocalSearch::tryswampLectures(int l1, int l2, int d1, int t1, int le1, int d2, int t2, int le2) {
     int counto = getGAP();
     int count = 0;
     for (int i = 0; i < instance->getStudent().size(); ++i) {
@@ -363,7 +372,7 @@ bool GRASP::tryswampLectures(int l1, int l2, int d1, int t1, int le1, int d2, in
 }
 
 void
-GRASP::swampLectures(int lect1, int lect2, int day1, int start1, int lenght1, int day2, int start2, int lenght2) {
+LocalSearch::swampLectures(int lect1, int lect2, int day1, int start1, int lenght1, int day2, int start2, int lenght2) {
     for (int i = start1; i < (start1 + lenght1); ++i) {
         time[day1][i][lect1] = 0;
         time[day1][i][lect2] = 1;
@@ -379,7 +388,7 @@ GRASP::swampLectures(int lect1, int lect2, int day1, int start1, int lenght1, in
 
 }
 
-int GRASP::getGAPStored() {
+int LocalSearch::getGAPStored() {
     int count = 0;
     for (int i = 0; i < instance->getStudent().size(); ++i) {
         for (int j = 0; j < instance->getNdays(); ++j) {
@@ -404,4 +413,8 @@ int GRASP::getGAPStored() {
         }
     }
     return count;
+}
+
+LocalSearch::LocalSearch(Instance *pInstance) : instance(pInstance) {
+
 }
