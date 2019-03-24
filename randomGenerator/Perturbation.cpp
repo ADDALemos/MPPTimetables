@@ -249,7 +249,7 @@ void Perturbation::randomShiftChange(Instance *i, double factorCourse, double fa
             std::uniform_int_distribution<int> distributionAmount(1, limit);
             int amount = distributionAmount(generatorAmount);
             if (increase)
-                i->getCourse(std::to_string(course))->newShift(shift, amount);
+                i->getCourse(std::to_string(course))->newShift(shift, amount, i->getNumClasses());
             else
                 i->getCourse(std::to_string(course))->deleteShift(shift, amount);
             std::cout << "Shift: courseID " << course << " SubpartID:" << shift << " number:" << amount << std::endl;
@@ -281,7 +281,7 @@ void Perturbation::randomShiftChange(Instance *i, double factorCourse, double st
         std::default_random_engine generatorShift(t);
         std::normal_distribution<int> distributionShift(mean, standard);
         int amount = distributionShift(generatorShift);
-        i->getSubpart(subpart)->changeShift(amount);
+        i->getSubpart(subpart)->changeShift(amount, i->getNumClasses());
         std::cout << "Shift: subpartID " << subpart << " number:" << amount << std::endl;
     }
 }

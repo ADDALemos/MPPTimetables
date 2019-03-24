@@ -257,16 +257,19 @@ public:
         return alfa;
     }
 
-    Class *getClass(int id) {
-        for (std::map<std::string, Course *>::iterator i = courses.begin(); i != courses.end(); ++i) {
-            std::vector<Class *> temp = (*i).second->getClasses();
-            for (int j = 0; j < temp.size(); ++j) {
-                if (temp[j]->getId() == id)
-                    return temp[j];
-            }
+    Class *getClassbyId(int id) {
+        for (int j = 0; j < getClasses().size(); ++j) {
+            if (getClasses()[j]->getId() == id)
+                return getClasses()[j];
         }
+
         std::cerr << "Class does not exist: " << id << std::endl;
         std::exit(11);
+
+    }
+
+    Class *getClassbyOrder(int order) {
+        return getClasses()[order];
 
     }
 

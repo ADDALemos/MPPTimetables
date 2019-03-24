@@ -14,7 +14,7 @@
 
 class Class {
     bool modified = false;
-    int id;
+    int id = 1;
     int orderID; //easy handle for the arrays of gurobi
 private:
     int limit;//limit number of students
@@ -107,7 +107,7 @@ public:
     }
 
 
-    Class(int limit, int lenght, std::vector<int> student) : limit(limit), student(student) {
+    Class(int id, int limit, int lenght, std::vector<int> student) : id(id), limit(limit), student(student) {
         Lecture *l = new Lecture(lenght);
         lectures.push_back(l);
 
@@ -173,7 +173,7 @@ public:
         return lectures[0]->getWeeks();
     }
 
-    int getId() const {
+    int getId() {
         return id;
     }
 

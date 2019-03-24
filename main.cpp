@@ -51,11 +51,11 @@ int main(int argc, char **argv) {
     Instance *instance = readInputXML(argv[1]);
     if (!quiet) std::cout << "Starting Reading File: " << argv[2] << std::endl;
     readOutputXML(argv[2], instance);
-    if (!quiet) std::cout << "Generating Perturbations based on the file: " << argv[3] << std::endl;
-    readPerturbations(argv[3], instance);
-    LocalSearch *g = new LocalSearch(instance);
+    //if (!quiet) std::cout << "Generating Perturbations based on the file: " << argv[3] << std::endl;
+    //readPerturbations(argv[3], instance);
+    LocalSearch *g = new LocalSearch(3, 0.3, instance);
     std::cout << "LocalSearch" << std::endl;
-    g->LNS();
+    g->GRASP();
 
     //printWeekStats(instance);
     std::exit(42);
@@ -267,7 +267,7 @@ void readOutputXML(std::string filename, Instance *instance) {
                 days = a->value();
             }
         }
-        Class *s = instance->getClass(id);
+        Class *s = instance->getClassbyId(id);
         if (std::strcmp(room.c_str(), " ") != 0) {
             if (roomID.find(room) == roomID.end()) {
                 std::cerr << "Room does not exist: " << room << std::endl;

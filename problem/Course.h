@@ -122,11 +122,11 @@ public:
         return configuration.begin()->second.size();
     }
 
-    void newShift(int subpart, int numberNewShifts) {
-        configuration.begin()->second[subpart]->newShift(numberNewShifts);
+    void newShift(int subpart, int numberNewShifts, int id) {
+        configuration.begin()->second[subpart]->newShift(numberNewShifts, id++);
         int subpartID = subpart;
         while ((subpart = findParentSubpart(subpartID)) != -1) {
-            configuration.begin()->second[subpart]->newShift(numberNewShifts);
+            configuration.begin()->second[subpart]->newShift(numberNewShifts, id++);
             //configuration.begin()->second[subpartID]->setParent(subpart);TODO:parent part
             subpartID = subpart;
         }

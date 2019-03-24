@@ -59,10 +59,10 @@ public:
         return nullptr;
     }
 
-    void newShift(int numberNewShifts) {
+    void newShift(int numberNewShifts, int id) {
         for (int i = 0; i < numberNewShifts; ++i) {
             classes.push_back(
-                    new Class(averageClassLimit(), averageLectureLenght(), classes[0]->getStudent()));
+                    new Class(id++, averageClassLimit(), averageLectureLenght(), classes[0]->getStudent()));
         }
 
     }
@@ -125,12 +125,12 @@ public:
     }
 
 
-    void changeShift(int amount) {
+    void changeShift(int amount, int id) {
         std::cout << "Modified number of lectures by: " << amount << std::endl;
         if (amount < 0)
             deleteShift(amount);
         else
-            newShift(amount);
+            newShift(amount, id++);
 
     }
 };

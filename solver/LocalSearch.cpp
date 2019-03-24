@@ -8,9 +8,8 @@
 
 void LocalSearch::LNS() {
     init();
-    std::cout << "init: done" << std::endl;
     Local();
-    std::cout << "local: done" << std::endl;
+
     printFinal();
 
 
@@ -140,11 +139,9 @@ void LocalSearch::Greedy() {
                                     day.push_back(k);
                                     time.push_back(m);
                                     lecture.push_back(i);
-                                    std::cout << "here " << day.size() << " " << sizeRCL << std::endl;
 
 
                                 } else {
-                                    std::cout << "else" << std::endl;
                                     bool change = false;
                                     int tabu = 0;
                                     for (; tabu < room.size(); ++tabu) {
@@ -155,8 +152,6 @@ void LocalSearch::Greedy() {
                                         }
                                     }
                                     if (change) {
-                                        std::cout << "up" << std::endl;
-
                                         room[tabu] = j;
                                         lecture[tabu] = i;
                                         time[tabu] = m;
@@ -176,12 +171,10 @@ void LocalSearch::Greedy() {
 
         }
         if (room.size() > 0) {
-            std::cout << "pre" << std::endl;
             std::default_random_engine generator(seedHandler());
             std::uniform_int_distribution<int> distribution(0, room.size());
             int l = distribution(generator);
             if (assign(lecture[l], room[l], day[l], time[l])) {
-                std::cout << "assigned" << std::endl;
                 allocated[lecture[l]] = true;
                 current++;
             }
@@ -196,21 +189,22 @@ void LocalSearch::Local() {
     while (move) {
         bool swamp = false;
         for (int i = 0; i < instance->getClasses().size(); ++i) {
-            for (int i1 = i; i1 < instance->getClasses().size(); ++i1) {
+            for (int i1 = i + 1; i1 < instance->getClasses().size(); ++i1) {
                 if (instance->getClasses()[i]->getLenght() == instance->getClasses()[i1]->getLenght()) {
-                    if (tryswampLectures(i, i1, instance->getClasses()[i]->getSolDay(),
+                    if (tryswampLectures(i, i1, instance->getClasses()[i]->getSolDay() - 1,
                                          instance->getClasses()[i]->getSolStart(),
                                          instance->getClasses()[i]->getLenght(),
-                                         instance->getClasses()[i1]->getSolDay(),
+                                         instance->getClasses()[i1]->getSolDay() - 1,
                                          instance->getClasses()[i1]->getSolStart(),
                                          instance->getClasses()[i1]->getLenght())) {
-                        swampLectures(i, i1, instance->getClasses()[i]->getSolDay(),
+                        swampLectures(i, i1, instance->getClasses()[i]->getSolDay() - 1,
                                       instance->getClasses()[i]->getSolStart(), instance->getClasses()[i]->getLenght(),
-                                      instance->getClasses()[i1]->getSolDay(),
+                                      instance->getClasses()[i1]->getSolDay() - 1,
                                       instance->getClasses()[i1]->getSolStart(),
                                       instance->getClasses()[i1]->getLenght());
                         swamp = true;
                     }
+
                 }
 
             }
@@ -340,6 +334,38 @@ bool LocalSearch::assign(int lectureID, int roomID, int day, int time) {
 }
 
 bool LocalSearch::tryswampLectures(int l1, int l2, int d1, int t1, int le1, int d2, int t2, int le2) {
+    int oldV = 0, newV = 0;
+    Class *l2c, *l1c;
+    for (int i = 0; i < instance->getStudent().size(); ++i) {
+        //if(instance->getStudent(i + 1).containsClass(l1c)) {
+        for (int l = 0; l < instance->getStudent(i + 1).getClasses().size(); ++l) {
+            if (t1 > 0)
+                newV += (time[d1][t1 - 1][i] == 0);
+            if (t1 < instance->getSlotsperday())
+                newV += (time[d1][t1 + le1][i] == 0);
+            if (t2 > 0)
+                oldV += (time[d2][t2 - 1][i] == 0);
+            if (t2 < instance->getSlotsperday())
+                oldV += (time[d2][t2 + le2][i] == 0);
+
+        }
+        // } else if (instance->getStudent(i + 1).containsClass(l2c)){
+        for (int l = 0; l < instance->getStudent(i + 1).getClasses().size(); ++l) {
+            if (t1 > 0)
+                newV += (time[d1][t1 - 1][i] == 0);
+            if (t1 < instance->getSlotsperday())
+                newV += (time[d1][t1 + le1][i] == 0);
+            if (t2 > 0)
+                oldV += (time[d2][t2 - 1][i] == 0);
+            if (t2 < instance->getSlotsperday())
+                oldV += (time[d2][t2 + le2][i] == 0);
+
+        }
+
+        //}
+
+    }
+    return oldV > newV;/*
     int counto = getGAP();
     int count = 0;
     for (int i = 0; i < instance->getStudent().size(); ++i) {
@@ -368,7 +394,7 @@ bool LocalSearch::tryswampLectures(int l1, int l2, int d1, int t1, int le1, int 
             }
         }
     }
-    return counto < count;
+    return counto < count;*/
 }
 
 void
