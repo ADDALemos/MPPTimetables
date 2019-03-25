@@ -2,8 +2,8 @@
 // Created by Alexandre Lemos on 09/01/2019.
 //
 
-#ifndef PROJECT_BINARYONLYGUROBIEXECUTER_H
-#define PROJECT_BINARYONLYGUROBIEXECUTER_H
+#ifndef PROJECT_BINARYMODELGUROBIEXECUTER_H
+#define PROJECT_BINARYMODELGUROBIEXECUTER_H
 
 
 #include "/Library/gurobi810/mac64/include/gurobi_c++.h"
@@ -16,18 +16,17 @@
 #include "../solver/roomLectureBool.h"
 
 
-
-class BinaryOnlyGurobiExecuter : public TwoVarGurobiExecuter {
+class BinaryModelGurobiExecuter : public TwoVarGurobiExecuter {
     GRBVar ***lectureTime;
 
 
 public:
-    BinaryOnlyGurobiExecuter(Instance *i) {
+    BinaryModelGurobiExecuter(Instance *i) {
         setInstance(i);
         roomLecture = new roomLectureGRB(instance);
     }
 
-    BinaryOnlyGurobiExecuter(bool isStatic, Instance *i) {
+    BinaryModelGurobiExecuter(bool isStatic, Instance *i) {
         setInstance(i);
         if (isStatic)
             roomLecture = new roomLectureBool(instance);
@@ -479,4 +478,4 @@ private:
 };
 
 
-#endif //PROJECT_ILPEXECUTER_H
+#endif

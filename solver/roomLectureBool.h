@@ -14,6 +14,9 @@
 class roomLectureBool : public roomLecture {
     bool **vector;
 public:
+    void cuts() {
+        // left blank
+    }
     roomLectureBool(Instance *instance) : roomLecture(instance) {}
 
     void slackStudent() {}

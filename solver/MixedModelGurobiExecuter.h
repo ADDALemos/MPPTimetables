@@ -2,10 +2,8 @@
 // Created by Alexandre Lemos on 09/01/2019.
 //
 
-#ifndef PROJECT_INTEGERTIMEGUROBIEXECUTER_H
-#define PROJECT_INTEGERTIMEGUROBIEXECUTER_H
-
-
+#ifndef PROJECT_MIXEDMODELEGUROBIEXECUTER_H
+#define PROJECT_MIXEDMODELGUROBIEXECUTER_H
 
 #include <exception>
 #include <stdlib.h>
@@ -14,19 +12,19 @@
 #include "../solver/roomLectureGRB.h"
 #include "../solver/roomLectureBool.h"
 
-class IntegerTimeGurobiExecuter : public TwoVarGurobiExecuter {
+class MixedModelGurobiExecuter : public TwoVarGurobiExecuter {
     GRBVar *lectureTime;
     GRBVar **order;
     GRBVar **gap;
 
 
 public:
-    IntegerTimeGurobiExecuter(Instance *i) {
+    MixedModelGurobiExecuter(Instance *i) {
         setInstance(i);
         roomLecture = new roomLectureGRB(instance);
     }
 
-    IntegerTimeGurobiExecuter(bool isStatic, Instance *i) {
+    MixedModelGurobiExecuter(bool isStatic, Instance *i) {
         setInstance(i);
         if (isStatic)
             roomLecture = new roomLectureBool(instance);
@@ -492,10 +490,12 @@ private:
             for (int l = 0; l < instance->getStudent(i + 1).getClasses().size(); ++l) {
                 GRBLinExpr all = 0;
                 for (int l1 = 1; l1 < instance->getStudent(i + 1).getClasses().size(); ++l1) {
-                    all += gap[instance->getStudent(i + 1).getClass(l)->getOrderID()][instance->getStudent(
-                            i + 1).getClass(l1)->getOrderID()]
-                           + gap[instance->getStudent(i + 1).getClass(l1)->getOrderID()][instance->getStudent(
-                            i + 1).getClass(l)->getOrderID()];
+                    if (l != l1) {
+                        all += gap[instance->getStudent(i + 1).getClass(l)->getOrderID()][instance->getStudent(
+                                i + 1).getClass(l1)->getOrderID()]
+                               + gap[instance->getStudent(i + 1).getClass(l1)->getOrderID()][instance->getStudent(
+                                i + 1).getClass(l)->getOrderID()];
+                    }
 
                 }
                 min += (2 - all);

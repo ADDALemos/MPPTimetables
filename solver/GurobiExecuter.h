@@ -114,6 +114,8 @@ protected:
 
     virtual GRBLinExpr gapStudentsTimetable() =0;
 
+    virtual void cuts()=0;
+
 
 public:
 

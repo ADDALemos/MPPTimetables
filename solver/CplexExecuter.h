@@ -703,6 +703,24 @@ private:
         }
     }
 
+    void cuts() {
+        for (int i = 0; i < instance->getNumClasses(); ++i) {
+            int r = 0, r1 = 0;
+            for (std::map<Room, int>::const_iterator it = instance->getClasses()[i]->getPossibleRooms().begin();
+                 it != instance->getClasses()[i]->getPossibleRooms().end(); it++) {
+                for (std::map<Room, int>::const_iterator it1 = it++;
+                     it1 != instance->getClasses()[i]->getPossibleRooms().end(); it1++) {
+                    if (it->first.getCapacity() == it1->first.getCapacity())
+                        model.add(roomLecture[i][r] >= roomLecture[i][r1]);
+                    r1++;
+                }
+                r++;
+
+
+            }
+        }
+    }
+
 
 
 

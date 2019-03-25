@@ -2,8 +2,8 @@
 // Created by Alexandre Lemos on 09/01/2019.
 //
 
-#ifndef PROJECT_ONEVARGUROBIEXECUTER_H
-#define PROJECT_ONEVARGUROBIEXECUTER_H
+#ifndef PROJECT_INTEGERMODELGUROBIEXECUTER_H
+#define PROJECT_INTEGERMODELGUROBIEXECUTER_H
 
 
 
@@ -13,7 +13,7 @@
 #include "../solver/GurobiExecuter.h"
 
 
-class OneVarGurobiExecuter : public GurobiExecuter {
+class IntegerModelGurobiExecuter : public GurobiExecuter {
 
 protected:
     GRBVar **timetable;
@@ -619,6 +619,25 @@ private:
 
 
 private:
+
+    void cuts() {
+        for (int i = 0; i < instance->getNumClasses(); ++i) {
+            int r = 0, r1 = 0;
+            for (std::map<Room, int>::const_iterator it = instance->getClasses()[i]->getPossibleRooms().begin();
+                 it != instance->getClasses()[i]->getPossibleRooms().end(); it++) {
+                for (std::map<Room, int>::const_iterator it1 = it++;
+                     it1 != instance->getClasses()[i]->getPossibleRooms().end(); it1++) {
+                    if (it->first.getCapacity() == it1->first.getCapacity())
+                        model->addConstr(timetable[i][r] >= timetable[i][r1]);
+                    r1++;
+                }
+                r++;
+
+
+            }
+        }
+
+    }
 
     void printdistanceToSolutionRooms(bool w) {}
 

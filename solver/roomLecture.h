@@ -28,6 +28,8 @@ public:
 
     virtual bool isStatic()=0;
 
+    virtual void cuts()=0;
+
     virtual void oneLectureRoomConflict(GRBVar **order)=0;
 
     bool **getBool() {}

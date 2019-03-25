@@ -23,6 +23,10 @@ protected:
 public:
     virtual void definedAuxVar()= 0;
 
+    void cuts() {
+        roomLecture->cuts();
+    }
+
 
     void printConfiguration() {
         std::cout << "Two variable: type bool for schedule" << std::endl;

@@ -188,6 +188,8 @@ public:
     virtual void minimizeDifferenceSeatedStudents()= 0;
 
 
+    virtual void cuts()=0;
+
 public:
 
     int **getSolutionRoom() const {

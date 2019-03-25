@@ -19,9 +19,9 @@
 #include "solver/GurobiExecuter.h"
 #include "randomGenerator/Perturbation.h"
 #include "stats/Stats.h"
-#include "solver/BinaryOnlyGurobiExecuter.h"
-#include "solver/OneVarGurobiExecuter.h"
-#include "solver/IntegerTimeGurobiExecuter.h"
+#include "solver/BinaryModelGurobiExecuter.h"
+#include "solver/IntegerModelGurobiExecuter.h"
+#include "solver/MixedModelGurobiExecuter.h"
 #include "solver/LocalSearch.h"
 
 using namespace rapidxml;
@@ -43,6 +43,7 @@ void addPossibleRooms(Class *c, Instance *instance);
 
 
 bool quiet = false; //Print info
+bool cuts = false;
 int main(int argc, char **argv) {
     clock_t tStart = clock();
 
@@ -51,25 +52,29 @@ int main(int argc, char **argv) {
     Instance *instance = readInputXML(argv[1]);
     if (!quiet) std::cout << "Starting Reading File: " << argv[2] << std::endl;
     readOutputXML(argv[2], instance);
-    //if (!quiet) std::cout << "Generating Perturbations based on the file: " << argv[3] << std::endl;
-    //readPerturbations(argv[3], instance);
-    LocalSearch *g = new LocalSearch(3, 0.3, instance);
-    std::cout << "LocalSearch" << std::endl;
-    g->GRASP();
+    if (!quiet) std::cout << "Generating Perturbations based on the file: " << argv[3] << std::endl;
+    readPerturbations(argv[3], instance);
 
-    //printWeekStats(instance);
-    std::exit(42);
+    if (argc == 7) {
+        if (strcmp(argv[6], "-c") == 0)
+            cuts = true;
+    } else if (argc == 8) {
+        if (strcmp(argv[7], "-c") == 0)
+            cuts = true;
+    }
+
+
 
 
     if (!quiet) std::cout << "Generating ILP model" << std::endl;
     ILPExecuter *runner;
     if (strcmp(argv[5], "Integer") == 0) {
-        runner = new OneVarGurobiExecuter();
+        runner = new IntegerModelGurobiExecuter();
         runner->setInstance(instance);
     } else if (strcmp(argv[5], "Binary") == 0) {
-        runner = new BinaryOnlyGurobiExecuter(std::stoi(argv[6]), instance);
+        runner = new BinaryModelGurobiExecuter(std::stoi(argv[6]), instance);
     } else if (strcmp(argv[5], "Mixed") == 0) {
-        runner = new IntegerTimeGurobiExecuter(std::stoi(argv[6]), instance);
+        runner = new MixedModelGurobiExecuter(std::stoi(argv[6]), instance);
     } else if (strcmp(argv[5], "GRASP") == 0) {
         LocalSearch *g = new LocalSearch(std::stoi(argv[6]), std::stoi(argv[7]), instance);
         g->GRASP();
@@ -80,37 +85,37 @@ int main(int argc, char **argv) {
         std::exit(42);
     }
     runner->createSol();
-    std::cout << "Original Solution" << std::endl;
+    if (!quiet) std::cout << "Original Solution" << std::endl;
     runner->loadOutput();
     runner->definedRoomLecture();
 
     runner->definedLectureTime();
-    std::cout << "Defined var : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cout << "Defined var : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
     runner->definedAuxVar();
-    std::cout << "Defined Auxvar : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cout << "Defined Auxvar : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
     runner->oneLectureperSlot();
-    std::cout << "LectureperSlot : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cout << "LectureperSlot : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
-    //runner->saveEncoding();
+    if (cuts) runner->cuts();
     runner->roomClose();
     runner->slotClose();
     runner->teacher();
-    std::cout << "Teacher : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cout << "Teacher : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
     runner->assignmentInvalid();
     runner->oneLectureRoom();
-    std::cout << "Lecture : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cout << "Lecture : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
 
     runner->studentConflictSolution();
-    std::cout << "Student : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cout << "Student : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
 
     runner->oneLectureRoomConflict();
-    std::cout << "Room : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cout << "Room : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
 
     runner->slackStudent();
-    std::cout << "Slack : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cout << "Slack : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
 
     if (strcmp(argv[4], "Hamming") == 0) {
@@ -124,18 +129,17 @@ int main(int argc, char **argv) {
         runner->optimizeGapStudentsTimetable();
     }
 
-    std::cerr << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cerr << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
 
     if (!quiet) std::cout << "Running ILP solver" << std::endl;
     double v = runner->run(true);
-    std::cerr << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cerr << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
 
-    //writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10Out.xml", instance,(double) (clock() - tStart) / CLOCKS_PER_SEC);
+    writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10Out.xml", instance,
+                   (double) (clock() - tStart) / CLOCKS_PER_SEC);
 
-
-    //printf("Time taken: %.2fs\n", (double) (clock() - tStart) / CLOCKS_PER_SEC);
 
 
     return 0;
