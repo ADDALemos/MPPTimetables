@@ -1,6 +1,6 @@
 # How to run the project
 
-`./timetabler OriginalProblem.xml OriginalSolution.xml DisruptionsProfile.p Distance_Metric Model[Boolean|Integer|Mixed|GRASP|LNS] [model_parameters] [-c] [-w]`
+`./timetabler OriginalProblem.xml OriginalSolution.xml DisruptionsProfile.p Distance_Metric[Hamming|Weighted|GAP] Model[Boolean|Integer|Mixed|GRASP|LNS] [model_parameters] [-c] [-w]`
 
 This will generate a valid solution in the output folder. The results is encoded using [ITC-2019 XML format](https://www.itc2019.org/home).
 
@@ -16,7 +16,8 @@ The solution for the data instance was to be encoded using [ITC-2019 XML format]
 
 ## Disruptions Profiles
 
-The file with the rules to randomly generate the disruptions. 
+The file with the rules to randomly generate the disruptions.
+ 
 ### Format
 The format is separated into four types of disruptions due to their common characteristics. 
 
