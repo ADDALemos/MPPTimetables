@@ -44,6 +44,8 @@ void addPossibleRooms(Class *c, Instance *instance);
 
 bool quiet = false; //Print info
 bool cuts = false;
+bool warm = false;
+
 int main(int argc, char **argv) {
     clock_t tStart = clock();
 
@@ -61,10 +63,20 @@ int main(int argc, char **argv) {
     } else if (argc == 8) {
         if (strcmp(argv[7], "-c") == 0)
             cuts = true;
+    } else if (argc == 9) {
+        if (strcmp(argv[7], "-c") == 0)
+            cuts = true;
     }
-
-
-
+    if (argc == 7) {
+        if (strcmp(argv[6], "-w") == 0)
+            warm = true;
+    } else if (argc == 8) {
+        if (strcmp(argv[7], "-w") == 0)
+            warm = true;
+    } else if (argc == 9) {
+        if (strcmp(argv[8], "-w") == 0)
+            warm = true;
+    }
 
     if (!quiet) std::cout << "Generating ILP model" << std::endl;
     ILPExecuter *runner;
@@ -133,7 +145,7 @@ int main(int argc, char **argv) {
 
 
     if (!quiet) std::cout << "Running ILP solver" << std::endl;
-    double v = runner->run(true);
+    double v = runner->run(warm);
     if (!quiet) std::cerr << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
 

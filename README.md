@@ -1,6 +1,6 @@
 # How to run the project
 
-`./timetabler OriginalProblem.xml OriginalSolution.xml DisruptionsProfile.p Distance_Metric Model[Boolean|Integer|Mixed|GRASP|LNS] [model_parameters] [-c]`
+`./timetabler OriginalProblem.xml OriginalSolution.xml DisruptionsProfile.p Distance_Metric Model[Boolean|Integer|Mixed|GRASP|LNS] [model_parameters] [-c] [-w]`
 
 This will generate a valid solution in the output folder. The results is encoded using [ITC-2019 XML format](https://www.itc2019.org/home).
 
@@ -59,6 +59,9 @@ The three LP models are:
    
    To activate symmetry cuts run with the flag -c.
    
+   ## Warm Start
+   
+   To activate symmetry cuts run with the flag -w.
     
    # Dependencies
    
