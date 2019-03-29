@@ -62,7 +62,7 @@ The three LP models are:
    
    ## Warm Start
    
-   To activate symmetry cuts run with the flag -w.
+   To activate the warm start procedure run with the flag -w.
     
    # Dependencies
    
