@@ -11,8 +11,12 @@
 class roomLecture {
 protected:
     Instance *instance;
+    int currentW;
+
 public:
-    roomLecture(Instance *instance) : instance(instance) {}
+    virtual void loadPreviousWeekSolution(int **room) =0;
+
+    roomLecture(Instance *instance, int currentW) : instance(instance), currentW(currentW) {}
 
     virtual void definedRoomLecture() =0;
 
@@ -35,6 +39,8 @@ public:
     bool **getBool() {}
 
     GRBVar **getGRB() {}
+
+    void force(int **room, GRBVar *le, int ***lect) {}
 
 
 };

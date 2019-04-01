@@ -23,6 +23,20 @@ protected:
 
 public:
 
+    void loadPreviousWeekSolution(int ***time, int **room) {
+        for (int d = 0; d < instance->getNdays(); ++d) {
+            for (int t = 0; t < instance->getSlotsperday(); ++t) {
+                for (int i = 0; i < instance->getNumClasses(); ++i) {
+                    for (int r = 0; r < instance->getClasses()[i]->getPossibleRooms().size(); ++r) {
+                        if (time[d][t][i] && room[i][r])
+                            model->addConstr(timetable[i][r] == (d * instance->getSlotsperday()) + t);
+                    }
+                }
+            }
+
+        }
+    }
+
     void definedAuxVar() {
         try {
 

@@ -26,7 +26,8 @@ private:
     int min = -1, max = -1;
     unsigned int nClasses = 0;
     std::vector<Class *> classes;
-
+    std::map<int, std::vector<Class *>> classesWeek;
+    std::map<int, std::set<int>> classesWeekID;
     std::set<int> uva;
     std::set<int> incorrentAssignments;
 
@@ -233,12 +234,36 @@ public:
 
     }
 
+    bool classesbyWeekComparison(int oldweek, int newweek) {
+        std::set<int> idOLD = classesWeekID[oldweek];
+        std::set<int> idNEW = classesWeekID[newweek];
+        if (idNEW.size() != idOLD.size())
+            return false;
+        for (std::set<int>::iterator it = idOLD.begin(); it != idOLD.end(); ++it) {
+            if (idNEW.find(*it) == idNEW.end())
+                return false;
+        }
+        return true;
+    }
+
     std::vector<Class *> getClassesWeek(int w) {
+        if (w == -1)
+            return classes;
+        return classesWeek[w];
+    }
+
+    std::vector<Class *> computeClassesWeek(int w) {
         std::vector<Class *> result;
         for (std::map<std::string, Course *>::iterator i = courses.begin(); i != courses.end(); ++i) {
             std::vector<Class *> temp = (*i).second->getClassesWeek(w);
             result.insert(result.end(), temp.begin(), temp.end());
         }
+        std::set<int> ids;
+        for (int j = 0; j < result.size(); ++j) {
+            ids.insert(result[j]->getId());
+        }
+        classesWeekID.insert(std::pair<int, std::set<int>>(w, ids));
+        classesWeek.insert(std::pair<int, std::vector<Class *>>(w, result));
         return result;
 
     }

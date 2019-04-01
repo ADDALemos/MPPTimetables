@@ -22,6 +22,7 @@ class ILPExecuter {
 
 protected:
     Instance *instance;
+    int currentW = -1;
 
 public:
 
@@ -136,6 +137,8 @@ public:
 
     virtual void saveEncoding()= 0;
 
+    virtual void loadPreviousWeekSolution(int ***time, int **room)=0;
+
 
     /**
      * Creates a hard constriant to the number of students.
@@ -189,6 +192,18 @@ public:
 
 
     virtual void cuts()=0;
+
+    bool run2019(bool warm) {
+        return false;
+    }
+
+    void restart() {
+
+    }
+
+    void force() {
+
+    }
 
 public:
 
@@ -245,6 +260,13 @@ public:
 
     }
 
+    int getCurrrentW() const {
+        return currentW;
+    }
+
+    void setCurrrentW(int currrentW) {
+        ILPExecuter::currentW = currrentW;
+    }
 
 protected:
     int **solutionRoom;

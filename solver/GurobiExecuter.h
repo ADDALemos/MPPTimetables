@@ -16,10 +16,9 @@
 
 class GurobiExecuter : public ILPExecuter {
 
-
-
-
 public:
+    //The variables must be defined beforehand!
+    virtual void loadPreviousWeekSolution(int ***time, int **room) =0;
 
     virtual void definedAuxVar()= 0;
 
@@ -263,6 +262,10 @@ public:
         //+distanceToSolutionLectures(oldTime, weighted)
         model->setObjective(distanceToSolutionRooms(oldRoom, weighted), GRB_MINIMIZE);
 
+    }
+
+    void restart() {
+        restartModel();
     }
 
     /**

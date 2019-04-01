@@ -2,7 +2,7 @@
 // Created by Alexandre Lemos on 09/01/2019.
 //
 
-#ifndef PROJECT_MIXEDMODELEGUROBIEXECUTER_H
+#ifndef PROJECT_MIXEDMODELGUROBIEXECUTER_H
 #define PROJECT_MIXEDMODELGUROBIEXECUTER_H
 
 #include <exception>
@@ -19,28 +19,43 @@ class MixedModelGurobiExecuter : public TwoVarGurobiExecuter {
 
 
 public:
+
+    void loadPreviousWeekSolution(int ***time, int **room) {
+        for (int d = 0; d < instance->getNdays(); ++d) {
+            for (int t = 0; t < instance->getSlotsperday(); ++t) {
+                for (int i = 0; i < instance->getClassesWeek(currentW).size(); ++i) {
+                    if (time[d][t][instance->getClassesWeek(currentW)[i]->getOrderID()])
+                        model->addConstr(lectureTime[i] == (d * instance->getSlotsperday()) + t);
+                }
+            }
+
+        }
+        roomLecture->loadPreviousWeekSolution(room);
+    }
+
+
     MixedModelGurobiExecuter(Instance *i) {
         setInstance(i);
-        roomLecture = new roomLectureGRB(instance);
+        roomLecture = new roomLectureGRB(instance, currentW);
     }
 
     MixedModelGurobiExecuter(bool isStatic, Instance *i) {
         setInstance(i);
         if (isStatic)
-            roomLecture = new roomLectureBool(instance);
+            roomLecture = new roomLectureBool(instance, currentW);
         else
-            roomLecture = new roomLectureGRB(instance);
+            roomLecture = new roomLectureGRB(instance, currentW);
     }
 
     void definedAuxVar() {
         try {
 
 
-            for (int j = 0; j < instance->getNumClasses(); j++) {
+            for (int j = 0; j < instance->getClassesWeek(currentW).size(); j++) {
                 model->addConstr(lectureTime[j] + instance->getClasses()[j]->getLenght() <=
                                  (((lectureTime[j] / instance->getSlotsperday()) + 1) * instance->getSlotsperday()) -
                                  1);
-                for (int j1 = 1; j1 < instance->getNumClasses(); j1++) {
+                for (int j1 = 1; j1 < instance->getClassesWeek(currentW).size(); j1++) {
                     //std::cout<<"here "<<(double) (clock()) / CLOCKS_PER_SEC<<" "<<j1<<std::endl;
                     model->addGenConstrIndicator(order[j][j1], 1,
                                                  (lectureTime[j] +
@@ -74,14 +89,14 @@ public:
 
 
     void definedLectureTime() {
-        lectureTime = new GRBVar[instance->getNumClasses()];
-        order = new GRBVar *[instance->getNumClasses()];
-        for (int k = 0; k < instance->getNumClasses(); ++k) {
+        lectureTime = new GRBVar[instance->getClassesWeek(currentW).size()];
+        order = new GRBVar *[instance->getClassesWeek(currentW).size()];
+        for (int k = 0; k < instance->getClassesWeek(currentW).size(); ++k) {
             std::string name = "A_" + itos(k);
             lectureTime[k] = model->addVar(0.0, instance->getNdays() * instance->getSlotsperday(), 0.0,
                                            GRB_INTEGER, name);
-            order[k] = new GRBVar[instance->getNumClasses()];
-            for (int j1 = 0; j1 < instance->getNumClasses(); j1++) {
+            order[k] = new GRBVar[instance->getClassesWeek(currentW).size()];
+            for (int j1 = 0; j1 < instance->getClassesWeek(currentW).size(); j1++) {
                 order[k][j1] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
                                              "order" + itos(k) + "_" + itos(j1));
             }
@@ -200,13 +215,13 @@ public:
     }
 
 
-    /**
+    /** TODO::
     * Ensure Room closed in a day cannot be used
     */
     void roomClosebyDay() {
         for (int d = 0; d < instance->getNdays(); ++d) {
-                for (int j = 0; j < instance->getNumClasses(); ++j) {
-                    for (int i = 0; i < instance->getClasses()[j]->getPossibleRooms().size(); i++) {
+            for (int j = 0; j < instance->getClassesWeek(currentW).size(); ++j) {
+                for (int i = 0; i < instance->getClassesWeek(currentW)[j]->getPossibleRooms().size(); i++) {
                         if (instance->isRoomBlockedbyDay(i + 1, d) && !roomLecture->isStatic()) {
                             GRBVar roomC = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
                                                          "roomC_" + itos(d) + "_" + itos(i) + "_" + itos(j));
@@ -233,7 +248,7 @@ public:
     */
     void slotClose() {
         try {
-            for (int i = 0; i < instance->getNumClasses(); i++) {
+            for (int i = 0; i < instance->getClassesWeek(currentW).size(); i++) {
                 for (int t = 0; t < instance->getNdays() * instance->getSlotsperday(); ++t) {
                     if (instance->isTimeUnavailable(t)) {
                         GRBVar temp = model->addVar(0, 1.0, 0.0, GRB_BINARY);
@@ -262,7 +277,7 @@ public:
         int value = 0;
         for (int j = 0; j < instance->getNdays(); ++j) {
             for (int i = 0; i < instance->getSlotsperday(); ++i) {
-                for (int k = 0; k < instance->getNumClasses(); ++k) {
+                for (int k = 0; k < instance->getClassesWeek(currentW).size(); ++k) {
                     if (solutionTime[j][i][k] == 1) {
                         value = j + i;
                         goto label;
@@ -274,7 +289,7 @@ public:
 
         }
         label:
-        for (int i = 0; i < instance->getNumClasses(); ++i) {
+        for (int i = 0; i < instance->getClassesWeek(currentW).size(); ++i) {
             if (instance->isIncorrectAssignment(i)) {
                 GRBLinExpr temp = 0;
                 for (int l = 0; l < instance->getNumRoom(); ++l) {
@@ -282,7 +297,6 @@ public:
                         GRBVar t = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
                         model->addGenConstrIndicator(t, 1, lectureTime[i] == value);
                         // model->addGenConstrIndicator(t, 0, lectureTime[i] <= value - 1);
-                        // model->addGenConstrIndicator(t, 0, lectureTime[i] >= value + 1);
                         temp = t;// + roomLecture[l][i];
                         model->addConstr(temp <= 1);
                         break;
@@ -305,7 +319,8 @@ public:
                     GRBLinExpr conflict = 0;
                     for (int c = 0; c < sub->second[i]->getClasses().size(); c++) {
                         for (int c1 = 0; c1 < sub->second[i]->getClasses().size(); c1++) {
-                            if (c1 != c) {
+                            if (c1 != c && sub->second[i]->getClasses()[c]->isActive(currentW)
+                                && sub->second[i]->getClasses()[c1]->isActive(currentW)) {
 
                                 GRBVar tempT = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
                                                              "tempT" + it->first + "_" + itos(i) + "_" +
@@ -606,6 +621,10 @@ private:
 
         }
 
+    }
+
+    void force() {
+        roomLecture->force(solutionRoom, lectureTime, solutionTime);
     }
 
 

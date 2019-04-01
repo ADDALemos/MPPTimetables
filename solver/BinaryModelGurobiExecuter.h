@@ -21,17 +21,30 @@ class BinaryModelGurobiExecuter : public TwoVarGurobiExecuter {
 
 
 public:
+
+    void loadPreviousWeekSolution(int ***time, int **room) {
+        for (int d = 0; d < instance->getNdays(); ++d) {
+            for (int t = 0; t < instance->getSlotsperday(); ++t) {
+                for (int i = 0; i < instance->getNumClasses(); ++i) {
+                    model->addConstr(lectureTime[d][t][i] == time[d][t][i]);
+                }
+            }
+
+        }
+        roomLecture->loadPreviousWeekSolution(room);
+    }
+
     BinaryModelGurobiExecuter(Instance *i) {
         setInstance(i);
-        roomLecture = new roomLectureGRB(instance);
+        roomLecture = new roomLectureGRB(instance, currentW);
     }
 
     BinaryModelGurobiExecuter(bool isStatic, Instance *i) {
         setInstance(i);
         if (isStatic)
-            roomLecture = new roomLectureBool(instance);
+            roomLecture = new roomLectureBool(instance, currentW);
         else
-            roomLecture = new roomLectureGRB(instance);
+            roomLecture = new roomLectureGRB(instance, currentW);
     }
 
     void definedAuxVar() {

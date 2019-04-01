@@ -71,6 +71,12 @@ class Lecture {
         return os;
     }
 
+    bool isActive(int w) {
+        if (weeks[w] == '1')
+            return true;
+        return false;
+    }
+
     Lecture(int id, char *doubleLec) {
         if (strcmp(doubleLec, "yes") == 0)
             doubleL = true;

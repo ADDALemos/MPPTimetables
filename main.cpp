@@ -45,6 +45,7 @@ void addPossibleRooms(Class *c, Instance *instance);
 bool quiet = false; //Print info
 bool cuts = false;
 bool warm = false;
+bool opt = false;
 
 int main(int argc, char **argv) {
     clock_t tStart = clock();
@@ -52,10 +53,10 @@ int main(int argc, char **argv) {
 
     if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
     Instance *instance = readInputXML(argv[1]);
-    if (!quiet) std::cout << "Starting Reading File: " << argv[2] << std::endl;
-    readOutputXML(argv[2], instance);
-    if (!quiet) std::cout << "Generating Perturbations based on the file: " << argv[3] << std::endl;
-    readPerturbations(argv[3], instance);
+    //if (!quiet) std::cout << "Starting Reading File: " << argv[2] << std::endl;
+    //readOutputXML(argv[2], instance);
+    //if (!quiet) std::cout << "Generating Perturbations based on the file: " << argv[3] << std::endl;
+    //readPerturbations(argv[3], instance);
 
     if (argc == 7) {
         if (strcmp(argv[6], "-c") == 0)
@@ -78,6 +79,7 @@ int main(int argc, char **argv) {
             warm = true;
     }
 
+
     if (!quiet) std::cout << "Generating ILP model" << std::endl;
     ILPExecuter *runner;
     if (strcmp(argv[5], "Integer") == 0) {
@@ -96,56 +98,104 @@ int main(int argc, char **argv) {
         g->LNS();
         std::exit(42);
     }
+
+
+    int i = 0;
+    int iold = 0;
+    while (i < instance->getNweek()) {
+        if (!quiet) std::cout << "Week: " << i << " " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+
+        if (iold <= i)
+            instance->computeClassesWeek(i);
+        runner->restart();
+        runner->setCurrrentW(i);
+        runner->definedRoomLecture();
+        runner->definedLectureTime();
+        if (iold > 0) {
+            while (instance->classesbyWeekComparison(i - 1, i)) {
+                if (!quiet) std::cout << "Compacting " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+                iold = i;
+                i++;
+            }
+            if (!quiet) std::cout << "Compacting: Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+            runner->loadPreviousWeekSolution(runner->getSolutionTime(), runner->getSolutionRoom());
+            if (iold > i) {
+                if (!quiet) std::cout << "Force " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+                runner->force();
+                if (!quiet) std::cout << "Force: Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+            }
+        }
+        runner->createSol();
+
+        if (!quiet) std::cout << "Defined var : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        runner->definedAuxVar();
+        if (!quiet) std::cout << "Defined Auxvar : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        runner->oneLectureperSlot();
+        if (!quiet) std::cout << "LectureperSlot : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+
+        if (cuts) runner->cuts();
+        runner->roomClose();
+        runner->slotClose();
+        runner->teacher();
+        if (!quiet) std::cout << "Teacher : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        runner->assignmentInvalid();
+        runner->oneLectureRoom();
+        if (!quiet) std::cout << "Lecture : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+
+
+        runner->studentConflictSolution();
+        if (!quiet) std::cout << "Student : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+
+
+        runner->oneLectureRoomConflict();
+        if (!quiet) std::cout << "Room : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+
+
+        runner->slackStudent();
+        if (!quiet) std::cout << "Slack : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+
+        if (opt) {
+            if (strcmp(argv[4], "Hamming") == 0) {
+                if (!quiet) std::cout << "Add optimization: Hamming Distance" << std::endl;
+                runner->distanceToSolution(false);
+            } else if (strcmp(argv[4], "Weighted") == 0) {
+                if (!quiet) std::cout << "Add optimization: Weighted Hamming Distance" << std::endl;
+                runner->distanceToSolution(true);
+            } else if (strcmp(argv[4], "GAP") == 0) {
+                if (!quiet) std::cout << "Add optimization: GAP in a students Timetable" << std::endl;
+                runner->optimizeGapStudentsTimetable();
+            }
+        }
+        iold = i;
+        if (!quiet) std::cout << "Execute" << std::endl;
+        if (runner->run2019(warm)) {
+            i++;
+        } else {
+            i--;
+        }
+    }
+
+
+
+
+
+
+
+
+
     runner->createSol();
     if (!quiet) std::cout << "Original Solution" << std::endl;
     runner->loadOutput();
     runner->definedRoomLecture();
 
     runner->definedLectureTime();
-    if (!quiet) std::cout << "Defined var : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
-    runner->definedAuxVar();
-    if (!quiet) std::cout << "Defined Auxvar : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
-    runner->oneLectureperSlot();
-    if (!quiet) std::cout << "LectureperSlot : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
-    if (cuts) runner->cuts();
-    runner->roomClose();
-    runner->slotClose();
-    runner->teacher();
-    if (!quiet) std::cout << "Teacher : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
-    runner->assignmentInvalid();
-    runner->oneLectureRoom();
-    if (!quiet) std::cout << "Lecture : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
-
-
-    runner->studentConflictSolution();
-    if (!quiet) std::cout << "Student : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
-
-
-    runner->oneLectureRoomConflict();
-    if (!quiet) std::cout << "Room : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
-
-
-    runner->slackStudent();
-    if (!quiet) std::cout << "Slack : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
-
-
-    if (strcmp(argv[4], "Hamming") == 0) {
-        if (!quiet) std::cout << "Add optimization: Hamming Distance" << std::endl;
-        runner->distanceToSolution(false);
-    } else if (strcmp(argv[4], "Weighted") == 0) {
-        if (!quiet) std::cout << "Add optimization: Weighted Hamming Distance" << std::endl;
-        runner->distanceToSolution(true);
-    } else if (strcmp(argv[4], "GAP") == 0) {
-        if (!quiet) std::cout << "Add optimization: GAP in a students Timetable" << std::endl;
-        runner->optimizeGapStudentsTimetable();
-    }
 
     if (!quiet) std::cerr << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
 
     if (!quiet) std::cout << "Running ILP solver" << std::endl;
-    double v = runner->run(warm);
+    double v = runner->run(true);
     if (!quiet) std::cerr << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
 

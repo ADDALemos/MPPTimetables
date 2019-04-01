@@ -201,6 +201,10 @@ public:
         return possibleRooms;
     }
 
+    bool isActive(int w) {
+        return lectures[0]->isActive(w);
+    }
+
     void
     setPossibleRooms(const std::map<Room, int> &possibleRooms) {
         Class::possibleRooms = possibleRooms;

@@ -24,5 +24,9 @@ void printError(const GRBException &e, std::string local) {
     std::cout << e.getMessage() << std::endl;
 }
 
+void restartModel() {
+    model = new GRBModel(env);
+}
+
 
 #endif //PROJECT_GUROBIAUX_H

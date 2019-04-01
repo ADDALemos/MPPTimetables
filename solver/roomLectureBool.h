@@ -14,16 +14,21 @@
 class roomLectureBool : public roomLecture {
     bool **vector;
 public:
+    void loadPreviousWeekSolution(int **room) {
+        // left blank
+    }
+
     void cuts() {
         // left blank
     }
-    roomLectureBool(Instance *instance) : roomLecture(instance) {}
+
+    roomLectureBool(Instance *instance, int w) : roomLecture(instance, w) {}
 
     void slackStudent() {}
 
     void definedRoomLecture() {
-        vector = new bool *[instance->getNumClasses()];
-        for (int i = 0; i < instance->getNumClasses(); i++) {
+        vector = new bool *[instance->getClassesWeek(currentW).size()];
+        for (int i = 0; i < instance->getClassesWeek(currentW).size(); i++) {
             vector[i] = new bool[instance->getClasses()[i]->getPossibleRooms().size()];
 
         }
@@ -36,11 +41,11 @@ public:
     bool **getBool() { return vector; }
 
     void warmStart(int **sol) {
-        for (int l = 0; l < instance->getNumClasses(); ++l) {
+        for (int l = 0; l < instance->getClassesWeek(currentW).size(); ++l) {
             int rs = 0, rg = 0;
             for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
                  it != instance->getRooms().end(); it++) {
-                if (instance->getClasses()[l]->containsRoom(instance->getRoom(rs + 1))) {
+                if (instance->getClassesWeek(currentW)[l]->containsRoom(instance->getRoom(rs + 1))) {
                     vector[l][rg] = sol[rs][l];
                     rg++;
                 }
@@ -52,14 +57,14 @@ public:
     void oneLectureRoomConflict(GRBVar **order) {
         try {
 
-            for (int j = 0; j < instance->getNumClasses(); j++) {
+            for (int j = 0; j < instance->getClassesWeek(currentW).size(); j++) {
                 int i1 = 0, i = 0;
                 for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
                      it != instance->getRooms().end(); it++) {
-                    if (instance->getClasses()[j]->containsRoom(instance->getRoom(i1 + 1))) {
-                        for (int j1 = 1; j1 < instance->getNumClasses(); j1++) {
-                            if (instance->getClasses()[j]->containsRoom(instance->getRoom(i1 + 1)) &&
-                                instance->getClasses()[j1]->containsRoom(instance->getRoom(i1 + 1))) {
+                    if (instance->getClassesWeek(currentW)[j]->containsRoom(instance->getRoom(i1 + 1))) {
+                        for (int j1 = 1; j1 < instance->getClassesWeek(currentW).size(); j1++) {
+                            if (instance->getClassesWeek(currentW)[j]->containsRoom(instance->getRoom(i1 + 1)) &&
+                                instance->getClassesWeek(currentW)[j1]->containsRoom(instance->getRoom(i1 + 1))) {
                                 GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
                                                              "temp" + itos(i) + "_" + itos(j) + "_" +
                                                              itos(j1));
