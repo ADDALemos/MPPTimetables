@@ -10,7 +10,7 @@ This will generate a valid solution in the output folder. The results is encoded
 
 The data instance of the problem was to be encoded using [ITC-2019 XML format](https://www.itc2019.org/home). It is possible to use the XML encoding of [ITC-2007](http://www.cs.qub.ac.uk/itc2007/) as well.
 
-## OriginalProblem
+## OriginalSolution
 
 The solution for the data instance was to be encoded using [ITC-2019 XML format](https://www.itc2019.org/home). It is possible to use the XML encoding of [ITC-2007](http://www.cs.qub.ac.uk/itc2007/) as well.
 
