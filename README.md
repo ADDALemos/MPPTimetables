@@ -1,6 +1,6 @@
 # How to run the project
 
-`./timetabler OriginalProblem.xml OriginalSolution.xml DisruptionsProfile.p Distance_Metric[Hamming|Weighted|GAP] Model[Boolean|Integer|Mixed|GRASP|LNS] [model_parameters] [-c] [-w]`
+`./timetabler OriginalProblem.xml OriginalSolution.xml DisruptionsProfile.p Distance_Metric[Hamming|Weighted|GAP] Model[Boolean|Mixed|GRASP|LNS] [model_parameters] [-c] [-w]`
 
 This will generate a valid solution in the output folder. The results is encoded using [ITC-2019 XML format](https://www.itc2019.org/home).
 
@@ -35,11 +35,10 @@ There are three distance metrics available:
  
 ## Model
 
-There are three LP models that require Gurobi and two local search methods.
+There are two LP models that require Gurobi and two local search methods.
 
-The three LP models are:
+The two LP models are:
   - Boolean Model - two Boolean variables
-  - Integer Model - one integer variable
   - Mixed Model - one integer and one Boolean variable
   
  The two local search methods:
@@ -86,10 +85,4 @@ The three LP models are:
    ## Disruptions Profiles
    
    The folder `data/Disruption/profiles/` contains disruptions learn from the timetables of the last 5 years of IST.
-   
-   # Authors
-   
-   [Alexandre Lemos](http://web.ist.utl.pt/ist173316/), [Pedro T. Monteiro](http://pedromonteiro.org/) and [Inês Lynce](http://sat.inesc-id.pt/~ines/).
-   # Contacts:
-   
-   If you have any comments or questions, please [contact us](mailto:ines.lynce@tecnico.ulisboa.pt;alexandre.lemos@tecnico.ulisboa.pt;pedro.tiago.monteiro@tecnico.pt;?subject=[Disruption_Timetables]).
+  
