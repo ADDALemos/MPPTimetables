@@ -35,11 +35,10 @@ There are three distance metrics available:
  
 ## Model
 
-There are three LP models that require Gurobi and two local search methods.
+There are two LP models that require Gurobi and two local search methods.
 
-The three LP models are:
+The two LP models are:
   - Boolean Model - two Boolean variables
-  - Integer Model - one integer variable
   - Mixed Model - one integer and one Boolean variable
   
  The two local search methods:
