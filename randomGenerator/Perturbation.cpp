@@ -294,7 +294,7 @@ void Perturbation::addNewCurriculum(Instance *i, double lecture, double lenght, 
     std::vector<Subpart *> vector;
     for (int j = 0; j < lecture; ++j) {
         std::vector<Class *> cl;
-        Class *c = new Class(i->getClasses().size() + 1, student, new Lecture(lenght));
+        Class *c = new Class(i->getClasses().size() + 1, student, new Lecture(lenght), std::map<Room, int>(), 0);
         cl.push_back(c);
         Subpart *s = new Subpart(" " + (i->getClasses().size() + 1), cl);
         vector.push_back(s);

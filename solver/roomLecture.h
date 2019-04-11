@@ -36,11 +36,15 @@ public:
 
     virtual void oneLectureRoomConflict(GRBVar **order)=0;
 
-    bool **getBool() {}
+    virtual bool **getBool() {}
 
-    GRBVar **getGRB() {}
+    virtual GRBVar **getGRB() {}
 
-    void force(int **room, GRBVar *le, int ***lect) {}
+    virtual void force(int **room, GRBVar *le, int ***lect) {}
+
+    virtual void setCurrrentW(int currrentW) {
+        currentW = currrentW;
+    }
 
 
 };

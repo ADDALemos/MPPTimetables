@@ -101,7 +101,7 @@ public:
         return id < rhs.id;
     }
 
-    Room(int &i, std::string name, int i1, std::map<int, int> map,
+    Room(int i, std::string name, int i1, std::map<int, int> map,
          std::vector<Unavailability, std::allocator<Unavailability>> vector, std::string string)
             : id(i), name(name), capacity(i1), travel(map), slots(vector), type(string) {
 
@@ -118,6 +118,7 @@ public:
     Room(int id, char *name, int capcacity) : id(id), name(name), capacity(capcacity) {
 
     }
+
 };
 
 

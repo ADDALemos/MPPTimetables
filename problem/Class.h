@@ -16,6 +16,8 @@ class Class {
     bool modified = false;
     int id = 1;
     int orderID; //easy handle for the arrays of gurobi
+    std::vector<int> conv;//legal time to time slot
+
 private:
     int limit;//limit number of students
     int parent;
@@ -28,10 +30,11 @@ private:
     std::vector<int> student;
 
 public:
+    const std::vector<int, std::allocator<int>> &getConv() const {
+        return conv;
+    }
     bool isTaughtWeek(int w) {
-        if (lectures[0]->getWeeks()[w] == '1')
-            return true;
-        return false;
+        return lectures[0]->getWeeks()[w] == '1';
     }
 
     int getOrderID() const {
@@ -41,8 +44,9 @@ public:
     void setOrderID(int orderID) {
         Class::orderID = orderID;
     }
-    int getSteatedStudents() {
-        return (limit > student.size() ? student.size() : limit);
+
+    unsigned long getSteatedStudents() {
+        return (limit > student.size() ? student.size() : (unsigned long) limit);
     }
 
     const std::vector<int, std::allocator<int>> &getStudent() const {
@@ -93,7 +97,14 @@ public:
         Class::roomID = roomID;
     }
 
-    Class(int id, int limit, Lecture *pLecture) : id(id), limit(limit) {
+    Class(int id, int limit, std::vector<Lecture *, std::allocator<Lecture *>> pLecture, std::map<Room, int> map,
+          int order) : id(id), limit(limit), orderID(order) {
+        lectures = pLecture;
+        possibleRooms = map;
+    }
+
+    Class(int id, int limit, Lecture *pLecture, std::map<Room, int> map,
+          int order) : id(id), limit(limit), orderID(order) {
         lectures.push_back(pLecture);
     }
 
@@ -197,7 +208,7 @@ public:
         Class::lectures = lectures;
     }
 
-    const std::map<Room, int> getPossibleRooms() {
+    std::map<Room, int> getPossibleRooms() {
         return possibleRooms;
     }
 
@@ -210,7 +221,11 @@ public:
         Class::possibleRooms = possibleRooms;
     }
 
-
+    void converter() {
+        for (int i = 0; i < lectures.size(); ++i) {
+            conv.push_back(lectures[i]->getStart() - i);
+        }
+    }
 
 
     void addStudents(std::vector<int, std::allocator<int>> student) {

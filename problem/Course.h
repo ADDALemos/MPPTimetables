@@ -96,7 +96,7 @@ public:
         std::vector<Class *> list;
         for (int i = 0; i < numLect; ++i) {
             Lecture *l = new Lecture(count, doubleLec);
-            Class *c = new Class(count, student, l);
+            Class *c = new Class(count, student, l, std::map<Room, int>(), i);
             list.push_back(c);
             count++;
         }

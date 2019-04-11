@@ -20,12 +20,33 @@ class MixedModelGurobiExecuter : public TwoVarGurobiExecuter {
 
 public:
 
+    virtual void save() {
+        /*for (int j = 0; j < instance->getClassesWeek(currentW).size(); j++) {
+            int day = lectureTime[j].get(GRB_DoubleAttr_X) / instance->getSlotsperday();
+            int slot = lectureTime[j].get(GRB_DoubleAttr_X) - day * instance->getSlotsperday();
+            solutionTime[day][slot][j] = 1;
+        }
+        for (int i = 0; i < instance->getRooms().size(); i++) {
+            for (int j = 0; j < instance->getClassesWeek(currentW).size(); ++j) {
+                if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
+                    if (!roomLecture->isStatic())
+                        solutionRoom[i][j] = roomLecture->getGRB()[j][i].get(GRB_DoubleAttr_X);
+                }
+            }
+        }*/
+        switchSolutionTime();
+        switchSolutionRoom();
+
+
+    }
+
     void loadPreviousWeekSolution(int ***time, int **room) {
         for (int d = 0; d < instance->getNdays(); ++d) {
             for (int t = 0; t < instance->getSlotsperday(); ++t) {
                 for (int i = 0; i < instance->getClassesWeek(currentW).size(); ++i) {
-                    if (time[d][t][instance->getClassesWeek(currentW)[i]->getOrderID()])
+                    if (time[d][t][instance->getClassesWeek(currentW)[i]->getOrderID()]) {
                         model->addConstr(lectureTime[i] == (d * instance->getSlotsperday()) + t);
+                    }
                 }
             }
 
@@ -39,6 +60,11 @@ public:
         roomLecture = new roomLectureGRB(instance, currentW);
     }
 
+    void setCurrrentW(int currrentW) {
+        ILPExecuter::currentW = currrentW;
+        roomLecture->setCurrrentW(currrentW);
+    }
+
     MixedModelGurobiExecuter(bool isStatic, Instance *i) {
         setInstance(i);
         if (isStatic)
@@ -48,37 +74,7 @@ public:
     }
 
     void definedAuxVar() {
-        try {
 
-
-            for (int j = 0; j < instance->getClassesWeek(currentW).size(); j++) {
-                model->addConstr(lectureTime[j] + instance->getClasses()[j]->getLenght() <=
-                                 (((lectureTime[j] / instance->getSlotsperday()) + 1) * instance->getSlotsperday()) -
-                                 1);
-                for (int j1 = 1; j1 < instance->getClassesWeek(currentW).size(); j1++) {
-                    //std::cout<<"here "<<(double) (clock()) / CLOCKS_PER_SEC<<" "<<j1<<std::endl;
-                    model->addGenConstrIndicator(order[j][j1], 1,
-                                                 (lectureTime[j] +
-                                                  instance->getClasses()[j]->getLenght()) <=
-                                                 lectureTime[j1]);
-                    model->addGenConstrIndicator(order[j][j1], 0,
-                                                 (lectureTime[j] +
-                                                  instance->getClasses()[j]->getLenght() - 1) >=
-                                                 lectureTime[j1]);
-                    //std::cout<<"here "<<(double) (clock()) / CLOCKS_PER_SEC<<" "<<j1<<std::endl;
-                    model->addGenConstrIndicator(order[j1][j], 1,
-                                                 (lectureTime[j1] +
-                                                  instance->getClasses()[j1]->getLenght()) <=
-                                                 lectureTime[j]);
-                    model->addGenConstrIndicator(order[j1][j], 0,
-                                                 (lectureTime[j1] +
-                                                  instance->getClasses()[j1]->getLenght() - 1) >=
-                                                 lectureTime[j]);
-                }
-            }
-        } catch (GRBException e) {
-            printError(e, "definedAuxVar");
-        }
     }
 
     void printConfiguration() {
@@ -90,15 +86,32 @@ public:
 
     void definedLectureTime() {
         lectureTime = new GRBVar[instance->getClassesWeek(currentW).size()];
+
         order = new GRBVar *[instance->getClassesWeek(currentW).size()];
         for (int k = 0; k < instance->getClassesWeek(currentW).size(); ++k) {
-            std::string name = "A_" + itos(k);
-            lectureTime[k] = model->addVar(0.0, instance->getNdays() * instance->getSlotsperday(), 0.0,
-                                           GRB_INTEGER, name);
             order[k] = new GRBVar[instance->getClassesWeek(currentW).size()];
             for (int j1 = 0; j1 < instance->getClassesWeek(currentW).size(); j1++) {
+                if (k == 0) {
+                    std::string name = "A_" + itos(k);
+
+                    lectureTime[j1] = model->addVar(0.0, instance->getSlotsperday(), 0.0,
+                                                    GRB_INTEGER,
+                                                    name);//instance->getClassesWeek(currentW)[k]->getLectures().size()
+                    model->addConstr(lectureTime[j1] + instance->getClasses()[j1]->getLenght() <=
+                                     (((lectureTime[j1] / instance->getSlotsperday()) + 1) *
+                                      instance->getSlotsperday()) -
+                                     1);
+                }
                 order[k][j1] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
                                              "order" + itos(k) + "_" + itos(j1));
+                model->addGenConstrIndicator(order[k][j1], 1,
+                                             (lectureTime[k]
+                                              + instance->getClasses()[k]->getLenght()) <=
+                                             lectureTime[j1]);
+                model->addGenConstrIndicator(order[k][j1], 0,
+                                             (lectureTime[k] +
+                                              instance->getClasses()[k]->getLenght() - 1) >=
+                                             lectureTime[j1]);
             }
 
 
@@ -531,7 +544,7 @@ public:
     void printdistanceToSolutionLectures(bool w) {
         int temp = 0;
 
-        for (int j = 0; j < instance->getNumClasses(); j++) {
+        for (int j = 0; j < instance->getClassesWeek(currentW).size(); j++) {
             int day = lectureTime[j].get(GRB_DoubleAttr_X) / instance->getSlotsperday();
             int slot = lectureTime[j].get(GRB_DoubleAttr_X) - day * instance->getSlotsperday();
             temp += (w ? instance->getClasses()[j]->getLimit() : 1) * (solutionTime[day][slot][j] != 1);
@@ -609,15 +622,15 @@ private:
      */
 
     void switchSolutionTime() {
-        for (int i = 0; i < instance->getNumClasses(); i++) {
+        for (int i = 0; i < instance->getClassesWeek(currentW).size(); i++) {
             int day = lectureTime[i].get(GRB_DoubleAttr_X) / instance->getSlotsperday();
             int slot = lectureTime[i].get(GRB_DoubleAttr_X) - day * instance->getSlotsperday();
 
             solutionTime[day][slot][i] = 1;
-            for (int j = slot; j < instance->getClasses()[i]->getLenght(); ++j) {
-                instance->getClasses()[i]->setSolutionTime(j,
-                                                           strdup(std::to_string(day).c_str()));
-            }
+            instance->getClassesWeek(currentW)[i]->setSolutionTime(slot,
+                                                                   strdup(std::to_string(day).c_str()));
+
+
 
         }
 

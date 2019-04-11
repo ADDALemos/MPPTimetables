@@ -571,6 +571,10 @@ public:
 
     }
 
+    void compact() {
+        slotsperday = actualSpace();
+        ndays = actualSpaceDay();
+    }
 };
 
 

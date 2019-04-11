@@ -53,6 +53,9 @@ int main(int argc, char **argv) {
 
     if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
     Instance *instance = readInputXML(argv[1]);
+    if (!quiet) std::cout << "Compacting " << std::endl;
+    instance->compact();
+
     //if (!quiet) std::cout << "Starting Reading File: " << argv[2] << std::endl;
     //readOutputXML(argv[2], instance);
     //if (!quiet) std::cout << "Generating Perturbations based on the file: " << argv[3] << std::endl;
@@ -103,14 +106,26 @@ int main(int argc, char **argv) {
     int i = 0;
     int iold = 0;
     while (i < instance->getNweek()) {
+        if (i < 0) {
+            if (!quiet) std::cout << "No solution found " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+            std::exit(0);
+        }
         if (!quiet) std::cout << "Week: " << i << " " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
         if (iold <= i)
             instance->computeClassesWeek(i);
+        if (!quiet)
+            std::cout << "Computed week: " << i << " " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+
         runner->restart();
         runner->setCurrrentW(i);
+        if (!quiet) std::cout << "Defined Room Lect :  " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
         runner->definedRoomLecture();
+        if (!quiet)
+            std::cout << "Defined Room Lect : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
         runner->definedLectureTime();
+        if (!quiet) std::cout << "Defined var : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+
         if (iold > 0) {
             while (instance->classesbyWeekComparison(i - 1, i)) {
                 if (!quiet) std::cout << "Compacting " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
@@ -121,37 +136,44 @@ int main(int argc, char **argv) {
             runner->loadPreviousWeekSolution(runner->getSolutionTime(), runner->getSolutionRoom());
             if (iold > i) {
                 if (!quiet) std::cout << "Force " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
-                runner->force();
+                //runner->force();
                 if (!quiet) std::cout << "Force: Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
             }
         }
+        if (!quiet) std::cout << "While : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+
         runner->createSol();
 
-        if (!quiet) std::cout << "Defined var : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        if (!quiet) std::cout << "Sol: DONE " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+
+
         runner->definedAuxVar();
         if (!quiet) std::cout << "Defined Auxvar : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        runner->block();
+        if (!quiet) std::cout << "Block var : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+
         runner->oneLectureperSlot();
         if (!quiet) std::cout << "LectureperSlot : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
-        if (cuts) runner->cuts();
-        runner->roomClose();
-        runner->slotClose();
-        runner->teacher();
-        if (!quiet) std::cout << "Teacher : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
-        runner->assignmentInvalid();
+        //if (cuts) runner->cuts();
+        //runner->roomClose();
+        //runner->slotClose();
+        //runner->teacher();
+        //if (!quiet) std::cout << "Teacher : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        //runner->assignmentInvalid();
         runner->oneLectureRoom();
         if (!quiet) std::cout << "Lecture : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
 
-        runner->studentConflictSolution();
-        if (!quiet) std::cout << "Student : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        //runner->studentConflictSolution();
+        //if (!quiet) std::cout << "Student : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
 
         runner->oneLectureRoomConflict();
         if (!quiet) std::cout << "Room : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
 
-        runner->slackStudent();
+        //runner->slackStudent();
         if (!quiet) std::cout << "Slack : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
         if (opt) {
@@ -169,37 +191,15 @@ int main(int argc, char **argv) {
         iold = i;
         if (!quiet) std::cout << "Execute" << std::endl;
         if (runner->run2019(warm)) {
+            runner->save();
             i++;
         } else {
             i--;
         }
     }
-
-
-
-
-
-
-
-
-
-    runner->createSol();
-    if (!quiet) std::cout << "Original Solution" << std::endl;
-    runner->loadOutput();
-    runner->definedRoomLecture();
-
-    runner->definedLectureTime();
-
-
-    if (!quiet) std::cerr << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
-
-
-    if (!quiet) std::cout << "Running ILP solver" << std::endl;
-    double v = runner->run(true);
-    if (!quiet) std::cerr << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
-
-
-    writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/wbg-fal10Out.xml", instance,
+    if (!quiet) std::cout << "Solution Found: Writing output file" << std::endl;
+    writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + ".xml",
+                   instance,
                    (double) (clock() - tStart) / CLOCKS_PER_SEC);
 
 
@@ -273,8 +273,9 @@ void writeOutputXML(std::string filename, Instance *instance, double time) {
                 std::to_string(instance->getClasses()[c]->getSolStart()).c_str())));
         child->append_attribute(
                 doc.allocate_attribute("weeks", doc.allocate_string(instance->getClasses()[c]->getSolWeek().c_str())));
-        child->append_attribute(doc.allocate_attribute("room", doc.allocate_string(
-                std::to_string(instance->getClasses()[c]->getSolRoom()).c_str())));
+        if (instance->getClasses()[c]->getSolRoom() != -1)
+            child->append_attribute(doc.allocate_attribute("room", doc.allocate_string(
+                    instance->getRoom(instance->getClasses()[c]->getSolRoom()).getName().c_str())));
         for (int s = 0; s < instance->getClasses()[c]->getStudent().size(); ++s) {
             xml_node<> *student = doc.allocate_node(node_element, "student");
             student->append_attribute(doc.allocate_attribute("id", doc.allocate_string(
@@ -363,6 +364,7 @@ void readOutputXML(std::string filename, Instance *instance) {
 
 Instance *readInputXML(std::string filename) {//parent flag missing
     xml_document<> doc;
+    int orderID = 0;
     std::ifstream file(filename);
     if (file.fail()) {
         std::cerr << "File not found: " + filename << std::endl;
@@ -540,9 +542,8 @@ Instance *readInputXML(std::string filename) {//parent flag missing
 
 
                             }
-
-                            Class *c = new Class(idclass, limit, lecv, roomsv);
-                            addPossibleRooms(c, instance);
+                            Class *c = new Class(idclass, limit, lecv, roomsv, orderID);
+                            //addPossibleRooms(c, instance);
                             if (parent != -1)
                                 c->setParent(parent);
                             clasv.push_back(c);

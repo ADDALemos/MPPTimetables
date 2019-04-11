@@ -151,7 +151,7 @@ public:
     void printdistanceToSolutionRooms(bool w) {
         int temp = 0;
         for (int i = 0; i < instance->getRooms().size(); i++) {
-            for (int j = 0; j < instance->getNumClasses(); ++j) {
+            for (int j = 0; j < instance->getClassesWeek(currentW).size(); ++j) {
                 if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
                     if (!roomLecture->isStatic())
                         temp += (w ? instance->getClasses()[j]->getLimit() : 1) * (solutionRoom[i][j]
@@ -222,7 +222,7 @@ private:
     virtual void warmStart() =0;
 
 
-private:
+public:
 
 
     /**
@@ -242,18 +242,24 @@ private:
      *
      */
     void switchSolutionRoom() {
-        for (int i = 0; i < instance->getRooms().size(); i++) {
-            for (int j = 0; j < instance->getNumClasses(); ++j) {
-                if (roomLecture->isStatic()) {
-                    solutionRoom[i][j] = roomLecture->getGRB()[j][i].get(GRB_DoubleAttr_X);
-                    if (roomLecture->getGRB()[j][i].get(GRB_DoubleAttr_X) != 0) {
-                    instance->getClasses()[j]->setSolRoom(i);
+        for (int j = 0; j < instance->getClassesWeek(currentW).size(); ++j) {
+            if (!roomLecture->isStatic()) {
+                for (int i = 0, r = 0; i < instance->getRooms().size(); ++i) {
+                    if (instance->getClassesWeek(currentW)[j]->containsRoom(instance->getRoom(i + 1))) {
+                        solutionRoom[i][j] = roomLecture->getGRB()[j][r].get(GRB_DoubleAttr_X);
+                        if (solutionRoom[i][j] != 0) {
+                            instance->getClasses()[j]->setSolRoom(i + 1);
+                        }
+
+                        r++;
+                    }
                     }
                 }
             }
 
-        }
+
     }
+
 
 
 };

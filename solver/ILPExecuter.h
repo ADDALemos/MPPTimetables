@@ -193,15 +193,23 @@ public:
 
     virtual void cuts()=0;
 
-    bool run2019(bool warm) {
+    virtual bool run2019(bool warm) {
         return false;
     }
 
-    void restart() {
+    virtual void restart() {
 
     }
 
-    void force() {
+    virtual void force() {
+
+    }
+
+    virtual void block() {
+
+    }
+
+    virtual void save() {
 
     }
 
@@ -264,7 +272,7 @@ public:
         return currentW;
     }
 
-    void setCurrrentW(int currrentW) {
+    virtual void setCurrrentW(int currrentW) {
         ILPExecuter::currentW = currrentW;
     }
 

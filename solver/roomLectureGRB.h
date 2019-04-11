@@ -14,12 +14,15 @@ class roomLectureGRB : public roomLecture {
 public:
     void loadPreviousWeekSolution(int **room) {
         for (int c = 0; c < instance->getClassesWeek(currentW).size(); ++c) {
-            for (int i = 0; i < instance->getClassesWeek(currentW)[c]->getPossibleRooms().size(); ++i) {
-                model->addConstr(vector[c][i] == room[c][i]);
+            for (int j = 0, r = 0; j < instance->getNumRoom(); ++j) {
+                if (instance->getClassesWeek(currentW)[c]->containsRoom(instance->getRoom(j + 1))) {
+                    model->addConstr(vector[c][r] == room[j][c]);
+                    r++;
+                }
             }
-
         }
     }
+
 
 
     roomLectureGRB(Instance *instance, int w) : roomLecture(instance, w) {}
@@ -70,8 +73,8 @@ public:
         try {
             for (int j = 0; j <
                             instance->getClassesWeek(currentW).size(); j++) {
-                GRBLinExpr temp = 0;
                 if (instance->getClassesWeek(currentW)[j]->getPossibleRooms().size() > 0) {
+                    GRBLinExpr temp = 0;
                     for (int i = 0; i < instance->getClassesWeek(currentW)[j]->getPossibleRooms().size(); i++) {
                         temp += vector[j][i];
                     }
@@ -91,16 +94,17 @@ public:
     void slackStudent() {
         for (int l = 0; l <
                         instance->getClassesWeek(currentW).size(); l++) {
-            int j = 0;
+            int j = 0, r = 0;
             for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
                  it != instance->getRooms().end(); it++) {
-                if (instance->getClassesWeek(currentW)[l]->containsRoom(instance->getRoom(j + 1))) {
+                if (instance->getClassesWeek(currentW)[l]->containsRoom(instance->getRoom(r + 1))) {
                     model->addConstr(it->second.getCapacity() >=
                                      ((instance->getClassesWeek(currentW)[l]->getLimit() -
                                        (instance->getClassesWeek(currentW)[l]->getLimit() * instance->getAlfa())) *
                                       vector[l][j]));
                     j++;
                 }
+                r++;
 
 
             }
@@ -130,31 +134,29 @@ public:
         try {
 
             for (int j = 0; j < instance->getClassesWeek(currentW).size(); j++) {
-                int i1 = 0, i = 0;
-                for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
-                     it != instance->getRooms().end(); it++) {
-                    if (instance->getClassesWeek(currentW)[j]->containsRoom(instance->getRoom(i1 + 1))) {
-                        for (int j1 = 1; j1 < instance->getNumClasses(); j1++) {
-                            if (instance->getClassesWeek(currentW)[j]->containsRoom(instance->getRoom(i1 + 1)) &&
-                                instance->getClassesWeek(currentW)[j1]->containsRoom(instance->getRoom(i1 + 1))) {
-                                GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                             "temp" + itos(i) + "_" + itos(j) + "_" +
-                                                             itos(j1));
-                                GRBVar tempC = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                             "tempC" + itos(i) + "_" + itos(j) + "_" +
-                                                             itos(j1));
-                                model->addGenConstrIndicator(tempC, 1, (order[j][j1] + order[j1][j]) == 2);
-                                model->addGenConstrIndicator(tempC, 0, (order[j][j1] + order[j1][j]) <= 1);
-                                model->addGenConstrIndicator(tempV, 1, vector[j][i] + vector[j1][i] == 2);
-                                model->addGenConstrIndicator(tempV, 0, vector[j][i] + vector[j1][i] <= 1);
-                                model->addConstr(tempV + tempC <= 1);
 
+                for (int j1 = 1; j1 < instance->getClassesWeek(currentW).size(); j1++) {
+                    int i1 = 0, i = 0;
+                    for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
+                         it != instance->getRooms().end(); it++) {
+                        if (instance->getClassesWeek(currentW)[j]->containsRoom(instance->getRoom(i1 + 1)) &&
+                            instance->getClassesWeek(currentW)[j1]->containsRoom(instance->getRoom(i1 + 1))) {
+                            GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                         "temp" + itos(i) + "_" + itos(j) + "_" +
+                                                         itos(j1));
+                            GRBVar tempC = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                         "tempC" + itos(i) + "_" + itos(j) + "_" +
+                                                         itos(j1));
+                            model->addGenConstrIndicator(tempC, 1, (order[j][j1] + order[j1][j]) == 2);
+                            model->addGenConstrIndicator(tempC, 0, (order[j][j1] + order[j1][j]) <= 1);
+                            model->addGenConstrIndicator(tempV, 1, vector[j][i] + vector[j1][i] == 2);
+                            model->addGenConstrIndicator(tempV, 0, vector[j][i] + vector[j1][i] <= 1);
+                            model->addConstr(tempV + tempC <= 1);
 
-                            }
+                            i++;
                         }
-                        i++;
+                        i1++;
                     }
-                    i1++;
 
                 }
             }
@@ -188,10 +190,13 @@ public:
         GRBLinExpr exp = 0;
         int size = 0;
         for (int c = 0; c < instance->getClassesWeek(currentW).size(); ++c) {
-            for (int i = 0; i < instance->getClassesWeek(currentW)[c]->getPossibleRooms().size(); ++i) {
-                if (room[c][i]) {
-                    exp += vector[c][i];
-                    size++;
+            for (int i = 0, r = 0; i < instance->getRooms().size(); ++i) {
+                if (instance->getClassesWeek(currentW)[c]->containsRoom(instance->getRoom(i + 1))) {
+                    if (room[c][i]) {
+                        exp += vector[c][r];
+                        size++;
+                    }
+                    r++;
                 }
             }
 

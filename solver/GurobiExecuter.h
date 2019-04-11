@@ -143,6 +143,44 @@ public:
 
     virtual void printConfiguration()=0;
 
+
+    bool run2019(bool warm) {
+        //model->set(GRB_IntParam_Presolve, 0);
+        warm = false;
+        model->set(GRB_IntParam_Threads, 3);
+        //model->set(GRB_DoubleParam_TimeLimit, 600.0);
+
+        if (warm)
+            warmStart();
+        try {
+            model->optimize();
+            int status = model->get(GRB_IntAttr_Status);
+
+            if (status == GRB_INF_OR_UNBD ||
+                status == GRB_INFEASIBLE ||
+                status == GRB_UNBOUNDED) {
+                std::cout << "The model cannot be solved " <<
+                          "because it is infeasible or unbounded" << std::endl;
+                return false;
+            }
+            if (status != GRB_OPTIMAL) {
+                std::cout << "Optimization was stopped with status " << status << std::endl;
+            }
+
+        } catch (GRBException e) {
+            printError(e, "run");
+            std::exit(-1);
+        }
+        std::cout << "Solution " << model->get(GRB_IntAttr_SolCount) << std::endl;
+
+        double value = model->get(GRB_DoubleAttr_ObjVal);
+        std::cout << value << std::endl;
+        double time = model->get(GRB_DoubleAttr_Runtime);
+        std::cout << time << std::endl;
+        return true;
+
+    }
+
     double run(bool mpp) {
         std::cout << "GAP Min " << gapsSolution() << std::endl;
         //validator();
