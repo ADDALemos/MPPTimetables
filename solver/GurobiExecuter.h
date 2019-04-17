@@ -359,6 +359,8 @@ private:
      */
     virtual void switchSolutionRoom() =0;
 
+    virtual void travel(std::vector<int> c, int pen) {}
+
 
 };
 

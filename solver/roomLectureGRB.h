@@ -130,7 +130,7 @@ public:
     }
 
 
-    void oneLectureRoomConflict(GRBVar **order) {
+    void oneLectureRoomConflict(GRBVar **order, GRBVar **sameday) {
         try {
 
             for (int j = 0; j < instance->getClassesWeek(currentW).size(); j++) {
@@ -147,11 +147,22 @@ public:
                             GRBVar tempC = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
                                                          "tempC" + itos(i) + "_" + itos(j) + "_" +
                                                          itos(j1));
+
                             model->addGenConstrIndicator(tempC, 1, (order[j][j1] + order[j1][j]) == 2);
                             model->addGenConstrIndicator(tempC, 0, (order[j][j1] + order[j1][j]) <= 1);
                             model->addGenConstrIndicator(tempV, 1, vector[j][i] + vector[j1][i] == 2);
                             model->addGenConstrIndicator(tempV, 0, vector[j][i] + vector[j1][i] <= 1);
-                            model->addConstr(tempV + tempC <= 1);
+
+                            model->addConstr(tempV + tempC + sameday[j][j1] <= 2);
+                            //same time same room same day
+                            //1 1 1 conflict
+                            //1 0 1 no problem
+                            //1 1 0 no problem
+                            //1 0 0 no problem
+                            //0 0 0 no problem
+                            //0 0 1 no problem
+                            //0 1 0 no problem
+                            //0 1 1 no problem
 
                             i++;
                         }
@@ -221,6 +232,72 @@ public:
         }
         size--;
         model->addConstr(exp <= size);
+    }
+
+    virtual GRBLinExpr travel(int c1, int c2) {
+        GRBLinExpr temp = 0;
+        for (int i = 0; i < instance->getClasses()[c1]->getPossibleRooms().size(); ++i) {
+            for (int y = i + 1; y < instance->getClasses()[c2]->getPossibleRooms().size(); ++y) {
+                GRBVar temp_r1_r2 = model->addVar(0, 1, 0, GRB_BINARY);
+                model->addGenConstrIndicator(temp_r1_r2, 1, vector[c1][i] - vector[c2][y] == 0);
+                model->addGenConstrIndicator(temp_r1_r2, 0, vector[c1][i] + vector[c2][y] <= 1);
+                temp += temp_r1_r2 * instance->getClasses()[c2]->getPossibleRoom(y).
+                        getTravel(instance->getClasses()[c1]->getPossibleRoom(i).getId());
+            }
+        }
+        return temp;
+        //model->setObjective(temp,GRB_MINIMIZE);
+    }
+
+    virtual void travel(std::vector<int> c, GRBVar *time, GRBVar **order) throw() {
+        try {
+            for (int l1: c) {
+                for (int l2: c) {
+                    GRBVar orV[2];
+                    //(Ci.end + Ci.room.travel[Cj .room] ≤ Cj .start)
+                    std::string name = "T_" + itos(l1) + "_" + itos(l2);
+                    GRBVar temp_l1_l2 = model->addVar(0, 1, 0, GRB_BINARY, name);
+                    model->addGenConstrIndicator(temp_l1_l2, 1,
+                                                 time[l1] + instance->getClasses()[l1]->getLenght() + travel(l1, l2) <=
+                                                 time[l2]);
+                    //model->addGenConstrIndicator(temp_l1_l2,0,(time[l1]+instance->getClasses()[l1]->getLenght()+travel(l1, l2))>=time[l2]-1);
+                    //(Cj .end + Cj .room.travel[Ci.room] ≤ Ci.start)
+                    name = "T_" + itos(l2) + "_" + itos(l1);
+                    GRBVar temp_l2_l1 = model->addVar(0, 1, 0, GRB_BINARY, name);
+                    model->addGenConstrIndicator(temp_l2_l1, 1,
+                                                 time[l2] + instance->getClasses()[l2]->getLenght() + travel(l2, l1) <=
+                                                 time[l1]);
+                    //model->addGenConstrIndicator(temp_l2_l1,0,(time[l2]+instance->getClasses()[l2]->getLenght()+travel(l2, l1))>=time[l1]-1);
+                    orV[0] = temp_l1_l2;
+                    orV[1] = temp_l2_l1;
+                    name = "TOR_" + itos(l2) + "_" + itos(l1);
+                    GRBVar tor = model->addVar(0, 1, 0, GRB_BINARY, name);
+                    model->addGenConstrOr(tor, orV, 2, name);
+                    //model->addConstr(tor>=1);
+
+                }
+
+            }
+        } catch (GRBException e) {
+            printError(e, "travel");
+        }
+
+    }
+
+
+    virtual GRBLinExpr travel(std::vector<int> c, int pen) {
+        GRBLinExpr temp = 0;
+        for (int l1: c) {
+            for (int l2: c) {
+                temp += travel(l1, l2) * pen;
+            }
+            //(Ci.end + Ci.room.travel[Cj .room] ≤ Cj .start)
+            //GRBVar temp_l1_l1 = model->addVar(0,1,0,GRB_BINARY);
+            //model->addGenConstrIndicator(temp_l1_l1,1,0>0);
+        }
+        model->setObjective(temp, GRB_MINIMIZE);
+
+
     }
 
 

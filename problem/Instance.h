@@ -18,7 +18,7 @@
 class Instance {
 private:
     int ndays = -1;
-    double alfa = 1;
+    double alfa = 0;
     int nweek;
     int slotsperday;
     std::string name;

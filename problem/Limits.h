@@ -12,7 +12,6 @@
 class Limits : public Constraint {
     int limit;
     int limit1;
-    ConstraintType type;
 public:
     Limits(int limit, int limit1) : limit(limit), limit1(limit1) {}
 

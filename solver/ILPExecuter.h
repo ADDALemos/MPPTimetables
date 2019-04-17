@@ -16,7 +16,7 @@
 #include <exception>
 #include <stdlib.h>
 #include "../problem/Instance.h"
-
+#include "../problem/Constraint.h"
 
 class ILPExecuter {
 
@@ -387,6 +387,20 @@ protected:
 
 
     }
+
+    virtual void travel(std::vector<int> c, int pen) {}
+
+public:
+    virtual void dayConst() {}
+
+    void dist() {
+        for (int i = 0; i < instance->getDist().size(); ++i) {
+            if (instance->getDist()[i]->getType().getType() == SameAttendees) {
+                travel(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty());
+            }
+        }
+    }
+
 
 
 };

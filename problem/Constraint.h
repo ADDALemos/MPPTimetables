@@ -23,7 +23,12 @@ enum ConstraintType {
 };
 class Constraint {
 public:
+    ConstraintType type;
     virtual void setType(std::string s) {
+    }
+
+    ConstraintType const getType() const {
+        return type;
     }
 
 };

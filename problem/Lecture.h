@@ -23,7 +23,7 @@ class Lecture {
 
     Lecture(int lenght) : lenght(lenght) {}
 
-    const std::string &getDays() const {
+    std::string &getDays() {
         return days;
     }
 

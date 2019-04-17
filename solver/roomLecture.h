@@ -34,7 +34,7 @@ public:
 
     virtual void cuts()=0;
 
-    virtual void oneLectureRoomConflict(GRBVar **order)=0;
+    virtual void oneLectureRoomConflict(GRBVar **order, GRBVar **sameday)=0;
 
     virtual bool **getBool() {}
 
@@ -45,6 +45,12 @@ public:
     virtual void setCurrrentW(int currrentW) {
         currentW = currrentW;
     }
+
+    virtual void travel(std::vector<int> c, GRBVar *time, GRBVar **order) {}
+
+    virtual GRBLinExpr travel(std::vector<int> c, int pen) {}
+
+
 
 
 };

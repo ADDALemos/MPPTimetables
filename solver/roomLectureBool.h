@@ -54,7 +54,8 @@ public:
         }
     }
 
-    void oneLectureRoomConflict(GRBVar **order) {
+//TODO: Finish this
+    void oneLectureRoomConflict(GRBVar **order, GRBVar **sameday) {
         try {
 
             for (int j = 0; j < instance->getClassesWeek(currentW).size(); j++) {

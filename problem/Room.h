@@ -89,6 +89,12 @@ public:
         return os;
     }
 
+    const int getTravel(int r) const {
+        if (travel.find(r) != travel.end())
+            return travel.at(r);
+        return 0;
+    }
+
     const std::map<int, int> &getTravel() const {
         return travel;
     }

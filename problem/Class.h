@@ -11,6 +11,8 @@
 #include <iostream>
 #include "Lecture.h"
 #include "Room.h"
+#include <stdexcept>
+
 
 class Class {
     bool modified = false;
@@ -26,10 +28,25 @@ private:
     int start = -1;
     std::string room = " ";
     std::string week = "1";
-    std::string days = "0";
+    std::string days;
     std::vector<int> student;
 
 public:
+
+    const int getNumSlots() const {
+        return lectures.size();
+    }
+
+    const std::vector<std::pair<int, int>> getSlots() const {
+        std::vector<std::pair<int, int>> temp;
+        for (int i = 0; i < lectures.size(); ++i) {
+            std::pair<int, int> t(1, lectures[i]->getStart());
+            temp.push_back(t);
+        }
+        return temp;
+    }
+    
+    
     const std::vector<int, std::allocator<int>> &getConv() const {
         return conv;
     }
@@ -66,7 +83,7 @@ public:
     }
 
     std::string getSolWeek() const {
-        return week;
+        return lectures[0]->getWeeks();
     }
 
     int getMaxWeek() {
@@ -79,7 +96,7 @@ public:
     }
 
     std::string getSolDays() const {
-        return days;
+        return lectures[0]->getDays();
     }
 
     int getSolDay() const {
@@ -135,6 +152,16 @@ public:
 
     Room getFirstPossibleRoom() {
         return possibleRooms.begin()->first;
+    }
+
+    Room getPossibleRoom(int n) {
+        int i = 0;
+        for (std::map<Room, int>::iterator it = possibleRooms.begin(); it != possibleRooms.end(); ++it) {
+            if (i == n)
+                return it->first;
+            i++;
+        }
+        throw std::out_of_range("possibleRooms::at: key not found");
     }
 
     bool containsRoom(Room id) {

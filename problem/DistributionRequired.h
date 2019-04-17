@@ -16,6 +16,8 @@ public:
                                                                                                          *type) {
 
     }
+
+    virtual int getPenalty() { return -1; }
 };
 
 

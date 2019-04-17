@@ -156,6 +156,8 @@ int main(int argc, char **argv) {
         if (!quiet) std::cout << "LectureperSlot : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
         //if (cuts) runner->cuts();
+        runner->dayConst();
+        //runner->dist();
         //runner->roomClose();
         //runner->slotClose();
         //runner->teacher();
@@ -173,7 +175,7 @@ int main(int argc, char **argv) {
         if (!quiet) std::cout << "Room : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
 
-        //runner->slackStudent();
+        runner->slackStudent();
         if (!quiet) std::cout << "Slack : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
         if (opt) {
