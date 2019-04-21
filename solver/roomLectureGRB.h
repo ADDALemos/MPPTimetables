@@ -253,13 +253,14 @@ public:
         //model->setObjective(temp,GRB_MINIMIZE);
     }
 
-    virtual void travel(std::vector<Class *> c, GRBVar *time, GRBVar **sameday) throw() {
+    virtual void travel(std::vector<Class *> c, GRBVar *time, GRBVar **sameday, int pen) throw() {
         try {
+            GRBLinExpr travelL = 0;
             for (Class *l1: c) {
                 if (l1->isActive(currentW)) {
                     for (Class *l2: c) {
                         if (l2->isActive(currentW)) {
-                            GRBVar orV[2];
+                            GRBVar orV[3];
                             //(Ci.end + Ci.room.travel[Cj .room] ≤ Cj .start)
                             std::string name = "T_" + itos(l1->getOrderID()) + "_" + itos(l2->getOrderID());
                             GRBVar temp_l1_l2 = model->addVar(0, 1, 0, GRB_BINARY, name);
@@ -285,12 +286,22 @@ public:
                             name = "TOR_" + itos(l2->getOrderID()) + "_" + itos(l1->getOrderID());
                             GRBVar tor = model->addVar(0, 1, 0, GRB_BINARY, name);
                             model->addGenConstrOr(tor, orV, 3, name);
-                            model->addConstr(tor >= 1);
+                            if (pen == -1)
+                                model->addConstr(tor >= 1);
+                            else {
+                                GRBVar temp = model->addVar(0, 1, 0, GRB_BINARY);
+                                model->addGenConstrIndicator(temp, 0, tor >= 1);
+                                model->addGenConstrIndicator(temp, 1, tor == 0);
+                                travelL += pen * temp;
+                            }
                         }
 
                     }
                 }
 
+            }
+            if (pen > -1) {
+                model->setObjective(travelL, GRB_MINIMIZE);
             }
         } catch (GRBException e) {
             printError(e, "travel");
@@ -299,20 +310,7 @@ public:
     }
 
 
-    virtual GRBLinExpr travel(std::vector<Class *> c, int pen) {
-        GRBLinExpr temp = 0;
-        for (Class *l1: c) {
-            for (Class *l2: c) {
-                temp += travel(l1, l2) * pen;
-            }
-            //(Ci.end + Ci.room.travel[Cj .room] ≤ Cj .start)
-            //GRBVar temp_l1_l1 = model->addVar(0,1,0,GRB_BINARY);
-            //model->addGenConstrIndicator(temp_l1_l1,1,0>0);
-        }
-        model->setObjective(temp, GRB_MINIMIZE);
 
-
-    }
 
 
 };

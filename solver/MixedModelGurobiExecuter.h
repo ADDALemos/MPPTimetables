@@ -658,12 +658,7 @@ private:
 
     virtual void travel(std::vector<Class *> c, int pen) {
         try {
-
-            GRBLinExpr opt = 0;
-            if (pen == -1)
-                roomLecture->travel(c, lectureTime, sameday);
-            else
-                opt = roomLecture->travel(c, pen);
+            roomLecture->travel(c, lectureTime, sameday, pen);
         } catch (GRBException e) {
             printError(e, "travel");
         }
