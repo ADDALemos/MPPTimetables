@@ -46,9 +46,9 @@ public:
         currentW = currrentW;
     }
 
-    virtual void travel(std::vector<int> c, GRBVar *time, GRBVar **order) {}
+    virtual void travel(std::vector<Class *> c, GRBVar *time, GRBVar **sameday) {}
 
-    virtual GRBLinExpr travel(std::vector<int> c, int pen) {}
+    virtual GRBLinExpr travel(std::vector<Class *> c, int pen) {}
 
 
 

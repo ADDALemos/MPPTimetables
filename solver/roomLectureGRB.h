@@ -16,7 +16,7 @@ public:
         for (int c = 0; c < instance->getClassesWeek(currentW).size(); ++c) {
             for (int j = 0, r = 0; j < instance->getNumRoom(); ++j) {
                 if (instance->getClassesWeek(currentW)[c]->containsRoom(instance->getRoom(j + 1))) {
-                    model->addConstr(vector[c][r] == room[j][c]);
+                    model->addConstr(vector[instance->getClassesWeek(currentW)[c]->getOrderID()][r] == room[j][c]);
                     r++;
                 }
             }
@@ -30,11 +30,11 @@ public:
     void definedRoomLecture() {
         try {
             vector = new GRBVar *[instance->getClassesWeek(currentW).size()];
-            for (int i = 0; i < instance->getClassesWeek(currentW).size(); i++) {
-                vector[i] = new GRBVar[instance->getClassesWeek(currentW)[i]->getPossibleRooms().size()];
-                for (int r = 0; r < instance->getClassesWeek(currentW)[i]->getPossibleRooms().size(); ++r) {
-                    std::string name = "X_" + itos(i) + "_" + itos(r);
-                    vector[i][r] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY, name);
+            for (Class *c : instance->getClassesWeek(currentW)) {
+                vector[c->getOrderID()] = new GRBVar[c->getPossibleRooms().size()];
+                for (int r = 0; r < c->getPossibleRooms().size(); ++r) {
+                    std::string name = "X_" + itos(c->getOrderID()) + "_" + itos(r);
+                    vector[c->getOrderID()][r] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY, name);
 
                 }
 
@@ -71,12 +71,11 @@ public:
 
     void oneLectureRoom() {
         try {
-            for (int j = 0; j <
-                            instance->getClassesWeek(currentW).size(); j++) {
-                if (instance->getClassesWeek(currentW)[j]->getPossibleRooms().size() > 0) {
+            for (Class *c: instance->getClassesWeek(currentW)) {
+                if (c->getPossibleRooms().size() > 0) {
                     GRBLinExpr temp = 0;
-                    for (int i = 0; i < instance->getClassesWeek(currentW)[j]->getPossibleRooms().size(); i++) {
-                        temp += vector[j][i];
+                    for (int i = 0; i < c->getPossibleRooms().size(); i++) {
+                        temp += vector[c->getOrderID()][i];
                     }
                     model->addConstr(temp == 1);
                 }
@@ -101,7 +100,7 @@ public:
                     model->addConstr(it->second.getCapacity() >=
                                      ((instance->getClassesWeek(currentW)[l]->getLimit() -
                                        (instance->getClassesWeek(currentW)[l]->getLimit() * instance->getAlfa())) *
-                                      vector[l][j]));
+                                      vector[instance->getClassesWeek(currentW)[l]->getOrderID()][j]));
                     j++;
                 }
                 r++;
@@ -133,27 +132,30 @@ public:
     void oneLectureRoomConflict(GRBVar **order, GRBVar **sameday) {
         try {
 
-            for (int j = 0; j < instance->getClassesWeek(currentW).size(); j++) {
+            for (Class *j : instance->getClassesWeek(currentW)) {
 
-                for (int j1 = 1; j1 < instance->getClassesWeek(currentW).size(); j1++) {
+                for (Class *j1 : instance->getClassesWeek(currentW)) {
                     int i1 = 0, i = 0;
                     for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
                          it != instance->getRooms().end(); it++) {
-                        if (instance->getClassesWeek(currentW)[j]->containsRoom(instance->getRoom(i1 + 1)) &&
-                            instance->getClassesWeek(currentW)[j1]->containsRoom(instance->getRoom(i1 + 1))) {
+                        if (j->containsRoom(instance->getRoom(i1 + 1)) &&
+                            j1->containsRoom(instance->getRoom(i1 + 1))) {
                             GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                         "temp" + itos(i) + "_" + itos(j) + "_" +
-                                                         itos(j1));
+                                                         "temp" + itos(i) + "_" + itos(j->getOrderID()) + "_" +
+                                                         itos(j1->getOrderID()));
                             GRBVar tempC = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                         "tempC" + itos(i) + "_" + itos(j) + "_" +
-                                                         itos(j1));
+                                                         "tempC" + itos(i) + "_" + itos(j->getOrderID()) + "_" +
+                                                         itos(j1->getOrderID()));
 
-                            model->addGenConstrIndicator(tempC, 1, (order[j][j1] + order[j1][j]) == 2);
-                            model->addGenConstrIndicator(tempC, 0, (order[j][j1] + order[j1][j]) <= 1);
-                            model->addGenConstrIndicator(tempV, 1, vector[j][i] + vector[j1][i] == 2);
-                            model->addGenConstrIndicator(tempV, 0, vector[j][i] + vector[j1][i] <= 1);
-
-                            model->addConstr(tempV + tempC + sameday[j][j1] <= 2);
+                            model->addGenConstrIndicator(tempC, 1, (order[j->getOrderID()][j1->getOrderID()] +
+                                                                    order[j1->getOrderID()][j->getOrderID()]) == 2);
+                            model->addGenConstrIndicator(tempC, 0, (order[j->getOrderID()][j1->getOrderID()] +
+                                                                    order[j1->getOrderID()][j->getOrderID()]) <= 1);
+                            model->addGenConstrIndicator(tempV, 1, vector[j->getOrderID()][i]
+                                                                   + vector[j1->getOrderID()][i] == 2);
+                            model->addGenConstrIndicator(tempV, 0, vector[j->getOrderID()][i]
+                                                                   + vector[j1->getOrderID()][i] <= 1);
+                            model->addConstr(tempV + tempC + sameday[j1->getOrderID()][j->getOrderID()] <= 2);
                             //same time same room same day
                             //1 1 1 conflict
                             //1 0 1 no problem
@@ -234,47 +236,59 @@ public:
         model->addConstr(exp <= size);
     }
 
-    virtual GRBLinExpr travel(int c1, int c2) {
+    virtual GRBLinExpr travel(Class *c1, Class *c2) {
         GRBLinExpr temp = 0;
-        for (int i = 0; i < instance->getClasses()[c1]->getPossibleRooms().size(); ++i) {
-            for (int y = i + 1; y < instance->getClasses()[c2]->getPossibleRooms().size(); ++y) {
+        for (int i = 0; i < c1->getPossibleRooms().size(); ++i) {
+            for (int y = i + 1; y < c2->getPossibleRooms().size(); ++y) {
                 GRBVar temp_r1_r2 = model->addVar(0, 1, 0, GRB_BINARY);
-                model->addGenConstrIndicator(temp_r1_r2, 1, vector[c1][i] - vector[c2][y] == 0);
-                model->addGenConstrIndicator(temp_r1_r2, 0, vector[c1][i] + vector[c2][y] <= 1);
-                temp += temp_r1_r2 * instance->getClasses()[c2]->getPossibleRoom(y).
-                        getTravel(instance->getClasses()[c1]->getPossibleRoom(i).getId());
+                model->addGenConstrIndicator(temp_r1_r2, 1,
+                                             vector[c1->getOrderID()][i] - vector[c2->getOrderID()][y] == 0);
+                model->addGenConstrIndicator(temp_r1_r2, 0,
+                                             vector[c1->getOrderID()][i] + vector[c2->getOrderID()][y] <= 1);
+                temp += temp_r1_r2 * c2->getPossibleRoom(y).
+                        getTravel(c1->getPossibleRoom(i).getId());
             }
         }
         return temp;
         //model->setObjective(temp,GRB_MINIMIZE);
     }
 
-    virtual void travel(std::vector<int> c, GRBVar *time, GRBVar **order) throw() {
+    virtual void travel(std::vector<Class *> c, GRBVar *time, GRBVar **sameday) throw() {
         try {
-            for (int l1: c) {
-                for (int l2: c) {
-                    GRBVar orV[2];
-                    //(Ci.end + Ci.room.travel[Cj .room] ≤ Cj .start)
-                    std::string name = "T_" + itos(l1) + "_" + itos(l2);
-                    GRBVar temp_l1_l2 = model->addVar(0, 1, 0, GRB_BINARY, name);
-                    model->addGenConstrIndicator(temp_l1_l2, 1,
-                                                 time[l1] + instance->getClasses()[l1]->getLenght() + travel(l1, l2) <=
-                                                 time[l2]);
-                    //model->addGenConstrIndicator(temp_l1_l2,0,(time[l1]+instance->getClasses()[l1]->getLenght()+travel(l1, l2))>=time[l2]-1);
-                    //(Cj .end + Cj .room.travel[Ci.room] ≤ Ci.start)
-                    name = "T_" + itos(l2) + "_" + itos(l1);
-                    GRBVar temp_l2_l1 = model->addVar(0, 1, 0, GRB_BINARY, name);
-                    model->addGenConstrIndicator(temp_l2_l1, 1,
-                                                 time[l2] + instance->getClasses()[l2]->getLenght() + travel(l2, l1) <=
-                                                 time[l1]);
-                    //model->addGenConstrIndicator(temp_l2_l1,0,(time[l2]+instance->getClasses()[l2]->getLenght()+travel(l2, l1))>=time[l1]-1);
-                    orV[0] = temp_l1_l2;
-                    orV[1] = temp_l2_l1;
-                    name = "TOR_" + itos(l2) + "_" + itos(l1);
-                    GRBVar tor = model->addVar(0, 1, 0, GRB_BINARY, name);
-                    model->addGenConstrOr(tor, orV, 2, name);
-                    //model->addConstr(tor>=1);
+            for (Class *l1: c) {
+                if (l1->isActive(currentW)) {
+                    for (Class *l2: c) {
+                        if (l2->isActive(currentW)) {
+                            GRBVar orV[2];
+                            //(Ci.end + Ci.room.travel[Cj .room] ≤ Cj .start)
+                            std::string name = "T_" + itos(l1->getOrderID()) + "_" + itos(l2->getOrderID());
+                            GRBVar temp_l1_l2 = model->addVar(0, 1, 0, GRB_BINARY, name);
+                            model->addGenConstrIndicator(temp_l1_l2, 1,
+                                                         time[l1->getOrderID()] + l1->getLenght() + travel(l1, l2) <=
+                                                         time[l2->getOrderID()]);
+                            model->addGenConstrIndicator(temp_l1_l2, 0,
+                                                         (time[l1->getOrderID()] + l1->getLenght() + travel(l1, l2)) >=
+                                                         time[l2->getOrderID()] - 1);
+                            //(Cj .end + Cj .room.travel[Ci.room] ≤ Ci.start)
+                            name = "T_" + itos(l2->getOrderID()) + "_" + itos(l1->getOrderID());
+                            GRBVar temp_l2_l1 = model->addVar(0, 1, 0, GRB_BINARY, name);
+                            model->addGenConstrIndicator(temp_l2_l1, 1,
+                                                         time[l2->getOrderID()] + l2->getLenght() + travel(l2, l1) <=
+                                                         time[l1->getOrderID()]);
+                            model->addGenConstrIndicator(temp_l2_l1, 0,
+                                                         (time[l2->getOrderID()] + l2->getLenght() + travel(l2, l1)) >=
+                                                         time[l1->getOrderID()] - 1);
+                            orV[0] = temp_l1_l2;
+                            orV[1] = temp_l2_l1;
+                            orV[2] = sameday[l1->getOrderID()][l2->getOrderID()];
 
+                            name = "TOR_" + itos(l2->getOrderID()) + "_" + itos(l1->getOrderID());
+                            GRBVar tor = model->addVar(0, 1, 0, GRB_BINARY, name);
+                            model->addGenConstrOr(tor, orV, 3, name);
+                            model->addConstr(tor >= 1);
+                        }
+
+                    }
                 }
 
             }
@@ -285,10 +299,10 @@ public:
     }
 
 
-    virtual GRBLinExpr travel(std::vector<int> c, int pen) {
+    virtual GRBLinExpr travel(std::vector<Class *> c, int pen) {
         GRBLinExpr temp = 0;
-        for (int l1: c) {
-            for (int l2: c) {
+        for (Class *l1: c) {
+            for (Class *l2: c) {
                 temp += travel(l1, l2) * pen;
             }
             //(Ci.end + Ci.room.travel[Cj .room] ≤ Cj .start)

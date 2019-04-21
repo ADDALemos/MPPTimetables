@@ -52,7 +52,8 @@ int main(int argc, char **argv) {
 
 
     if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
-    Instance *instance = readInputXML(argv[1]);
+    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/wbg-fal10.xml");
+
     if (!quiet) std::cout << "Compacting " << std::endl;
     instance->compact();
 
@@ -157,7 +158,7 @@ int main(int argc, char **argv) {
 
         //if (cuts) runner->cuts();
         runner->dayConst();
-        //runner->dist();
+        runner->dist();
         //runner->roomClose();
         //runner->slotClose();
         //runner->teacher();
@@ -367,6 +368,7 @@ void readOutputXML(std::string filename, Instance *instance) {
 Instance *readInputXML(std::string filename) {//parent flag missing
     xml_document<> doc;
     int orderID = 0;
+    std::map<int, Class *> classMap;
     std::ifstream file(filename);
     if (file.fail()) {
         std::cerr << "File not found: " + filename << std::endl;
@@ -545,6 +547,8 @@ Instance *readInputXML(std::string filename) {//parent flag missing
 
                             }
                             Class *c = new Class(idclass, limit, lecv, roomsv, orderID);
+                            classMap.insert(std::pair<int, Class *>(orderID, c));
+                            orderID++;
                             //addPossibleRooms(c, instance);
                             if (parent != -1)
                                 c->setParent(parent);
@@ -569,7 +573,7 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                 bool isReq = false;
                 std::string type;
                 int penalty = -1;
-                std::vector<int> c;
+                std::vector<Class *> c;
                 int limit = -1, limit1 = -1;
                 for (const xml_attribute<> *a = sub->first_attribute(); a; a = a->next_attribute()) {
                     if (strcmp(a->name(), "required") == 0) {
@@ -594,7 +598,7 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                     for (const xml_attribute<> *a = course->first_attribute(); a; a = a->next_attribute()) {
                         idClassesDist = atoi(a->value());
                     }
-                    c.push_back(idClassesDist);
+                    c.push_back(classMap.find(idClassesDist)->second);
                     //std::cout<<course->name()<<std::endl;
                 }
                 Constraint *limite;

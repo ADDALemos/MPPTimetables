@@ -93,7 +93,9 @@ public:
                     int j = 0;
                     for (char &c : instance->getClassesWeek(currentW)[k]->getLectures()[i]->getDays()) {
                         if (c == '1') {
-                            model->addGenConstrIndicator(day[k][j], 1, lectureTime[k] ==
+                            model->addGenConstrIndicator(day[instance->getClassesWeek(currentW)[k]->getOrderID()][j], 1,
+                                                         lectureTime[instance->getClassesWeek(
+                                                                 currentW)[k]->getOrderID()] ==
                                                                        instance->getClassesWeek(
                                                                                currentW)[k]->getLectures()[i]->getStart());
                         }
@@ -114,52 +116,58 @@ public:
         day = new GRBVar *[instance->getClassesWeek(currentW).size()];
 
         order = new GRBVar *[instance->getClassesWeek(currentW).size()];
-        sameday = new GRBVar *[instance->getClassesWeek(currentW).size()];
-        for (int k = 0; k < instance->getClassesWeek(currentW).size(); ++k) {
-            order[k] = new GRBVar[instance->getClassesWeek(currentW).size()];
-            sameday[k] = new GRBVar[instance->getClassesWeek(currentW).size() - 1];
+        sameday = new GRBVar *[instance->getClassesWeek(currentW).size() - 1];
+        int kn = 0;
+        for (Class *k :instance->getClassesWeek(currentW)) {
+            order[k->getOrderID()] = new GRBVar[instance->getClassesWeek(currentW).size()];
+            sameday[k->getOrderID()] = new GRBVar[instance->getClassesWeek(currentW).size()];
 
-            day[k] = new GRBVar[instance->getNdays()];
+            day[k->getOrderID()] = new GRBVar[instance->getNdays()];
             for (int i = 0; i < instance->getNdays(); ++i) {
-                day[k][i] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                          "day" + itos(k) + "_" + itos(i));
+                day[k->getOrderID()][i] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                        "day" + itos(k->getOrderID()) + "_" + itos(i));
             }
-            for (int j1 = 0; j1 < instance->getClassesWeek(currentW).size(); j1++) {
-                if (k == 0) {
-                    std::string name = "A_" + itos(k);
+            for (Class *j1 : instance->getClassesWeek(currentW)) {
+                if (kn == 0) {
+                    std::string name = "A_" + itos(k->getOrderID());
 
-                    lectureTime[j1] = model->addVar(0.0, instance->getSlotsperday(), 0.0,
-                                                    GRB_INTEGER,
-                                                    name);//instance->getClassesWeek(currentW)[k]->getLectures().size()
-                    model->addConstr(lectureTime[j1] + instance->getClasses()[j1]->getLenght() <=
-                                     (((lectureTime[j1] / instance->getSlotsperday()) + 1) *
+                    lectureTime[j1->getOrderID()] = model->addVar(0.0, instance->getSlotsperday(), 0.0,
+                                                                  GRB_INTEGER,
+                                                                  name);//instance->getClassesWeek(currentW)[k]->getLectures().size()
+                    model->addConstr(
+                            lectureTime[j1->getOrderID()] + instance->getClasses()[j1->getOrderID()]->getLenght() <=
+                            (((lectureTime[j1->getOrderID()] / instance->getSlotsperday()) + 1) *
                                       instance->getSlotsperday()) -
                                      1);
                 }
 
-                order[k][j1] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                             "order" + itos(k) + "_" + itos(j1));
-                model->addGenConstrIndicator(order[k][j1], 1,
-                                             (lectureTime[k]
-                                              + instance->getClasses()[k]->getLenght()) <=
-                                             lectureTime[j1]);
-                model->addGenConstrIndicator(order[k][j1], 0,
-                                             (lectureTime[k] +
-                                              instance->getClasses()[k]->getLenght() - 1) >=
-                                             lectureTime[j1]);
+                order[k->getOrderID()][j1->getOrderID()] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                                         "order" + itos(k->getOrderID()) + "_" +
+                                                                         itos(j1->getOrderID()));
+                model->addGenConstrIndicator(order[k->getOrderID()][j1->getOrderID()], 1,
+                                             (lectureTime[k->getOrderID()]
+                                              + instance->getClasses()[k->getOrderID()]->getLenght()) <=
+                                             lectureTime[j1->getOrderID()]);
+                model->addGenConstrIndicator(order[k->getOrderID()][j1->getOrderID()], 0,
+                                             (lectureTime[k->getOrderID()] +
+                                              instance->getClasses()[k->getOrderID()]->getLenght() - 1) >=
+                                             lectureTime[j1->getOrderID()]);
 
             }
+            kn++;
         }
         for (int k = 0; k < instance->getClassesWeek(currentW).size(); ++k) {
-            for (int j1 = k + 1; j1 < instance->getClassesWeek(currentW).size(); j1++) {
-                sameday[k][j1] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                               "sameday" + itos(k) + "_" + itos(j1));
+            int kID = instance->getClassesWeek(currentW)[k]->getOrderID();
+            for (int j1 = 0; j1 < instance->getClassesWeek(currentW).size(); j1++) {
+                int jID = instance->getClassesWeek(currentW)[j1]->getOrderID();
+                sameday[kID][jID] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                  "sameday" + itos(kID) + "_" + itos(jID));
                 for (int i = 0; i < instance->getNdays(); ++i) {
-                    model->addGenConstrIndicator(sameday[k][j1], 1,
-                                                 day[k][i]
-                                                 == day[j1][i]);
-                    model->addGenConstrIndicator(sameday[k][j1], 0,
-                                                 day[k][i] + day[j1][i] <= 1);
+                    model->addGenConstrIndicator(sameday[kID][jID], 1,
+                                                 day[kID][i]
+                                                 == day[jID][i]);
+                    model->addGenConstrIndicator(sameday[kID][jID], 0,
+                                                 day[kID][i] + day[jID][i] <= 1);
 
                 }
 
@@ -190,83 +198,6 @@ public:
     }
 
 
-    /***
-     * The room can only have one lecture per slot with ands
-
-    void oneLectureRoomConflict2() {
-        try {
-            GRBVar sameRoom[3];
-            GRBVar sameRoom1[3];
-
-            for (int j = 0; j < instance->getNumClasses(); j++) {
-                for (int i = 0; i < instance->getClasses()[j]->getPossibleRooms().size(); i++) {
-                    for (int j1 = 1; j1 < instance->getNumClasses(); j1++) {
-                            if (instance->getClasses()[j1]->containsRoom(
-                                    instance->getRoom(i + 1))) {
-
-                                GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                             "temp" + itos(i) + "_" + itos(j) + "_" +
-                                                             itos(j1));
-                                GRBVar tempV1 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                              "tempV" + itos(i) + "_" + itos(j) + "_" +
-                                                              itos(j1));
-                                sameRoom1[0] = roomLecture[j][i];
-                                sameRoom1[1] = roomLecture[j1][i];
-                                sameRoom1[2] = order[j][j1];
-                                sameRoom[0] = roomLecture[j][i];
-                                sameRoom[1] = roomLecture[j1][i];
-                                sameRoom[2] = order[j1][j];
-                                model->addGenConstrAnd(tempV, sameRoom, 3);
-                                model->addGenConstrAnd(tempV1, sameRoom1, 3);
-                                model->addConstr(tempV + tempV1 <= 1);
-                            }
-                        }
-                    }
-                }
-
-
-        } catch (GRBException e) {
-            printError(e, "oneLectureRoomConflic: ands");
-        }
-
-    }*/
-
-    /***
-     * The room can only have one lecture per slot with quadratic and ands
-     *
-
-    void oneLectureRoomConflict1() {
-        try {
-            GRBVar sameRoom[2];
-
-            for (int i = 0; i < instance->getRooms().size(); i++) {
-                for (int j = 0; j < instance->getNumClasses(); j++) {
-                    if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
-                        for (int j1 = 1; j1 < instance->getNumClasses(); j1++) {
-                            if (instance->getClasses()[j1]->containsRoom(instance->getRoom(i + 1))) {
-
-                                GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                             "temp" + itos(i) + "_" + itos(j) + "_" +
-                                                             itos(j1));
-
-                                sameRoom[0] = roomLecture[j][i];
-                                sameRoom[1] = roomLecture[j1][i];
-                                model->addGenConstrAnd(tempV, sameRoom, 2);
-                                model->addQConstr(tempV * (order[j][j1] + order[j1][j]) <= tempV);
-                            }
-                        }
-                    }
-                }
-
-
-            }
-        } catch (GRBException e) {
-            printError(e, "oneLectureRoomConflict: quatratic + and");
-        }
-
-    }*/
-
-
 
     /***
      * The room can only have one lecture per slot without and quadratic expressions
@@ -287,8 +218,11 @@ public:
                 for (int i = 0; i < instance->getClassesWeek(currentW)[j]->getPossibleRooms().size(); i++) {
                     if (instance->isRoomBlockedbyDay(i + 1, d) && !roomLecture->isStatic()) {
                         GRBVar roomC = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                     "roomC_" + itos(d) + "_" + itos(i) + "_" + itos(j));
-                        model->addGenConstrIndicator(roomC, 1, lectureTime[j] / instance->getSlotsperday() == d);
+                                                     "roomC_" + itos(d) + "_" + itos(i) + "_" +
+                                                     itos(instance->getClassesWeek(currentW)[j]->getOrderID()));
+                        model->addGenConstrIndicator(roomC, 1,
+                                                     lectureTime[instance->getClassesWeek(currentW)[j]->getOrderID()]
+                                                     / instance->getSlotsperday() == d);
                         //model->addGenConstrIndicator(roomC, 0, lectureTime[j] / instance->getSlotsperday() <= (d-1));
                         //model->addGenConstrIndicator(roomC, 0, lectureTime[j] / instance->getSlotsperday() >= (d+1));
                         if (!roomLecture->isStatic())
@@ -315,11 +249,19 @@ public:
                 for (int t = 0; t < instance->getNdays() * instance->getSlotsperday(); ++t) {
                     if (instance->isTimeUnavailable(t)) {
                         GRBVar temp = model->addVar(0, 1.0, 0.0, GRB_BINARY);
-                        model->addGenConstrIndicator(temp, 0, lectureTime[i] >= t + 1);
-                        model->addGenConstrIndicator(temp, 1, lectureTime[i] <= t);
+                        model->addGenConstrIndicator(temp, 0,
+                                                     lectureTime[instance->getClassesWeek(currentW)[i]->getOrderID()] >=
+                                                     t + 1);
+                        model->addGenConstrIndicator(temp, 1,
+                                                     lectureTime[instance->getClassesWeek(currentW)[i]->getOrderID()] <=
+                                                     t);
                         GRBVar temp1 = model->addVar(0, 1.0, 0.0, GRB_BINARY);
-                        model->addGenConstrIndicator(temp1, 1, lectureTime[i] >= t);
-                        model->addGenConstrIndicator(temp1, 0, lectureTime[i] <= t - 1);
+                        model->addGenConstrIndicator(temp1, 1,
+                                                     lectureTime[instance->getClassesWeek(currentW)[i]->getOrderID()] >=
+                                                     t);
+                        model->addGenConstrIndicator(temp1, 0,
+                                                     lectureTime[instance->getClassesWeek(currentW)[i]->getOrderID()] <=
+                                                     t - 1);
                         model->addConstr((temp1 + temp) <= 1);
                     }
 
@@ -358,7 +300,9 @@ public:
                 for (int l = 0; l < instance->getNumRoom(); ++l) {
                     if (solutionRoom[l][i] == 1) {
                         GRBVar t = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                        model->addGenConstrIndicator(t, 1, lectureTime[i] == value);
+                        model->addGenConstrIndicator(t, 1,
+                                                     lectureTime[instance->getClassesWeek(currentW)[i]->getOrderID()] ==
+                                                     value);
                         // model->addGenConstrIndicator(t, 0, lectureTime[i] <= value - 1);
                         temp = t;// + roomLecture[l][i];
                         model->addConstr(temp <= 1);
@@ -372,7 +316,7 @@ public:
     }
 
 
-    /**Teacher's conflict*/
+    /**TODO::Teacher's conflict*/
     void teacher() {
         for (std::map<std::string, Course *>::const_iterator it = instance->getCourses().begin();
              it != instance->getCourses().end(); it++) {
@@ -534,7 +478,7 @@ private:
             for (int j1 = 0; j1 < instance->getNumClasses(); j1++) {
                 if (j1 != j)
                     gap[j][j1] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                               "gap" + itos(j) + "_" + itos(j1));
+                                               "gap" + itos(j) + "_" + itos(j1)); //TODO
             }
         }
         for (int l = 0; l < instance->getNumClasses(); ++l) {
@@ -590,8 +534,10 @@ public:
         int temp = 0;
 
         for (int j = 0; j < instance->getClassesWeek(currentW).size(); j++) {
-            int day = lectureTime[j].get(GRB_DoubleAttr_X) / instance->getSlotsperday();
-            int slot = lectureTime[j].get(GRB_DoubleAttr_X) - day * instance->getSlotsperday();
+            int day = lectureTime[instance->getClassesWeek(currentW)[j]->getOrderID()].get(GRB_DoubleAttr_X) /
+                      instance->getSlotsperday();
+            int slot = lectureTime[instance->getClassesWeek(currentW)[j]->getOrderID()].get(GRB_DoubleAttr_X) -
+                       day * instance->getSlotsperday();
             temp += (w ? instance->getClasses()[j]->getLimit() : 1) * (solutionTime[day][slot][j] != 1);
         }
         std::cout << temp << std::endl;
@@ -668,8 +614,10 @@ private:
 
     void switchSolutionTime() {
         for (int i = 0; i < instance->getClassesWeek(currentW).size(); i++) {
-            int day = lectureTime[i].get(GRB_DoubleAttr_X) / instance->getSlotsperday();
-            int slot = lectureTime[i].get(GRB_DoubleAttr_X) - day * instance->getSlotsperday();
+            int day = lectureTime[instance->getClassesWeek(currentW)[i]->getOrderID()].get(GRB_DoubleAttr_X)
+                      / instance->getSlotsperday();
+            int slot = lectureTime[instance->getClassesWeek(currentW)[i]->getOrderID()].get(GRB_DoubleAttr_X)
+                       - day * instance->getSlotsperday();
 
             solutionTime[day][slot][i] = 1;
             instance->getClassesWeek(currentW)[i]->setSolutionTime(slot,
@@ -690,7 +638,8 @@ private:
             v[l] = new GRBVar[instance->getClassesWeek(currentW)[l]->getNumSlots()];
             GRBVar *orV = new GRBVar[instance->getClassesWeek(currentW)[l]->getNumSlots()];
             for (int i = 0; i < instance->getClassesWeek(currentW)[l]->getNumSlots(); ++i) {
-                std::string name = "v_" + itos(l) + "_" + itos(i);
+                std::string name = "v_" + itos(instance->getClassesWeek(currentW)[l]->getOrderID())
+                                   + "_" + itos(instance->getClassesWeek(currentW)[i]->getOrderID());
                 v[l][i] = model->addVar(0, 1, 0, GRB_BINARY, name);
             }
             int i = 0;
@@ -707,12 +656,12 @@ private:
         }
     }
 
-    virtual void travel(std::vector<int> c, int pen) {
+    virtual void travel(std::vector<Class *> c, int pen) {
         try {
 
             GRBLinExpr opt = 0;
             if (pen == -1)
-                roomLecture->travel(c, lectureTime, order);
+                roomLecture->travel(c, lectureTime, sameday);
             else
                 opt = roomLecture->travel(c, pen);
         } catch (GRBException e) {

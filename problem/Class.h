@@ -239,6 +239,7 @@ public:
         return possibleRooms;
     }
 
+    //TODO::gene
     bool isActive(int w) {
         return lectures[0]->isActive(w);
     }

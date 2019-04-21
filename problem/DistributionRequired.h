@@ -12,8 +12,8 @@
 class DistributionRequired: public distribution {
 
 public:
-    DistributionRequired(Constraint *type, std::vector<int, std::allocator<int>> classes) : distribution(classes,
-                                                                                                         *type) {
+    DistributionRequired(Constraint *type, std::vector<Class *> classes) : distribution(classes,
+                                                                                        *type) {
 
     }
 

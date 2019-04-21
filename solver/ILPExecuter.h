@@ -388,7 +388,7 @@ protected:
 
     }
 
-    virtual void travel(std::vector<int> c, int pen) {}
+    virtual void travel(std::vector<Class *> c, int pen) {}
 
 public:
     virtual void dayConst() {}

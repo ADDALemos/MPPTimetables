@@ -12,14 +12,14 @@
 
 
 class distribution {
-    std::vector<int> classes;
+    std::vector<Class *> classes;
     Constraint type;
 public:
-    const std::vector<int, std::allocator<int>> &getClasses() const {
+    const std::vector<Class *> &getClasses() const {
         return classes;
     }
 
-    void setClasses(const std::vector<int, std::allocator<int>> &classes) {
+    void setClasses(const std::vector<Class *> &classes) {
         distribution::classes = classes;
     }
 
@@ -33,8 +33,8 @@ public:
 
     virtual int getPenalty()=0;
 
-    distribution(const std::vector<int, std::allocator<int>> &classes, const Constraint &type) : classes(classes),
-                                                                                                 type(type) {}
+    distribution(const std::vector<Class *> &classes, const Constraint &type) : classes(classes),
+                                                                                type(type) {}
 
 };
 

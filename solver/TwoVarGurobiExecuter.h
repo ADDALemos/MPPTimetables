@@ -246,7 +246,8 @@ public:
             if (!roomLecture->isStatic()) {
                 for (int i = 0, r = 0; i < instance->getRooms().size(); ++i) {
                     if (instance->getClassesWeek(currentW)[j]->containsRoom(instance->getRoom(i + 1))) {
-                        solutionRoom[i][j] = roomLecture->getGRB()[j][r].get(GRB_DoubleAttr_X);
+                        solutionRoom[i][j] = roomLecture->getGRB()
+                        [instance->getClassesWeek(currentW)[j]->getOrderID()][r].get(GRB_DoubleAttr_X);
                         if (solutionRoom[i][j] != 0) {
                             instance->getClasses()[j]->setSolRoom(i + 1);
                         }

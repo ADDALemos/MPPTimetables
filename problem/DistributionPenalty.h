@@ -13,7 +13,7 @@ class DistributionPenalty : public  distribution{
     int penalty;
 
 public:
-    DistributionPenalty(Constraint *pLimit, std::vector<int, std::allocator<int>> classes, int penalty) :
+    DistributionPenalty(Constraint *pLimit, std::vector<Class *> classes, int penalty) :
             distribution(classes, *pLimit), penalty(penalty) {}
 
     virtual int getPenalty() { return penalty; }
