@@ -501,8 +501,8 @@ public:
     int maxTimeSlot() {
         int max = 0;
         for (int i = 0; i < getClasses().size(); ++i) {
-            if ((getClasses()[i]->getStart() + getClasses()[i]->getLenght()) > max) {
-                max = (getClasses()[i]->getStart() + getClasses()[i]->getLenght());
+            if ((getClasses()[i]->getMaxStart() + getClasses()[i]->getLenght()) > max) {
+                max = (getClasses()[i]->getMaxStart() + getClasses()[i]->getLenght());
             }
         }
         return max;
@@ -511,8 +511,8 @@ public:
     int minTimeSlot() {
         int min = maxTimeSlot();
         for (int i = 0; i < getClasses().size(); ++i) {
-            if (getClasses()[i]->getStart() < min) {
-                min = getClasses()[i]->getStart();
+            if (getClasses()[i]->getMinStart() < min) {
+                min = getClasses()[i]->getMinStart();
             }
         }
         return min;

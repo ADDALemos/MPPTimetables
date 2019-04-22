@@ -618,6 +618,7 @@ private:
                       / instance->getSlotsperday();
             int slot = lectureTime[instance->getClassesWeek(currentW)[i]->getOrderID()].get(GRB_DoubleAttr_X)
                        - day * instance->getSlotsperday();
+            //std::cerr<<day<<" "<<slot<<std::endl;
 
             solutionTime[day][slot][i] = 1;
             instance->getClassesWeek(currentW)[i]->setSolutionTime(slot,
@@ -632,28 +633,43 @@ private:
         roomLecture->force(solutionRoom, lectureTime, solutionTime);
     }
 
-    virtual void block() {
-        GRBVar **v = new GRBVar *[instance->getClassesWeek(currentW).size()];
-        for (int l = 0; l < instance->getClassesWeek(currentW).size(); ++l) {
-            v[l] = new GRBVar[instance->getClassesWeek(currentW)[l]->getNumSlots()];
-            GRBVar *orV = new GRBVar[instance->getClassesWeek(currentW)[l]->getNumSlots()];
-            for (int i = 0; i < instance->getClassesWeek(currentW)[l]->getNumSlots(); ++i) {
-                std::string name = "v_" + itos(instance->getClassesWeek(currentW)[l]->getOrderID())
-                                   + "_" + itos(instance->getClassesWeek(currentW)[i]->getOrderID());
-                v[l][i] = model->addVar(0, 1, 0, GRB_BINARY, name);
+    /*
+     * for (int l = 0; l < instance->getClassesWeek(currentW).size(); ++l) {
+            GRBLinExpr orL=0;
+            for (int temp: instance->getClassesWeek(currentW)[l]->getSlots()) {
+                GRBVar t = model->addVar(0,1,0,GRB_BINARY,"TempG_"+itos(l)+itos(temp));
+                model->addGenConstrIndicator(t,0,lectureTime[l] >= temp);
+                model->addGenConstrIndicator(t,1,lectureTime[l] <= temp-1);//Not acceptable
+                GRBVar t1 = model->addVar(0,1,0,GRB_BINARY,"TempG1_"+itos(l)+itos(temp));
+                model->addGenConstrIndicator(t1,1,lectureTime[l] >= temp+1);//Not acceptable
+                model->addGenConstrIndicator(t1,0,lectureTime[l] <= temp);
+                GRBVar t2= model->addVar(0,1,0,GRB_BINARY,"TempOR_"+itos(l)+itos(temp));
+                model->addGenConstrIndicator(t2,1,lectureTime[l] ==temp);
+                model->addGenConstrIndicator(t2,0,t1+t==1);//Not acceptable OR
+                orL+=t2;
             }
-            int i = 0;
-            for (std::pair<int, int> p:instance->getClassesWeek(currentW)[l]->getSlots()) {
-                model->addGenConstrIndicator(v[l][i], 1, lectureTime[l] == p.second);
-//                model->addGenConstrIndicator(v[l][i],0,lectureTime[l]-p.second+
-                //                                                             p.second+lectureTime[l]>=1);
-                orV[i] = v[l][i];
-                i++;
-            }
-            GRBVar t = model->addVar(0, 1, 0, GRB_BINARY);
-            model->addGenConstrOr(t, orV, instance->getClassesWeek(currentW)[l]->getNumSlots());
-            model->addConstr(t >= 0);
+            model->addConstr(orL==1);
         }
+     */
+    virtual void block() {
+        try {
+        for (int l = 0; l < instance->getClassesWeek(currentW).size(); ++l) {
+            for (int temp = 0; temp < instance->getSlotsperday(); temp++) {
+                if (*instance->getClassesWeek(currentW)[l]->getSlots(instance->minTimeSlot()).find(temp) != temp) {
+                    GRBVar t = model->addVar(0, 1, 0, GRB_BINARY, "TempG_" + itos(l) + itos(temp));
+                    model->addGenConstrIndicator(t, 0, lectureTime[l] >= temp);
+                    model->addGenConstrIndicator(t, 1, lectureTime[l] <= temp - 1);//Not acceptable
+                    GRBVar t1 = model->addVar(0, 1, 0, GRB_BINARY, "TempG1_" + itos(l) + itos(temp));
+                    model->addGenConstrIndicator(t1, 1, lectureTime[l] >= temp + 1);//Not acceptable
+                    model->addGenConstrIndicator(t1, 0, lectureTime[l] <= temp);
+                    model->addConstr(t1 + t >= 1);
+                }
+            }
+        }
+        } catch (GRBException e) {
+            printError(e, "block");
+        }
+
     }
 
     virtual void travel(std::vector<Class *> c, int pen) {

@@ -37,11 +37,10 @@ public:
         return lectures.size();
     }
 
-    const std::vector<std::pair<int, int>> getSlots() const {
-        std::vector<std::pair<int, int>> temp;
+    const std::set<int> getSlots(int min) const {
+        std::set<int> temp;
         for (int i = 0; i < lectures.size(); ++i) {
-            std::pair<int, int> t(1, lectures[i]->getStart());
-            temp.push_back(t);
+            temp.insert(lectures[i]->getStart() - min);
         }
         return temp;
     }
@@ -189,10 +188,33 @@ public:
     }
 
     int getStart() const {
+        throw "Legacy Mode";
         return lectures[0]->getStart();
     }
 
+
+    int getMaxStart() const {
+        int max = 0;
+        for (int i = 0; i < lectures.size(); ++i) {
+            if ((lectures[i]->getStart() + lectures[i]->getLenght()) > max) {
+                max = (lectures[i]->getStart() + lectures[i]->getLenght());
+            }
+        }
+        return max;
+    }
+
+    int getMinStart() const {
+        int min = getMaxStart();
+        for (int i = 0; i < lectures.size(); ++i) {
+            if (lectures[i]->getStart() < min) {
+                min = lectures[i]->getStart();
+            }
+        }
+        return min;
+    }
+
     std::string getDays() const {
+        //throw "Legacy Mode";
         return lectures[0]->getDays();
     }
 
@@ -208,6 +230,7 @@ public:
     }
 
     std::string getWeek() const {
+        //throw "Legacy Mode";
         return lectures[0]->getWeeks();
     }
 

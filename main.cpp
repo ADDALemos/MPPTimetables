@@ -103,7 +103,6 @@ int main(int argc, char **argv) {
         std::exit(42);
     }
 
-
     int i = 0;
     int iold = 0;
     while (i < instance->getNweek()) {
@@ -273,7 +272,7 @@ void writeOutputXML(std::string filename, Instance *instance, double time) {
         child->append_attribute(
                 doc.allocate_attribute("days", doc.allocate_string(instance->getClasses()[c]->getSolDays().c_str())));
         child->append_attribute(doc.allocate_attribute("start", doc.allocate_string(
-                std::to_string(instance->getClasses()[c]->getSolStart()).c_str())));
+                std::to_string(instance->getClasses()[c]->getSolStart() + instance->minTimeSlot()).c_str())));
         child->append_attribute(
                 doc.allocate_attribute("weeks", doc.allocate_string(instance->getClasses()[c]->getSolWeek().c_str())));
         if (instance->getClasses()[c]->getSolRoom() != -1)
