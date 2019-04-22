@@ -681,6 +681,46 @@ private:
 
     }
 
+    void overlap(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
+        try {
+            for (int c1 = 0; c1 < vector.size(); c1++) {
+                for (int c2 = c1 + 1; c2 < vector.size(); ++c2) {
+                    if (b) {
+                        //Same time
+                        GRBVar t = model->addVar(0, 1, 0, GRB_BINARY);
+                        model->addGenConstrIndicator(t, 1, order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
+                                                           +
+                                                           order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] <=
+                                                           1);
+                        model->addGenConstrIndicator(t, 0, order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
+                                                           +
+                                                           order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] ==
+                                                           2);
+                        //Same day
+                        GRBVar d = model->addVar(0, 1, 0, GRB_BINARY);
+                        model->addGenConstrIndicator(d, 0,
+                                                     sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 1);
+                        model->addGenConstrIndicator(d, 1,
+                                                     sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 0);
+                        model->addConstr(d + t >= 1);
+
+                    } else {
+                        //Same time
+                        model->addConstr(order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
+                                         + order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] == 2);
+                        //Same day
+                        model->addConstr(sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 1);
+                        //Same week!
+                    }
+
+                }
+            }
+        } catch (GRBException e) {
+            printError(e, "studentConflictSolution");
+        }
+
+    }
+
 
 };
 

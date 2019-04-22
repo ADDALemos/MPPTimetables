@@ -7,6 +7,7 @@
 
 enum ConstraintType {
     NotOverlap,
+    Overlap,
     Prencedence,
     SameAttendees,
     SameStart,

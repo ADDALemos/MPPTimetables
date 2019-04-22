@@ -250,7 +250,6 @@ public:
             }
         }
         return temp;
-        //model->setObjective(temp,GRB_MINIMIZE);
     }
 
     virtual void travel(std::vector<Class *> c, GRBVar *time, GRBVar **sameday, int pen) throw() {

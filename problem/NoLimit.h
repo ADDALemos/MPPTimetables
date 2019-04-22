@@ -15,6 +15,7 @@ class NoLimit : public Constraint {
 public:
     void setType(std::string s) override {
         static std::map<std::string, ConstraintType> theMap = {{"NotOverlap",    NotOverlap},
+                                                               {"Overlap",       Overlap},
                                                                {"Prencedence",   Prencedence},
                                                                {"SameAttendees", SameAttendees},
                                                                {"SameStart",     SameStart},
