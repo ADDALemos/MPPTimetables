@@ -24,7 +24,8 @@ public:
                                                                {"DifferentDays", DifferentDays},
                                                                {"SameStart",     SameStart},
                                                                {"SameWeeks",     SameWeeks},
-                                                               {"SameRoom",      SameRoom}};
+                                                               {"SameRoom",      SameRoom},
+                                                               {"DifferentRoom", DifferentRoom}};
 
         type = theMap[s];
 

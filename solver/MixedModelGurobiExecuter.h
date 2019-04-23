@@ -672,6 +672,17 @@ private:
 
     }
 
+    /**
+     * Given classes cannot overlap in time, and if they are placedon overlapping days of week and weeks, they must
+     * be placed far enough so that the attendees can travel between the two classes. This means that
+     * (Ci.end + Ci.room.travel[Cj .room] ≤ Cj .start) ∨ (Cj .end + Cj .room.travel[Ci.room] ≤ Ci.start) ∨
+     * ((Ci.days and Cj .days) = 0) ∨ ((Ci.weeks and Cj .weeks) = 0) for any two classes Ci and Cj from the constraint;
+     * Ci.room.travel[Cj .room] is the travel time between the assigned rooms of Ci and Cj .
+     * @param c
+     * @param pen
+     * @return
+     */
+
     virtual GRBLinExpr travel(std::vector<Class *> c, int pen) {
         try {
             return roomLecture->travel(c, lectureTime, sameday, pen);
@@ -699,54 +710,107 @@ private:
     virtual GRBLinExpr precedence(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty) {
         try {
             GRBLinExpr result = 0;
-            for (int c1 = 0; c1 < vector.size(); c1++) {
-                for (int c2 = c1 + 1; c2 < vector.size(); ++c2) {
-                    if (vector[c1]->isActive(currentW) && vector[c2]->isActive(currentW)) {
+            for (int c1 = 1; c1 < vector.size(); c1++) {
+                if (vector[c1 - 1]->isActive(currentW) && vector[c1]->isActive(currentW)) {
                         GRBLinExpr t = 0;
                         GRBLinExpr prev = 0;
                         GRBLinExpr curre = 0;
                         for (int d = 0; d < instance->getNdays(); ++d) {
-                            curre += day[vector[c2]->getOrderID()][d];
+                            curre += day[vector[c1]->getOrderID()][d];
                             GRBVar sameD = model->addVar(0, 1, 0, GRB_BINARY);
                             model->addGenConstrIndicator(sameD, 0,
                                                          curre == 0);
                             model->addGenConstrIndicator(sameD, 0,
                                                          prev == 0);
                             model->addGenConstrIndicator(sameD, 0,
-                                                         day[vector[c1]->getOrderID()][d] == 1);
+                                                         day[vector[c1 - 1]->getOrderID()][d] == 1);
                             model->addGenConstrIndicator(sameD, 1,
                                                          curre == 0);
                             model->addGenConstrIndicator(sameD, 0,
                                                          prev >= 1);
                             model->addGenConstrIndicator(sameD, 0,
-                                                         day[vector[c1]->getOrderID()][d] == 1);
+                                                         day[vector[c1 - 1]->getOrderID()][d] == 1);
 
-                            prev += day[vector[c1]->getOrderID()][d];
+                            prev += day[vector[c1 - 1]->getOrderID()][d];
                             t += sameD;
 
                         }
                         if (penalty == -1)
-                            model->addConstr(order[vector[c1]->getOrderID()][vector[c2]->getOrderID()] + t >= 1);
+                            model->addConstr(order[vector[c1 - 1]->getOrderID()][vector[c1]->getOrderID()] + t >= 1);
                         else {
                             GRBVar pen = model->addVar(0, 1, 0, GRB_BINARY);
                             model->addGenConstrIndicator(pen, 1,
-                                                         order[vector[c1]->getOrderID()][vector[c2]->getOrderID()] +
+                                                         order[vector[c1 - 1]->getOrderID()][vector[c1]->getOrderID()] +
                                                          t >= 1);
                             model->addGenConstrIndicator(pen, 0,
-                                                         order[vector[c1]->getOrderID()][vector[c2]->getOrderID()] +
+                                                         order[vector[c1 - 1]->getOrderID()][vector[c1]->getOrderID()] +
                                                          t == 0);
                             result += pen * penalty;
 
                         }
                     }
 
-                }
+
             }
             return result;
         } catch (GRBException e) {
             printError(e, "precedence");
         }
     }
+
+    /**
+     * Given classes must start at the same time slot, regardless of their
+     * days of week or weeks. This means that Ci.start = Cj .start for any two
+     * classes Ci and Cj from the constraint; Ci.start is the assigned start time slot
+     * of a class Ci.
+     * @param vector
+     * @param penalty
+     * @return
+     */
+
+    GRBLinExpr sameStart(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty) {
+        try {
+            GRBLinExpr result = 0;
+            for (int c1 = 0; c1 < vector.size(); c1++) {
+                for (int c2 = c1 + 1; c2 < vector.size(); ++c2) {
+                    if (vector[c1]->isActive(currentW) && vector[c2]->isActive(currentW)) {
+                        if (penalty == -1) {
+                            model->addConstr(
+                                    lectureTime[vector[c1]->getOrderID()] == lectureTime[vector[c1]->getOrderID()]);
+                        } else {
+                            GRBVar temp = model->addVar(0, 1, 0, GRB_BINARY);
+                            model->addGenConstrIndicator(temp, 1, lectureTime[vector[c1]->getOrderID()] >=
+                                                                  lectureTime[vector[c1]->getOrderID()] + 1);
+                            model->addGenConstrIndicator(temp, 0, lectureTime[vector[c1]->getOrderID()] <=
+                                                                  lectureTime[vector[c1]->getOrderID()]);
+                            GRBVar temp1 = model->addVar(0, 1, 0, GRB_BINARY);
+                            model->addGenConstrIndicator(temp1, 1, lectureTime[vector[c1]->getOrderID()] <=
+                                                                   lectureTime[vector[c1]->getOrderID()] - 1);
+                            model->addGenConstrIndicator(temp1, 0, lectureTime[vector[c1]->getOrderID()] >=
+                                                                   lectureTime[vector[c1]->getOrderID()]);
+                            result += (temp1 + temp) * penalty;
+                        }
+
+                    }
+                }
+            }
+            return penalty;
+        } catch (GRBException e) {
+            printError(e, "DifferentDays");
+        }
+    }
+
+    /**
+     * Given classes must be taught on different days of the week,
+     * regardless of their start time slots and weeks. This means that
+     * (Ci.days and Cj .days) = 0
+     * for any two classes Ci and Cj from the constraint; doing binary ,,and” between
+     * the bit strings representing the assigned days.
+     * @param vector
+     * @param penalty
+     * @param b
+     * @return
+     */
 
     virtual GRBLinExpr differentDay(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
         try {
@@ -785,6 +849,19 @@ private:
         }
     }
 
+    /**
+     * Given classes overlap in time. Two classes overlap in time when they
+     * overlap in time of day, days of the week, as well as weeks. This means that
+     * (Cj .start < Ci.end) ∧ (Ci.start < Cj .end) ∧ ((Ci.days and Cj .days) 6= 0) ∧
+     * ((Ci.weeks and Cj .weeks) 6= 0)
+     * for any two classes Ci and Cj from the constraint, doing binary ,,and” between
+     * days and weeks of Ci and Cj .
+     * @param vector
+     * @param penalty
+     * @param b
+     * @return
+     */
+
     virtual GRBLinExpr overlap(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
         try {
             GRBLinExpr result = 0;
@@ -810,15 +887,41 @@ private:
                             model->addGenConstrIndicator(d, 1,
                                                          sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] ==
                                                          0);
-                            model->addConstr(d + t >= 1);
+                            if (penalty == -1)
+                                model->addConstr(d + t >= 1);
+                            else {
+                                GRBVar temp = model->addVar(0, 1, 0, GRB_BINARY);
+                                model->addConstr(temp, 0, d + t >= 1);
+                                model->addConstr(temp, 1, d + t == 0);
+                                result += penalty * temp;
+                            }
 
                         } else {
-                            //Same time
-                            model->addConstr(order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
-                                             + order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] == 2);
-                            //Same day
-                            model->addConstr(sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 1);
-                            //Same week!
+                            if (penalty == -1) {
+                                //Same time
+                                model->addConstr(order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
+                                                 + order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] == 2);
+                                //Same day
+                                model->addConstr(sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 1);
+                                //Same week!
+                            } else {
+                                GRBVar temp = model->addVar(0, 1, 0, GRB_BINARY);
+                                model->addConstr(temp, 0, order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
+                                                          + order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] ==
+                                                          2);
+                                model->addConstr(temp, 1, order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
+                                                          + order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] <=
+                                                          1);
+                                GRBVar temp1 = model->addVar(0, 1, 0, GRB_BINARY);
+                                model->addConstr(temp1, 0,
+                                                 sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 1);
+                                model->addConstr(temp1, 1,
+                                                 sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 0);
+                                GRBVar temp2 = model->addVar(0, 1, 0, GRB_BINARY);
+                                model->addConstr(temp1, 0, temp1 + temp <= 1);
+                                model->addConstr(temp1, 1, temp1 + temp == 2);
+                                result += penalty * temp2;
+                            }
                         }
                     }
 
@@ -831,7 +934,20 @@ private:
 
     }
 
+    /**
+     * Given classes should be placed in the same room. This means that
+     *(Ci.room = Cj .room) for any two classes Ci and Cj from the constraint;
+     *Ci.room is the assigned room of Ci
+     * @param vector
+     * @param penalty
+     * @param b
+     * @return
+     */
 
+    GRBLinExpr differentRoom(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
+        roomLecture->differentRoom(vector, penalty, b);
+
+    }
 };
 
 

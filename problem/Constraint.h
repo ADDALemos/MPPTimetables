@@ -16,6 +16,7 @@ enum ConstraintType {
     DifferentDays,
     SameWeeks,
     SameRoom,
+    DifferentRoom,
     MaxBreaks,
     MaxBlock,
     WorkDay,

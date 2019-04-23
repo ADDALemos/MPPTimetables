@@ -361,6 +361,14 @@ private:
 
     virtual GRBLinExpr travel(std::vector<Class *> c, int pen) {}
 
+    virtual GRBLinExpr differentRoom(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
+        return 0;
+    }
+
+    GRBLinExpr sameStart(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty) {
+        return 0;
+    }
+
     virtual void dist() {
         GRBLinExpr opt = 0;
         for (int i = 0; i < instance->getDist().size(); ++i) {
@@ -376,7 +384,14 @@ private:
                 opt += differentDay(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
             } else if (instance->getDist()[i]->getType().getType() == Precedence) {
                 opt += precedence(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
+            } else if (instance->getDist()[i]->getType().getType() == SameRoom) {
+                opt += differentRoom(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), false);
+            } else if (instance->getDist()[i]->getType().getType() == DifferentRoom) {
+                opt += differentRoom(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
+            } else if (instance->getDist()[i]->getType().getType() == SameStart) {
+                opt += sameStart(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty());
             }
+
         }
         model->setObjective(opt, GRB_MINIMIZE);
 

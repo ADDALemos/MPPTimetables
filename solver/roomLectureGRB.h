@@ -306,6 +306,48 @@ public:
 
     }
 
+    virtual GRBLinExpr differentRoom(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
+        GRBLinExpr result = 0;
+        for (int c1 = 0; c1 < vector.size(); c1++) {
+            for (int c2 = c1 + 1; c2 < vector.size(); ++c2) {
+                if (vector[c1]->isActive(currentW) && vector[c2]->isActive(currentW)) {
+                    int i = 0, i1 = 0, i2 = 0;
+                    for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
+                         it != instance->getRooms().end(); it++) {
+                        if (vector[c1]->containsRoom(instance->getRoom(i + 1))) {
+                            if (vector[c2]->containsRoom(instance->getRoom(i + 1))) {
+                                if (penalty == -1) {
+                                    if (b)
+                                        model->addConstr(
+                                                this->vector[vector[c1]->getOrderID()][i1] ==
+                                                this->vector[vector[c2]->getOrderID()][i2]);
+                                    else
+                                        model->addConstr(
+                                                this->vector[vector[c1]->getOrderID()][i1] +
+                                                this->vector[vector[c2]->getOrderID()][i2] <= 1);
+                                } else {
+                                    GRBVar sameRoom = model->addVar(0, 1, 0, GRB_BINARY);
+                                    model->addGenConstrIndicator(sameRoom, (b ? 1 : 0),
+                                                                 this->vector[vector[c1]->getOrderID()][i1] ==
+                                                                 this->vector[vector[c2]->getOrderID()][i2]);
+                                    model->addGenConstrIndicator(sameRoom, (b ? 0 : 1),
+                                                                 this->vector[vector[c1]->getOrderID()][i1] +
+                                                                 this->vector[vector[c2]->getOrderID()][i2] <= 1);
+                                    result += sameRoom;
+                                }
+
+                                i2++;
+                            }
+                            i1++;
+                        }
+                        i++;
+
+                    }
+                }
+            }
+        }
+    }
+
 
 
 

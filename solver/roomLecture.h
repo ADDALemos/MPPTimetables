@@ -50,6 +50,10 @@ public:
         return 0;
     }
 
+    virtual GRBLinExpr differentRoom(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
+        return 0;
+    }
+
 
 
 
