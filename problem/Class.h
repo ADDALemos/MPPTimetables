@@ -213,12 +213,34 @@ public:
         return min;
     }
 
-    std::string getDays() const {
-        //throw "Legacy Mode";
-        return lectures[0]->getDays();
+    int getMaxDays() const {
+        int max = 0;
+        for (int i = 0; i < lectures.size(); ++i) {
+            int j = 0;
+            for (char &c : lectures[i]->getDays()) {
+                if (c == '1' && j > max)
+                    max = j;
+                j++;
+            }
+        }
+        return max;
+    }
+
+    int getMinDays() const {
+        int min = getMaxDays();
+        for (int i = 0; i < lectures.size(); ++i) {
+            int j = 0;
+            for (char &c : lectures[i]->getDays()) {
+                if (c == '1' && j < min)
+                    min = j;
+                j++;
+            }
+        }
+        return min;
     }
 
     int getDay() {
+        throw "Legacy Mode";
         int i = 0;
         for (char &c : getDays()) {
             i++;
@@ -227,6 +249,11 @@ public:
 
         }
         return -1;
+    }
+
+    std::string getDays() {
+        throw "Legacy Mode";
+        return lectures[0]->getDays();
     }
 
     std::string getWeek() const {

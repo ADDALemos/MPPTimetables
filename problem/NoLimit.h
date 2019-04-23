@@ -16,11 +16,12 @@ public:
     void setType(std::string s) override {
         static std::map<std::string, ConstraintType> theMap = {{"NotOverlap",    NotOverlap},
                                                                {"Overlap",       Overlap},
-                                                               {"Prencedence",   Prencedence},
+                                                               {"Precedence",    Precedence},
                                                                {"SameAttendees", SameAttendees},
                                                                {"SameStart",     SameStart},
                                                                {"SameTime",      SameTime},
                                                                {"SameDays",      SameDays},
+                                                               {"DifferentDays", DifferentDays},
                                                                {"SameStart",     SameStart},
                                                                {"SameWeeks",     SameWeeks},
                                                                {"SameRoom",      SameRoom}};

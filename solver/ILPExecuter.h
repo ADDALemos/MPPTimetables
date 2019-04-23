@@ -387,26 +387,27 @@ protected:
 
 
     }
-
-    virtual void travel(std::vector<Class *> c, int pen) {}
-
 public:
+
+
+    virtual GRBLinExpr travel(std::vector<Class *> c, int pen) { return 0; }
+
     virtual void dayConst() {}
 
-    void overlap(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
-
+    virtual GRBLinExpr overlap(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
+        return 0;
     }
 
-    void dist() {
-        for (int i = 0; i < instance->getDist().size(); ++i) {
-            if (instance->getDist()[i]->getType().getType() == SameAttendees) {
-                travel(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty());
-            } else if (instance->getDist()[i]->getType().getType() == NotOverlap) {
-                overlap(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
-            } else if (instance->getDist()[i]->getType().getType() == Overlap) {
-                overlap(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), false);
-            }
-        }
+    virtual GRBLinExpr differentDay(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
+        return 0;
+    }
+
+    virtual GRBLinExpr precedence(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
+        return 0;
+    }
+
+    virtual void dist() {
+
     }
 
 

@@ -46,7 +46,9 @@ public:
         currentW = currrentW;
     }
 
-    virtual void travel(std::vector<Class *> c, GRBVar *time, GRBVar **sameday, int pen) {}
+    virtual GRBLinExpr travel(std::vector<Class *> c, GRBVar *time, GRBVar **sameday, int pen) {
+        return 0;
+    }
 
 
 

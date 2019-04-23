@@ -359,7 +359,28 @@ private:
      */
     virtual void switchSolutionRoom() =0;
 
-    virtual void travel(std::vector<int> c, int pen) {}
+    virtual GRBLinExpr travel(std::vector<Class *> c, int pen) {}
+
+    virtual void dist() {
+        GRBLinExpr opt = 0;
+        for (int i = 0; i < instance->getDist().size(); ++i) {
+            if (instance->getDist()[i]->getType().getType() == SameAttendees) {
+                opt += travel(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty());
+            } else if (instance->getDist()[i]->getType().getType() == NotOverlap) {
+                opt += overlap(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
+            } else if (instance->getDist()[i]->getType().getType() == Overlap) {
+                opt += overlap(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), false);
+            } else if (instance->getDist()[i]->getType().getType() == SameDays) {
+                opt += differentDay(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), false);
+            } else if (instance->getDist()[i]->getType().getType() == DifferentDays) {
+                opt += differentDay(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
+            } else if (instance->getDist()[i]->getType().getType() == Precedence) {
+                opt += precedence(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
+            }
+        }
+        model->setObjective(opt, GRB_MINIMIZE);
+
+    }
 
 
 };

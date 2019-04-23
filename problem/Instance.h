@@ -525,12 +525,8 @@ public:
     int maxDay() {
         int max = 0;
         for (int i = 0; i < getClasses().size(); ++i) {
-            int j = 0;
-            for (char &c : getClasses()[i]->getDays()) {
-                if (c == '1' && j > max)
-                    max = j;
-                j++;
-            }
+            if (getClasses()[i]->getMaxDays() > max)
+                max = getClasses()[i]->getMaxDays();
         }
         return max;
     }
@@ -538,12 +534,8 @@ public:
     int minDay() {
         int min = maxDay();
         for (int i = 0; i < getClasses().size(); ++i) {
-            int j = 0;
-            for (char &c : getClasses()[i]->getDays()) {
-                if (c == '1' && j < min)
-                    min = j;
-                j++;
-            }
+            if (getClasses()[i]->getMinDays() < min)
+                min = getClasses()[i]->getMinDays();
         }
         return min;
     }

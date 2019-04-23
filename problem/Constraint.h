@@ -8,11 +8,12 @@
 enum ConstraintType {
     NotOverlap,
     Overlap,
-    Prencedence,
+    Precedence,
     SameAttendees,
     SameStart,
     SameTime,
     SameDays,
+    DifferentDays,
     SameWeeks,
     SameRoom,
     MaxBreaks,

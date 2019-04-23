@@ -136,7 +136,7 @@ int main(int argc, char **argv) {
             runner->loadPreviousWeekSolution(runner->getSolutionTime(), runner->getSolutionRoom());
             if (iold > i) {
                 if (!quiet) std::cout << "Force " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
-                //runner->force();
+                runner->force();
                 if (!quiet) std::cout << "Force: Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
             }
         }

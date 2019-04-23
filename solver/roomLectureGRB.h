@@ -252,7 +252,7 @@ public:
         return temp;
     }
 
-    virtual void travel(std::vector<Class *> c, GRBVar *time, GRBVar **sameday, int pen) throw() {
+    virtual GRBLinExpr travel(std::vector<Class *> c, GRBVar *time, GRBVar **sameday, int pen) throw() {
         try {
             GRBLinExpr travelL = 0;
             for (Class *l1: c) {
@@ -299,9 +299,7 @@ public:
                 }
 
             }
-            if (pen > -1) {
-                model->setObjective(travelL, GRB_MINIMIZE);
-            }
+            return travelL;
         } catch (GRBException e) {
             printError(e, "travel");
         }

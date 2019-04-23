@@ -672,51 +672,161 @@ private:
 
     }
 
-    virtual void travel(std::vector<Class *> c, int pen) {
+    virtual GRBLinExpr travel(std::vector<Class *> c, int pen) {
         try {
-            roomLecture->travel(c, lectureTime, sameday, pen);
+            return roomLecture->travel(c, lectureTime, sameday, pen);
         } catch (GRBException e) {
             printError(e, "travel");
         }
 
     }
 
-    void overlap(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
+    /**
+      * Precedence Given classes must be one after the other in the order provided in
+      *  the constraint definition. For classes that have multiple meetings in a week or
+      *  that are on different weeks, the constraint only cares about the first meeting
+      *  of the class. That is,
+      *      – the first class starts on an earlier week or
+      *      – they start on the same week and the first class starts on an earlier day of
+      *      the week or
+      *      – they start on the same week and day of the week and the first class is
+      *      earlier in the day.
+      * @param vector
+      * @param penalty
+     **/
+
+
+    virtual GRBLinExpr precedence(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty) {
         try {
+            GRBLinExpr result = 0;
             for (int c1 = 0; c1 < vector.size(); c1++) {
                 for (int c2 = c1 + 1; c2 < vector.size(); ++c2) {
-                    if (b) {
-                        //Same time
-                        GRBVar t = model->addVar(0, 1, 0, GRB_BINARY);
-                        model->addGenConstrIndicator(t, 1, order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
-                                                           +
-                                                           order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] <=
-                                                           1);
-                        model->addGenConstrIndicator(t, 0, order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
-                                                           +
-                                                           order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] ==
-                                                           2);
-                        //Same day
-                        GRBVar d = model->addVar(0, 1, 0, GRB_BINARY);
-                        model->addGenConstrIndicator(d, 0,
-                                                     sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 1);
-                        model->addGenConstrIndicator(d, 1,
-                                                     sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 0);
-                        model->addConstr(d + t >= 1);
+                    if (vector[c1]->isActive(currentW) && vector[c2]->isActive(currentW)) {
+                        GRBLinExpr t = 0;
+                        GRBLinExpr prev = 0;
+                        GRBLinExpr curre = 0;
+                        for (int d = 0; d < instance->getNdays(); ++d) {
+                            curre += day[vector[c2]->getOrderID()][d];
+                            GRBVar sameD = model->addVar(0, 1, 0, GRB_BINARY);
+                            model->addGenConstrIndicator(sameD, 0,
+                                                         curre == 0);
+                            model->addGenConstrIndicator(sameD, 0,
+                                                         prev == 0);
+                            model->addGenConstrIndicator(sameD, 0,
+                                                         day[vector[c1]->getOrderID()][d] == 1);
+                            model->addGenConstrIndicator(sameD, 1,
+                                                         curre == 0);
+                            model->addGenConstrIndicator(sameD, 0,
+                                                         prev >= 1);
+                            model->addGenConstrIndicator(sameD, 0,
+                                                         day[vector[c1]->getOrderID()][d] == 1);
 
-                    } else {
-                        //Same time
-                        model->addConstr(order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
-                                         + order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] == 2);
-                        //Same day
-                        model->addConstr(sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 1);
-                        //Same week!
+                            prev += day[vector[c1]->getOrderID()][d];
+                            t += sameD;
+
+                        }
+                        if (penalty == -1)
+                            model->addConstr(order[vector[c1]->getOrderID()][vector[c2]->getOrderID()] + t >= 1);
+                        else {
+                            GRBVar pen = model->addVar(0, 1, 0, GRB_BINARY);
+                            model->addGenConstrIndicator(pen, 1,
+                                                         order[vector[c1]->getOrderID()][vector[c2]->getOrderID()] +
+                                                         t >= 1);
+                            model->addGenConstrIndicator(pen, 0,
+                                                         order[vector[c1]->getOrderID()][vector[c2]->getOrderID()] +
+                                                         t == 0);
+                            result += pen * penalty;
+
+                        }
                     }
 
                 }
             }
+            return result;
         } catch (GRBException e) {
-            printError(e, "studentConflictSolution");
+            printError(e, "precedence");
+        }
+    }
+
+    virtual GRBLinExpr differentDay(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
+        try {
+            GRBLinExpr result = 0;
+            for (int c1 = 0; c1 < vector.size(); c1++) {
+                for (int c2 = c1 + 1; c2 < vector.size(); ++c2) {
+                    if (vector[c1]->isActive(currentW) && vector[c2]->isActive(currentW)) {
+                        for (int d = 0; d < instance->getNdays(); ++d) {
+                            if (penalty == -1) {
+                                if (b) {
+                                    model->addConstr(
+                                            day[vector[c1]->getOrderID()][d] + day[vector[c2]->getOrderID()][d] <= 1);
+                                } else {
+                                    model->addConstr(
+                                            day[vector[c1]->getOrderID()][d] + day[vector[c2]->getOrderID()][d] == 2);
+                                }
+                            } else {
+                                GRBVar tempDay = model->addVar(0, 1, 0, GRB_BINARY);
+                                model->addGenConstrIndicator(tempDay, (b ? 1 : 0),
+                                                             day[vector[c1]->getOrderID()][d] +
+                                                             day[vector[c2]->getOrderID()][d] <= 1);
+                                model->addGenConstrIndicator(tempDay, (b ? 0 : 1),
+                                                             day[vector[c1]->getOrderID()][d] +
+                                                             day[vector[c2]->getOrderID()][d] == 2);
+                                result += tempDay;
+
+                            }
+
+                        }
+                    }
+                }
+            }
+            return result;
+        } catch (GRBException e) {
+            printError(e, "DifferentDays");
+        }
+    }
+
+    virtual GRBLinExpr overlap(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
+        try {
+            GRBLinExpr result = 0;
+            for (int c1 = 0; c1 < vector.size(); c1++) {
+                for (int c2 = c1 + 1; c2 < vector.size(); ++c2) {
+                    if (vector[c1]->isActive(currentW) && vector[c2]->isActive(currentW)) {
+                        if (b) {
+                            //Same time
+                            GRBVar t = model->addVar(0, 1, 0, GRB_BINARY);
+                            model->addGenConstrIndicator(t, 1, order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
+                                                               +
+                                                               order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] <=
+                                                               1);
+                            model->addGenConstrIndicator(t, 0, order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
+                                                               +
+                                                               order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] ==
+                                                               2);
+                            //Same day
+                            GRBVar d = model->addVar(0, 1, 0, GRB_BINARY);
+                            model->addGenConstrIndicator(d, 0,
+                                                         sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] ==
+                                                         1);
+                            model->addGenConstrIndicator(d, 1,
+                                                         sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] ==
+                                                         0);
+                            model->addConstr(d + t >= 1);
+
+                        } else {
+                            //Same time
+                            model->addConstr(order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
+                                             + order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] == 2);
+                            //Same day
+                            model->addConstr(sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 1);
+                            //Same week!
+                        }
+                    }
+
+                }
+            }
+            return result;
+        } catch (GRBException e) {
+            printError(e, "overlap");
         }
 
     }
