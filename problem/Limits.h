@@ -24,6 +24,21 @@ public:
 
     }
 
+    int getLimit() const override {
+        return limit;
+    }
+
+    void setLimit(int limit) override {
+        Limits::limit = limit;
+    }
+
+    int getLimit1() const override {
+        return limit1;
+    }
+
+    void setLimit1(int limit1) override {
+        Limits::limit1 = limit1;
+    }
 };
 
 

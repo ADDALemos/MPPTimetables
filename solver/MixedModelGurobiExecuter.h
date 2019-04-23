@@ -651,7 +651,7 @@ private:
             model->addConstr(orL==1);
         }
      */
-    virtual void block() {
+    virtual void block() override {
         try {
         for (int l = 0; l < instance->getClassesWeek(currentW).size(); ++l) {
             for (int temp = 0; temp < instance->getSlotsperday(); temp++) {
@@ -683,7 +683,7 @@ private:
      * @return
      */
 
-    virtual GRBLinExpr travel(std::vector<Class *> c, int pen) {
+    virtual GRBLinExpr travel(std::vector<Class *> c, int pen) override {
         try {
             return roomLecture->travel(c, lectureTime, sameday, pen);
         } catch (GRBException e) {
@@ -707,7 +707,7 @@ private:
      **/
 
 
-    virtual GRBLinExpr precedence(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty) {
+    virtual GRBLinExpr precedence(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty) override {
         try {
             GRBLinExpr result = 0;
             for (int c1 = 1; c1 < vector.size(); c1++) {
@@ -768,7 +768,7 @@ private:
      * @return
      */
 
-    GRBLinExpr sameStart(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty) {
+    GRBLinExpr sameStart(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty) override {
         try {
             GRBLinExpr result = 0;
             for (int c1 = 0; c1 < vector.size(); c1++) {
@@ -812,7 +812,8 @@ private:
      * @return
      */
 
-    virtual GRBLinExpr differentDay(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
+    virtual GRBLinExpr
+    differentDay(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) override {
         try {
             GRBLinExpr result = 0;
             for (int c1 = 0; c1 < vector.size(); c1++) {
@@ -862,7 +863,8 @@ private:
      * @return
      */
 
-    virtual GRBLinExpr overlap(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
+    virtual GRBLinExpr
+    overlap(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) override {
         try {
             GRBLinExpr result = 0;
             for (int c1 = 0; c1 < vector.size(); c1++) {
@@ -891,8 +893,8 @@ private:
                                 model->addConstr(d + t >= 1);
                             else {
                                 GRBVar temp = model->addVar(0, 1, 0, GRB_BINARY);
-                                model->addConstr(temp, 0, d + t >= 1);
-                                model->addConstr(temp, 1, d + t == 0);
+                                model->addGenConstrIndicator(temp, 0, d + t >= 1);
+                                model->addGenConstrIndicator(temp, 1, d + t == 0);
                                 result += penalty * temp;
                             }
 
@@ -906,20 +908,22 @@ private:
                                 //Same week!
                             } else {
                                 GRBVar temp = model->addVar(0, 1, 0, GRB_BINARY);
-                                model->addConstr(temp, 0, order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
-                                                          + order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] ==
-                                                          2);
-                                model->addConstr(temp, 1, order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
-                                                          + order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] <=
-                                                          1);
+                                model->addGenConstrIndicator(temp, 0,
+                                                             order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
+                                                             + order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] ==
+                                                             2);
+                                model->addGenConstrIndicator(temp, 1,
+                                                             order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
+                                                             + order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] <=
+                                                             1);
                                 GRBVar temp1 = model->addVar(0, 1, 0, GRB_BINARY);
-                                model->addConstr(temp1, 0,
+                                model->addGenConstrIndicator(temp1, 0,
                                                  sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 1);
-                                model->addConstr(temp1, 1,
+                                model->addGenConstrIndicator(temp1, 1,
                                                  sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 0);
                                 GRBVar temp2 = model->addVar(0, 1, 0, GRB_BINARY);
-                                model->addConstr(temp1, 0, temp1 + temp <= 1);
-                                model->addConstr(temp1, 1, temp1 + temp == 2);
+                                model->addGenConstrIndicator(temp1, 0, temp1 + temp <= 1);
+                                model->addGenConstrIndicator(temp1, 1, temp1 + temp == 2);
                                 result += penalty * temp2;
                             }
                         }
@@ -944,9 +948,44 @@ private:
      * @return
      */
 
-    GRBLinExpr differentRoom(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
+    GRBLinExpr
+    differentRoom(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) override {
         roomLecture->differentRoom(vector, penalty, b);
+    }
 
+
+    /**
+     * Given classes cannot spread over more than D days of the week,regardless whether they are in the same week of
+     * semester or not. This means that the total number of days of the week that have at least one class of this
+     * distribution constraint C1, . . . , Cn is not greater than D,
+     * countNonzeroBits(C1.days or C2.days or · · · Cn.days) ≤ D where countNonzeroBits(x) returns the number of
+     * non-zero bits in the bit string x. When the constraint is soft, the penalty is multiplied by the number of
+     * days that exceed the given constant D.
+     * @param vector
+     * @param penalty
+     * @param limit
+     * @return GRBLinExpr
+     */
+    virtual GRBLinExpr
+    maxDays(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit) override {
+        GRBLinExpr days = 0;
+        for (int c1 = 0; c1 < vector.size(); ++c1) {
+            if (vector[c1]->isActive(currentW)) {
+                for (int d = 0; d < instance->getNdays(); ++d) {
+                    days += day[vector[c1]->getOrderID()][d];
+                }
+            }
+        }
+        if (penalty == -1) {
+            model->addConstr(days <= limit);
+        } else {
+            GRBVar temp = model->addVar(0, instance->getNdays(), 0, GRB_BINARY);
+            model->addConstr(temp == days - limit);
+            GRBVar temp1 = model->addVar(0, 1, 0, GRB_BINARY);
+            model->addGenConstrAbs(temp1, temp);
+            days = temp1 * penalty;
+        }
+        return days;
     }
 };
 

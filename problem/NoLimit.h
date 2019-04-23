@@ -31,6 +31,22 @@ public:
 
     }
 
+    virtual int getLimit() const override {
+        throw "Not Implemented";
+    }
+
+    virtual void setLimit(int limit) override {
+        throw "Not Implemented";
+    }
+
+    virtual int getLimit1() const override {
+        throw "Not Implemented";
+    }
+
+    virtual void setLimit1(int limit1) override {
+        throw "Not Implemented";
+    }
+
 };
 
 

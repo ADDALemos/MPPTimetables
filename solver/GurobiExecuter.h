@@ -365,11 +365,15 @@ private:
         return 0;
     }
 
-    GRBLinExpr sameStart(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty) {
+    virtual GRBLinExpr sameStart(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty) {
         return 0;
     }
 
-    virtual void dist() {
+    virtual GRBLinExpr maxDays(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit) {
+        return 0;
+    }
+
+    virtual void dist() override {
         GRBLinExpr opt = 0;
         for (int i = 0; i < instance->getDist().size(); ++i) {
             if (instance->getDist()[i]->getType().getType() == SameAttendees) {
@@ -390,6 +394,9 @@ private:
                 opt += differentRoom(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
             } else if (instance->getDist()[i]->getType().getType() == SameStart) {
                 opt += sameStart(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty());
+            } else if (instance->getDist()[i]->getType().getType() == SameStart) {
+                opt += maxDays(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
+                               instance->getDist()[i]->getType().getLimit());
             }
 
         }

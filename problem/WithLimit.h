@@ -14,7 +14,6 @@
 
 class WithLimit: public Constraint {
     int limit;
-    ConstraintType type;
 public:
     WithLimit(int limit) : limit(limit) {}
 
@@ -26,6 +25,22 @@ public:
 
         type = theMap[s];
 
+    }
+
+    virtual int getLimit() const override {
+        return limit;
+    }
+
+    virtual void setLimit(int limit) override {
+        WithLimit::limit = limit;
+    }
+
+    virtual int getLimit1() const override {
+        throw "Not Implemented";
+    }
+
+    virtual void setLimit1(int limit1) override {
+        throw "Not Implemented";
     }
 
 

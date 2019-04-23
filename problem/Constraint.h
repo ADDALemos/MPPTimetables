@@ -34,6 +34,14 @@ public:
         return type;
     }
 
+    virtual int getLimit() const {};
+
+    virtual void setLimit(int limit) {};
+
+    virtual int getLimit1() const {};
+
+    virtual void setLimit1(int limit1) {};
+
 };
 
 
