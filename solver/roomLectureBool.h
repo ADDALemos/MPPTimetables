@@ -93,6 +93,25 @@ public:
         }
     }
 
+    virtual GRBLinExpr roomPen() override {
+        GRBLinExpr pen = 0;
+        for (int j = 0; j < instance->getClassesWeek(currentW).size(); j++) {
+            int r = 0, rl = 0;
+            for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
+                 it != instance->getRooms().end(); it++) {
+                if (instance->getClassesWeek(currentW)[j]->containsRoom(instance->getRoom(r + 1))) {
+                    pen += vector[instance->getClassesWeek(currentW)[j]->getOrderID()][rl] *
+                           instance->getClassesWeek(currentW)[j]->getPen(instance->getRoom(r + 1));
+                    rl++;
+                }
+                r++;
+
+            }
+
+        }
+        return pen;
+    }
+
 
 };
 

@@ -54,6 +54,11 @@ public:
         return 0;
     }
 
+    virtual GRBLinExpr roomPen() {
+        return 0;
+    }
+
+
 
 
 

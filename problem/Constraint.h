@@ -34,13 +34,13 @@ public:
         return type;
     }
 
-    virtual int getLimit() const {};
+    virtual int getLimit() const { throw "Not Implemented"; };
 
-    virtual void setLimit(int limit) {};
+    virtual void setLimit(int limit) { throw "Not Implemented"; };
 
-    virtual int getLimit1() const {};
+    virtual int getLimit1() const { throw "Not Implemented"; };
 
-    virtual void setLimit1(int limit1) {};
+    virtual void setLimit1(int limit1) { throw "Not Implemented"; };
 
 };
 

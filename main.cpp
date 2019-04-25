@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
 
 
     if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
-    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/wbg-fal10.xml");
+    Instance *instance = readInputXML(argv[1]);
 
     if (!quiet) std::cout << "Compacting " << std::endl;
     instance->compact();
@@ -174,9 +174,9 @@ int main(int argc, char **argv) {
         runner->oneLectureRoomConflict();
         if (!quiet) std::cout << "Room : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
-
-        runner->slackStudent();
-        if (!quiet) std::cout << "Slack : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        //TODO: Room penalty
+        //runner->slackStudent();
+        //if (!quiet) std::cout << "Slack : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
         if (opt) {
             if (strcmp(argv[4], "Hamming") == 0) {

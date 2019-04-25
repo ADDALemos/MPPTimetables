@@ -654,14 +654,15 @@ private:
     virtual void block() override {
         try {
         for (int l = 0; l < instance->getClassesWeek(currentW).size(); ++l) {
+            Class *c = instance->getClassesWeek(currentW)[l];
             for (int temp = 0; temp < instance->getSlotsperday(); temp++) {
                 if (*instance->getClassesWeek(currentW)[l]->getSlots(instance->minTimeSlot()).find(temp) != temp) {
-                    GRBVar t = model->addVar(0, 1, 0, GRB_BINARY, "TempG_" + itos(l) + itos(temp));
-                    model->addGenConstrIndicator(t, 0, lectureTime[l] >= temp);
-                    model->addGenConstrIndicator(t, 1, lectureTime[l] <= temp - 1);//Not acceptable
-                    GRBVar t1 = model->addVar(0, 1, 0, GRB_BINARY, "TempG1_" + itos(l) + itos(temp));
-                    model->addGenConstrIndicator(t1, 1, lectureTime[l] >= temp + 1);//Not acceptable
-                    model->addGenConstrIndicator(t1, 0, lectureTime[l] <= temp);
+                    GRBVar t = model->addVar(0, 1, 0, GRB_BINARY, "TempG_" + itos(c->getOrderID()) + itos(temp));
+                    model->addGenConstrIndicator(t, 0, lectureTime[c->getOrderID()] >= temp);
+                    model->addGenConstrIndicator(t, 1, lectureTime[c->getOrderID()] <= temp - 1);//Not acceptable
+                    GRBVar t1 = model->addVar(0, 1, 0, GRB_BINARY, "TempG1_" + itos(c->getOrderID()) + itos(temp));
+                    model->addGenConstrIndicator(t1, 1, lectureTime[c->getOrderID()] >= temp + 1);//Not acceptable
+                    model->addGenConstrIndicator(t1, 0, lectureTime[c->getOrderID()] <= temp);
                     model->addConstr(t1 + t >= 1);
                 }
             }
@@ -969,12 +970,17 @@ private:
     virtual GRBLinExpr
     maxDays(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit) override {
         GRBLinExpr days = 0;
-        for (int c1 = 0; c1 < vector.size(); ++c1) {
-            if (vector[c1]->isActive(currentW)) {
-                for (int d = 0; d < instance->getNdays(); ++d) {
-                    days += day[vector[c1]->getOrderID()][d];
+        for (int d = 0; d < instance->getNdays(); ++d) {
+            GRBLinExpr sumday = 0;
+            for (int c1 = 0; c1 < vector.size(); ++c1) {
+                if (vector[c1]->isActive(currentW)) {
+                    sumday += day[vector[c1]->getOrderID()][d];
                 }
             }
+            GRBVar resDay = model->addVar(0, 1, 0, GRB_BINARY);
+            model->addGenConstrIndicator(resDay, 1, sumday >= 1);
+            model->addGenConstrIndicator(resDay, 0, sumday == 0);
+            days += resDay;
         }
         if (penalty == -1) {
             model->addConstr(days <= limit);
@@ -986,6 +992,10 @@ private:
             days = temp1 * penalty;
         }
         return days;
+    }
+
+    virtual GRBLinExpr roomPen() override {
+        return roomLecture->roomPen();
     }
 };
 

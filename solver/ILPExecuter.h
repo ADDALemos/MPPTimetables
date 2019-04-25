@@ -402,12 +402,16 @@ public:
         return 0;
     }
 
-    virtual GRBLinExpr precedence(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
+    virtual GRBLinExpr precedence(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty) {
         return 0;
     }
 
     virtual void dist() {
 
+    }
+
+    virtual GRBLinExpr roomPen() {
+        return 0;
     }
 
 

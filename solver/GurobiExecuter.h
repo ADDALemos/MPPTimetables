@@ -374,7 +374,7 @@ private:
     }
 
     virtual void dist() override {
-        GRBLinExpr opt = 0;
+        GRBLinExpr opt = roomPen();
         for (int i = 0; i < instance->getDist().size(); ++i) {
             if (instance->getDist()[i]->getType().getType() == SameAttendees) {
                 opt += travel(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty());
@@ -387,7 +387,7 @@ private:
             } else if (instance->getDist()[i]->getType().getType() == DifferentDays) {
                 opt += differentDay(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
             } else if (instance->getDist()[i]->getType().getType() == Precedence) {
-                opt += precedence(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
+                opt += precedence(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty());
             } else if (instance->getDist()[i]->getType().getType() == SameRoom) {
                 opt += differentRoom(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), false);
             } else if (instance->getDist()[i]->getType().getType() == DifferentRoom) {
