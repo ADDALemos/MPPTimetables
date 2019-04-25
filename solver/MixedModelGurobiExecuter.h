@@ -997,6 +997,62 @@ private:
     virtual GRBLinExpr roomPen() override {
         return roomLecture->roomPen();
     }
+
+
+    /** MinGap(G)
+     * Any two classes that are taught on the same day (they are placed on overlapping days and weeks) must be
+     * at least G slots apart. This means that there must be at least G slots between the end of the earlier class and
+     * the start of the later class. That is ((Ci.days and Cj.days) = 0) ∨ ((Ci.weeks and Cj.weeks) = 0) ∨
+     * (Ci.end + G ≤ Cj.start) ∨ (Cj.end + G ≤ Ci.start) for any two classes Ci and Cj from the constraint.
+     * @param vector
+     * @param penalty
+     * @param limit
+     * @return
+     */
+    virtual GRBLinExpr minGap(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit) {
+        GRBLinExpr res = 0;
+        for (int c1 = 0; c1 < vector.size(); c1++) {
+            GRBLinExpr t = 0;
+            for (int c2 = c1 + 1; c2 < vector.size(); ++c2) {
+                if (vector[c1]->isActive(currentW) && vector[c2]->isActive(currentW)) {
+                    GRBVar notSameDay = model->addVar(0, 1, 0, GRB_BINARY);
+                    model->addGenConstrIndicator(notSameDay, 0,
+                                                 sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 1);
+                    model->addGenConstrIndicator(notSameDay, 1,
+                                                 sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 0);
+                    GRBVar gap1 = model->addVar(0, 1, 0, GRB_BINARY);
+                    model->addGenConstrIndicator(gap1, 1,
+                                                 lectureTime[vector[c1]->getOrderID()] + vector[c1]->getLenght() +
+                                                 limit <=
+                                                 lectureTime[vector[c2]->getOrderID()]);
+                    model->addGenConstrIndicator(gap1, 0,
+                                                 lectureTime[vector[c1]->getOrderID()] + vector[c1]->getLenght() +
+                                                 limit - 1 >=
+                                                 lectureTime[vector[c2]->getOrderID()]);
+                    GRBVar gap2 = model->addVar(0, 1, 0, GRB_BINARY);
+                    model->addGenConstrIndicator(gap2, 1,
+                                                 lectureTime[vector[c2]->getOrderID()] + vector[c2]->getLenght() +
+                                                 limit <=
+                                                 lectureTime[vector[c1]->getOrderID()]);
+                    model->addGenConstrIndicator(gap2, 0,
+                                                 lectureTime[vector[c2]->getOrderID()] + vector[c2]->getLenght() +
+                                                 limit - 1 >=
+                                                 lectureTime[vector[c1]->getOrderID()]);
+                    t += gap1 + gap2 + notSameDay;
+                    if (penalty == -1) {
+                        model->addConstr(t >= 1);
+                    } else {
+                        GRBVar pen = model->addVar(0, 1, 0, GRB_BINARY);
+                        model->addGenConstrIndicator(pen, 1, t >= 1);
+                        model->addGenConstrIndicator(pen, 0, t == 0);
+                        res += pen * penalty;
+                    }
+
+                }
+            }
+        }
+        return res;
+    }
 };
 
 
