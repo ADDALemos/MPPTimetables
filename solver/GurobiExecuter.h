@@ -377,6 +377,10 @@ private:
         return 0;
     }
 
+    virtual GRBLinExpr workDay(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit) {
+        return 0;
+    }
+
     virtual void dist() override {
         GRBLinExpr opt = roomPen();
         for (int i = 0; i < instance->getDist().size(); ++i) {
@@ -404,6 +408,9 @@ private:
             } else if (instance->getDist()[i]->getType().getType() == MinGap) {
                 opt += minGap(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
                               instance->getDist()[i]->getType().getLimit());
+            } else if (instance->getDist()[i]->getType().getType() == WorkDay) {
+                opt += workDay(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
+                               instance->getDist()[i]->getType().getLimit());
             }
 
         }

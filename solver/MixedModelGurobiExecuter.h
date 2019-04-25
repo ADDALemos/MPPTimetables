@@ -1053,6 +1053,53 @@ private:
         }
         return res;
     }
+
+    /** WorkDay(S)
+     * There should not be more than S time slots between the start of the first class and the end of the last class on
+     * any given day. This means that classes that are placed on the overlapping days and weeks that have more than S
+     * time slots between the start of the earlier class and the end of the later class are violating the constraint.
+     * That is ((Ci.days and Cj.days) = 0) ∨ ((Ci.weeks and Cj.weeks) = 0) ∨
+     * (max(Ci.end,Cj.end)−min(Ci.start,Cj.start) ≤ S) for any two classes Ci and Cj from the constraint.
+     */
+    virtual GRBLinExpr workDay(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit) {
+        GRBLinExpr res = 0;
+        for (int c1 = 0; c1 < vector.size(); c1++) {
+            GRBLinExpr t = 0;
+            for (int c2 = c1 + 1; c2 < vector.size(); ++c2) {
+                if (vector[c1]->isActive(currentW) && vector[c2]->isActive(currentW)) {
+                    GRBVar notSameDay = model->addVar(0, 1, 0, GRB_BINARY);
+                    model->addGenConstrIndicator(notSameDay, 0,
+                                                 sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 1);
+                    model->addGenConstrIndicator(notSameDay, 1,
+                                                 sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 0);
+                    GRBVar gap1 = model->addVar(0, instance->getSlotsperday(), 0, GRB_INTEGER);
+                    GRBVar minV[2];
+                    minV[0] = lectureTime[vector[c1]->getOrderID()];
+                    minV[0] = lectureTime[vector[c2]->getOrderID()];
+                    model->addGenConstrMin(gap1, minV, 2);
+                    GRBVar gap2 = model->addVar(0, instance->getSlotsperday(), 0, GRB_INTEGER);
+                    GRBVar maxV[2];
+                    maxV[0] = lectureTime[vector[c1]->getOrderID()];
+                    maxV[0] = lectureTime[vector[c2]->getOrderID()];
+                    model->addGenConstrMax(gap2, maxV, 2);
+                    GRBVar gapSum = model->addVar(0, 1, 0, GRB_BINARY);
+                    model->addGenConstrIndicator(gapSum, 1, (gap2 - gap1) <= limit);
+                    model->addGenConstrIndicator(gapSum, 0, (gap2 - gap1) >= (limit + 1));
+                    t += gapSum + notSameDay;
+                    if (penalty == -1) {
+                        model->addConstr(t >= 1);
+                    } else {
+                        GRBVar pen = model->addVar(0, 1, 0, GRB_BINARY);
+                        model->addGenConstrIndicator(pen, 1, t >= 1);
+                        model->addGenConstrIndicator(pen, 0, t == 0);
+                        res += pen * penalty;
+                    }
+
+                }
+            }
+        }
+        return res;
+    }
 };
 
 
