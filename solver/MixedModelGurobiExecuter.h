@@ -1115,17 +1115,18 @@ private:
      * division is computed at the very end.
      */
 
-    virtual GRBLinExpr workDay(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit) {
+    virtual GRBLinExpr
+    maxDayLoad(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit) override {
         GRBLinExpr res = 0;
         for (int i = 0; i < instance->getNdays(); ++i) {
             GRBLinExpr t = 0;
             for (int c1 = 0; c1 < vector.size(); c1++) {
-                if (vector[c1]->isActive(currentW) && vector[c2]->isActive(currentW)) {
+                if (vector[c1]->isActive(currentW)) {
                     GRBVar slot = model->addVar(0, 1, 0, GRB_BINARY);
                     model->addGenConstrIndicator(day[vector[c1]->getOrderID()][i], 1,
                                                  slot == lectureTime[vector[c1]->getOrderID()]);
                     model->addGenConstrIndicator(day[vector[c1]->getOrderID()][i], 0, slot == 0);
-                    t += slot;
+                    t += slot; // lenght
                 }
             }
             if (penalty == -1) {
@@ -1136,11 +1137,88 @@ private:
                 model->addGenConstrIndicator(temp, 0, t <= limit);
                 GRBVar temp1 = model->addVar(0, instance->getSlotsperday(), 0, GRB_BINARY);
                 model->addGenConstrIndicator(temp, 1, temp1 == t - limit);
-                model->addGenConstrIndicator(temp, 0, temp1 == 0);
-                days = temp1 * penalty;
+                model->addGenConstrIndicator(temp, 0, temp1 == 0);//max(DayLoad(d,w)−S,0) the 0 part
+                res = (temp1 * penalty) / instance->getNweek();//how to do in iterative mode?
 
             }
         }
+
+    }
+
+    /**
+     * This constraint limits the number of breaks during a day between a given set of classes (not more than R breaks
+     * during a day). For each day of week and week, there is a break between classes if there is more than S empty
+     * time slots in between. Two consecutive classes are considered to be in the same block if the gap between them is
+     * not more than S time slots. This means that for each week w ∈ {0,1,...,nrWeeks − 1} of the semester and each day
+     * of the week d ∈ {0,1,...,nrDays−1}, the number of blocks is not greater than R + 1,|
+     * MergeBlocks( { (C.start, C.end)| (C.days and 2d) ̸= 0 ∧ (C.weeks and 2w) ̸= 0})|≤R+1 where 2d is a bit string
+     * with the only non-zero bit on position d and 2w is a bit string with the only non-zero bit on position w.
+     * The MergeBlocks function recursively merges to the block B any two blocks Ba and Bb that are identified by their
+     * start and end slots that overlap or are not more than S slots apart, until there are no more blocks that could
+     * be merged. (Ba.end + S > Bb.start) ∧ (Bb.end + S > Ba.start) ⇒ (B.start = min(Ba.start, Bb.start)) ∧ (B.end =
+     * max(Ba.end, Bb.end)) When the constraint is soft, the penalty is multiplied by the total number of additional
+     * breaks computed over each day of the week and week of the semester and divided by the number of weeks of the
+     * semester at the end (using integer division, just like for the MaxDayLoad constraint).
+     * @param vector
+     * @param penalty
+     * @param R breaks during a day
+     * @param S empty time slots in between
+     * @return
+     */
+    virtual GRBLinExpr
+    maxBreaks(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit, int limit1) {
+        GRBLinExpr res = 0;
+        for (int i = 0; i < instance->getNdays(); ++i) {
+            GRBVar minmax[vector.size()];
+            for (int c1 = 0; c1 < vector.size(); c1++) {
+                if (vector[c1]->isActive(currentW)) {
+                    minmax[c1] = lectureTime[vector[c1]->getOrderID()];
+//                    model->addGenConstrIndicator(day[vector[c1]->getOrderID()][i], 0, slot == 0);
+//                    model->addGenConstrMin(min,,2);
+//                    t += slot; // lenght
+                } else {
+
+                }
+            }
+            if (penalty == -1) {
+                //model->addConstr(t <= limit);
+            } else {
+                /*GRBVar temp = model->addVar(0, 1, 0, GRB_BINARY);
+                model->addGenConstrIndicator(temp, 1, t >= limit + 1);
+                model->addGenConstrIndicator(temp, 0, t <= limit);
+                GRBVar temp1 = model->addVar(0, instance->getSlotsperday(), 0, GRB_BINARY);
+                model->addGenConstrIndicator(temp, 1, temp1 == t - limit);
+                model->addGenConstrIndicator(temp, 0, temp1 == 0);//max(DayLoad(d,w)−S,0) the 0 part
+                //res = (temp1 * penalty)/instance->getNweek();//how to do in iterative mode?*/
+
+            }
+        }
+
+    }
+
+    /** MaxBlock(M,S)
+     * This constraint limits the length of a block of consecutive classes during a day (not more than M slots in a
+     * block). For each day of week and week, two consecutive classes are considered to be in the same block if the gap
+     * between them is not more than S time slots. For each block, the number of time slots from the start of the first
+     * class in a block till the end of the last class in a block must not be more than M time slots. This means that
+     * for each week w ∈ {0,1,...,nrWeeks − 1} of the semester and each day of the week d ∈ {0, 1, . . . , nrDays − 1},
+     * the maximal length of a block does not exceed M slots max( { B.end − B.start | B ∈
+     * MergeBlocks({(C.start, C.end) | (C.days and 2d) ̸= 0 ∧ (C.weeks and 2w) ̸= 0})})≤M
+     * When the constraint is soft, the penalty is multiplied by the total number of blocks that are over the M time
+     * slots, computed over each day of the week and week of the semester and divided by the number of weeks of the
+     * semester at the end (using integer division, just like for the MaxDayLoad constraint).
+     * @param vector
+     * @param penalty
+     * @param limit
+     * @param limit1
+     * @return
+     */
+    virtual GRBLinExpr
+    maxBlock(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit, int limit1) {
+        return 0;
+    }
+
+    virtual void roomUnavailable() {
 
     }
 };

@@ -14,18 +14,20 @@
 class NoLimit : public Constraint {
 public:
     void setType(std::string s) override {
-        static std::map<std::string, ConstraintType> theMap = {{"NotOverlap",    NotOverlap},
-                                                               {"Overlap",       Overlap},
-                                                               {"Precedence",    Precedence},
-                                                               {"SameAttendees", SameAttendees},
-                                                               {"SameStart",     SameStart},
-                                                               {"SameTime",      SameTime},
-                                                               {"SameDays",      SameDays},
-                                                               {"DifferentDays", DifferentDays},
-                                                               {"SameStart",     SameStart},
-                                                               {"SameWeeks",     SameWeeks},
-                                                               {"SameRoom",      SameRoom},
-                                                               {"DifferentRoom", DifferentRoom}};
+        static std::map<std::string, ConstraintType> theMap = {{"NotOverlap",     NotOverlap},
+                                                               {"Overlap",        Overlap},
+                                                               {"Precedence",     Precedence},
+                                                               {"SameAttendees",  SameAttendees},
+                                                               {"SameStart",      SameStart},
+                                                               {"SameTime",       SameTime},
+                                                               {"DifferentTime",  DifferentTime},
+                                                               {"SameDays",       SameDays},
+                                                               {"DifferentDays",  DifferentDays},
+                                                               {"SameStart",      SameStart},
+                                                               {"SameWeeks",      SameWeeks},
+                                                               {"DifferentWeeks", DifferentWeeks},
+                                                               {"SameRoom",       SameRoom},
+                                                               {"DifferentRoom",  DifferentRoom}};
 
         type = theMap[s];
 

@@ -381,6 +381,28 @@ private:
         return 0;
     }
 
+    virtual GRBLinExpr
+    maxBreaks(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit, int limit1) {
+        return 0;
+    }
+
+    virtual GRBLinExpr
+    maxBlock(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit, int limit1) {
+        return 0;
+    }
+
+    virtual GRBLinExpr maxDayLoad(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit) {
+        return 0;
+    }
+
+    virtual GRBLinExpr sameTime(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
+        return 0;
+    }
+
+    virtual GRBLinExpr sameWeek(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
+        return 0;
+    }
+
     virtual void dist() override {
         GRBLinExpr opt = roomPen();
         for (int i = 0; i < instance->getDist().size(); ++i) {
@@ -390,6 +412,14 @@ private:
                 opt += overlap(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
             } else if (instance->getDist()[i]->getType().getType() == Overlap) {
                 opt += overlap(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), false);
+            } else if (instance->getDist()[i]->getType().getType() == SameTime) {
+                opt += sameTime(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
+            } else if (instance->getDist()[i]->getType().getType() == DifferentTime) {
+                opt += sameTime(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), false);
+            } else if (instance->getDist()[i]->getType().getType() == SameWeeks) {
+                opt += sameWeek(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
+            } else if (instance->getDist()[i]->getType().getType() == DifferentWeeks) {
+                opt += sameWeek(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), false);
             } else if (instance->getDist()[i]->getType().getType() == SameDays) {
                 opt += differentDay(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), false);
             } else if (instance->getDist()[i]->getType().getType() == DifferentDays) {
@@ -411,6 +441,17 @@ private:
             } else if (instance->getDist()[i]->getType().getType() == WorkDay) {
                 opt += workDay(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
                                instance->getDist()[i]->getType().getLimit());
+            } else if (instance->getDist()[i]->getType().getType() == MaxDayLoad) {
+                opt += maxDayLoad(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
+                                  instance->getDist()[i]->getType().getLimit());
+            } else if (instance->getDist()[i]->getType().getType() == MaxBreaks) {
+                opt += maxBreaks(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
+                                 instance->getDist()[i]->getType().getLimit(),
+                                 instance->getDist()[i]->getType().getLimit1());
+            } else if (instance->getDist()[i]->getType().getType() == MaxBlock) {
+                opt += maxBlock(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
+                                instance->getDist()[i]->getType().getLimit(),
+                                instance->getDist()[i]->getType().getLimit1());
             }
 
         }
