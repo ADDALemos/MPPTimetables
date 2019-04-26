@@ -985,10 +985,12 @@ private:
         if (penalty == -1) {
             model->addConstr(days <= limit);
         } else {
-            GRBVar temp = model->addVar(0, instance->getNdays(), 0, GRB_BINARY);
-            model->addConstr(temp == days - limit);
-            GRBVar temp1 = model->addVar(0, 1, 0, GRB_BINARY);
-            model->addGenConstrAbs(temp1, temp);
+            GRBVar temp = model->addVar(0, 1, 0, GRB_BINARY);
+            model->addGenConstrIndicator(temp, 1, days >= limit + 1);
+            model->addGenConstrIndicator(temp, 0, days <= limit);
+            GRBVar temp1 = model->addVar(0, instance->getSlotsperday(), 0, GRB_BINARY);
+            model->addGenConstrIndicator(temp, 1, temp1 == days - limit);
+            model->addGenConstrIndicator(temp, 0, temp1 == 0);
             days = temp1 * penalty;
         }
         return days;
@@ -1099,6 +1101,47 @@ private:
             }
         }
         return res;
+    }
+
+    /**
+     * Given classes must be spread over the days of the week (and weeks) in a way that there is no more than a given
+     * number of S time slots on every day. This means that for each week w ∈ {0,1,...,nrWeeks − 1} of the semester
+     * and each day of the week d ∈ {0,1,...,nrDays − 1}, the total number of slots assigned to classes C that overlap
+     * with the selected day d and week w is not more than S, DayLoad(d,w) ≤ S E_i {Ci.length | (Ci.days and 2d) ̸= 0
+     * ∧ (Ci.weeks and 2w) ̸= 0)} where 2d is a bit string with the only non-zero bit on position d and 2w is a bit
+     * string with the only non-zero bit on position w. When the constraint is soft (it is not required and there is a
+     * penalty), its penalty is multiplied by the number of slots that exceed the given constant S over all days of the
+     * semester and divided by the number of weeks of the semester (using integer division). Importantly the integer
+     * division is computed at the very end.
+     */
+
+    virtual GRBLinExpr workDay(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit) {
+        GRBLinExpr res = 0;
+        for (int i = 0; i < instance->getNdays(); ++i) {
+            GRBLinExpr t = 0;
+            for (int c1 = 0; c1 < vector.size(); c1++) {
+                if (vector[c1]->isActive(currentW) && vector[c2]->isActive(currentW)) {
+                    GRBVar slot = model->addVar(0, 1, 0, GRB_BINARY);
+                    model->addGenConstrIndicator(day[vector[c1]->getOrderID()][i], 1,
+                                                 slot == lectureTime[vector[c1]->getOrderID()]);
+                    model->addGenConstrIndicator(day[vector[c1]->getOrderID()][i], 0, slot == 0);
+                    t += slot;
+                }
+            }
+            if (penalty == -1) {
+                model->addConstr(t <= limit);
+            } else {
+                GRBVar temp = model->addVar(0, 1, 0, GRB_BINARY);
+                model->addGenConstrIndicator(temp, 1, t >= limit + 1);
+                model->addGenConstrIndicator(temp, 0, t <= limit);
+                GRBVar temp1 = model->addVar(0, instance->getSlotsperday(), 0, GRB_BINARY);
+                model->addGenConstrIndicator(temp, 1, temp1 == t - limit);
+                model->addGenConstrIndicator(temp, 0, temp1 == 0);
+                days = temp1 * penalty;
+
+            }
+        }
+
     }
 };
 
