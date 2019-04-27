@@ -50,7 +50,7 @@ public:
         return conv;
     }
     bool isTaughtWeek(int w) {
-        return lectures[0]->getWeeks()[w] == '1';
+        return getWeeks()[w] == '1';
     }
 
     int getOrderID() const {
@@ -256,9 +256,25 @@ public:
         return lectures[0]->getDays();
     }
 
-    std::string getWeek() const {
-        //throw "Legacy Mode";
+    /*std::string getWeek() {
+        throw "Legacy Mode";
         return lectures[0]->getWeeks();
+    }*/
+
+    std::string getWeeks() const {
+        std::string week = lectures[0]->getWeeks();
+        for (int i = 0; i < lectures.size(); ++i) {
+            int d = 0;
+            for (const char &c :  lectures[i]->getWeeks()) {
+                if (week[d] == '0' && c == '1') {
+                    week[d] = '1';
+                    std::cout << week[d] << std::endl;
+                }
+                d++;
+            }
+
+        }
+        return week;
     }
 
     int getId() {
@@ -293,9 +309,8 @@ public:
         return possibleRooms[r];
     }
 
-    //TODO::gene
     bool isActive(int w) {
-        return lectures[0]->isActive(w);
+        return getWeeks()[w] == '1';
     }
 
     void

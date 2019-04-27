@@ -22,7 +22,7 @@ class MixedModelGurobiExecuter : public TwoVarGurobiExecuter {
 
 public:
 
-    virtual void save() {
+    virtual void save() override {
         /*for (int j = 0; j < instance->getClassesWeek(currentW).size(); j++) {
             int day = lectureTime[j].get(GRB_DoubleAttr_X) / instance->getSlotsperday();
             int slot = lectureTime[j].get(GRB_DoubleAttr_X) - day * instance->getSlotsperday();
@@ -42,7 +42,7 @@ public:
 
     }
 
-    void loadPreviousWeekSolution(int ***time, int **room) {
+    void loadPreviousWeekSolution(int ***time, int **room) override {
         for (int d = 0; d < instance->getNdays(); ++d) {
             for (int t = 0; t < instance->getSlotsperday(); ++t) {
                 for (int i = 0; i < instance->getClassesWeek(currentW).size(); ++i) {
@@ -62,12 +62,12 @@ public:
         roomLecture = new roomLectureGRB(instance, currentW);
     }
 
-    void setCurrrentW(int currrentW) {
+    void setCurrrentW(int currrentW) override {
         ILPExecuter::currentW = currrentW;
         roomLecture->setCurrrentW(currrentW);
     }
 
-    MixedModelGurobiExecuter(bool isStatic, Instance *i) {
+    MixedModelGurobiExecuter(bool isStatic, bool isWeekly, Instance *i) {
         setInstance(i);
         if (isStatic)
             roomLecture = new roomLectureBool(instance, currentW);
@@ -75,18 +75,18 @@ public:
             roomLecture = new roomLectureGRB(instance, currentW);
     }
 
-    void definedAuxVar() {
+    void definedAuxVar() override {
 
     }
 
-    void printConfiguration() {
+    void printConfiguration() override {
         std::cout << "Three variable: type int for time" << std::endl;
         std::cout << "            : type bool for days" << std::endl;
         std::cout << "            : type bool for rooms" << std::endl;
 
     }
 
-    void dayConst() {
+    void dayConst() override {
         try {
             for (int k = 0; k < instance->getClassesWeek(currentW).size(); ++k) {
                 for (int i = 0; i < instance->getClassesWeek(currentW)[k]->getLectures().size(); ++i) {
@@ -111,7 +111,7 @@ public:
     }
 
 
-    void definedLectureTime() {
+    void definedLectureTime() override {
         lectureTime = new GRBVar[instance->getClassesWeek(currentW).size()];
         day = new GRBVar *[instance->getClassesWeek(currentW).size()];
 
@@ -182,7 +182,7 @@ public:
      * The lecture can only be scheduled in one slot
      */
 
-    void oneLectureperSlot() {
+    void oneLectureperSlot() override {
         //Deleted constraint
 
     }
@@ -192,7 +192,7 @@ public:
      */
 
 
-    void oneLectureSlot() {
+    void oneLectureSlot() override {
         //Not actually needed
 
     }
@@ -203,7 +203,7 @@ public:
      * The room can only have one lecture per slot without and quadratic expressions
      */
 
-    void oneLectureRoomConflict() {
+    void oneLectureRoomConflict() override {
         roomLecture->oneLectureRoomConflict(order, sameday);
 
     }
@@ -212,7 +212,7 @@ public:
     /** TODO::
     * Ensure Room closed in a day cannot be used
     */
-    void roomClosebyDay() {
+    void roomClosebyDay() override {
         for (int d = 0; d < instance->getNdays(); ++d) {
             for (int j = 0; j < instance->getClassesWeek(currentW).size(); ++j) {
                 for (int i = 0; i < instance->getClassesWeek(currentW)[j]->getPossibleRooms().size(); i++) {
@@ -243,7 +243,7 @@ public:
     /**
     * Ensure times lot in a day is closed cannot be used
     */
-    void slotClose() {
+    void slotClose() override {
         try {
             for (int i = 0; i < instance->getClassesWeek(currentW).size(); i++) {
                 for (int t = 0; t < instance->getNdays() * instance->getSlotsperday(); ++t) {
@@ -278,7 +278,7 @@ public:
      * One assignment, is invalid and needs to be assigned
      * to a different room or to a different time slot
      */
-    void assignmentInvalid() {
+    void assignmentInvalid() override {
         int value = 0;
         for (int j = 0; j < instance->getNdays(); ++j) {
             for (int i = 0; i < instance->getSlotsperday(); ++i) {
@@ -316,8 +316,8 @@ public:
     }
 
 
-    /**TODO::Teacher's conflict*/
-    void teacher() {
+    /**Teacher's conflict*/
+    void teacher() override {
         for (std::map<std::string, Course *>::const_iterator it = instance->getCourses().begin();
              it != instance->getCourses().end(); it++) {
             for (std::map<int, std::vector<Subpart *>>::iterator sub = it->second->getConfiguratons().begin();
@@ -354,7 +354,7 @@ public:
     /** Student conflicts hard constraint based on the input model
      *
      */
-    void studentConflict() {
+    void studentConflict() override {
         for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
              it != instance->getStudent().end(); it++) {
             for (int c = 0; c < it->second.getClasses().size(); ++c) {
@@ -377,7 +377,7 @@ public:
     /** Student conflicts hard constraint based on the original solution
      *
      */
-    void studentConflictSolution() {
+    void studentConflictSolution() override {
         try {
             for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
                  it != instance->getStudent().end(); it++) {
@@ -395,7 +395,7 @@ public:
 
 private:
 //Number of seated students for optimization or constraint
-    GRBQuadExpr numberSeatedStudents() {
+    GRBQuadExpr numberSeatedStudents() override {
         GRBQuadExpr temp = 0;
         for (int l = 0; l < instance->getNumClasses(); l++) {
             int j = 0;
@@ -437,7 +437,7 @@ private:
         return temp;
     }
 
-    GRBQuadExpr usage() {
+    GRBQuadExpr usage() override {
         GRBQuadExpr temp = 0;
         for (int l = 0; l < instance->getNumClasses(); l++) {
             int j = 0;
@@ -501,7 +501,7 @@ private:
     }
 
 
-    GRBLinExpr gapStudentsTimetable() {
+    GRBLinExpr gapStudentsTimetable() override {
         gapStudentsTimetableVar();
         std::cout << "Aux Var: Done" << std::endl;
         GRBLinExpr min = 0;
@@ -530,7 +530,7 @@ private:
 
 
 public:
-    void printdistanceToSolutionLectures(bool w) {
+    void printdistanceToSolutionLectures(bool w) override {
         int temp = 0;
 
         for (int j = 0; j < instance->getClassesWeek(currentW).size(); j++) {
@@ -555,7 +555,7 @@ public:
     */
 
     //int slot=lectureTime[i].get(GRB_DoubleAttr_X)-day*instance->getSlotsperday();
-    GRBQuadExpr distanceToSolutionLectures(int ***oldTime, bool weighted) {
+    GRBQuadExpr distanceToSolutionLectures(int ***oldTime, bool weighted) override {
         GRBQuadExpr temp = 0;
 
         for (int j = 0; j < instance->getNumClasses(); ++j) {
@@ -592,7 +592,7 @@ private:
      * Used the class atributes: solutionTime and roomLecture
      */
 
-    void warmStart() {
+    void warmStart() override {
         for (int k = 0; k < instance->getNdays(); k++) {
             for (int i = 0; i < instance->getSlotsperday(); i++) {
                 for (int j = 0; j < instance->getNumClasses(); j++) {
@@ -612,7 +612,7 @@ private:
      *
      */
 
-    void switchSolutionTime() {
+    void switchSolutionTime() override {
         for (int i = 0; i < instance->getClassesWeek(currentW).size(); i++) {
             int day = lectureTime[instance->getClassesWeek(currentW)[i]->getOrderID()].get(GRB_DoubleAttr_X)
                       / instance->getSlotsperday();
@@ -629,7 +629,7 @@ private:
 
     }
 
-    void force() {
+    void force() override {
         roomLecture->force(solutionRoom, lectureTime, solutionTime);
     }
 
@@ -651,22 +651,25 @@ private:
             model->addConstr(orL==1);
         }
      */
+    /**
+     * Time UNA
+     */
     virtual void block() override {
         try {
-        for (int l = 0; l < instance->getClassesWeek(currentW).size(); ++l) {
-            Class *c = instance->getClassesWeek(currentW)[l];
-            for (int temp = 0; temp < instance->getSlotsperday(); temp++) {
-                if (*instance->getClassesWeek(currentW)[l]->getSlots(instance->minTimeSlot()).find(temp) != temp) {
-                    GRBVar t = model->addVar(0, 1, 0, GRB_BINARY, "TempG_" + itos(c->getOrderID()) + itos(temp));
-                    model->addGenConstrIndicator(t, 0, lectureTime[c->getOrderID()] >= temp);
-                    model->addGenConstrIndicator(t, 1, lectureTime[c->getOrderID()] <= temp - 1);//Not acceptable
-                    GRBVar t1 = model->addVar(0, 1, 0, GRB_BINARY, "TempG1_" + itos(c->getOrderID()) + itos(temp));
-                    model->addGenConstrIndicator(t1, 1, lectureTime[c->getOrderID()] >= temp + 1);//Not acceptable
-                    model->addGenConstrIndicator(t1, 0, lectureTime[c->getOrderID()] <= temp);
-                    model->addConstr(t1 + t >= 1);
+            for (int l = 0; l < instance->getClassesWeek(currentW).size(); ++l) {
+                Class *c = instance->getClassesWeek(currentW)[l];
+                for (int temp = 0; temp < instance->getSlotsperday(); temp++) {
+                    if (*instance->getClassesWeek(currentW)[l]->getSlots(instance->minTimeSlot()).find(temp) != temp) {
+                        GRBVar t = model->addVar(0, 1, 0, GRB_BINARY, "TempG_" + itos(c->getOrderID()) + itos(temp));
+                        model->addGenConstrIndicator(t, 0, lectureTime[c->getOrderID()] >= temp);
+                        model->addGenConstrIndicator(t, 1, lectureTime[c->getOrderID()] <= temp - 1);//Not acceptable
+                        GRBVar t1 = model->addVar(0, 1, 0, GRB_BINARY, "TempG1_" + itos(c->getOrderID()) + itos(temp));
+                        model->addGenConstrIndicator(t1, 1, lectureTime[c->getOrderID()] >= temp + 1);//Not acceptable
+                        model->addGenConstrIndicator(t1, 0, lectureTime[c->getOrderID()] <= temp);
+                        model->addConstr(t1 + t >= 1);
+                    }
                 }
             }
-        }
         } catch (GRBException e) {
             printError(e, "block");
         }
@@ -690,7 +693,7 @@ private:
         } catch (GRBException e) {
             printError(e, "travel");
         }
-
+        return 0;
     }
 
     /**
@@ -709,8 +712,8 @@ private:
 
 
     virtual GRBLinExpr precedence(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty) override {
+        GRBLinExpr result = 0;
         try {
-            GRBLinExpr result = 0;
             for (int c1 = 1; c1 < vector.size(); c1++) {
                 if (vector[c1 - 1]->isActive(currentW) && vector[c1]->isActive(currentW)) {
                         GRBLinExpr t = 0;
@@ -753,10 +756,10 @@ private:
 
 
             }
-            return result;
         } catch (GRBException e) {
             printError(e, "precedence");
         }
+        return result;
     }
 
     /**
@@ -770,8 +773,8 @@ private:
      */
 
     GRBLinExpr sameStart(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty) override {
+        GRBLinExpr result = 0;
         try {
-            GRBLinExpr result = 0;
             for (int c1 = 0; c1 < vector.size(); c1++) {
                 for (int c2 = c1 + 1; c2 < vector.size(); ++c2) {
                     if (vector[c1]->isActive(currentW) && vector[c2]->isActive(currentW)) {
@@ -795,10 +798,11 @@ private:
                     }
                 }
             }
-            return penalty;
         } catch (GRBException e) {
             printError(e, "DifferentDays");
         }
+        return result;
+
     }
 
     /**
@@ -815,8 +819,8 @@ private:
 
     virtual GRBLinExpr
     differentDay(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) override {
+        GRBLinExpr result = 0;
         try {
-            GRBLinExpr result = 0;
             for (int c1 = 0; c1 < vector.size(); c1++) {
                 for (int c2 = c1 + 1; c2 < vector.size(); ++c2) {
                     if (vector[c1]->isActive(currentW) && vector[c2]->isActive(currentW)) {
@@ -849,6 +853,7 @@ private:
         } catch (GRBException e) {
             printError(e, "DifferentDays");
         }
+        return result;
     }
 
     /**
@@ -866,8 +871,8 @@ private:
 
     virtual GRBLinExpr
     overlap(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) override {
+        GRBLinExpr result = 0;
         try {
-            GRBLinExpr result = 0;
             for (int c1 = 0; c1 < vector.size(); c1++) {
                 for (int c2 = c1 + 1; c2 < vector.size(); ++c2) {
                     if (vector[c1]->isActive(currentW) && vector[c2]->isActive(currentW)) {
@@ -936,6 +941,8 @@ private:
         } catch (GRBException e) {
             printError(e, "overlap");
         }
+        return result;
+
 
     }
 
@@ -951,7 +958,7 @@ private:
 
     GRBLinExpr
     differentRoom(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) override {
-        roomLecture->differentRoom(vector, penalty, b);
+        return roomLecture->differentRoom(vector, penalty, b);
     }
 
 
@@ -1011,7 +1018,8 @@ private:
      * @param limit
      * @return
      */
-    virtual GRBLinExpr minGap(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit) {
+    virtual GRBLinExpr
+    minGap(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit) override {
         GRBLinExpr res = 0;
         for (int c1 = 0; c1 < vector.size(); c1++) {
             GRBLinExpr t = 0;
@@ -1063,7 +1071,8 @@ private:
      * That is ((Ci.days and Cj.days) = 0) ∨ ((Ci.weeks and Cj.weeks) = 0) ∨
      * (max(Ci.end,Cj.end)−min(Ci.start,Cj.start) ≤ S) for any two classes Ci and Cj from the constraint.
      */
-    virtual GRBLinExpr workDay(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit) {
+    virtual GRBLinExpr
+    workDay(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit) override {
         GRBLinExpr res = 0;
         for (int c1 = 0; c1 < vector.size(); c1++) {
             GRBLinExpr t = 0;
@@ -1142,6 +1151,8 @@ private:
 
             }
         }
+        return res;
+
 
     }
 
@@ -1166,7 +1177,8 @@ private:
      * @return
      */
     virtual GRBLinExpr
-    maxBreaks(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit, int limit1) {
+    maxBreaks(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit,
+              int limit1) override {
         GRBLinExpr res = 0;
         for (int i = 0; i < instance->getNdays(); ++i) {
             GRBVar minmax[vector.size()];
@@ -1193,6 +1205,7 @@ private:
 
             }
         }
+        return res;
 
     }
 
@@ -1214,11 +1227,42 @@ private:
      * @return
      */
     virtual GRBLinExpr
-    maxBlock(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit, int limit1) {
+    maxBlock(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, int limit, int limit1) override {
         return 0;
     }
 
-    virtual void roomUnavailable() {
+    virtual void roomUnavailable() override {
+
+    }
+
+    GRBVar **we;
+
+    /**
+     * Weeks
+     */
+    virtual void week() override {
+        we = new GRBVar *[instance->getNweek()];
+        for (int i = 0; i < instance->getNweek(); ++i) {
+            we[i] = new GRBVar[instance->getClasses().size()];
+            for (int j = 0; j < instance->getClasses().size(); ++j) {
+                we[i][j] = model->addVar(0, 1, 0, GRB_BINARY);
+            }
+        }
+        for (int cla = 0; cla < instance->getClasses().size(); ++cla) {
+            GRBLinExpr tempL = 0;
+            for (int time = 0; time < instance->getClasses()[cla]->getLectures().size(); ++time) {
+                GRBVar temp = model->addVar(0, 1, 0, GRB_BINARY);
+                for (int w = 0; w < instance->getNweek(); ++w) {
+                    if (instance->getClasses()[cla]->isActive(w))
+                        model->addGenConstrIndicator(temp, 1, we[w][cla] == 1);
+                    else
+                        model->addGenConstrIndicator(temp, 1, we[w][cla] == 0);
+                }
+                tempL += temp;
+                model->addConstr(tempL <= 1);
+            }
+
+        }
 
     }
 };

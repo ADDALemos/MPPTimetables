@@ -32,6 +32,9 @@ Instance *readInputXML2007(std::string filename);
 
 Instance *readOutputXML2007(std::string filename, Instance *instance);
 
+void genWeekly(Instance *instance, ILPExecuter *runner, char *string);
+
+void genSingleShot(Instance *instance, ILPExecuter *runner, char *string);
 
 void readOutputXML(std::string filename, Instance *instance);
 
@@ -46,6 +49,7 @@ bool quiet = false; //Print info
 bool cuts = false;
 bool warm = false;
 bool opt = false;
+
 
 int main(int argc, char **argv) {
     clock_t tStart = clock();
@@ -62,37 +66,31 @@ int main(int argc, char **argv) {
     //if (!quiet) std::cout << "Generating Perturbations based on the file: " << argv[3] << std::endl;
     //readPerturbations(argv[3], instance);
 
-    if (argc == 7) {
-        if (strcmp(argv[6], "-c") == 0)
-            cuts = true;
-    } else if (argc == 8) {
-        if (strcmp(argv[7], "-c") == 0)
-            cuts = true;
-    } else if (argc == 9) {
-        if (strcmp(argv[7], "-c") == 0)
-            cuts = true;
+    if (argc >= 7) {
+        for (int i = 6; i < argc; ++i) {
+            if (strcmp(argv[i], "-c") == 0)
+                cuts = true;
+            if (strcmp(argv[i], "-w") == 0)
+                warm = true;
+        }
     }
-    if (argc == 7) {
-        if (strcmp(argv[6], "-w") == 0)
-            warm = true;
-    } else if (argc == 8) {
-        if (strcmp(argv[7], "-w") == 0)
-            warm = true;
-    } else if (argc == 9) {
-        if (strcmp(argv[8], "-w") == 0)
-            warm = true;
-    }
-
-
     if (!quiet) std::cout << "Generating ILP model" << std::endl;
     ILPExecuter *runner;
     if (strcmp(argv[5], "Integer") == 0) {
         runner = new IntegerModelGurobiExecuter();
         runner->setInstance(instance);
     } else if (strcmp(argv[5], "Binary") == 0) {
-        runner = new BinaryModelGurobiExecuter(std::stoi(argv[6]), instance);
+        runner = new BinaryModelGurobiExecuter((bool) std::stoi(argv[6]), (bool) std::stoi(argv[7]), instance);
+        if (std::stoi(argv[7]) == 1)
+            genWeekly(instance, runner, argv[4]);
+        else
+            genSingleShot(instance, runner, argv[4]);
     } else if (strcmp(argv[5], "Mixed") == 0) {
-        runner = new MixedModelGurobiExecuter(std::stoi(argv[6]), instance);
+        runner = new MixedModelGurobiExecuter((bool) std::stoi(argv[6]), (bool) std::stoi(argv[7]), instance);
+        if (std::stoi(argv[7]) == 1)
+            genWeekly(instance, runner, argv[4]);
+        else
+            genSingleShot(instance, runner, argv[4]);
     } else if (strcmp(argv[5], "GRASP") == 0) {
         LocalSearch *g = new LocalSearch(std::stoi(argv[6]), std::stoi(argv[7]), instance);
         g->GRASP();
@@ -103,6 +101,103 @@ int main(int argc, char **argv) {
         std::exit(42);
     }
 
+
+    if (!quiet) std::cout << "Solution Found: Writing output file" << std::endl;
+    writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + ".xml",
+                   instance,
+                   (double) (clock() - tStart) / CLOCKS_PER_SEC);
+
+
+    return 0;
+}
+
+void readPerturbations(std::string filename, Instance *instance) {
+    std::ifstream file(filename);
+    if (file.fail()) {
+        std::cerr << "File not found: " + filename << std::endl;
+        std::cerr << "Method: readPerturbations" << std::endl;
+        std::exit(11);
+    }
+    std::string perturbation;
+    Perturbation *p = new Perturbation();
+    double percentage, mean, std;
+    while (file >> perturbation >> percentage) {
+        percentage = percentage / 100;
+        if (std::strcmp(perturbation.c_str(), "Preference_Time") == 0) {
+            p->randomTime(instance, percentage, true);
+        } else if (strcmp(perturbation.c_str(), "Invalid_Time") == 0) {
+            p->randomSlotClose(instance, percentage);
+        } else if (strcmp(perturbation.c_str(), "Preference_Room") == 0) {
+            //p->randomRoom(instance, percentage, true);
+        } else if (strcmp(perturbation.c_str(), "Invalid_Room") == 0) {
+            p->randomCloseRoom(instance, percentage);
+        } else if (strcmp(perturbation.c_str(), "Overlap") == 0) {
+            p->randomOverlap(instance, percentage);
+        } else if (strcmp(perturbation.c_str(), "Modify_Enrolments") == 0) {
+            file >> mean >> std;
+            p->randomEnrolmentChanges(instance, mean, std, percentage);
+        } else if (strcmp(perturbation.c_str(), "Modify_N_Lectures") == 0) {
+            file >> mean >> std;
+            p->randomShiftChange(instance, percentage, mean, std);
+            instance->setNumClasses();
+        } else if (strcmp(perturbation.c_str(), "Curriculum") == 0) {
+            file >> mean >> std;
+            p->addNewCurriculum(instance, percentage, mean, std);
+        }
+
+
+    }
+}
+
+void genSingleShot(Instance *instance, ILPExecuter *runner, char *string) {
+    clock_t tStart = clock();
+    runner->setCurrrentW(-1); //Comapct weeks before hand??
+    if (!quiet) std::cout << "Defined Room Lect :  " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    runner->definedRoomLecture();
+    if (!quiet) std::cout << "Defined Room Lect : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    runner->definedLectureTime();
+    if (!quiet) std::cout << "Defined var : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    runner->dayConst();
+    if (!quiet) std::cout << "Days : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    runner->week();
+    if (!quiet) std::cout << "Week : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    runner->createSol();
+    if (!quiet) std::cout << "Sol: DONE " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    runner->definedAuxVar();
+    if (!quiet) std::cout << "Defined Auxvar : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    runner->block();
+    if (!quiet) std::cout << "Block var : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    runner->oneLectureperSlot();
+    if (!quiet) std::cout << "LectureperSlot : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    runner->dist();
+    if (!quiet) std::cout << "Dist : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    runner->oneLectureRoom();
+    if (!quiet) std::cout << "Lecture : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    runner->oneLectureRoomConflict();
+    if (!quiet) std::cout << "Room : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    runner->roomPen();
+    if (!quiet) std::cout << "Room Pen : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+
+    if (opt) {
+        if (strcmp(string, "Hamming") == 0) {
+            if (!quiet) std::cout << "Add optimization: Hamming Distance" << std::endl;
+            runner->distanceToSolution(false);
+        } else if (strcmp(string, "Weighted") == 0) {
+            if (!quiet) std::cout << "Add optimization: Weighted Hamming Distance" << std::endl;
+            runner->distanceToSolution(true);
+        } else if (strcmp(string, "GAP") == 0) {
+            if (!quiet) std::cout << "Add optimization: GAP in a students Timetable" << std::endl;
+            runner->optimizeGapStudentsTimetable();
+        } else {
+            //dist
+        }
+    }
+
+
+}
+
+void genWeekly(Instance *instance, ILPExecuter *runner, char *string) {
+    clock_t tStart = clock();
     int i = 0;
     int iold = 0;
     while (i < instance->getNweek()) {
@@ -174,20 +269,24 @@ int main(int argc, char **argv) {
         runner->oneLectureRoomConflict();
         if (!quiet) std::cout << "Room : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
-        //TODO: Room penalty
+        runner->roomPen();
+        if (!quiet) std::cout << "Room Pen : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+
         //runner->slackStudent();
         //if (!quiet) std::cout << "Slack : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
 
         if (opt) {
-            if (strcmp(argv[4], "Hamming") == 0) {
+            if (strcmp(string, "Hamming") == 0) {
                 if (!quiet) std::cout << "Add optimization: Hamming Distance" << std::endl;
                 runner->distanceToSolution(false);
-            } else if (strcmp(argv[4], "Weighted") == 0) {
+            } else if (strcmp(string, "Weighted") == 0) {
                 if (!quiet) std::cout << "Add optimization: Weighted Hamming Distance" << std::endl;
                 runner->distanceToSolution(true);
-            } else if (strcmp(argv[4], "GAP") == 0) {
+            } else if (strcmp(string, "GAP") == 0) {
                 if (!quiet) std::cout << "Add optimization: GAP in a students Timetable" << std::endl;
                 runner->optimizeGapStudentsTimetable();
+            } else {
+                //dist
             }
         }
         iold = i;
@@ -199,52 +298,7 @@ int main(int argc, char **argv) {
             i--;
         }
     }
-    if (!quiet) std::cout << "Solution Found: Writing output file" << std::endl;
-    writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + ".xml",
-                   instance,
-                   (double) (clock() - tStart) / CLOCKS_PER_SEC);
 
-
-
-    return 0;
-}
-
-void readPerturbations(std::string filename, Instance *instance) {
-    std::ifstream file(filename);
-    if (file.fail()) {
-        std::cerr << "File not found: " + filename << std::endl;
-        std::cerr << "Method: readPerturbations" << std::endl;
-        std::exit(11);
-    }
-    std::string perturbation;
-    Perturbation *p = new Perturbation();
-    double percentage, mean, std;
-    while (file >> perturbation >> percentage) {
-        percentage = percentage / 100;
-        if (std::strcmp(perturbation.c_str(), "Preference_Time") == 0) {
-            p->randomTime(instance, percentage, true);
-        } else if (strcmp(perturbation.c_str(), "Invalid_Time") == 0) {
-            p->randomSlotClose(instance, percentage);
-        } else if (strcmp(perturbation.c_str(), "Preference_Room") == 0) {
-            //p->randomRoom(instance, percentage, true);
-        } else if (strcmp(perturbation.c_str(), "Invalid_Room") == 0) {
-            p->randomCloseRoom(instance, percentage);
-        } else if (strcmp(perturbation.c_str(), "Overlap") == 0) {
-            p->randomOverlap(instance, percentage);
-        } else if (strcmp(perturbation.c_str(), "Modify_Enrolments") == 0) {
-            file >> mean >> std;
-            p->randomEnrolmentChanges(instance, mean, std, percentage);
-        } else if (strcmp(perturbation.c_str(), "Modify_N_Lectures") == 0) {
-            file >> mean >> std;
-            p->randomShiftChange(instance, percentage, mean, std);
-            instance->setNumClasses();
-        } else if (strcmp(perturbation.c_str(), "Curriculum") == 0) {
-            file >> mean >> std;
-            p->addNewCurriculum(instance, percentage, mean, std);
-        }
-
-
-    }
 }
 
 
@@ -789,6 +843,8 @@ Instance *readOutputXML2007(std::string filename, Instance *instance) {
         instance->getCourse(course)->addSol(lec, roomID[room], room, days, slot);
         lec++;
     }
+
+    return instance;
 
 
 }

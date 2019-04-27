@@ -39,7 +39,7 @@ public:
         roomLecture = new roomLectureGRB(instance, currentW);
     }
 
-    BinaryModelGurobiExecuter(bool isStatic, Instance *i) {
+    BinaryModelGurobiExecuter(bool isStatic, bool isWeekly, Instance *i) {
         setInstance(i);
         if (isStatic)
             roomLecture = new roomLectureBool(instance, currentW);

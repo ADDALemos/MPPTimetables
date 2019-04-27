@@ -36,9 +36,9 @@ public:
 
     virtual void oneLectureRoomConflict(GRBVar **order, GRBVar **sameday)=0;
 
-    virtual bool **getBool() {}
+    virtual bool **getBool() { throw "Abstract Class"; }
 
-    virtual GRBVar **getGRB() {}
+    virtual GRBVar **getGRB() { throw "Abstract Class"; }
 
     virtual void force(int **room, GRBVar *le, int ***lect) {}
 

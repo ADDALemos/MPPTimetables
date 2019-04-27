@@ -18,82 +18,82 @@ class GurobiExecuter : public ILPExecuter {
 
 public:
     //The variables must be defined beforehand!
-    virtual void loadPreviousWeekSolution(int ***time, int **room) =0;
+    virtual void loadPreviousWeekSolution(int ***time, int **room) override =0;
 
-    virtual void definedAuxVar()= 0;
-
-
-    virtual void definedRoomLecture()=0;
+    virtual void definedAuxVar() override = 0;
 
 
-    virtual void definedLectureTime()=0;
+    virtual void definedRoomLecture() override =0;
+
+
+    virtual void definedLectureTime() override =0;
 
     /**
      * The lecture can only be scheduled in one slot
      */
 
-    virtual void oneLectureperSlot() =0;
+    virtual void oneLectureperSlot() override =0;
 
     /**
      * Force lectures to be in slot n
      */
 
 
-    virtual void oneLectureSlot() =0;
+    virtual void oneLectureSlot() override =0;
 
     /**
      * A lecture can only be in one room at time
      */
 
-    virtual void oneLectureRoom() =0;
+    virtual void oneLectureRoom() override =0;
 
 
     /**
      * Ensure room r is used to lecture l
      */
-    virtual void roomPreference(int r, int l) =0;
+    virtual void roomPreference(int r, int l) override =0;
 
     /***
      * The room can only have one lecture per slot
      */
 
-    virtual void oneLectureRoomConflict() =0;
+    virtual void oneLectureRoomConflict() override =0;
 
     /**
     * Ensure Room closed cannot be used
     */
-    virtual void roomClose() =0;
+    virtual void roomClose() override =0;
 
     /**
     * Ensure Room closed in a day cannot be used
     */
-    virtual void roomClosebyDay() =0;
+    virtual void roomClosebyDay() override =0;
 
 
     /**
     * Ensure times lot in a day is closed cannot be used
     */
-    virtual void slotClose() =0;
+    virtual void slotClose() override =0;
 
     /**
      * One assignment, is invalid and needs to be assigned
      * to a different room or to a different time slot
      */
-    virtual void assignmentInvalid() =0;
+    virtual void assignmentInvalid() override =0;
 
     /**Teacher's conflict*/
-    virtual void teacher() =0;
+    virtual void teacher() override =0;
 
 
     /** Student conflicts hard constraint based on the input model
      *
      */
-    virtual void studentConflict() =0;
+    virtual void studentConflict() override =0;
 
     /** Student conflicts hard constraint based on the original solution
      *
      */
-    virtual void studentConflictSolution() =0;
+    virtual void studentConflictSolution() override =0;
 
 
     void saveEncoding(std::string name) {
@@ -107,13 +107,13 @@ public:
 
 protected:
 //Number of seated students for optimization or constraint
-    virtual GRBQuadExpr numberSeatedStudents() =0;
+    virtual GRBQuadExpr numberSeatedStudents()  =0;
 
     virtual GRBQuadExpr usage() =0;
 
     virtual GRBLinExpr gapStudentsTimetable() =0;
 
-    virtual void cuts()=0;
+    virtual void cuts() override =0;
 
 
 public:
@@ -124,27 +124,27 @@ public:
      * For slack cosntraint use slackStudent()
      * @param students
      */
-    void constraintSeatedStudents(double students) {
+    void constraintSeatedStudents(double students) override {
         model->addConstr(numberSeatedStudents() == students);
     }
 
-    void optimizeRoomUsage() {
+    void optimizeRoomUsage() override {
         model->setObjective(usage(), GRB_MINIMIZE);
     }
 
-    void optimizeSeatedStudents() {
+    void optimizeSeatedStudents() override {
         model->setObjective(numberSeatedStudents(), GRB_MAXIMIZE);
     }
 
 
-    void optimizeGapStudentsTimetable() {
+    void optimizeGapStudentsTimetable() override {
         model->setObjective(gapStudentsTimetable(), GRB_MINIMIZE);
     }
 
-    virtual void printConfiguration()=0;
+    virtual void printConfiguration() =0;
 
 
-    bool run2019(bool warm) {
+    bool run2019(bool warm) override {
         //model->set(GRB_IntParam_Presolve, 0);
         warm = false;
         model->set(GRB_IntParam_Threads, 3);
@@ -181,7 +181,7 @@ public:
 
     }
 
-    double run(bool mpp) {
+    double run(bool mpp) override {
         std::cout << "GAP Min " << gapsSolution() << std::endl;
         //validator();
         //std::exit(42);
@@ -249,7 +249,7 @@ public:
      * Can be controled by the value of slack of each instance
      */
 
-    virtual void slackStudent() =0;
+    virtual void slackStudent() override =0;
 
 
     /***
@@ -284,7 +284,7 @@ public:
 
     virtual GRBQuadExpr distanceToSolutionLectures(int ***oldTime, bool weighted) =0;
 
-    void distanceToSolution(bool w) {
+    void distanceToSolution(bool w) override {
         distanceToSolution(solutionRoom, solutionTime, w);
     }
 
@@ -296,20 +296,20 @@ public:
      * @param weighted
      */
 
-    void distanceToSolution(int **oldRoom, int ***oldTime, bool weighted) {
+    void distanceToSolution(int **oldRoom, int ***oldTime, bool weighted) override {
         //+distanceToSolutionLectures(oldTime, weighted)
         model->setObjective(distanceToSolutionRooms(oldRoom, weighted), GRB_MINIMIZE);
 
     }
 
-    void restart() {
+    void restart() override {
         restartModel();
     }
 
     /**
      * Minimization statement distance between solutions: Number of students seated
      */
-    void minimizeDifferenceSeatedStudents() {
+    void minimizeDifferenceSeatedStudents() override {
         GRBVar opt = model->addVar(0.0, std::numeric_limits<int>::max(), 0.0, GRB_INTEGER, "opt");
         GRBVar abs = model->addVar(0.0, std::numeric_limits<int>::max(), 0.0, GRB_INTEGER, "abse");
         model->addConstr(opt == numberSeatedStudents() - instance->getTotalNumberSteatedStudent());
@@ -325,7 +325,7 @@ private:
      * Used the class atributes: solutionTime and roomLecture
      */
 
-    virtual void warmStart()=0;
+    virtual void warmStart()  =0;
 
 
 private:
@@ -359,7 +359,7 @@ private:
      */
     virtual void switchSolutionRoom() =0;
 
-    virtual GRBLinExpr travel(std::vector<Class *> c, int pen) {}
+    virtual GRBLinExpr travel(std::vector<Class *> c, int pen) override { return 0; }
 
     virtual GRBLinExpr differentRoom(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
         return 0;

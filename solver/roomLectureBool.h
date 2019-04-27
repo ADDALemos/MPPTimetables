@@ -14,19 +14,19 @@
 class roomLectureBool : public roomLecture {
     bool **vector;
 public:
-    void loadPreviousWeekSolution(int **room) {
+    void loadPreviousWeekSolution(int **room) override {
         // left blank
     }
 
-    void cuts() {
+    void cuts() override {
         // left blank
     }
 
     roomLectureBool(Instance *instance, int w) : roomLecture(instance, w) {}
 
-    void slackStudent() {}
+    void slackStudent() override {}
 
-    void definedRoomLecture() {
+    void definedRoomLecture() override {
         vector = new bool *[instance->getClassesWeek(currentW).size()];
         for (int i = 0; i < instance->getClassesWeek(currentW).size(); i++) {
             vector[i] = new bool[instance->getClasses()[i]->getPossibleRooms().size()];
@@ -36,11 +36,11 @@ public:
 
     }
 
-    bool isStatic() { return true; }
+    bool isStatic() override { return true; }
 
-    bool **getBool() { return vector; }
+    bool **getBool() override { return vector; }
 
-    void warmStart(int **sol) {
+    void warmStart(int **sol) override {
         for (int l = 0; l < instance->getClassesWeek(currentW).size(); ++l) {
             int rs = 0, rg = 0;
             for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
@@ -55,7 +55,7 @@ public:
     }
 
 //TODO: Finish this
-    void oneLectureRoomConflict(GRBVar **order, GRBVar **sameday) {
+    void oneLectureRoomConflict(GRBVar **order, GRBVar **sameday) override {
         try {
 
             for (int j = 0; j < instance->getClassesWeek(currentW).size(); j++) {

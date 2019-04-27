@@ -419,7 +419,9 @@ public:
     }
 
 
+    virtual void week() {
 
+    }
 };
 
 

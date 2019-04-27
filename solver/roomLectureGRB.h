@@ -12,7 +12,7 @@
 class roomLectureGRB : public roomLecture {
     GRBVar **vector;
 public:
-    void loadPreviousWeekSolution(int **room) {
+    void loadPreviousWeekSolution(int **room) override {
         for (int c = 0; c < instance->getClassesWeek(currentW).size(); ++c) {
             for (int j = 0, r = 0; j < instance->getNumRoom(); ++j) {
                 if (instance->getClassesWeek(currentW)[c]->containsRoom(instance->getRoom(j + 1))) {
@@ -27,7 +27,7 @@ public:
 
     roomLectureGRB(Instance *instance, int w) : roomLecture(instance, w) {}
 
-    void definedRoomLecture() {
+    void definedRoomLecture() override {
         try {
             vector = new GRBVar *[instance->getClassesWeek(currentW).size()];
             for (Class *c : instance->getClassesWeek(currentW)) {
@@ -47,7 +47,7 @@ public:
 
     }
 
-    void roomClose() {
+    void roomClose() override {
         try {
 
             for (int j = 0; j < instance->getClassesWeek(currentW).size(); ++j) {
@@ -69,7 +69,7 @@ public:
     }
 
 
-    void oneLectureRoom() {
+    void oneLectureRoom() override {
         try {
             for (Class *c: instance->getClassesWeek(currentW)) {
                 if (c->getPossibleRooms().size() > 0) {
@@ -86,11 +86,11 @@ public:
 
     }
 
-    void roomPreference(int r, int l) {
+    void roomPreference(int r, int l) override {
         model->addConstr(vector[l][r] == 1);
     }
 
-    void slackStudent() {
+    void slackStudent() override {
         for (int l = 0; l <
                         instance->getClassesWeek(currentW).size(); l++) {
             int j = 0, r = 0;
@@ -110,11 +110,11 @@ public:
         }
     }
 
-    bool isStatic() { return false; }
+    bool isStatic() override { return false; }
 
-    GRBVar **getGRB() { return vector; }
+    GRBVar **getGRB() override { return vector; }
 
-    void warmStart(int **sol) {
+    void warmStart(int **sol) override {
         for (int l = 0; l < instance->getClassesWeek(currentW).size(); ++l) {
             int rs = 0, rg = 0;
             for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
@@ -129,7 +129,7 @@ public:
     }
 
 
-    void oneLectureRoomConflict(GRBVar **order, GRBVar **sameday) {
+    void oneLectureRoomConflict(GRBVar **order, GRBVar **sameday) override {
         try {
 
             for (Class *j : instance->getClassesWeek(currentW)) {
@@ -180,7 +180,7 @@ public:
         }
     }
 
-    void cuts() {
+    void cuts() override {
         for (int i = 0; i < instance->getNumClasses(); ++i) {
             int r = 0, r1 = 0;
             for (std::map<Room, int>::const_iterator it = instance->getClassesWeek(
@@ -199,7 +199,7 @@ public:
         }
     }
 
-    void force(int **room, GRBVar *le, int ***lect) {
+    void force(int **room, GRBVar *le, int ***lect) override {
         GRBLinExpr exp = 0;
         int size = 0;
         for (int c = 0; c < instance->getClassesWeek(currentW).size(); ++c) {
@@ -252,7 +252,7 @@ public:
         return temp;
     }
 
-    virtual GRBLinExpr travel(std::vector<Class *> c, GRBVar *time, GRBVar **sameday, int pen) throw() {
+    virtual GRBLinExpr travel(std::vector<Class *> c, GRBVar *time, GRBVar **sameday, int pen) override {
         try {
             GRBLinExpr travelL = 0;
             for (Class *l1: c) {
@@ -303,10 +303,12 @@ public:
         } catch (GRBException e) {
             printError(e, "travel");
         }
+        return 0;
 
     }
 
-    virtual GRBLinExpr differentRoom(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
+    virtual GRBLinExpr
+    differentRoom(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) override {
         GRBLinExpr result = 0;
         for (int c1 = 0; c1 < vector.size(); c1++) {
             for (int c2 = c1 + 1; c2 < vector.size(); ++c2) {
@@ -346,6 +348,7 @@ public:
                 }
             }
         }
+        return result;
     }
 
     virtual GRBLinExpr roomPen() override {
