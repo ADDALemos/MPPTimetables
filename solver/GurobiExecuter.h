@@ -12,11 +12,13 @@
 #include <exception>
 #include <stdlib.h>
 #include "../problem/Instance.h"
+#include "StudentVAR.h"
 
 
 class GurobiExecuter : public ILPExecuter {
 
 public:
+    StudentVAR *studentVAR; //TODO: init in other encodings
     //The variables must be defined beforehand!
     virtual void loadPreviousWeekSolution(int ***time, int **room) override =0;
 

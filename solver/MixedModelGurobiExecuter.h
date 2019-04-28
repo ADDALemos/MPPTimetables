@@ -73,6 +73,7 @@ public:
             roomLecture = new roomLectureBool(instance, currentW);
         else
             roomLecture = new roomLectureGRB(instance, currentW);
+        studentVAR = new StudentVAR(instance);
     }
 
     void definedAuxVar() override {
