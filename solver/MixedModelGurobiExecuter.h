@@ -1192,7 +1192,7 @@ private:
 
                 }
             }
-            if (penalty == -1) {
+            /*if (penalty == -1) {
                 //model->addConstr(t <= limit);
             } else {
                 /*GRBVar temp = model->addVar(0, 1, 0, GRB_BINARY);
@@ -1201,9 +1201,9 @@ private:
                 GRBVar temp1 = model->addVar(0, instance->getSlotsperday(), 0, GRB_BINARY);
                 model->addGenConstrIndicator(temp, 1, temp1 == t - limit);
                 model->addGenConstrIndicator(temp, 0, temp1 == 0);//max(DayLoad(d,w)−S,0) the 0 part
-                //res = (temp1 * penalty)/instance->getNweek();//how to do in iterative mode?*/
+                //res = (temp1 * penalty)/instance->getNweek();//how to do in iterative mode?
 
-            }
+            }*/
         }
         return res;
 
@@ -1265,6 +1265,84 @@ private:
 
         }
 
+    }
+
+    /**
+     * Given classes must be taught in the same weeks, regardless of their time slots or days of the week. In case of
+     * classes of different weeks, a class with fewer weeks must meet on a subset of the weeks used by the class with
+     * more weeks. This means that (Ci.weeks or Cj.weeks) = Ci.weeks) ∨ (Ci.weeks or Cj.weeks) = Cj.weeks) for any two
+     * classes Ci and Cj from the constraint; doing binary ”or” between the bit strings representing the assigned weeks.
+     * @param vector
+     * @param penalty
+     * @param b
+     * @return
+     */
+    virtual GRBLinExpr
+    sameWeek(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) override {
+        GRBLinExpr res = 0;
+        for (int c1 = 0; c1 < vector.size(); ++c1) {
+            for (int c2 = c1 + 1; c2 < vector.size(); ++c2) {
+                GRBLinExpr wC1 = 0;
+                GRBLinExpr wC2 = 0;
+                for (int i = 0; i < instance->getNweek(); ++i) {
+                    if (b) {
+                        //Binary OR
+                        GRBVar weekT = model->addVar(0, 1, 0, GRB_BINARY);
+                        GRBVar weekTI[2];
+                        weekTI[0] = we[i][vector[c1]->getOrderID()];
+                        weekTI[0] = we[i][vector[c2]->getOrderID()];
+                        model->addGenConstrOr(weekT, weekTI, 2);
+                        //OR
+                        GRBVar weekTC1 = model->addVar(0, 1, 0, GRB_BINARY);
+                        model->addGenConstrIndicator(weekTC1, 0, weekT == we[i][vector[c1]->getOrderID()]);
+                        model->addGenConstrIndicator(weekTC1, 1, weekT + we[i][vector[c1]->getOrderID()] == 1);
+                        wC1 += weekTC1;
+
+                        GRBVar weekTC2 = model->addVar(0, 1, 0, GRB_BINARY);
+                        model->addGenConstrIndicator(weekTC2, 0, weekT == we[i][vector[c2]->getOrderID()]);
+                        model->addGenConstrIndicator(weekTC2, 1, weekT + we[i][vector[c2]->getOrderID()] == 1);
+                        wC2 += weekTC2;
+
+                    } else {
+                        if (penalty == -1) {
+                            model->addGenConstrIndicator(we[i][vector[c1]->getOrderID()], 1,
+                                                         we[i][vector[c2]->getOrderID()] == 0);
+                            model->addGenConstrIndicator(we[i][vector[c2]->getOrderID()], 1,
+                                                         we[i][vector[c1]->getOrderID()] == 0);
+                        } else {
+                            GRBVar temp = model->addVar(0, 1, 0, GRB_BINARY);
+                            model->addGenConstrIndicator(temp, 1, we[i][vector[c1]->getOrderID()] +
+                                                                  we[i][vector[c2]->getOrderID()] == 2);
+                            model->addGenConstrIndicator(temp, 0, we[i][vector[c1]->getOrderID()] +
+                                                                  we[i][vector[c2]->getOrderID()] <= 1);
+                            res += penalty * temp;
+
+                        }
+                    }
+
+                }
+                if (b) {
+                    GRBVar weekTe = model->addVar(0, 1, 0, GRB_BINARY);
+                    model->addGenConstrIndicator(weekTe, 1, wC1 == 0);
+                    model->addGenConstrIndicator(weekTe, 0, wC1 >= 1);
+                    GRBVar weekTe1 = model->addVar(0, 1, 0, GRB_BINARY);
+                    model->addGenConstrIndicator(weekTe1, 1, wC2 == 0);
+                    model->addGenConstrIndicator(weekTe1, 0, wC2 >= 1);
+                    if (penalty == -1) {
+                        model->addConstr(weekTe1 + weekTe1 >= 1);
+                    } else {
+                        GRBVar pen = model->addVar(0, 1, 0, GRB_BINARY);
+                        model->addGenConstrIndicator(pen, 1, weekTe1 + weekTe1 == 0);
+                        model->addGenConstrIndicator(weekTe, 0, weekTe1 + weekTe1 >= 1);
+                        res += pen * penalty;
+                    }
+
+                }
+            }
+        }
+
+
+        return 0;
     }
 };
 
