@@ -87,9 +87,4 @@ The three LP models are:
    
    The folder `data/Disruption/profiles/` contains disruptions learn from the timetables of the last 5 years of IST.
    
-   # Authors
-   
-   [Alexandre Lemos](http://web.ist.utl.pt/ist173316/), [Pedro T. Monteiro](http://pedromonteiro.org/) and [Inês Lynce](http://sat.inesc-id.pt/~ines/).
-   # Contacts:
-   
-   If you have any comments or questions, please [contact us](mailto:ines.lynce@tecnico.ulisboa.pt;alexandre.lemos@tecnico.ulisboa.pt;pedro.tiago.monteiro@tecnico.pt;?subject=[Disruption_Timetables]).
+  
