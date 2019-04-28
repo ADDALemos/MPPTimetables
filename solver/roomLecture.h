@@ -58,6 +58,10 @@ public:
         return 0;
     }
 
+    virtual void roomUnavailable(GRBVar **week, GRBVar **day, GRBVar *lecture) {
+
+    }
+
 
 
 

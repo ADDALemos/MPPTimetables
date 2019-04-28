@@ -24,7 +24,35 @@ public:
         return os;
     }
 
-    std::string &getDays() {
+    void setDays(const std::string &days) {
+        Unavailability::days = days;
+    }
+
+    int getStart() const {
+        return start;
+    }
+
+    void setStart(int start) {
+        Unavailability::start = start;
+    }
+
+    int getLenght() const {
+        return lenght;
+    }
+
+    void setLenght(int lenght) {
+        Unavailability::lenght = lenght;
+    }
+
+    const std::string &getWeeks() const {
+        return weeks;
+    }
+
+    void setWeeks(const std::string &weeks) {
+        Unavailability::weeks = weeks;
+    }
+
+    const std::string &getDays() const {
         return days;
     }
 

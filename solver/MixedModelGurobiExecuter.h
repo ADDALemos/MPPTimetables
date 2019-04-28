@@ -1232,6 +1232,7 @@ private:
     }
 
     virtual void roomUnavailable() override {
+        roomLecture->roomUnavailable(we, day, lectureTime);
 
     }
 
@@ -1254,9 +1255,9 @@ private:
                 GRBVar temp = model->addVar(0, 1, 0, GRB_BINARY);
                 for (int w = 0; w < instance->getNweek(); ++w) {
                     if (instance->getClasses()[cla]->isActive(w))
-                        model->addGenConstrIndicator(temp, 1, we[w][cla] == 1);
+                        model->addGenConstrIndicator(temp, 1, we[w][instance->getClasses()[cla]->getOrderID()] == 1);
                     else
-                        model->addGenConstrIndicator(temp, 1, we[w][cla] == 0);
+                        model->addGenConstrIndicator(temp, 1, we[w][instance->getClasses()[cla]->getOrderID()] == 0);
                 }
                 tempL += temp;
                 model->addConstr(tempL <= 1);

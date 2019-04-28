@@ -371,6 +371,49 @@ public:
 
     }
 
+    /**
+     * roomUnavailable
+     * @param week
+     * @param day
+     * @param lecture
+     */
+    virtual void roomUnavailable(GRBVar **week, GRBVar **day, GRBVar *lecture) override {
+        for (int r = 0; r < instance->getRooms().size(); ++r) {
+            for (int c = 0; c < instance->getClasses().size(); ++c) {
+                for (int s = 0; s < instance->getRoom(r + 1).getSlots().size(); ++s) {
+                    for (const char &w : instance->getRoom(r + 1).getSlots()[s].getWeeks()) {
+                        for (const char &d : instance->getRoom(r + 1).getSlots()[s].getDays()) {
+                            GRBVar t = model->addVar(0, 1, 0, GRB_BINARY);
+                            model->addGenConstrIndicator(t, 1, lecture[instance->getClasses()[c]->getOrderID()] >=
+                                                               instance->getRoom(r + 1).getSlots()[s].getStart());
+                            model->addGenConstrIndicator(t, 0, lecture[instance->getClasses()[c]->getOrderID()] <=
+                                                               instance->getRoom(r + 1).getSlots()[s].getStart() - 1);
+                            GRBVar t1 = model->addVar(0, 1, 0, GRB_BINARY);
+                            model->addGenConstrIndicator(t1, 1, lecture[instance->getClasses()[c]->getOrderID()] <=
+                                                                instance->getRoom(r + 1).getSlots()[s].getStart() +
+                                                                instance->getRoom(r + 1).getSlots()[s].getLenght() - 1);
+                            model->addGenConstrIndicator(t1, 0, lecture[instance->getClasses()[c]->getOrderID()] >=
+                                                                instance->getRoom(r + 1).getSlots()[s].getStart() +
+                                                                instance->getRoom(r + 1).getSlots()[s].getLenght());
+                            GRBVar t2 = model->addVar(0, 1, 0, GRB_BINARY);
+                            model->addGenConstrIndicator(t2, 1, week[w][instance->getClasses()[c]->getOrderID()] == 1);
+                            model->addGenConstrIndicator(t2, 1, day[instance->getClasses()[c]->getOrderID()][d] == 1);
+                            model->addGenConstrIndicator(t2, 1, t + t1 == 2);
+                            model->addGenConstrIndicator(t2, 0, week[w][instance->getClasses()[c]->getOrderID()] <= 1);
+                            model->addGenConstrIndicator(t2, 0, day[instance->getClasses()[c]->getOrderID()][d] <= 1);
+                            model->addGenConstrIndicator(t2, 0, t + t1 <= 1);
+                            model->addConstr(vector[instance->getClasses()[c]->getOrderID()][r] + t1 <= 1);
+
+                        }
+
+                    }
+
+                }
+
+            }
+        }
+    }
+
 
 
 

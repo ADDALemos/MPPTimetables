@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <vector>
 #include <cstring>
 #include <map>
@@ -296,7 +297,10 @@ void Perturbation::addNewCurriculum(Instance *i, double lecture, double lenght, 
         std::vector<Class *> cl;
         Class *c = new Class(i->getClasses().size() + 1, student, new Lecture(lenght), std::map<Room, int>(), 0);
         cl.push_back(c);
-        Subpart *s = new Subpart(" " + (i->getClasses().size() + 1), cl);
+        std::ostringstream oss;
+        oss << " " << (i->getClasses().size() + 1);
+        std::string var = oss.str();
+        Subpart *s = new Subpart(oss.str(), cl);
         vector.push_back(s);
     }
     std::map<int, std::vector<Subpart *>> ss;

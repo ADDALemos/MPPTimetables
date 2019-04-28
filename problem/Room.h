@@ -21,12 +21,14 @@ private:
     std::map<int,int> travel;//room time
     std::vector<Unavailability> slots;
 public:
+
+    //Legacy
     bool isClosebyDay(int day) {
         if (isClose())
             return true;
         for (int i = 0; i < slots.size(); ++i) {
             int k = 0;
-            for (char &c :slots[i].getDays()) {
+            for (const char &c :slots[i].getDays()) {
                 if (c == '1') {
                     if (k == day)
                         return true;

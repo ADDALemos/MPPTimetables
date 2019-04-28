@@ -31,10 +31,15 @@ public:
 
     std::vector<Class *> getClassesWeek(int w) {
         std::vector<Class *> classesWeek;
-        for (int i = 0; i < classes.size(); ++i) {
-            if (classes[i]->isTaughtWeek(w))
-                classesWeek.push_back(classes[i]);
+        if (w != -1) {
+            for (int i = 0; i < classes.size(); ++i) {
+                if (classes[i]->isTaughtWeek(w))
+                    classesWeek.push_back(classes[i]);
+            }
+        } else {
+            return getClasses();
         }
+
         return classesWeek;
     }
 
