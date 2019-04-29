@@ -75,6 +75,24 @@ public:
 
     }
 
+    unsigned long getNumConfig() {
+        return configuration.size();
+    }
+
+
+    std::vector<Subpart *> getSubpart(int conf) {
+        int c = 0;
+        for (std::map<int, std::vector<Subpart *>>::iterator i = configuration.begin();
+             i != configuration.end(); i++) {
+            if (c == conf)
+                return (*i).second;
+            c++;
+
+        }
+        throw "No such configuration";
+
+    }
+
 
     int getNumClasses() {
         unsigned int size = 0;
@@ -139,11 +157,11 @@ public:
     }
 
     int findParentSubpart(int subpart) {
-        if (configuration.begin()->second[subpart]->getFirstParent() == -1)
+        if (configuration.begin()->second[subpart]->getFirstParent() == nullptr)
             return -1;
         for (auto it = configuration.begin(); it != configuration.end(); ++it) {
             for (int i = 0; i < it->second.size(); ++i) {
-                if (it->second[i]->existsParentClass(configuration.begin()->second[subpart]->getFirstParent()))
+                if (it->second[i]->existsParentClass(configuration.begin()->second[subpart]->getFirstParent()->getId()))
                     return i;
 
             }

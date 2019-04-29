@@ -192,6 +192,9 @@ void genSingleShot(Instance *instance, ILPExecuter *runner, char *string) {
             //dist
         }
     }
+    if (!quiet) std::cout << "Execute" << std::endl;
+    runner->run2019(warm);
+    runner->save();
 
 
 }
@@ -422,6 +425,8 @@ Instance *readInputXML(std::string filename) {//parent flag missing
     xml_document<> doc;
     int orderID = 0;
     std::map<int, Class *> classMap;
+    std::map<int, int> classID;
+
     std::ifstream file(filename);
     if (file.fail()) {
         std::cerr << "File not found: " + filename << std::endl;
@@ -601,10 +606,11 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                             }
                             Class *c = new Class(idclass, limit, lecv, roomsv, orderID);
                             classMap.insert(std::pair<int, Class *>(orderID, c));
+                            classID.insert(std::pair<int, int>(idclass, orderID));
                             orderID++;
                             //addPossibleRooms(c, instance);
                             if (parent != -1)
-                                c->setParent(parent);
+                                c->setParent(classMap[classID[parent]]);
                             clasv.push_back(c);
 
                         }
@@ -651,8 +657,7 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                     for (const xml_attribute<> *a = course->first_attribute(); a; a = a->next_attribute()) {
                         idClassesDist = atoi(a->value());
                     }
-                    c.push_back(classMap.find(idClassesDist)->second);
-                    //std::cout<<course->name()<<std::endl;
+                    c.push_back(classMap[classID[idClassesDist]]);
                 }
                 Constraint *limite;
                 distribution *req;

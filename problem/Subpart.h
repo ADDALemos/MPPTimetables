@@ -99,7 +99,7 @@ public:
         return sum;
     }
 
-    int getFirstParent() {
+    Class *getFirstParent() {
         return classes[0]->getParent();
     }
 

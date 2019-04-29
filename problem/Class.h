@@ -22,7 +22,7 @@ class Class {
 
 private:
     int limit;//limit number of students
-    int parent;
+    Class *parent = nullptr;
     //Solution
     int roomID = -1;
     int start = -1;
@@ -170,7 +170,7 @@ public:
     inline bool isModified() { return modified; }
     Class(int id, int limit, const std::vector<Lecture *, std::allocator<Lecture *>> &lectures,
           std::map<Room, int> possibleRooms) : id(id), limit(limit), lectures(lectures), possibleRooms(possibleRooms),
-                                               parent(-1) {
+                                               parent(nullptr) {
     }
 
 
@@ -310,7 +310,9 @@ public:
     }
 
     bool isActive(int w) {
-        return getWeeks()[w] == '1';
+        if (w != -1)
+            return getWeeks()[w] == '1';
+        return true;
     }
 
     void
@@ -338,12 +340,12 @@ public:
     }
 
 
-    void setParent(int parent) {
+    void setParent(Class *parent) {
         Class::parent = parent;
 
     }
 
-    int getParent() const {
+    Class *getParent() const {
         return parent;
     }
 
@@ -369,6 +371,10 @@ public:
         Class::roomID = roomID;
         Class::room = room;
 
+    }
+
+    void addStudent(int id) {
+        Class::student.push_back(id);
     }
 };
 

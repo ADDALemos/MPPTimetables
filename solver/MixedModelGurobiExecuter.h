@@ -38,6 +38,7 @@ public:
         }*/
         switchSolutionTime();
         switchSolutionRoom();
+        studentSectioning->save();
 
 
     }
@@ -73,7 +74,7 @@ public:
             roomLecture = new roomLectureBool(instance, currentW);
         else
             roomLecture = new roomLectureGRB(instance, currentW);
-        studentVAR = new StudentVAR(instance);
+        studentSectioning = new StudentSectioning(instance);
     }
 
     void definedAuxVar() override {
@@ -314,6 +315,23 @@ public:
             }
 
         }
+    }
+
+    GRBLinExpr sectioning() override {
+        GRBLinExpr cost = 0;
+        clock_t tStart = clock();
+        studentSectioning->init();
+        std::cout << "init : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        studentSectioning->requiredClasses();
+        std::cout << "classes : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        studentSectioning->parentChild();
+        std::cout << "family : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        cost += studentSectioning->conflicts(order);
+        std::cout << "conflicts : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        studentSectioning->limit();
+        std::cout << "limit : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        return cost;
+
     }
 
 
