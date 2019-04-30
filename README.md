@@ -87,4 +87,6 @@ The three LP models are:
    
    The folder `data/Disruption/profiles/` contains disruptions learn from the timetables of the last 5 years of IST.
    
+  # Results
   
+  The folder `papers/EPIA2019/plots/` contains the gunplot scripts to generated the figures presented EPIA 2019 paper.
