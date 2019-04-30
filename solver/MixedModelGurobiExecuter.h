@@ -677,17 +677,23 @@ private:
         try {
             for (int l = 0; l < instance->getClassesWeek(currentW).size(); ++l) {
                 Class *c = instance->getClassesWeek(currentW)[l];
+                std::set<int> slots = c->getSlots(instance->minTimeSlot());
+                GRBLinExpr x = 0;
                 for (int temp = 0; temp < instance->getSlotsperday(); temp++) {
-                    if (*instance->getClassesWeek(currentW)[l]->getSlots(instance->minTimeSlot()).find(temp) != temp) {
+                    if (slots.find(temp) != slots.end()) {
                         GRBVar t = model->addVar(0, 1, 0, GRB_BINARY, "TempG_" + itos(c->getOrderID()) + itos(temp));
-                        model->addGenConstrIndicator(t, 0, lectureTime[c->getOrderID()] >= temp);
-                        model->addGenConstrIndicator(t, 1, lectureTime[c->getOrderID()] <= temp - 1);//Not acceptable
+                        model->addGenConstrIndicator(t, 1, lectureTime[c->getOrderID()] >= temp);
+                        model->addGenConstrIndicator(t, 0, lectureTime[c->getOrderID()] <= temp - 1);//Not acceptable
                         GRBVar t1 = model->addVar(0, 1, 0, GRB_BINARY, "TempG1_" + itos(c->getOrderID()) + itos(temp));
-                        model->addGenConstrIndicator(t1, 1, lectureTime[c->getOrderID()] >= temp + 1);//Not acceptable
-                        model->addGenConstrIndicator(t1, 0, lectureTime[c->getOrderID()] <= temp);
-                        model->addConstr(t1 + t >= 1);
+                        model->addGenConstrIndicator(t1, 0, lectureTime[c->getOrderID()] >= temp + 1);//Not acceptable
+                        model->addGenConstrIndicator(t1, 1, lectureTime[c->getOrderID()] <= temp);
+                        GRBVar t2 = model->addVar(0, 1, 0, GRB_BINARY, "TempG2_" + itos(c->getOrderID()) + itos(temp));
+                        model->addGenConstrIndicator(t2, 1, t1 + t == 2);
+                        model->addGenConstrIndicator(t2, 0, t1 + t <= 1);//Not acceptable
+                        x += t2;
                     }
                 }
+                model->addConstr(x == 1);
             }
         } catch (GRBException e) {
             printError(e, "block");

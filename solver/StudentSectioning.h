@@ -45,7 +45,7 @@ public:
                             sub += student[s][it->second.getCourse()[c]->getSubpart(
                                     conf)[part]->getClasses()[cla]->getOrderID()];
                         }
-                        model->addGenConstrIndicator(subVAR, 1, sub >= 1);
+                        model->addGenConstrIndicator(subVAR, 1, sub == 1);
                         model->addGenConstrIndicator(subVAR, 0, sub == 0);
                         con[part] = subVAR;
                     }
