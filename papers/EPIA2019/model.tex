@@ -4,7 +4,7 @@ In this section, we present two different models to solve the university timetab
 
 \subsection{\textsc{Boolean} Model}
 In the past, different integer-programming models have been proposed to solve university timetabling problems~\cite{LINDAHL2019}. These models typically use Boolean variables to indicate the assignment of lectures to rooms and time slots. These models can be easily generalized to solve the problem at hand. However, this model requires a quadratic number of constraints. 
-
+ 
 
 %Lemos \emph{et al} proposed an \gls{ilp} encoding to optimize room usage in university timetabling problems. The encoding did not allow the modifications of the lectures scheduled. Therefore, this model had only one decision variable representing the assignment of a lecture to a room.  
 
@@ -70,6 +70,7 @@ The constraints considered are as follows:
 \end{comment}
 
 \begin{table}[t]
+\renewcommand{\arraystretch}{1.5}
 \centering
 \caption{Constraints in the \textsc{boolean} and \textsc{mixed} models.}
 \label{tab:encoding}
@@ -236,7 +237,7 @@ s_{l_1,l_2}= \begin{cases}
   1 & \textrm{if} \ x_{l_1,r} = x_{l_2,r}\\
   0 & \textrm{otherwise}  \end{cases}   \forall_{l_1\in L, l_2\in L, r \in R}.
 \end{comment}
-Variable $g_{l_1,l_2,s}$ is equal to 1 if and only if $l_2$ starts when $l_1$ just ended (consecutive). Finally, variable $c_{l,s} \in \{0,1,2\}$ represents the number of transitions from free to occupied in a student's $s$ timetable before/after lecture $l$. 
+Variable $g_{l_1,l_2,s}$ is equal to 1 if and only if $l_2$ starts when $l_1$ just ended (consecutive). Finally, variable $c_{l,s} \in \{0,1,2\}$ represents the number of transitions from free to occupied in a student's $s$ timetable before/after lecture~ ~$l$. 
 \begin{comment}
 g_{l_1,l_2,s}= \begin{cases}
   1 & \textrm{if} \  a^{l_1} + len_{l_1} = a^{l_2}\\
