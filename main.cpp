@@ -57,6 +57,7 @@ int main(int argc, char **argv) {
 
     if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
     Instance *instance = readInputXML(argv[1]);
+    constraints(instance);
 
     if (!quiet) std::cout << "Compacting " << std::endl;
     instance->compact();
