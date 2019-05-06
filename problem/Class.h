@@ -184,9 +184,17 @@ public:
             std::cerr << "Lecture cannot be schedule id: " << id << std::endl;
             return 0;
         }
+        //throw "Legacy Mode";
         return lectures[0]->getLenght();
     }
 
+    int getLenght(int t, int min) const {
+        for (int i = 0; i < lectures.size(); ++i) {
+            if (lectures[i]->getStart() - min == t)
+                return lectures[i]->getLenght();
+        }
+        return 0;
+    }
     int getStart() const {
         throw "Legacy Mode";
         return lectures[0]->getStart();

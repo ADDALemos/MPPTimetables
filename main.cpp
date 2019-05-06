@@ -57,7 +57,6 @@ int main(int argc, char **argv) {
 
     if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
     Instance *instance = readInputXML(argv[1]);
-    constraints(instance);
 
     if (!quiet) std::cout << "Compacting " << std::endl;
     instance->compact();
@@ -164,12 +163,8 @@ void genSingleShot(Instance *instance, ILPExecuter *runner, char *string) {
     if (!quiet) std::cout << "Week : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
     runner->createSol();
     if (!quiet) std::cout << "Sol: DONE " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
-    runner->definedAuxVar();
-    if (!quiet) std::cout << "Defined Auxvar : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
     runner->block();
     if (!quiet) std::cout << "Block var : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
-    runner->oneLectureperSlot();
-    if (!quiet) std::cout << "LectureperSlot : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
     runner->dist();
     if (!quiet) std::cout << "Dist : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
     runner->oneLectureRoom();

@@ -34,7 +34,7 @@ public:
 
     virtual void cuts()=0;
 
-    virtual void oneLectureRoomConflict(GRBVar **order, GRBVar **sameday)=0;
+    virtual void oneLectureRoomConflict(GRBVar *start, GRBVar *end, GRBVar **sameday, GRBVar **week)=0;
 
     virtual bool **getBool() { throw "Abstract Class"; }
 
@@ -46,7 +46,7 @@ public:
         currentW = currrentW;
     }
 
-    virtual GRBLinExpr travel(std::vector<Class *> c, GRBVar *time, GRBVar **sameday, int pen) {
+    virtual GRBLinExpr travel(std::vector<Class *> c, GRBVar *time, GRBVar *end, GRBVar **sameday, int pen) {
         return 0;
     }
 

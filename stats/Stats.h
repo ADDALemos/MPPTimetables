@@ -79,121 +79,66 @@ void printWeekStats(Instance *instance) {
 
 void constraints(Instance *instance) {
     std::map<std::string, int> map;
+    map.insert(std::pair<std::string, int>("SameAttendees", 0));
+    map.insert(std::pair<std::string, int>("NotOverlap", 0));
+    map.insert(std::pair<std::string, int>("Overlap", 0));
+    map.insert(std::pair<std::string, int>("SameTime", 0));
+    map.insert(std::pair<std::string, int>("DifferentTime", 0));
+    map.insert(std::pair<std::string, int>("SameWeeks", 0));
+    map.insert(std::pair<std::string, int>("DifferentWeeks", 0));
+    map.insert(std::pair<std::string, int>("SameDays", 0));
+    map.insert(std::pair<std::string, int>("DifferentDays", 0));
+    map.insert(std::pair<std::string, int>("Precedence", 0));
+    map.insert(std::pair<std::string, int>("SameRoom", 0));
+    map.insert(std::pair<std::string, int>("DifferentRoom", 0));
+    map.insert(std::pair<std::string, int>("SameStart", 0));
+    map.insert(std::pair<std::string, int>("MaxDays", 0));
+    map.insert(std::pair<std::string, int>("MinGap", 0));
+    map.insert(std::pair<std::string, int>("WorkDay", 0));
+    map.insert(std::pair<std::string, int>("MaxDayLoad", 0));
+    map.insert(std::pair<std::string, int>("MaxBreaks", 0));
+    map.insert(std::pair<std::string, int>("MaxBlock", 0));
+
+
     for (int i = 0; i < instance->getDist().size(); ++i) {
         if (instance->getDist()[i]->getType().getType() == SameAttendees) {
-            if (map.find("SameAttendees") != map.end()) {
-                map["SameAttendees"]++;
-            } else {
-                map.insert(std::pair<std::string, int>("SameAttendees", 1));
-            }
+            map["SameAttendees"]++;
         } else if (instance->getDist()[i]->getType().getType() == NotOverlap) {
-            if (map.find("Overlap") != map.end()) {
-                map["Overlap"]++;
-            } else {
-                map.insert(std::pair<std::string, int>("Overlap", 1));
-            }
+            map["NotOverlap"]++;
         } else if (instance->getDist()[i]->getType().getType() == Overlap) {
-            if (map.find("Overlap") != map.end()) {
-                map["Overlap"]++;
-            } else {
-                map.insert(std::pair<std::string, int>("Overlap", 1));
-            }
+            map["Overlap"]++;
         } else if (instance->getDist()[i]->getType().getType() == SameTime) {
-            if (map.find("SameTime") != map.end()) {
-                map["SameTime"]++;
-            } else {
-                map.insert(std::pair<std::string, int>("SameTime", 1));
-            }
+            map["SameTime"]++;
         } else if (instance->getDist()[i]->getType().getType() == DifferentTime) {
-            if (map.find("DifferentTime") != map.end()) {
-                map["DifferentTime"]++;
-            } else {
-                map.insert(std::pair<std::string, int>("DifferentTime", 1));
-            }
+            map["DifferentTime"]++;
         } else if (instance->getDist()[i]->getType().getType() == SameWeeks) {
-            if (map.find("SameWeeks") != map.end()) {
-                map["SameWeeks"]++;
-            } else {
-                map.insert(std::pair<std::string, int>("SameWeeks", 1));
-            }
+            map["SameWeeks"]++;
         } else if (instance->getDist()[i]->getType().getType() == DifferentWeeks) {
-            if (map.find("DifferentWeeks") != map.end()) {
-                map["DifferentWeeks"]++;
-            } else {
-                map.insert(std::pair<std::string, int>("DifferentWeeks", 1));
-            }
+            map["DifferentWeeks"]++;
         } else if (instance->getDist()[i]->getType().getType() == SameDays) {
-            if (map.find("SameDays") != map.end()) {
-                map["SameDays"]++;
-            } else {
-                map.insert(std::pair<std::string, int>("SameDays", 1));
-            }
+            map["SameDays"]++;
         } else if (instance->getDist()[i]->getType().getType() == DifferentDays) {
-            if (map.find("DifferentDays") != map.end()) {
-                map["DifferentDays"]++;
-            } else {
-                map.insert(std::pair<std::string, int>("DifferentDays", 1));
-            }
+            map["DifferentDays"]++;
         } else if (instance->getDist()[i]->getType().getType() == Precedence) {
-            if (map.find("Precedence") != map.end()) {
-                map["Precedence"]++;
-            } else {
-                map.insert(std::pair<std::string, int>("Precedence", 1));
-            }
+            map["Precedence"]++;
         } else if (instance->getDist()[i]->getType().getType() == SameRoom) {
-            if (map.find("SameRoom") != map.end()) {
-                map["SameRoom"]++;
-            } else {
-                map.insert(std::pair<std::string, int>("SameRoom", 1));
-            }
+            map["SameRoom"]++;
         } else if (instance->getDist()[i]->getType().getType() == DifferentRoom) {
-            if (map.find("DifferentRoom") != map.end()) {
-                map["DifferentRoom"]++;
-            } else {
-                map.insert(std::pair<std::string, int>("DifferentRoom", 1));
-            }
+            map["DifferentRoom"]++;
         } else if (instance->getDist()[i]->getType().getType() == SameStart) {
-            if (map.find("SameStart") != map.end()) {
-                map["SameStart"]++;
-            } else {
-                map.insert(std::pair<std::string, int>("SameStart", 1));
-            }
+            map["SameStart"]++;
         } else if (instance->getDist()[i]->getType().getType() == MaxDays) {
-            if (map.find("MaxDays") != map.end()) {
-                map["MaxDays"]++;
-            } else {
-                map.insert(std::pair<std::string, int>("MaxDays", 1));
-            }
+            map["MaxDays"]++;
         } else if (instance->getDist()[i]->getType().getType() == MinGap) {
-            if (map.find("MinGap") != map.end()) {
-                map["MinGap"]++;
-            } else {
-                map.insert(std::pair<std::string, int>("MinGap", 1));
-            }
+            map["MinGap"]++;
         } else if (instance->getDist()[i]->getType().getType() == WorkDay) {
-            if (map.find("WorkDay") != map.end()) {
-                map["WorkDay"]++;
-            } else {
-                map.insert(std::pair<std::string, int>("WorkDay", 1));
-            }
+            map["WorkDay"]++;
         } else if (instance->getDist()[i]->getType().getType() == MaxDayLoad) {
-            if (map.find("MaxDayLoad") != map.end()) {
-                map["MaxDayLoad"]++;
-            } else {
-                map.insert(std::pair<std::string, int>("MaxDayLoad", 1));
-            }
+            map["MaxDayLoad"]++;
         } else if (instance->getDist()[i]->getType().getType() == MaxBreaks) {
-            if (map.find("MaxBreaks") != map.end()) {
-                map["MaxBreaks"]++;
-            } else {
-                map.insert(std::pair<std::string, int>("MaxBreaks", 1));
-            }
+            map["MaxBreaks"]++;
         } else if (instance->getDist()[i]->getType().getType() == MaxBlock) {
-            if (map.find("MaxBlock") != map.end()) {
-                map["MaxBlock"]++;
-            } else {
-                map.insert(std::pair<std::string, int>("MaxBlock", 1));
-            }
+            map["MaxBlock"]++;
         }
 
     }

@@ -55,42 +55,8 @@ public:
     }
 
 //TODO: Finish this
-    void oneLectureRoomConflict(GRBVar **order, GRBVar **sameday) override {
-        try {
+    void oneLectureRoomConflict(GRBVar *start, GRBVar *end, GRBVar **sameday, GRBVar **week) override {
 
-            for (int j = 0; j < instance->getClassesWeek(currentW).size(); j++) {
-                int i1 = 0, i = 0;
-                for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
-                     it != instance->getRooms().end(); it++) {
-                    if (instance->getClassesWeek(currentW)[j]->containsRoom(instance->getRoom(i1 + 1))) {
-                        for (int j1 = 1; j1 < instance->getClassesWeek(currentW).size(); j1++) {
-                            if (instance->getClassesWeek(currentW)[j]->containsRoom(instance->getRoom(i1 + 1)) &&
-                                instance->getClassesWeek(currentW)[j1]->containsRoom(instance->getRoom(i1 + 1))) {
-                                GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                             "temp" + itos(i) + "_" + itos(j) + "_" +
-                                                             itos(j1));
-                                GRBVar tempC = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                             "tempC" + itos(i) + "_" + itos(j) + "_" +
-                                                             itos(j1));
-                                model->addGenConstrIndicator(tempC, 1, (order[j][j1] + order[j1][j]) == 2);
-                                model->addGenConstrIndicator(tempC, 0, (order[j][j1] + order[j1][j]) <= 1);
-                                if (vector[j][i] + vector[j1][i] == 2)
-                                    model->addConstr(1 + tempC <= 1);
-
-
-                            }
-                        }
-                        i++;
-                    }
-                    i1++;
-
-                }
-            }
-
-
-        } catch (GRBException e) {
-            printError(e, "oneLectureRoomConflict");
-        }
     }
 
     virtual GRBLinExpr roomPen() override {

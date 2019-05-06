@@ -13,29 +13,20 @@
 #include "../solver/roomLectureBool.h"
 
 class MixedModelGurobiExecuter : public TwoVarGurobiExecuter {
-    GRBVar *lectureTime;
-    GRBVar **day;
-    GRBVar **sameday;
-    GRBVar **order;
-    GRBVar **gap;
+    GRBVar *lectureTime;//start time
+    GRBVar *endTime;//end time
+    GRBVar ***sameday; //same day between two classes in one day
+    GRBVar **samedays; //one day overlap two classes
+    GRBVar **day; //day
+    GRBVar **we; //week
+    GRBVar **isWeek; //which time does the week is from
+    GRBVar **isDay; //which time does the day is from
+    GRBVar **isStart; //which time does the start is from
 
 
 public:
 
     virtual void save() override {
-        /*for (int j = 0; j < instance->getClassesWeek(currentW).size(); j++) {
-            int day = lectureTime[j].get(GRB_DoubleAttr_X) / instance->getSlotsperday();
-            int slot = lectureTime[j].get(GRB_DoubleAttr_X) - day * instance->getSlotsperday();
-            solutionTime[day][slot][j] = 1;
-        }
-        for (int i = 0; i < instance->getRooms().size(); i++) {
-            for (int j = 0; j < instance->getClassesWeek(currentW).size(); ++j) {
-                if (instance->getClasses()[j]->containsRoom(instance->getRoom(i + 1))) {
-                    if (!roomLecture->isStatic())
-                        solutionRoom[i][j] = roomLecture->getGRB()[j][i].get(GRB_DoubleAttr_X);
-                }
-            }
-        }*/
         switchSolutionTime();
         switchSolutionRoom();
         studentSectioning->save();
@@ -90,23 +81,33 @@ public:
 
     void dayConst() override {
         try {
+            isDay = new GRBVar *[instance->getClassesWeek(currentW).size()];
             for (int k = 0; k < instance->getClassesWeek(currentW).size(); ++k) {
+                isDay[k] = new GRBVar[instance->getClassesWeek(currentW)[k]->getLectures().size()];
                 for (int i = 0; i < instance->getClassesWeek(currentW)[k]->getLectures().size(); ++i) {
-                    int j = 0;
-                    for (char &c : instance->getClassesWeek(currentW)[k]->getLectures()[i]->getDays()) {
-                        if (c == '1') {
-                            model->addGenConstrIndicator(day[instance->getClassesWeek(currentW)[k]->getOrderID()][j], 1,
-                                                         lectureTime[instance->getClassesWeek(
-                                                                 currentW)[k]->getOrderID()] ==
-                                                                       instance->getClassesWeek(
-                                                                               currentW)[k]->getLectures()[i]->getStart());
-                        }
-                        j++;
+                    GRBVar andDay[instance->getNdays()];
+                    for (int j = 0; j < instance->getNdays(); j++) {
+                        andDay[j] = model->addVar(0, 1, 0, GRB_BINARY, "DayAND_" + itos(instance->getClassesWeek(
+                                currentW)[k]->getOrderID()) + "_" + itos(i) + "_" +
+                                                                       itos(j));
+                        int d = (instance->getClassesWeek(currentW)[k]->getLectures()[i]->getDays().at(j) == '0' ? 0
+                                                                                                                 : 1);
+                        model->addGenConstrIndicator(andDay[j], 1,
+                                                     day[instance->getClassesWeek(currentW)[k]->getOrderID()][j] ==
+                                                     d);
+                        model->addGenConstrIndicator(andDay[j], 0,
+                                                     day[instance->getClassesWeek(currentW)[k]->getOrderID()][j] +
+                                                     d == 1);
+
                     }
-
+                    isDay[k][i] = model->addVar(0, 1, 0, GRB_BINARY, "DayOR_" + itos(instance->getClassesWeek(
+                            currentW)[k]->getOrderID()) + "_" + itos(i));
+                    model->addGenConstrAnd(isDay[k][i], andDay, instance->getNdays());
                 }
+                GRBVar t = model->addVar(0, 1, 0, GRB_BINARY);
+                model->addGenConstrOr(t, isDay[k], instance->getClassesWeek(currentW)[k]->getLectures().size());
+                model->addConstr(t == 1);
             }
-
         } catch (GRBException e) {
             printError(e, "day");
         }
@@ -115,65 +116,56 @@ public:
 
     void definedLectureTime() override {
         lectureTime = new GRBVar[instance->getClassesWeek(currentW).size()];
+        endTime = new GRBVar[instance->getClassesWeek(currentW).size()];
+        samedays = new GRBVar *[instance->getClassesWeek(currentW).size()];
+        sameday = new GRBVar **[instance->getClassesWeek(currentW).size()];
         day = new GRBVar *[instance->getClassesWeek(currentW).size()];
-
-        order = new GRBVar *[instance->getClassesWeek(currentW).size()];
-        sameday = new GRBVar *[instance->getClassesWeek(currentW).size() - 1];
-        int kn = 0;
         for (Class *k :instance->getClassesWeek(currentW)) {
-            order[k->getOrderID()] = new GRBVar[instance->getClassesWeek(currentW).size()];
-            sameday[k->getOrderID()] = new GRBVar[instance->getClassesWeek(currentW).size()];
-
+            samedays[k->getOrderID()] = new GRBVar[instance->getClassesWeek(currentW).size()];
+            sameday[k->getOrderID()] = new GRBVar *[instance->getClassesWeek(currentW).size()];
             day[k->getOrderID()] = new GRBVar[instance->getNdays()];
             for (int i = 0; i < instance->getNdays(); ++i) {
                 day[k->getOrderID()][i] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
                                                         "day" + itos(k->getOrderID()) + "_" + itos(i));
             }
-            for (Class *j1 : instance->getClassesWeek(currentW)) {
-                if (kn == 0) {
-                    std::string name = "A_" + itos(k->getOrderID());
-
-                    lectureTime[j1->getOrderID()] = model->addVar(0.0, instance->getSlotsperday(), 0.0,
-                                                                  GRB_INTEGER,
-                                                                  name);//instance->getClassesWeek(currentW)[k]->getLectures().size()
-                    model->addConstr(
-                            lectureTime[j1->getOrderID()] + instance->getClasses()[j1->getOrderID()]->getLenght() <=
-                            (((lectureTime[j1->getOrderID()] / instance->getSlotsperday()) + 1) *
-                                      instance->getSlotsperday()) -
-                                     1);
-                }
-
-                order[k->getOrderID()][j1->getOrderID()] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                                         "order" + itos(k->getOrderID()) + "_" +
-                                                                         itos(j1->getOrderID()));
-                model->addGenConstrIndicator(order[k->getOrderID()][j1->getOrderID()], 1,
-                                             (lectureTime[k->getOrderID()]
-                                              + instance->getClasses()[k->getOrderID()]->getLenght()) <=
-                                             lectureTime[j1->getOrderID()]);
-                model->addGenConstrIndicator(order[k->getOrderID()][j1->getOrderID()], 0,
-                                             (lectureTime[k->getOrderID()] +
-                                              instance->getClasses()[k->getOrderID()]->getLenght() - 1) >=
-                                             lectureTime[j1->getOrderID()]);
+            for (Class *k1 :instance->getClassesWeek(currentW)) {
+                sameday[k->getOrderID()][k1->getOrderID()] = new GRBVar[instance->getNdays()];
+                samedays[k->getOrderID()][k1->getOrderID()] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                                            "samedays" + itos(k->getOrderID()) + "_" +
+                                                                            itos(k1->getOrderID()));
 
             }
-            kn++;
+
+            endTime[k->getOrderID()] = model->addVar(0.0, instance->getSlotsperday(), 0.0,
+                                                     GRB_INTEGER,
+                                                     "E_" + itos(k->getOrderID()));
+
+            lectureTime[k->getOrderID()] = model->addVar(0.0, instance->getSlotsperday(), 0.0,
+                                                         GRB_INTEGER,
+                                                         "A_" + itos(k->getOrderID()));
+
         }
-        for (int k = 0; k < instance->getClassesWeek(currentW).size(); ++k) {
-            int kID = instance->getClassesWeek(currentW)[k]->getOrderID();
-            for (int j1 = 0; j1 < instance->getClassesWeek(currentW).size(); j1++) {
-                int jID = instance->getClassesWeek(currentW)[j1]->getOrderID();
-                sameday[kID][jID] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                  "sameday" + itos(kID) + "_" + itos(jID));
+        for (Class *k :instance->getClassesWeek(currentW)) {
+            for (Class *k1 :instance->getClassesWeek(currentW)) {
+                GRBLinExpr som = 0;
                 for (int i = 0; i < instance->getNdays(); ++i) {
-                    model->addGenConstrIndicator(sameday[kID][jID], 1,
-                                                 day[kID][i]
-                                                 == day[jID][i]);
-                    model->addGenConstrIndicator(sameday[kID][jID], 0,
-                                                 day[kID][i] + day[jID][i] <= 1);
-
+                    sameday[k->getOrderID()][k1->getOrderID()][i] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                                                  "sameday" + itos(k->getOrderID()) +
+                                                                                  "_"
+                                                                                  + itos(k1->getOrderID()) + "_" +
+                                                                                  itos(i));
+                    model->addGenConstrIndicator(sameday[k->getOrderID()][k1->getOrderID()][i], 1,
+                                                 day[k->getOrderID()][i] +
+                                                 day[k1->getOrderID()][i] ==
+                                                 2);
+                    model->addGenConstrIndicator(sameday[k->getOrderID()][k1->getOrderID()][i], 0,
+                                                 day[k->getOrderID()][i] +
+                                                 day[k1->getOrderID()][i] <=
+                                                 1);
+                    som += sameday[k->getOrderID()][k1->getOrderID()][i];
                 }
-
-
+                model->addGenConstrIndicator(samedays[k->getOrderID()][k1->getOrderID()], 1, som >= 1);
+                model->addGenConstrIndicator(samedays[k->getOrderID()][k1->getOrderID()], 0, som <= 0);
             }
         }
 
@@ -200,13 +192,12 @@ public:
     }
 
 
-
     /***
      * The room can only have one lecture per slot without and quadratic expressions
      */
 
     void oneLectureRoomConflict() override {
-        roomLecture->oneLectureRoomConflict(order, sameday);
+        roomLecture->oneLectureRoomConflict(lectureTime, endTime, samedays, we);
 
     }
 
@@ -326,7 +317,7 @@ public:
         std::cout << "classes : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
         studentSectioning->parentChild();
         std::cout << "family : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
-        cost += studentSectioning->conflicts(order);
+        cost = studentSectioning->conflicts(lectureTime, endTime);
         std::cout << "conflicts : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
         studentSectioning->limit();
         std::cout << "limit : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
@@ -337,36 +328,8 @@ public:
 
     /**Teacher's conflict*/
     void teacher() override {
-        for (std::map<std::string, Course *>::const_iterator it = instance->getCourses().begin();
-             it != instance->getCourses().end(); it++) {
-            for (std::map<int, std::vector<Subpart *>>::iterator sub = it->second->getConfiguratons().begin();
-                 sub != it->second->getConfiguratons().end(); ++sub) {
-                for (int i = 0; i < sub->second.size(); ++i) {
-                    GRBLinExpr conflict = 0;
-                    for (int c = 0; c < sub->second[i]->getClasses().size(); c++) {
-                        for (int c1 = 0; c1 < sub->second[i]->getClasses().size(); c1++) {
-                            if (c1 != c && sub->second[i]->getClasses()[c]->isActive(currentW)
-                                && sub->second[i]->getClasses()[c1]->isActive(currentW)) {
+        throw "Not Supported";
 
-                                GRBVar tempT = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                             "tempT" + it->first + "_" + itos(i) + "_" +
-                                                             itos(c) +
-                                                             "_" + itos(c1));
-
-                                model->addGenConstrIndicator(tempT, 1, order[c][c1] + order[c1][c] >= 2);
-                                model->addGenConstrIndicator(tempT, 0, order[c][c1] + order[c1][c] <= 1);
-
-
-                                conflict += tempT;
-                            }
-                        }
-                    }
-                    model->addConstr(conflict <= sub->second[i]->getOverlap());
-                }
-
-
-            }
-        }
     }
 
 
@@ -374,176 +337,45 @@ public:
      *
      */
     void studentConflict() override {
-        for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
-             it != instance->getStudent().end(); it++) {
-            for (int c = 0; c < it->second.getClasses().size(); ++c) {
-                for (int j1 = 1; j1 < it->second.getClasses().size(); ++j1) {
-                    GRBVar orv[2];
-                    GRBVar tempX2 = model->addVar(0.0, 1.0, 0.0, GRB_BINARY);
-                    orv[0] = order[c][j1];
-                    orv[01] = order[j1][c];
-                    model->addGenConstrOr(tempX2, orv, 2);
-                    model->addConstr(tempX2 == 1);
-
-                }
-
-            }
-
-
-        }
+        throw "Not Supported";
     }
 
     /** Student conflicts hard constraint based on the original solution
      *
      */
     void studentConflictSolution() override {
-        try {
-            for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
-                 it != instance->getStudent().end(); it++) {
-                for (int c = 0; c < it->second.getClasses().size(); ++c) {
-                    for (int j1 = 1; j1 < it->second.getClasses().size(); ++j1) {
-                        model->addConstr(order[c][j1] + order[j1][c] <= 1);
-                    }
-                }
-            }
-        } catch (GRBException e) {
-            printError(e, "studentConflictSolution");
-        }
+        throw "Not Supported";
+
     }
 
 
 private:
 //Number of seated students for optimization or constraint
     GRBQuadExpr numberSeatedStudents() override {
-        GRBQuadExpr temp = 0;
-        for (int l = 0; l < instance->getNumClasses(); l++) {
-            int j = 0;
-            for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
-                 it != instance->getRooms().end(); it++) {
-                int d = 0;
-                for (char &c :instance->getClasses()[l]->getDays()) {
-                    if (c != '0') {
-                        for (int i = 0; i < instance->getClasses()[l]->getLenght(); i++) {
-                            if (it->second.getCapacity() >= instance->getClasses()[l]->getLimit() &&
-                                instance->getClasses()[l]->containsRoom(instance->getRoom(j + 1))) {
-                                if (roomLecture->isStatic())
-                                    temp += instance->getClasses()[l]->getLimit() *
-                                            lectureTime[l]
-                                            * roomLecture->getBool()[l][j];
-                                else
-                                    temp += instance->getClasses()[l]->getLimit() *
-                                            lectureTime[l]
-                                            * roomLecture->getGRB()[l][j];
-                            } else if (instance->getClasses()[l]->containsRoom(instance->getRoom(j + 1))) {
-                                if (roomLecture->isStatic())
-                                    temp += it->second.getCapacity() *
-                                            lectureTime[l]
-                                            * roomLecture->getBool()[l][j];
-                                else
-                                    temp += it->second.getCapacity() *
-                                            lectureTime[l]
-                                            * roomLecture->getGRB()[l][j];
-                            }
-                        }
-                    }
-                    d++;
-                }
-                j++;
-            }
-        }
-        //std::cout<<temp<<std::endl;
+        throw "Not Supported";
 
-        return temp;
+
+        return 0;
     }
 
     GRBQuadExpr usage() override {
         GRBQuadExpr temp = 0;
-        for (int l = 0; l < instance->getNumClasses(); l++) {
-            int j = 0;
-            for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
-                 it != instance->getRooms().end(); it++) {
-                int d = 0;
-                for (char &c :instance->getClasses()[l]->getDays()) {
-                    if (c != '0') {
-                        for (int i = 0; i < instance->getClasses()[l]->getLenght(); i++) {
-                            if (instance->getClasses()[l]->containsRoom(instance->getRoom(j + 1))) {
-                                if (roomLecture->isStatic())
-                                    temp += abs(it->second.getCapacity() - instance->getClasses()[l]->getLimit()) *
-                                            lectureTime[l]
-                                            * roomLecture->getBool()[l][j];
-                                else
-                                    temp += abs(it->second.getCapacity() - instance->getClasses()[l]->getLimit()) *
-                                            lectureTime[l]
-                                            * roomLecture->getGRB()[l][j];
-                            }
-                        }
-                    }
+        throw "Not Supported";
 
-                    d++;
-                }
-                j++;
-            }
-        }
-        //std::cout<<temp<<std::endl;
 
         return temp;
 
     }
 
     void gapStudentsTimetableVar() {
-        gap = new GRBVar *[instance->getNumClasses()];
-        for (int j = 0; j < instance->getNumClasses(); j++) {
-            gap[j] = new GRBVar[instance->getNumClasses()];
-            for (int j1 = 0; j1 < instance->getNumClasses(); j1++) {
-                if (j1 != j)
-                    gap[j][j1] = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                               "gap" + itos(j) + "_" + itos(j1)); //TODO
-            }
-        }
-        for (int l = 0; l < instance->getNumClasses(); ++l) {
-            instance->getClasses()[l]->setOrderID(l);
-            for (int l1 = 1; l1 < instance->getNumClasses(); ++l1) {
-                if (l != l1) {
-                    model->addGenConstrIndicator(gap[l][l1], 1,
-                                                 (lectureTime[l] + instance->getClasses()[l]->getLenght()) ==
-                                                 (lectureTime[l1]));
-                    model->addGenConstrIndicator(gap[l][l1], 0, order[l][l1] + gap[l][l1] <= 1);
-                    model->addGenConstrIndicator(gap[l1][l], 1,
-                                                 (lectureTime[l1] + instance->getClasses()[l1]->getLenght()) ==
-                                                 (lectureTime[l]));
-                    model->addGenConstrIndicator(gap[l1][l], 0, order[l1][l] + gap[l1][l] <= 1);
-                }
-
-            }
-        }
+        throw "Not Supported";
 
     }
 
 
     GRBLinExpr gapStudentsTimetable() override {
-        gapStudentsTimetableVar();
-        std::cout << "Aux Var: Done" << std::endl;
-        GRBLinExpr min = 0;
-        for (int i = 0; i < instance->getStudent().size(); ++i) {
-            for (int l = 0; l < instance->getStudent(i + 1).getClasses().size(); ++l) {
-                GRBLinExpr all = 0;
-                for (int l1 = 1; l1 < instance->getStudent(i + 1).getClasses().size(); ++l1) {
-                    if (l != l1) {
-                        all += gap[instance->getStudent(i + 1).getClass(l)->getOrderID()][instance->getStudent(
-                                i + 1).getClass(l1)->getOrderID()]
-                               + gap[instance->getStudent(i + 1).getClass(l1)->getOrderID()][instance->getStudent(
-                                i + 1).getClass(l)->getOrderID()];
-                    }
-
-                }
-                min += (2 - all);
-
-            }
-
-
-        }
-
-        return min;
+        throw "Not Supported";
+        return 0;
         //std::cout << min << std::endl;
     }
 
@@ -633,15 +465,20 @@ private:
 
     void switchSolutionTime() override {
         for (int i = 0; i < instance->getClassesWeek(currentW).size(); i++) {
-            int day = lectureTime[instance->getClassesWeek(currentW)[i]->getOrderID()].get(GRB_DoubleAttr_X)
-                      / instance->getSlotsperday();
-            int slot = lectureTime[instance->getClassesWeek(currentW)[i]->getOrderID()].get(GRB_DoubleAttr_X)
-                       - day * instance->getSlotsperday();
-            //std::cerr<<day<<" "<<slot<<std::endl;
+            char d[instance->getNdays()];
+            int slot = lectureTime[instance->getClassesWeek(currentW)[i]->getOrderID()].get(GRB_DoubleAttr_X);
+            std::cerr << instance->getClassesWeek(currentW)[i]->getId() << " ";
+            for (int j = 0; j < instance->getNdays(); ++j) {
+                d[j] = day[instance->getClassesWeek(currentW)[i]->getOrderID()][j].get(GRB_DoubleAttr_X);
+                int dI = day[instance->getClassesWeek(currentW)[i]->getOrderID()][j].get(GRB_DoubleAttr_X);
+                solutionTime[dI][slot][i] = 1;
+                std::cerr << dI;
 
-            solutionTime[day][slot][i] = 1;
+            }
+            std::cerr << " " << slot << " L " << instance->getClassesWeek(currentW)[i]->getLenght() << std::endl;
+
             instance->getClassesWeek(currentW)[i]->setSolutionTime(slot,
-                                                                   strdup(std::to_string(day).c_str()));
+                                                                   d);
 
 
         }
@@ -675,25 +512,29 @@ private:
      */
     virtual void block() override {
         try {
+            isStart = new GRBVar *[instance->getClassesWeek(currentW).size()];
             for (int l = 0; l < instance->getClassesWeek(currentW).size(); ++l) {
+                isStart[l] = new GRBVar[instance->getClassesWeek(currentW)[l]->getLectures().size()];
                 Class *c = instance->getClassesWeek(currentW)[l];
-                std::set<int> slots = c->getSlots(instance->minTimeSlot());
                 GRBLinExpr x = 0;
-                for (int temp = 0; temp < instance->getSlotsperday(); temp++) {
-                    if (slots.find(temp) != slots.end()) {
-                        GRBVar t = model->addVar(0, 1, 0, GRB_BINARY, "TempG_" + itos(c->getOrderID()) + itos(temp));
-                        model->addGenConstrIndicator(t, 1, lectureTime[c->getOrderID()] >= temp);
-                        model->addGenConstrIndicator(t, 0, lectureTime[c->getOrderID()] <= temp - 1);//Not acceptable
-                        GRBVar t1 = model->addVar(0, 1, 0, GRB_BINARY, "TempG1_" + itos(c->getOrderID()) + itos(temp));
-                        model->addGenConstrIndicator(t1, 0, lectureTime[c->getOrderID()] >= temp + 1);//Not acceptable
-                        model->addGenConstrIndicator(t1, 1, lectureTime[c->getOrderID()] <= temp);
-                        GRBVar t2 = model->addVar(0, 1, 0, GRB_BINARY, "TempG2_" + itos(c->getOrderID()) + itos(temp));
-                        model->addGenConstrIndicator(t2, 1, t1 + t == 2);
-                        model->addGenConstrIndicator(t2, 0, t1 + t <= 1);//Not acceptable
-                        x += t2;
-                    }
+                for (int te = 0; te < c->getLectures().size(); te++) {
+                    int temp = c->getLectures()[te]->getStart() - instance->minTimeSlot();
+                    GRBVar t = model->addVar(0, 1, 0, GRB_BINARY,
+                                             "TempUNA_ID_" + itos(c->getOrderID()) + "_" + itos(te));
+                    model->addGenConstrIndicator(t, 1, lectureTime[c->getOrderID()] >= temp);
+                    model->addGenConstrIndicator(t, 0, lectureTime[c->getOrderID()] <= temp - 1);//Not acceptable
+                    GRBVar t1 = model->addVar(0, 1, 0, GRB_BINARY,
+                                              "TempUNA1_ID_" + itos(c->getOrderID()) + "_" + itos(te));
+                    model->addGenConstrIndicator(t1, 0, lectureTime[c->getOrderID()] >= temp + 1);//Not acceptable
+                    model->addGenConstrIndicator(t1, 1, lectureTime[c->getOrderID()] <= temp);
+                    isStart[l][te] = model->addVar(0, 1, 0, GRB_BINARY,
+                                                   "TempUNA2_ID_" + itos(c->getOrderID()) + "_" + itos(te));
+                    model->addGenConstrIndicator(isStart[l][te], 1, t1 + t == 2);
+                    model->addGenConstrIndicator(isStart[l][te], 0, t1 + t <= 1);//Not acceptable
+                    x += isStart[l][te];
+
                 }
-                model->addConstr(x == 1);
+                model->addConstr(x >= 1);
             }
         } catch (GRBException e) {
             printError(e, "block");
@@ -714,7 +555,7 @@ private:
 
     virtual GRBLinExpr travel(std::vector<Class *> c, int pen) override {
         try {
-            return roomLecture->travel(c, lectureTime, sameday, pen);
+            return roomLecture->travel(c, lectureTime, endTime, samedays, pen);
         } catch (GRBException e) {
             printError(e, "travel");
         }
@@ -741,43 +582,43 @@ private:
         try {
             for (int c1 = 1; c1 < vector.size(); c1++) {
                 if (vector[c1 - 1]->isActive(currentW) && vector[c1]->isActive(currentW)) {
-                        GRBLinExpr t = 0;
-                        GRBLinExpr prev = 0;
-                        GRBLinExpr curre = 0;
-                        for (int d = 0; d < instance->getNdays(); ++d) {
-                            curre += day[vector[c1]->getOrderID()][d];
-                            GRBVar sameD = model->addVar(0, 1, 0, GRB_BINARY);
-                            model->addGenConstrIndicator(sameD, 0,
-                                                         curre == 0);
-                            model->addGenConstrIndicator(sameD, 0,
-                                                         prev == 0);
-                            model->addGenConstrIndicator(sameD, 0,
-                                                         day[vector[c1 - 1]->getOrderID()][d] == 1);
-                            model->addGenConstrIndicator(sameD, 1,
-                                                         curre == 0);
-                            model->addGenConstrIndicator(sameD, 0,
-                                                         prev >= 1);
-                            model->addGenConstrIndicator(sameD, 0,
-                                                         day[vector[c1 - 1]->getOrderID()][d] == 1);
+                    GRBLinExpr t = 0;
+                    GRBLinExpr prev = 0;
+                    GRBLinExpr curre = 0;
+                    for (int d = 0; d < instance->getNdays(); ++d) {
+                        curre += day[vector[c1]->getOrderID()][d];
+                        GRBVar sameD = model->addVar(0, 1, 0, GRB_BINARY);
+                        model->addGenConstrIndicator(sameD, 0,
+                                                     curre == 0);
+                        model->addGenConstrIndicator(sameD, 0,
+                                                     prev == 0);
+                        model->addGenConstrIndicator(sameD, 0,
+                                                     day[vector[c1 - 1]->getOrderID()][d] == 1);
+                        model->addGenConstrIndicator(sameD, 1,
+                                                     curre == 0);
+                        model->addGenConstrIndicator(sameD, 0,
+                                                     prev >= 1);
+                        model->addGenConstrIndicator(sameD, 0,
+                                                     day[vector[c1 - 1]->getOrderID()][d] == 1);
 
-                            prev += day[vector[c1 - 1]->getOrderID()][d];
-                            t += sameD;
+                        prev += day[vector[c1 - 1]->getOrderID()][d];
+                        t += sameD;
 
-                        }
-                        if (penalty == -1)
-                            model->addConstr(order[vector[c1 - 1]->getOrderID()][vector[c1]->getOrderID()] + t >= 1);
-                        else {
-                            GRBVar pen = model->addVar(0, 1, 0, GRB_BINARY);
-                            model->addGenConstrIndicator(pen, 1,
-                                                         order[vector[c1 - 1]->getOrderID()][vector[c1]->getOrderID()] +
-                                                         t >= 1);
-                            model->addGenConstrIndicator(pen, 0,
-                                                         order[vector[c1 - 1]->getOrderID()][vector[c1]->getOrderID()] +
-                                                         t == 0);
-                            result += pen * penalty;
-
-                        }
                     }
+                    //  if (penalty == -1)
+//                            model->addConstr(order[vector[c1 - 1]->getOrderID()][vector[c1]->getOrderID()] + t >= 1);
+                    // else {
+                    /* GRBVar pen = model->addVar(0, 1, 0, GRB_BINARY);
+                     model->addGenConstrIndicator(pen, 1,
+                                                  order[vector[c1 - 1]->getOrderID()][vector[c1]->getOrderID()] +
+                                                  t >= 1);
+                     model->addGenConstrIndicator(pen, 0,
+                                                  order[vector[c1 - 1]->getOrderID()][vector[c1]->getOrderID()] +
+                                                  t == 0);
+                     result += pen * penalty;*/
+
+                    //}
+                }
 
 
             }
@@ -824,7 +665,7 @@ private:
                 }
             }
         } catch (GRBException e) {
-            printError(e, "DifferentDays");
+            printError(e, "SmaStart");
         }
         return result;
 
@@ -849,27 +690,61 @@ private:
             for (int c1 = 0; c1 < vector.size(); c1++) {
                 for (int c2 = c1 + 1; c2 < vector.size(); ++c2) {
                     if (vector[c1]->isActive(currentW) && vector[c2]->isActive(currentW)) {
-                        for (int d = 0; d < instance->getNdays(); ++d) {
+                        GRBLinExpr c1L = 0, c2L = 0;
+                        if (!b) {
+                            for (int i = 0; i < instance->getNdays(); ++i) {
+                                GRBVar dayT = model->addVar(0, 1, 0, GRB_BINARY);
+                                GRBVar dayComp[2];
+                                dayComp[0] = day[vector[c1]->getOrderID()][i];
+                                dayComp[1] = day[vector[c2]->getOrderID()][i];
+                                model->addGenConstrOr(dayT, dayComp, 2);
+                                GRBVar tc1 = model->addVar(0, 1, 0, GRB_BINARY);
+                                model->addGenConstrIndicator(tc1, 0, dayT - day[vector[c1]->getOrderID()][i] == 0);
+                                model->addGenConstrIndicator(tc1, 1, dayT + day[vector[c1]->getOrderID()][i] == 1);
+                                GRBVar tc2 = model->addVar(0, 1, 0, GRB_BINARY);
+                                model->addGenConstrIndicator(tc2, 0, dayT - day[vector[c2]->getOrderID()][i] == 0);
+                                model->addGenConstrIndicator(tc2, 1, dayT + day[vector[c2]->getOrderID()][i] == 1);
+                                c1L += tc1;
+                                c2L += tc2;
+                            }
+                            GRBVar tc1 = model->addVar(0, 1, 0, GRB_BINARY);
+                            model->addGenConstrIndicator(tc1, 1, c1L == 0);
+                            model->addGenConstrIndicator(tc1, 1, c1L >= 1);
+                            GRBVar tc2 = model->addVar(0, 1, 0, GRB_BINARY);
+                            model->addGenConstrIndicator(tc2, 1, c2L == 0);
+                            model->addGenConstrIndicator(tc2, 1, c2L >= 1);
+
                             if (penalty == -1) {
-                                if (b) {
-                                    model->addConstr(
-                                            day[vector[c1]->getOrderID()][d] + day[vector[c2]->getOrderID()][d] <= 1);
-                                } else {
-                                    model->addConstr(
-                                            day[vector[c1]->getOrderID()][d] + day[vector[c2]->getOrderID()][d] == 2);
-                                }
+                                model->addConstr(tc1 + tc2 >= 1);
                             } else {
-                                GRBVar tempDay = model->addVar(0, 1, 0, GRB_BINARY);
-                                model->addGenConstrIndicator(tempDay, (b ? 1 : 0),
-                                                             day[vector[c1]->getOrderID()][d] +
-                                                             day[vector[c2]->getOrderID()][d] <= 1);
-                                model->addGenConstrIndicator(tempDay, (b ? 0 : 1),
-                                                             day[vector[c1]->getOrderID()][d] +
-                                                             day[vector[c2]->getOrderID()][d] == 2);
-                                result += tempDay;
+                                GRBVar t = model->addVar(0, 1, 0, GRB_BINARY);
+                                model->addGenConstrIndicator(t, 1, tc1 + tc2 == 0);
+                                model->addGenConstrIndicator(t, 0, tc1 + tc2 >= 1);
+                                result += t * penalty;
 
                             }
+                        } else {
 
+                            for (int d = 0; d < instance->getNdays(); ++d) {
+                                if (penalty == -1) {
+
+                                    model->addConstr(
+                                            day[vector[c1]->getOrderID()][d] + day[vector[c2]->getOrderID()][d] <= 1);
+
+                                } else {
+                                    GRBVar tempDay = model->addVar(0, 1, 0, GRB_BINARY);
+                                    model->addGenConstrIndicator(tempDay, (b ? 1 : 0),
+                                                                 day[vector[c1]->getOrderID()][d] +
+                                                                 day[vector[c2]->getOrderID()][d] <= 1);
+                                    model->addGenConstrIndicator(tempDay, (b ? 0 : 1),
+                                                                 day[vector[c1]->getOrderID()][d] +
+                                                                 day[vector[c2]->getOrderID()][d] == 2);
+                                    result += tempDay;
+
+                                }
+
+
+                            }
                         }
                     }
                 }
@@ -901,60 +776,103 @@ private:
             for (int c1 = 0; c1 < vector.size(); c1++) {
                 for (int c2 = c1 + 1; c2 < vector.size(); ++c2) {
                     if (vector[c1]->isActive(currentW) && vector[c2]->isActive(currentW)) {
+                        GRBVar sameweek[instance->getNweek()];
+                        for (int i = 0; i < instance->getNweek(); ++i) {
+                            model->addGenConstrIndicator(sameweek[i], 1,
+                                                         we[i][vector[c1]->getOrderID()] +
+                                                         we[i][vector[c2]->getOrderID()] == 2);
+                            model->addGenConstrIndicator(sameweek[i], 0,
+                                                         we[i][vector[c1]->getOrderID()] +
+                                                         we[i][vector[c2]->getOrderID()] <= 1);
+                        }
+                        GRBVar weekTime = model->addVar(0, 1, 0, GRB_BINARY);
+                        model->addGenConstrAnd(weekTime, sameweek, instance->getNweek());
+
                         if (b) {
                             //Same time
-                            GRBVar t = model->addVar(0, 1, 0, GRB_BINARY);
-                            model->addGenConstrIndicator(t, 1, order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
-                                                               +
-                                                               order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] <=
-                                                               1);
-                            model->addGenConstrIndicator(t, 0, order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
-                                                               +
-                                                               order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] ==
-                                                               2);
-                            //Same day
-                            GRBVar d = model->addVar(0, 1, 0, GRB_BINARY);
-                            model->addGenConstrIndicator(d, 0,
-                                                         sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] ==
-                                                         1);
-                            model->addGenConstrIndicator(d, 1,
-                                                         sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] ==
-                                                         0);
+                            GRBVar sameTime = model->addVar(0, 1, 0, GRB_BINARY);
+                            //(Ci.end  ≤ Cj .start)
+                            std::string name =
+                                    "T_" + itos(vector[c1]->getOrderID()) + "_" + itos(vector[c2]->getOrderID());
+                            GRBVar temp_l1_l2 = model->addVar(0, 1, 0, GRB_BINARY, name);
+                            model->addGenConstrIndicator(temp_l1_l2, 1,
+                                                         endTime[vector[c1]->getOrderID()] <=
+                                                         lectureTime[vector[c2]->getOrderID()]);
+                            model->addGenConstrIndicator(temp_l1_l2, 0,
+                                                         endTime[vector[c2]->getOrderID()] >=
+                                                         lectureTime[vector[c1]->getOrderID()] - 1);
+                            //(Cj .end  ≤ Ci.start)
+                            name = "T_" + itos(vector[c2]->getOrderID()) + "_" + itos(vector[c1]->getOrderID());
+                            GRBVar temp_l2_l1 = model->addVar(0, 1, 0, GRB_BINARY, name);
+                            model->addGenConstrIndicator(temp_l2_l1, 1,
+                                                         endTime[vector[c2]->getOrderID()] <=
+                                                         lectureTime[vector[c1]->getOrderID()]);
+                            model->addGenConstrIndicator(temp_l2_l1, 0,
+                                                         endTime[vector[c2]->getOrderID()] >=
+                                                         lectureTime[vector[c1]->getOrderID()] - 1);
+
+                            model->addGenConstrIndicator(sameTime, 1,
+                                                         temp_l1_l2 + temp_l2_l1 >= 1);
+                            model->addGenConstrIndicator(sameTime, 0,
+                                                         temp_l1_l2 + temp_l2_l1 == 0);
+
                             if (penalty == -1)
-                                model->addConstr(d + t >= 1);
+                                model->addConstr(
+                                        samedays[vector[c1]->getOrderID()][vector[c2]->getOrderID()] + sameTime +
+                                        weekTime <= 3);
                             else {
                                 GRBVar temp = model->addVar(0, 1, 0, GRB_BINARY);
-                                model->addGenConstrIndicator(temp, 0, d + t >= 1);
-                                model->addGenConstrIndicator(temp, 1, d + t == 0);
+                                model->addGenConstrIndicator(temp, 0, weekTime +
+                                                                      samedays[vector[c1]->getOrderID()][vector[c2]->getOrderID()] +
+                                                                      sameTime <= 2);
+                                model->addGenConstrIndicator(temp, 1, weekTime +
+                                                                      samedays[vector[c1]->getOrderID()][vector[c2]->getOrderID()] +
+                                                                      sameTime == 3);
                                 result += penalty * temp;
                             }
 
                         } else {
+                            //Same time
+                            GRBVar sameTime = model->addVar(0, 1, 0, GRB_BINARY);
+                            //(Ci.end  ≤ Cj .start)
+                            std::string name =
+                                    "T_" + itos(vector[c1]->getOrderID()) + "_" + itos(vector[c2]->getOrderID());
+                            GRBVar temp_l1_l2 = model->addVar(0, 1, 0, GRB_BINARY, name);
+                            model->addGenConstrIndicator(temp_l1_l2, 1,
+                                                         endTime[vector[c1]->getOrderID()] <=
+                                                         lectureTime[vector[c1]->getOrderID()]);
+                            model->addGenConstrIndicator(temp_l1_l2, 0,
+                                                         endTime[vector[c1]->getOrderID()] >=
+                                                         lectureTime[vector[c1]->getOrderID()] - 1);
+                            //(Cj .end  ≤ Ci.start)
+                            name = "T_" + itos(vector[c2]->getOrderID()) + "_" + itos(vector[c1]->getOrderID());
+                            GRBVar temp_l2_l1 = model->addVar(0, 1, 0, GRB_BINARY, name);
+                            model->addGenConstrIndicator(temp_l2_l1, 1,
+                                                         endTime[vector[c2]->getOrderID()] <=
+                                                         lectureTime[vector[c1]->getOrderID()]);
+                            model->addGenConstrIndicator(temp_l2_l1, 0,
+                                                         endTime[vector[c2]->getOrderID()] >=
+                                                         lectureTime[vector[c1]->getOrderID()] - 1);
+
+                            model->addGenConstrIndicator(sameTime, 1,
+                                                         temp_l1_l2 + temp_l2_l1 >= 1);
+                            model->addGenConstrIndicator(sameTime, 0,
+                                                         temp_l1_l2 + temp_l2_l1 == 0);
                             if (penalty == -1) {
                                 //Same time
-                                model->addConstr(order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
-                                                 + order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] == 2);
+                                model->addConstr(sameTime == 1);
                                 //Same day
-                                model->addConstr(sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 1);
+                                model->addConstr(samedays[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 1);
                                 //Same week!
+                                model->addConstr(weekTime == 1);
                             } else {
-                                GRBVar temp = model->addVar(0, 1, 0, GRB_BINARY);
-                                model->addGenConstrIndicator(temp, 0,
-                                                             order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
-                                                             + order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] ==
-                                                             2);
-                                model->addGenConstrIndicator(temp, 1,
-                                                             order[vector[c1]->getOrderID()][vector[c2]->getOrderID()]
-                                                             + order[vector[c2]->getOrderID()][vector[c1]->getOrderID()] <=
-                                                             1);
-                                GRBVar temp1 = model->addVar(0, 1, 0, GRB_BINARY);
-                                model->addGenConstrIndicator(temp1, 0,
-                                                 sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 1);
-                                model->addGenConstrIndicator(temp1, 1,
-                                                 sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 0);
                                 GRBVar temp2 = model->addVar(0, 1, 0, GRB_BINARY);
-                                model->addGenConstrIndicator(temp1, 0, temp1 + temp <= 1);
-                                model->addGenConstrIndicator(temp1, 1, temp1 + temp == 2);
+                                model->addGenConstrIndicator(temp2, 1, weekTime +
+                                                                       samedays[vector[c1]->getOrderID()][vector[c2]->getOrderID()] +
+                                                                       sameTime <= 2);
+                                model->addGenConstrIndicator(temp2, 0, weekTime +
+                                                                       samedays[vector[c1]->getOrderID()][vector[c2]->getOrderID()] +
+                                                                       sameTime == 3);
                                 result += penalty * temp2;
                             }
                         }
@@ -1051,26 +969,26 @@ private:
             for (int c2 = c1 + 1; c2 < vector.size(); ++c2) {
                 if (vector[c1]->isActive(currentW) && vector[c2]->isActive(currentW)) {
                     GRBVar notSameDay = model->addVar(0, 1, 0, GRB_BINARY);
-                    model->addGenConstrIndicator(notSameDay, 0,
+                    /*model->addGenConstrIndicator(notSameDay, 0,
                                                  sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 1);
                     model->addGenConstrIndicator(notSameDay, 1,
-                                                 sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 0);
+                                                 sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 0);*/
                     GRBVar gap1 = model->addVar(0, 1, 0, GRB_BINARY);
                     model->addGenConstrIndicator(gap1, 1,
-                                                 lectureTime[vector[c1]->getOrderID()] + vector[c1]->getLenght() +
+                                                 endTime[vector[c1]->getOrderID()] +
                                                  limit <=
                                                  lectureTime[vector[c2]->getOrderID()]);
                     model->addGenConstrIndicator(gap1, 0,
-                                                 lectureTime[vector[c1]->getOrderID()] + vector[c1]->getLenght() +
+                                                 endTime[vector[c1]->getOrderID()] +
                                                  limit - 1 >=
                                                  lectureTime[vector[c2]->getOrderID()]);
                     GRBVar gap2 = model->addVar(0, 1, 0, GRB_BINARY);
                     model->addGenConstrIndicator(gap2, 1,
-                                                 lectureTime[vector[c2]->getOrderID()] + vector[c2]->getLenght() +
+                                                 endTime[vector[c2]->getOrderID()] +
                                                  limit <=
                                                  lectureTime[vector[c1]->getOrderID()]);
                     model->addGenConstrIndicator(gap2, 0,
-                                                 lectureTime[vector[c2]->getOrderID()] + vector[c2]->getLenght() +
+                                                 endTime[vector[c2]->getOrderID()] +
                                                  limit - 1 >=
                                                  lectureTime[vector[c1]->getOrderID()]);
                     t += gap1 + gap2 + notSameDay;
@@ -1105,9 +1023,9 @@ private:
                 if (vector[c1]->isActive(currentW) && vector[c2]->isActive(currentW)) {
                     GRBVar notSameDay = model->addVar(0, 1, 0, GRB_BINARY);
                     model->addGenConstrIndicator(notSameDay, 0,
-                                                 sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 1);
+                                                 samedays[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 1);
                     model->addGenConstrIndicator(notSameDay, 1,
-                                                 sameday[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 0);
+                                                 samedays[vector[c1]->getOrderID()][vector[c2]->getOrderID()] == 0);
                     GRBVar gap1 = model->addVar(0, instance->getSlotsperday(), 0, GRB_INTEGER);
                     GRBVar minV[2];
                     minV[0] = lectureTime[vector[c1]->getOrderID()];
@@ -1261,7 +1179,6 @@ private:
 
     }
 
-    GRBVar **we;
 
     /**
      * Weeks
@@ -1274,23 +1191,54 @@ private:
                 we[i][j] = model->addVar(0, 1, 0, GRB_BINARY);
             }
         }
-        for (int cla = 0; cla < instance->getClasses().size(); ++cla) {
-            GRBLinExpr tempL = 0;
+        isWeek = new GRBVar *[instance->getClassesWeek(currentW).size()];
+        for (int cla = 0; cla < instance->getClassesWeek(currentW).size(); ++cla) {
+            isWeek[cla] = new GRBVar[instance->getClassesWeek(currentW)[cla]->getLectures().size()];
             for (int time = 0; time < instance->getClasses()[cla]->getLectures().size(); ++time) {
-                GRBVar temp = model->addVar(0, 1, 0, GRB_BINARY);
+                GRBVar weekAND[instance->getNweek()];
                 for (int w = 0; w < instance->getNweek(); ++w) {
+                    weekAND[w] = model->addVar(0, 1, 0, GRB_BINARY, "WeekAND_" + itos(instance->getClassesWeek(
+                            currentW)[cla]->getId()) + "_" + itos(time) + "_" +
+                                                                    itos(w));
                     if (instance->getClasses()[cla]->isActive(w))
-                        model->addGenConstrIndicator(temp, 1, we[w][instance->getClasses()[cla]->getOrderID()] == 1);
+                        model->addGenConstrIndicator(weekAND[w], 1,
+                                                     we[w][instance->getClasses()[cla]->getOrderID()] == 1);
                     else
-                        model->addGenConstrIndicator(temp, 1, we[w][instance->getClasses()[cla]->getOrderID()] == 0);
+                        model->addGenConstrIndicator(weekAND[w], 1,
+                                                     we[w][instance->getClasses()[cla]->getOrderID()] == 0);
                 }
-                tempL += temp;
-                model->addConstr(tempL <= 1);
+                isWeek[cla][time] = model->addVar(0, 1, 0, GRB_BINARY, "WeekOR_" + itos(instance->getClassesWeek(
+                        currentW)[cla]->getOrderID()) + "_" + itos(time));
+                model->addGenConstrAnd(isWeek[cla][time], weekAND, instance->getNweek());
             }
+            GRBVar t = model->addVar(0, 1, 0, GRB_BINARY);
+            model->addGenConstrOr(t, isWeek[cla], instance->getClassesWeek(currentW)[cla]->getLectures().size());
+            model->addConstr(t == 1);
+
 
         }
 
     }
+
+
+    virtual GRBLinExpr timeOptions() override {
+        GRBLinExpr resl = 0;
+        for (int cla = 0; cla < instance->getClassesWeek(currentW).size(); ++cla) {
+            GRBLinExpr temp = 0;
+            for (int time = 0; time < instance->getClasses()[cla]->getLectures().size(); ++time) {
+                GRBVar t = model->addVar(0, 1, 0, GRB_BINARY);
+                model->addGenConstrIndicator(t, 1, isWeek[cla][time] + isStart[cla][time] + isDay[cla][time] == 3);
+                model->addGenConstrIndicator(t, 1, endTime[cla] == lectureTime[cla] +
+                                                                   instance->getClasses()[cla]->getLectures()[time]->getLenght());
+                model->addGenConstrIndicator(t, 0, isWeek[cla][time] + isStart[cla][time] + isDay[cla][time] <= 2);
+                temp += t;
+                resl += t * instance->getClasses()[cla]->getLectures()[time]->getPenalty();
+            }
+            model->addConstr(temp == 1);
+        }
+        return resl;
+    }
+
 
     /**
      * Given classes must be taught in the same weeks, regardless of their time slots or days of the week. In case of
@@ -1369,7 +1317,93 @@ private:
 
         return 0;
     }
-};
 
+
+    /** SameTime
+     * Given classes must be taught at the same time of day, regardless of their days of week or weeks. For the classes
+     * of the same length, this is the same constraint as SameStart (classes must start at the same time slot).
+     * For the classes of different lengths, the shorter class can start after the longer class but must end before or
+     * at the same time as the longer class. This means that
+     * (Ci.start ≤ Cj.start ∧ Cj.end ≤ Ci.end) ∨ (Cj.start ≤ Ci.start ∧ Ci.end ≤ Cj.end)
+     * for any two classes Ci and Cj from the constraint; Ci.end = Ci.start + Ci.length is the assigned end time slot
+     * of a class Ci.
+     * @param vector
+     * @param penalty
+     * @param b
+     * @return
+     */
+    virtual GRBLinExpr
+    sameTime(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) override {
+        GRBLinExpr result = 0;
+        for (int c1 = 0; c1 < vector.size(); ++c1) {
+            for (int c2 = c1 + 1; c2 < vector.size(); ++c2) {
+                if (b) {
+                    GRBVar s_c1_c2 = model->addVar(0, 1, 0, GRB_BINARY);
+                    model->addGenConstrIndicator(s_c1_c2, 1, lectureTime[vector[c1]->getOrderID()] <=
+                                                             lectureTime[vector[c2]->getOrderID()]);
+                    model->addGenConstrIndicator(s_c1_c2, 0, lectureTime[vector[c1]->getOrderID()] + 1 >=
+                                                             lectureTime[vector[c2]->getOrderID()]);
+                    GRBVar e_c1_c2 = model->addVar(0, 1, 0, GRB_BINARY);
+                    model->addGenConstrIndicator(e_c1_c2, 1, endTime[vector[c2]->getOrderID()] <=
+                                                             endTime[vector[c1]->getOrderID()]);
+                    model->addGenConstrIndicator(e_c1_c2, 0, endTime[vector[c2]->getOrderID()] + 1 >=
+                                                             endTime[vector[c1]->getOrderID()]);
+                    GRBVar and1fill[2];
+                    and1fill[0] = s_c1_c2;
+                    and1fill[1] = e_c1_c2;
+                    GRBVar and1 = model->addVar(0, 1, 0, GRB_BINARY);
+                    model->addGenConstrAnd(and1, and1fill, 2);
+                    GRBVar s_c2_c1 = model->addVar(0, 1, 0, GRB_BINARY);
+                    model->addGenConstrIndicator(s_c2_c1, 1, lectureTime[vector[c2]->getOrderID()] <=
+                                                             lectureTime[vector[c1]->getOrderID()]);
+                    model->addGenConstrIndicator(s_c2_c1, 0, lectureTime[vector[c2]->getOrderID()] + 1 >=
+                                                             lectureTime[vector[c1]->getOrderID()]);
+                    GRBVar e_c2_c1 = model->addVar(0, 1, 0, GRB_BINARY);
+                    model->addGenConstrIndicator(e_c2_c1, 1, endTime[vector[c1]->getOrderID()] <=
+                                                             endTime[vector[c2]->getOrderID()]);
+                    model->addGenConstrIndicator(e_c2_c1, 0, endTime[vector[c1]->getOrderID()] + 1 >=
+                                                             endTime[vector[c2]->getOrderID()]);
+                    and1fill[0] = s_c2_c1;
+                    and1fill[1] = e_c2_c1;
+                    GRBVar and2 = model->addVar(0, 1, 0, GRB_BINARY);
+                    model->addGenConstrAnd(and2, and1fill, 2);
+                    GRBVar orfill[2];
+                    orfill[0] = and1;
+                    orfill[1] = and2;
+                    GRBVar orF = model->addVar(0, 1, 0, GRB_BINARY);
+                    model->addGenConstrOr(orF, and1fill, 2);
+                    if (penalty == -1) {
+                        model->addConstr(orF == 1);
+                    } else {
+                        result += penalty * orF;
+                    }
+                } else {
+                    GRBVar c1_c2 = model->addVar(0, 1, 0, GRB_BINARY);
+                    model->addGenConstrIndicator(c1_c2, 1, lectureTime[vector[c1]->getOrderID()] <=
+                                                           endTime[vector[c2]->getOrderID()]);
+                    model->addGenConstrIndicator(c1_c2, 0, lectureTime[vector[c1]->getOrderID()] + 1 >=
+                                                           endTime[vector[c2]->getOrderID()]);
+                    GRBVar c2_c1 = model->addVar(0, 1, 0, GRB_BINARY);
+                    model->addGenConstrIndicator(c2_c1, 1, lectureTime[vector[c2]->getOrderID()] <=
+                                                           endTime[vector[c1]->getOrderID()]);
+                    model->addGenConstrIndicator(c2_c1, 0, lectureTime[vector[c2]->getOrderID()] + 1 >=
+                                                           endTime[vector[c1]->getOrderID()]);
+                    GRBVar or1fill[2];
+                    or1fill[0] = c1_c2;
+                    or1fill[1] = c2_c1;
+                    GRBVar orF = model->addVar(0, 1, 0, GRB_BINARY);
+                    model->addGenConstrOr(orF, or1fill, 2);
+                    if (penalty == -1) {
+                        model->addConstr(orF == 1);
+                    } else {
+                        result += penalty * orF;
+                    }
+
+                }
+            }
+        }
+        return result;
+    }
+};
 
 #endif //PROJECT_ILPEXECUTER_H

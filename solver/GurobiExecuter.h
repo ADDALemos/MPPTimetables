@@ -148,6 +148,7 @@ public:
 
     bool run2019(bool warm) override {
         //model->set(GRB_IntParam_Presolve, 0);
+        //model->set(GRB_IntParam_MIPFocus,3);
         warm = false;
         model->set(GRB_IntParam_Threads, 3);
         //model->set(GRB_DoubleParam_TimeLimit, 600.0);
@@ -156,6 +157,7 @@ public:
             warmStart();
         try {
             model->optimize();
+            saveEncoding("AGORA");
             int status = model->get(GRB_IntAttr_Status);
 
             if (status == GRB_INF_OR_UNBD ||
@@ -409,9 +411,11 @@ private:
         return 0;
     }
 
+
     virtual void dist() override {
         GRBLinExpr opt = roomPen();
         opt += sectioning();
+        opt += timeOptions();
         for (int i = 0; i < instance->getDist().size(); ++i) {
             if (instance->getDist()[i]->getType().getType() == SameAttendees) {
                 opt += travel(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty());

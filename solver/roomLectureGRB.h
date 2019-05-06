@@ -129,33 +129,66 @@ public:
     }
 
 
-    void oneLectureRoomConflict(GRBVar **order, GRBVar **sameday) override {
+    void oneLectureRoomConflict(GRBVar *time, GRBVar *end, GRBVar **sameday, GRBVar **week) override {
         try {
 
             for (Class *j : instance->getClassesWeek(currentW)) {
 
                 for (Class *j1 : instance->getClassesWeek(currentW)) {
+                    GRBLinExpr weekL = 0;
+                    for (int k = 0; k < instance->getNweek(); ++k) {
+                        GRBVar sameweek = model->addVar(0, 1, 0, GRB_BINARY);
+                        model->addGenConstrIndicator(sameweek, 1,
+                                                     week[k][j->getOrderID()] + week[k][j1->getOrderID()] == 2);
+                        model->addGenConstrIndicator(sameweek, 0,
+                                                     week[k][j->getOrderID()] + week[k][j1->getOrderID()] <= 1);
+                        weekL += sameweek;
+                    }
+                    GRBVar sameweek = model->addVar(0, 1, 0, GRB_BINARY);
+                    model->addGenConstrIndicator(sameweek, 1, weekL >= 1);
+                    model->addGenConstrIndicator(sameweek, 0, weekL == 0);
+                    GRBVar sameTime = model->addVar(0, 1, 0, GRB_BINARY);
+                    //(Ci.end  ≤ Cj .start)
+                    std::string name = "T_" + itos(j->getOrderID()) + "_" + itos(j1->getOrderID());
+                    GRBVar temp_l1_l2 = model->addVar(0, 1, 0, GRB_BINARY, name);
+                    model->addGenConstrIndicator(temp_l1_l2, 1,
+                                                 end[j->getOrderID()] <=
+                                                 time[j1->getOrderID()]);
+                    model->addGenConstrIndicator(temp_l1_l2, 0,
+                                                 end[j->getOrderID()] >=
+                                                 time[j1->getOrderID()] - 1);
+                    //(Cj .end  ≤ Ci.start)
+                    name = "T_" + itos(j1->getOrderID()) + "_" + itos(j->getOrderID());
+                    GRBVar temp_l2_l1 = model->addVar(0, 1, 0, GRB_BINARY, name);
+                    model->addGenConstrIndicator(temp_l2_l1, 1,
+                                                 end[j1->getOrderID()] <=
+                                                 time[j->getOrderID()]);
+                    model->addGenConstrIndicator(temp_l2_l1, 0,
+                                                 end[j1->getOrderID()] >=
+                                                 time[j->getOrderID()] - 1);
+
+                    model->addGenConstrIndicator(sameTime, 1,
+                                                 temp_l1_l2 + temp_l2_l1 >= 1);
+                    model->addGenConstrIndicator(sameTime, 0,
+                                                 temp_l1_l2 + temp_l2_l1 == 0);
+
+
                     int i1 = 0, i = 0;
                     for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
                          it != instance->getRooms().end(); it++) {
                         if (j->containsRoom(instance->getRoom(i1 + 1)) &&
                             j1->containsRoom(instance->getRoom(i1 + 1))) {
-                            GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                         "temp" + itos(i) + "_" + itos(j->getOrderID()) + "_" +
-                                                         itos(j1->getOrderID()));
-                            GRBVar tempC = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
-                                                         "tempC" + itos(i) + "_" + itos(j->getOrderID()) + "_" +
-                                                         itos(j1->getOrderID()));
 
-                            model->addGenConstrIndicator(tempC, 1, (order[j->getOrderID()][j1->getOrderID()] +
-                                                                    order[j1->getOrderID()][j->getOrderID()]) == 2);
-                            model->addGenConstrIndicator(tempC, 0, (order[j->getOrderID()][j1->getOrderID()] +
-                                                                    order[j1->getOrderID()][j->getOrderID()]) <= 1);
+
+                            GRBVar tempV = model->addVar(0.0, 1.0, 0.0, GRB_BINARY,
+                                                         "SameRoom" + itos(i) + "_" + itos(j->getOrderID()) + "_" +
+                                                         itos(j1->getOrderID()));
                             model->addGenConstrIndicator(tempV, 1, vector[j->getOrderID()][i]
                                                                    + vector[j1->getOrderID()][i] == 2);
                             model->addGenConstrIndicator(tempV, 0, vector[j->getOrderID()][i]
                                                                    + vector[j1->getOrderID()][i] <= 1);
-                            model->addConstr(tempV + tempC + sameday[j1->getOrderID()][j->getOrderID()] <= 2);
+                            model->addConstr(
+                                    tempV + sameTime + sameday[j1->getOrderID()][j->getOrderID()] + sameweek <= 3);
                             //same time same room same day
                             //1 1 1 conflict
                             //1 0 1 no problem
@@ -239,7 +272,7 @@ public:
     virtual GRBLinExpr travel(Class *c1, Class *c2) {
         GRBLinExpr temp = 0;
         for (int i = 0; i < c1->getPossibleRooms().size(); ++i) {
-            for (int y = i + 1; y < c2->getPossibleRooms().size(); ++y) {
+            for (int y = 0; y < c2->getPossibleRooms().size(); ++y) {
                 GRBVar temp_r1_r2 = model->addVar(0, 1, 0, GRB_BINARY);
                 model->addGenConstrIndicator(temp_r1_r2, 1,
                                              vector[c1->getOrderID()][i] - vector[c2->getOrderID()][y] == 0);
@@ -252,31 +285,33 @@ public:
         return temp;
     }
 
-    virtual GRBLinExpr travel(std::vector<Class *> c, GRBVar *time, GRBVar **sameday, int pen) override {
+    virtual GRBLinExpr travel(std::vector<Class *> c, GRBVar *time, GRBVar *end, GRBVar **sameday, int pen) override {
         try {
             GRBLinExpr travelL = 0;
-            for (Class *l1: c) {
+            for (int cla = 0; cla < c.size(); cla++) {
+                Class *l1 = c[cla];
                 if (l1->isActive(currentW)) {
-                    for (Class *l2: c) {
-                        if (l2->isActive(currentW)) {
+                    for (int cla1 = cla + 1; cla1 < c.size(); cla1++) {
+                        Class *l2 = c[cla1];
+                        if (l2->isActive(currentW) && l2->getOrderID() != l1->getOrderID()) {
                             GRBVar orV[3];
                             //(Ci.end + Ci.room.travel[Cj .room] ≤ Cj .start)
                             std::string name = "T_" + itos(l1->getOrderID()) + "_" + itos(l2->getOrderID());
                             GRBVar temp_l1_l2 = model->addVar(0, 1, 0, GRB_BINARY, name);
                             model->addGenConstrIndicator(temp_l1_l2, 1,
-                                                         time[l1->getOrderID()] + l1->getLenght() + travel(l1, l2) <=
+                                                         end[l1->getOrderID()] + travel(l1, l2) <=
                                                          time[l2->getOrderID()]);
                             model->addGenConstrIndicator(temp_l1_l2, 0,
-                                                         (time[l1->getOrderID()] + l1->getLenght() + travel(l1, l2)) >=
+                                                         (end[l1->getOrderID()] + travel(l1, l2)) >=
                                                          time[l2->getOrderID()] - 1);
                             //(Cj .end + Cj .room.travel[Ci.room] ≤ Ci.start)
                             name = "T_" + itos(l2->getOrderID()) + "_" + itos(l1->getOrderID());
                             GRBVar temp_l2_l1 = model->addVar(0, 1, 0, GRB_BINARY, name);
                             model->addGenConstrIndicator(temp_l2_l1, 1,
-                                                         time[l2->getOrderID()] + l2->getLenght() + travel(l2, l1) <=
+                                                         end[l2->getOrderID()] + travel(l2, l1) <=
                                                          time[l1->getOrderID()]);
                             model->addGenConstrIndicator(temp_l2_l1, 0,
-                                                         (time[l2->getOrderID()] + l2->getLenght() + travel(l2, l1)) >=
+                                                         (end[l2->getOrderID()] + travel(l2, l1)) >=
                                                          time[l1->getOrderID()] - 1);
                             orV[0] = temp_l1_l2;
                             orV[1] = temp_l2_l1;
@@ -377,7 +412,7 @@ public:
      * @param day
      * @param lecture
      */
-    virtual void roomUnavailable(GRBVar **week, GRBVar **day, GRBVar *lecture) override {
+    virtual void roomUnavailable(GRBVar **week, GRBVar **day, GRBVar *lecture) override {//duration, weeks,days of una??
         for (int r = 0; r < instance->getRooms().size(); ++r) {
             for (int c = 0; c < instance->getClasses().size(); ++c) {
                 for (int s = 0; s < instance->getRoom(r + 1).getSlots().size(); ++s) {

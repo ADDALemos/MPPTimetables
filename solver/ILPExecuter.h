@@ -214,6 +214,9 @@ public:
     }
 
 public:
+    virtual GRBLinExpr timeOptions() {
+
+    }
 
     int **getSolutionRoom() const {
         return solutionRoom;

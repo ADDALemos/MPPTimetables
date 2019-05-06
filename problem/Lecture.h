@@ -45,6 +45,10 @@ class Lecture {
         return start;
     }
 
+    int getPenalty() const {
+        return penalty;
+    }
+
     void setStart(int start) {
         Lecture::start = start;
     }

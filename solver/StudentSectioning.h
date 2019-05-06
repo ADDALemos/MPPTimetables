@@ -34,12 +34,12 @@ public:
                 GRBLinExpr course = 0;
                 for (int conf = 0; conf < it->second.getCourse()[c]->getNumConfig(); ++conf) {
                     GRBVar con[it->second.getCourse()[c]->getSubpart(conf).size()];
-                    GRBVar confVAR = model->addVar(0, 1, 0, GRB_BINARY,
-                                                   itos(conf) + "_" + itos(it->second.getId()));
+                    GRBVar confVAR = model->addVar(0, 1, 0, GRB_BINARY, "conf_" +
+                                                                        itos(conf) + "_" + itos(c) + "_" + itos(s));
                     for (int part = 0; part < it->second.getCourse()[c]->getSubpart(conf).size(); ++part) {
                         GRBLinExpr sub = 0;
-                        GRBVar subVAR = model->addVar(0, 1, 0, GRB_BINARY,
-                                                      itos(part) + "_" + itos(it->second.getId()));
+                        GRBVar subVAR = model->addVar(0, 1, 0, GRB_BINARY, "sub_" +
+                                                                           itos(part) + "_" + itos(c) + "_" + itos(s));
                         for (int cla = 0;
                              cla < it->second.getCourse()[c]->getSubpart(conf)[part]->getClasses().size(); ++cla) {
                             sub += student[s][it->second.getCourse()[c]->getSubpart(
@@ -78,7 +78,7 @@ public:
     }
 
     //TODO: FAR APART
-    GRBLinExpr conflicts(GRBVar **order) {
+    GRBLinExpr conflicts(GRBVar *start, GRBVar *end) {
         int s = 0;
         GRBLinExpr res = 0;
         for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
@@ -92,16 +92,16 @@ public:
                                     conf)[part]->getClasses().size(); ++cla1) {
                                 Class *class1 = it->second.getCourse()[c]->getSubpart(conf)[part]->getClasses()[cla];
                                 Class *class2 = it->second.getCourse()[c]->getSubpart(conf)[part]->getClasses()[cla1];
-                                GRBVar tempT = model->addVar(0, 1, 0, GRB_BINARY, itos(cla) + "_" + itos(cla1)
-                                                                                  + "_" + itos(s));
-                                model->addGenConstrIndicator(tempT, 1, order[class1->getOrderID()][class2->getOrderID()]
-                                                                       +
-                                                                       order[class2->getOrderID()][class1->getOrderID()] >=
-                                                                       2);
-                                model->addGenConstrIndicator(tempT, 0, order[class1->getOrderID()][class2->getOrderID()]
-                                                                       +
-                                                                       order[class2->getOrderID()][class1->getOrderID()] <=
-                                                                       1);
+                                GRBVar tempT = model->addVar(0, 1, 0, GRB_BINARY,
+                                                             "conflict_" + itos(class1->getOrderID())
+                                                             + "_" + itos(class2->getOrderID())
+                                                             + "_" + itos(s));
+                                model->addGenConstrIndicator(tempT, 1, end[class1->getOrderID()]
+                                                                       <=
+                                                                       start[class2->getOrderID()]);
+                                model->addGenConstrIndicator(tempT, 0, end[class1->getOrderID()] + 1
+                                                                       >=
+                                                                       start[class2->getOrderID()]);
                                 GRBVar pen = model->addVar(0, 1, 0, GRB_BINARY);
                                 model->addGenConstrIndicator(pen, 1, tempT + student[s][class2->getOrderID()] +
                                                                      student[s][class1->getOrderID()] == 3);
