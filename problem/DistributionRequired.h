@@ -13,7 +13,7 @@ class DistributionRequired: public distribution {
 
 public:
     DistributionRequired(Constraint *type, std::vector<Class *> classes) : distribution(classes,
-                                                                                        *type) {
+                                                                                        type) {
 
     }
 

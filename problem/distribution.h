@@ -13,7 +13,7 @@
 
 class distribution {
     std::vector<Class *> classes;
-    Constraint type;
+    Constraint *type;
 public:
     const std::vector<Class *> &getClasses() const {
         return classes;
@@ -23,18 +23,18 @@ public:
         distribution::classes = classes;
     }
 
-    const Constraint &getType() const {
+    const Constraint *getType() const {
         return type;
     }
 
-    void setType(const Constraint &type) {
+    void setType(Constraint *type) {
         distribution::type = type;
     }
 
     virtual int getPenalty()=0;
 
-    distribution(const std::vector<Class *> &classes, const Constraint &type) : classes(classes),
-                                                                                type(type) {}
+    distribution(const std::vector<Class *> &classes, Constraint *type) : classes(classes),
+                                                                          type(type) {}
 
 };
 

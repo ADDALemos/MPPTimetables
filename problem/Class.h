@@ -276,7 +276,6 @@ public:
             for (const char &c :  lectures[i]->getWeeks()) {
                 if (week[d] == '0' && c == '1') {
                     week[d] = '1';
-                    std::cout << week[d] << std::endl;
                 }
                 d++;
             }

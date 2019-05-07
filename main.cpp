@@ -3,6 +3,7 @@
 #include <vector>
 #include <sstream>
 #include <set>
+#include <thread>
 #include "problem/Lecture.h"
 
 #include "problem/Room.h"
@@ -18,11 +19,12 @@
 #include "solver/ILPExecuter.h"
 #include "solver/GurobiExecuter.h"
 #include "randomGenerator/Perturbation.h"
-#include "stats/Stats.h"
+#include "utils/Stats.h"
 #include "solver/BinaryModelGurobiExecuter.h"
 #include "solver/IntegerModelGurobiExecuter.h"
 #include "solver/MixedModelGurobiExecuter.h"
 #include "solver/LocalSearch.h"
+#include "utils/TimeUtil.h"
 
 using namespace rapidxml;
 
@@ -45,14 +47,15 @@ void readPerturbations(std::string filename, Instance *instance);
 void addPossibleRooms(Class *c, Instance *instance);
 
 
-bool quiet = false; //Print info
+double getDouble(clock_t tStart);
+
 bool cuts = false;
 bool warm = false;
 bool opt = false;
 
 
 int main(int argc, char **argv) {
-    clock_t tStart = clock();
+    tStart = clock();
 
 
     if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
@@ -104,12 +107,12 @@ int main(int argc, char **argv) {
 
     if (!quiet) std::cout << "Solution Found: Writing output file" << std::endl;
     writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + ".xml",
-                   instance,
-                   (double) (clock() - tStart) / CLOCKS_PER_SEC);
+                   instance, getTimeSpent());
 
 
     return 0;
 }
+
 
 void readPerturbations(std::string filename, Instance *instance) {
     std::ifstream file(filename);
@@ -150,29 +153,28 @@ void readPerturbations(std::string filename, Instance *instance) {
 }
 
 void genSingleShot(Instance *instance, ILPExecuter *runner, char *string) {
-    clock_t tStart = clock();
     runner->setCurrrentW(-1); //Comapct weeks before hand??
-    if (!quiet) std::cout << "Defined Room Lect :  " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cout << "Defined Room Lect :  " << getTimeSpent() << std::endl;
     runner->definedRoomLecture();
-    if (!quiet) std::cout << "Defined Room Lect : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cout << "Defined Room Lect : Done " << getTimeSpent() << std::endl;
     runner->definedLectureTime();
-    if (!quiet) std::cout << "Defined var : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cout << "Defined var : Done " << getTimeSpent() << std::endl;
     runner->dayConst();
-    if (!quiet) std::cout << "Days : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cout << "Days : Done " << getTimeSpent() << std::endl;
     runner->week();
-    if (!quiet) std::cout << "Week : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cout << "Week : Done " << getTimeSpent() << std::endl;
     runner->createSol();
-    if (!quiet) std::cout << "Sol: DONE " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cout << "Sol: DONE " << getTimeSpent() << std::endl;
     runner->block();
-    if (!quiet) std::cout << "Block var : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cout << "Block var : Done " << getTimeSpent() << std::endl;
     runner->dist();
-    if (!quiet) std::cout << "Dist : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cout << "Dist : Done " << getTimeSpent() << std::endl;
     runner->oneLectureRoom();
-    if (!quiet) std::cout << "Lecture : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cout << "Lecture : Done " << getTimeSpent() << std::endl;
     runner->oneLectureRoomConflict();
-    if (!quiet) std::cout << "Room : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cout << "Room : Done " << getTimeSpent() << std::endl;
     runner->roomPen();
-    if (!quiet) std::cout << "Room Pen : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+    if (!quiet) std::cout << "Room Pen : Done " << getTimeSpent() << std::endl;
 
     if (opt) {
         if (strcmp(string, "Hamming") == 0) {
@@ -196,58 +198,57 @@ void genSingleShot(Instance *instance, ILPExecuter *runner, char *string) {
 }
 
 void genWeekly(Instance *instance, ILPExecuter *runner, char *string) {
-    clock_t tStart = clock();
     int i = 0;
     int iold = 0;
     while (i < instance->getNweek()) {
         if (i < 0) {
-            if (!quiet) std::cout << "No solution found " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+            if (!quiet) std::cout << "No solution found " << getTimeSpent() << std::endl;
             std::exit(0);
         }
-        if (!quiet) std::cout << "Week: " << i << " " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        if (!quiet) std::cout << "Week: " << i << " " << getTimeSpent() << std::endl;
 
         if (iold <= i)
             instance->computeClassesWeek(i);
         if (!quiet)
-            std::cout << "Computed week: " << i << " " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+            std::cout << "Computed week: " << i << " " << getTimeSpent() << std::endl;
 
         runner->restart();
         runner->setCurrrentW(i);
-        if (!quiet) std::cout << "Defined Room Lect :  " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        if (!quiet) std::cout << "Defined Room Lect :  " << getTimeSpent() << std::endl;
         runner->definedRoomLecture();
         if (!quiet)
-            std::cout << "Defined Room Lect : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+            std::cout << "Defined Room Lect : Done " << getTimeSpent() << std::endl;
         runner->definedLectureTime();
-        if (!quiet) std::cout << "Defined var : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        if (!quiet) std::cout << "Defined var : Done " << getTimeSpent() << std::endl;
 
         if (iold > 0) {
             while (instance->classesbyWeekComparison(i - 1, i)) {
-                if (!quiet) std::cout << "Compacting " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+                if (!quiet) std::cout << "Compacting " << getTimeSpent() << std::endl;
                 iold = i;
                 i++;
             }
-            if (!quiet) std::cout << "Compacting: Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+            if (!quiet) std::cout << "Compacting: Done " << getTimeSpent() << std::endl;
             runner->loadPreviousWeekSolution(runner->getSolutionTime(), runner->getSolutionRoom());
             if (iold > i) {
-                if (!quiet) std::cout << "Force " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+                if (!quiet) std::cout << "Force " << getTimeSpent() << std::endl;
                 runner->force();
-                if (!quiet) std::cout << "Force: Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+                if (!quiet) std::cout << "Force: Done " << getTimeSpent() << std::endl;
             }
         }
-        if (!quiet) std::cout << "While : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        if (!quiet) std::cout << "While : Done " << getTimeSpent() << std::endl;
 
         runner->createSol();
 
-        if (!quiet) std::cout << "Sol: DONE " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        if (!quiet) std::cout << "Sol: DONE " << getTimeSpent() << std::endl;
 
 
         runner->definedAuxVar();
-        if (!quiet) std::cout << "Defined Auxvar : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        if (!quiet) std::cout << "Defined Auxvar : Done " << getTimeSpent() << std::endl;
         runner->block();
-        if (!quiet) std::cout << "Block var : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        if (!quiet) std::cout << "Block var : Done " << getTimeSpent() << std::endl;
 
         runner->oneLectureperSlot();
-        if (!quiet) std::cout << "LectureperSlot : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        if (!quiet) std::cout << "LectureperSlot : Done " << getTimeSpent() << std::endl;
 
         //if (cuts) runner->cuts();
         runner->dayConst();
@@ -255,24 +256,24 @@ void genWeekly(Instance *instance, ILPExecuter *runner, char *string) {
         //runner->roomClose();
         //runner->slotClose();
         //runner->teacher();
-        //if (!quiet) std::cout << "Teacher : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        //if (!quiet) std::cout << "Teacher : Done " << getTimeSpent() << std::endl;
         //runner->assignmentInvalid();
         runner->oneLectureRoom();
-        if (!quiet) std::cout << "Lecture : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        if (!quiet) std::cout << "Lecture : Done " << getTimeSpent() << std::endl;
 
 
         //runner->studentConflictSolution();
-        //if (!quiet) std::cout << "Student : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        //if (!quiet) std::cout << "Student : Done " << getTimeSpent() << std::endl;
 
 
         runner->oneLectureRoomConflict();
-        if (!quiet) std::cout << "Room : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        if (!quiet) std::cout << "Room : Done " << getTimeSpent() << std::endl;
 
         runner->roomPen();
-        if (!quiet) std::cout << "Room Pen : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        if (!quiet) std::cout << "Room Pen : Done " << getTimeSpent() << std::endl;
 
         //runner->slackStudent();
-        //if (!quiet) std::cout << "Slack : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        //if (!quiet) std::cout << "Slack : Done " << getTimeSpent() << std::endl;
 
         if (opt) {
             if (strcmp(string, "Hamming") == 0) {
@@ -311,7 +312,8 @@ void writeOutputXML(std::string filename, Instance *instance, double time) {
     xml_node<> *root = doc.allocate_node(node_element, "solution");
     root->append_attribute(doc.allocate_attribute("name", instance->getName().c_str()));
     root->append_attribute(doc.allocate_attribute("runtime", std::to_string(time).c_str()));
-    root->append_attribute(doc.allocate_attribute("cores", "4"));
+    root->append_attribute(
+            doc.allocate_attribute("cores", std::to_string(std::thread::hardware_concurrency()).c_str()));
     root->append_attribute(doc.allocate_attribute("technique", "ILP"));
     root->append_attribute(doc.allocate_attribute("author", "Alexandre Lemos"));
     root->append_attribute(doc.allocate_attribute("institution", "INESC-ID"));

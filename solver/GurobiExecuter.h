@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include "../problem/Instance.h"
 #include "StudentSectioning.h"
+#include "../utils/TimeUtil.h"
 
 
 class GurobiExecuter : public ILPExecuter {
@@ -414,58 +415,62 @@ private:
 
     virtual void dist() override {
         GRBLinExpr opt = roomPen();
+        std::cout << "Room Pen : Done " << getTimeSpent() << std::endl;
         opt += sectioning();
+        std::cout << "Section: Done " << getTimeSpent() << std::endl;
         opt += timeOptions();
+        std::cout << "Time Pen : Done " << getTimeSpent() << std::endl;
         for (int i = 0; i < instance->getDist().size(); ++i) {
-            if (instance->getDist()[i]->getType().getType() == SameAttendees) {
+            if (instance->getDist()[i]->getType()->getType() == SameAttendees) {
                 opt += travel(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty());
-            } else if (instance->getDist()[i]->getType().getType() == NotOverlap) {
+            } else if (instance->getDist()[i]->getType()->getType() == NotOverlap) {
                 opt += overlap(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
-            } else if (instance->getDist()[i]->getType().getType() == Overlap) {
+            } else if (instance->getDist()[i]->getType()->getType() == Overlap) {
                 opt += overlap(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), false);
-            } else if (instance->getDist()[i]->getType().getType() == SameTime) {
+            } else if (instance->getDist()[i]->getType()->getType() == SameTime) {
                 opt += sameTime(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
-            } else if (instance->getDist()[i]->getType().getType() == DifferentTime) {
+            } else if (instance->getDist()[i]->getType()->getType() == DifferentTime) {
                 opt += sameTime(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), false);
-            } else if (instance->getDist()[i]->getType().getType() == SameWeeks) {
+            } else if (instance->getDist()[i]->getType()->getType() == SameWeeks) {
                 opt += sameWeek(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
-            } else if (instance->getDist()[i]->getType().getType() == DifferentWeeks) {
+            } else if (instance->getDist()[i]->getType()->getType() == DifferentWeeks) {
                 opt += sameWeek(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), false);
-            } else if (instance->getDist()[i]->getType().getType() == SameDays) {
+            } else if (instance->getDist()[i]->getType()->getType() == SameDays) {
                 opt += differentDay(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), false);
-            } else if (instance->getDist()[i]->getType().getType() == DifferentDays) {
+            } else if (instance->getDist()[i]->getType()->getType() == DifferentDays) {
                 opt += differentDay(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
-            } else if (instance->getDist()[i]->getType().getType() == Precedence) {
+            } else if (instance->getDist()[i]->getType()->getType() == Precedence) {
                 opt += precedence(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty());
-            } else if (instance->getDist()[i]->getType().getType() == SameRoom) {
+            } else if (instance->getDist()[i]->getType()->getType() == SameRoom) {
                 opt += differentRoom(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), false);
-            } else if (instance->getDist()[i]->getType().getType() == DifferentRoom) {
+            } else if (instance->getDist()[i]->getType()->getType() == DifferentRoom) {
                 opt += differentRoom(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
-            } else if (instance->getDist()[i]->getType().getType() == SameStart) {
+            } else if (instance->getDist()[i]->getType()->getType() == SameStart) {
                 opt += sameStart(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty());
-            } else if (instance->getDist()[i]->getType().getType() == MaxDays) {
+            } else if (instance->getDist()[i]->getType()->getType() == MaxDays) {
                 opt += maxDays(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
-                               instance->getDist()[i]->getType().getLimit());
-            } else if (instance->getDist()[i]->getType().getType() == MinGap) {
+                               instance->getDist()[i]->getType()->getLimit());
+            } else if (instance->getDist()[i]->getType()->getType() == MinGap) {
                 opt += minGap(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
-                              instance->getDist()[i]->getType().getLimit());
-            } else if (instance->getDist()[i]->getType().getType() == WorkDay) {
+                              instance->getDist()[i]->getType()->getLimit());
+            } else if (instance->getDist()[i]->getType()->getType() == WorkDay) {
                 opt += workDay(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
-                               instance->getDist()[i]->getType().getLimit());
-            } else if (instance->getDist()[i]->getType().getType() == MaxDayLoad) {
+                               instance->getDist()[i]->getType()->getLimit());
+            } else if (instance->getDist()[i]->getType()->getType() == MaxDayLoad) {
                 opt += maxDayLoad(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
-                                  instance->getDist()[i]->getType().getLimit());
-            } else if (instance->getDist()[i]->getType().getType() == MaxBreaks) {
+                                  instance->getDist()[i]->getType()->getLimit());
+            } else if (instance->getDist()[i]->getType()->getType() == MaxBreaks) {
                 opt += maxBreaks(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
-                                 instance->getDist()[i]->getType().getLimit(),
-                                 instance->getDist()[i]->getType().getLimit1());
-            } else if (instance->getDist()[i]->getType().getType() == MaxBlock) {
+                                 instance->getDist()[i]->getType()->getLimit(),
+                                 instance->getDist()[i]->getType()->getLimit1());
+            } else if (instance->getDist()[i]->getType()->getType() == MaxBlock) {
                 opt += maxBlock(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
-                                instance->getDist()[i]->getType().getLimit(),
-                                instance->getDist()[i]->getType().getLimit1());
+                                instance->getDist()[i]->getType()->getLimit(),
+                                instance->getDist()[i]->getType()->getLimit1());
             }
 
         }
+        std::cout << "Distribution Constraint : Done " << getTimeSpent() << std::endl;
         model->setObjective(opt, GRB_MINIMIZE);
 
     }

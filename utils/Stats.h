@@ -101,43 +101,43 @@ void constraints(Instance *instance) {
 
 
     for (int i = 0; i < instance->getDist().size(); ++i) {
-        if (instance->getDist()[i]->getType().getType() == SameAttendees) {
+        if (instance->getDist()[i]->getType()->getType() == SameAttendees) {
             map["SameAttendees"]++;
-        } else if (instance->getDist()[i]->getType().getType() == NotOverlap) {
+        } else if (instance->getDist()[i]->getType()->getType() == NotOverlap) {
             map["NotOverlap"]++;
-        } else if (instance->getDist()[i]->getType().getType() == Overlap) {
+        } else if (instance->getDist()[i]->getType()->getType() == Overlap) {
             map["Overlap"]++;
-        } else if (instance->getDist()[i]->getType().getType() == SameTime) {
+        } else if (instance->getDist()[i]->getType()->getType() == SameTime) {
             map["SameTime"]++;
-        } else if (instance->getDist()[i]->getType().getType() == DifferentTime) {
+        } else if (instance->getDist()[i]->getType()->getType() == DifferentTime) {
             map["DifferentTime"]++;
-        } else if (instance->getDist()[i]->getType().getType() == SameWeeks) {
+        } else if (instance->getDist()[i]->getType()->getType() == SameWeeks) {
             map["SameWeeks"]++;
-        } else if (instance->getDist()[i]->getType().getType() == DifferentWeeks) {
+        } else if (instance->getDist()[i]->getType()->getType() == DifferentWeeks) {
             map["DifferentWeeks"]++;
-        } else if (instance->getDist()[i]->getType().getType() == SameDays) {
+        } else if (instance->getDist()[i]->getType()->getType() == SameDays) {
             map["SameDays"]++;
-        } else if (instance->getDist()[i]->getType().getType() == DifferentDays) {
+        } else if (instance->getDist()[i]->getType()->getType() == DifferentDays) {
             map["DifferentDays"]++;
-        } else if (instance->getDist()[i]->getType().getType() == Precedence) {
+        } else if (instance->getDist()[i]->getType()->getType() == Precedence) {
             map["Precedence"]++;
-        } else if (instance->getDist()[i]->getType().getType() == SameRoom) {
+        } else if (instance->getDist()[i]->getType()->getType() == SameRoom) {
             map["SameRoom"]++;
-        } else if (instance->getDist()[i]->getType().getType() == DifferentRoom) {
+        } else if (instance->getDist()[i]->getType()->getType() == DifferentRoom) {
             map["DifferentRoom"]++;
-        } else if (instance->getDist()[i]->getType().getType() == SameStart) {
+        } else if (instance->getDist()[i]->getType()->getType() == SameStart) {
             map["SameStart"]++;
-        } else if (instance->getDist()[i]->getType().getType() == MaxDays) {
+        } else if (instance->getDist()[i]->getType()->getType() == MaxDays) {
             map["MaxDays"]++;
-        } else if (instance->getDist()[i]->getType().getType() == MinGap) {
+        } else if (instance->getDist()[i]->getType()->getType() == MinGap) {
             map["MinGap"]++;
-        } else if (instance->getDist()[i]->getType().getType() == WorkDay) {
+        } else if (instance->getDist()[i]->getType()->getType() == WorkDay) {
             map["WorkDay"]++;
-        } else if (instance->getDist()[i]->getType().getType() == MaxDayLoad) {
+        } else if (instance->getDist()[i]->getType()->getType() == MaxDayLoad) {
             map["MaxDayLoad"]++;
-        } else if (instance->getDist()[i]->getType().getType() == MaxBreaks) {
+        } else if (instance->getDist()[i]->getType()->getType() == MaxBreaks) {
             map["MaxBreaks"]++;
-        } else if (instance->getDist()[i]->getType().getType() == MaxBlock) {
+        } else if (instance->getDist()[i]->getType()->getType() == MaxBlock) {
             map["MaxBlock"]++;
         }
 

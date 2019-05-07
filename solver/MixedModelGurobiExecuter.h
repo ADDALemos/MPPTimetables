@@ -8,6 +8,7 @@
 #include <exception>
 #include <stdlib.h>
 #include "../problem/Instance.h"
+#include "../utils/TimeUtil.h"
 #include "../solver/TwoVarGurobiExecuter.h"
 #include "../solver/roomLectureGRB.h"
 #include "../solver/roomLectureBool.h"
@@ -310,17 +311,16 @@ public:
 
     GRBLinExpr sectioning() override {
         GRBLinExpr cost = 0;
-        clock_t tStart = clock();
         studentSectioning->init();
-        std::cout << "init : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        std::cout << "init : Done " << getTimeSpent() << std::endl;
         studentSectioning->requiredClasses();
-        std::cout << "classes : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        std::cout << "classes : Done " << getTimeSpent() << std::endl;
         studentSectioning->parentChild();
-        std::cout << "family : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        std::cout << "family : Done " << getTimeSpent() << std::endl;
         cost = studentSectioning->conflicts(lectureTime, endTime);
-        std::cout << "conflicts : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        std::cout << "conflicts : Done " << getTimeSpent() << std::endl;
         studentSectioning->limit();
-        std::cout << "limit : Done " << (double) (clock() - tStart) / CLOCKS_PER_SEC << std::endl;
+        std::cout << "limit : Done " << getTimeSpent() << std::endl;
         return cost;
 
     }
@@ -778,6 +778,7 @@ private:
                     if (vector[c1]->isActive(currentW) && vector[c2]->isActive(currentW)) {
                         GRBVar sameweek[instance->getNweek()];
                         for (int i = 0; i < instance->getNweek(); ++i) {
+                            sameweek[i] = model->addVar(0, 1, 0, GRB_BINARY);
                             model->addGenConstrIndicator(sameweek[i], 1,
                                                          we[i][vector[c1]->getOrderID()] +
                                                          we[i][vector[c2]->getOrderID()] == 2);
@@ -1029,12 +1030,12 @@ private:
                     GRBVar gap1 = model->addVar(0, instance->getSlotsperday(), 0, GRB_INTEGER);
                     GRBVar minV[2];
                     minV[0] = lectureTime[vector[c1]->getOrderID()];
-                    minV[0] = lectureTime[vector[c2]->getOrderID()];
+                    minV[1] = lectureTime[vector[c2]->getOrderID()];
                     model->addGenConstrMin(gap1, minV, 2);
                     GRBVar gap2 = model->addVar(0, instance->getSlotsperday(), 0, GRB_INTEGER);
                     GRBVar maxV[2];
                     maxV[0] = lectureTime[vector[c1]->getOrderID()];
-                    maxV[0] = lectureTime[vector[c2]->getOrderID()];
+                    maxV[1] = lectureTime[vector[c2]->getOrderID()];
                     model->addGenConstrMax(gap2, maxV, 2);
                     GRBVar gapSum = model->addVar(0, 1, 0, GRB_BINARY);
                     model->addGenConstrIndicator(gapSum, 1, (gap2 - gap1) <= limit);
