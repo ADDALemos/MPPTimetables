@@ -163,8 +163,8 @@ void genSingleShot(Instance *instance, ILPExecuter *runner, char *string) {
     if (!quiet) std::cout << "Days : Done " << getTimeSpent() << std::endl;
     runner->week();
     if (!quiet) std::cout << "Week : Done " << getTimeSpent() << std::endl;
-    runner->createSol();
-    if (!quiet) std::cout << "Sol: DONE " << getTimeSpent() << std::endl;
+    //runner->createSol();
+    //if (!quiet) std::cout << "Sol: DONE " << getTimeSpent() << std::endl;
     runner->block();
     if (!quiet) std::cout << "Block var : Done " << getTimeSpent() << std::endl;
     runner->dist();

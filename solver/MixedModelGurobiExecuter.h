@@ -471,7 +471,7 @@ private:
             for (int j = 0; j < instance->getNdays(); ++j) {
                 d[j] = day[instance->getClassesWeek(currentW)[i]->getOrderID()][j].get(GRB_DoubleAttr_X);
                 int dI = day[instance->getClassesWeek(currentW)[i]->getOrderID()][j].get(GRB_DoubleAttr_X);
-                solutionTime[dI][slot][i] = 1;
+                //solutionTime[dI][slot][i] = 1;
                 std::cerr << dI;
 
             }
@@ -582,42 +582,71 @@ private:
         try {
             for (int c1 = 1; c1 < vector.size(); c1++) {
                 if (vector[c1 - 1]->isActive(currentW) && vector[c1]->isActive(currentW)) {
-                    GRBLinExpr t = 0;
-                    GRBLinExpr prev = 0;
-                    GRBLinExpr curre = 0;
-                    for (int d = 0; d < instance->getNdays(); ++d) {
-                        curre += day[vector[c1]->getOrderID()][d];
-                        GRBVar sameD = model->addVar(0, 1, 0, GRB_BINARY);
-                        model->addGenConstrIndicator(sameD, 0,
-                                                     curre == 0);
-                        model->addGenConstrIndicator(sameD, 0,
-                                                     prev == 0);
-                        model->addGenConstrIndicator(sameD, 0,
-                                                     day[vector[c1 - 1]->getOrderID()][d] == 1);
-                        model->addGenConstrIndicator(sameD, 1,
-                                                     curre == 0);
-                        model->addGenConstrIndicator(sameD, 0,
-                                                     prev >= 1);
-                        model->addGenConstrIndicator(sameD, 0,
-                                                     day[vector[c1 - 1]->getOrderID()][d] == 1);
-
-                        prev += day[vector[c1 - 1]->getOrderID()][d];
-                        t += sameD;
+                    //week
+                    GRBLinExpr prevWc1 = 0;
+                    GRBLinExpr prevWc2 = 0;
+                    GRBLinExpr resultW = 0;
+                    for (int w = 1; w < instance->getNweek(); ++w) {
+                        prevWc1 += we[w - 1][vector[c1]->getOrderID()];
+                        prevWc2 += we[w - 1][vector[c1]->getOrderID() - 1];
+                        GRBVar sameW = model->addVar(0, 1, 0, GRB_BINARY, "sameWeek_" + itos(vector[c1]->getOrderID()) +
+                                                                          "_" + itos(vector[c1]->getOrderID() - 1) +
+                                                                          "_" + itos(w));
+                        model->addGenConstrIndicator(sameW, 0, prevWc1 == 0);
+                        model->addGenConstrIndicator(sameW, 1, prevWc1 == 1);
+                        model->addGenConstrIndicator(sameW, 1, prevWc2 == 1);
+                        resultW += sameW;
 
                     }
-                    //  if (penalty == -1)
-//                            model->addConstr(order[vector[c1 - 1]->getOrderID()][vector[c1]->getOrderID()] + t >= 1);
-                    // else {
-                    /* GRBVar pen = model->addVar(0, 1, 0, GRB_BINARY);
-                     model->addGenConstrIndicator(pen, 1,
-                                                  order[vector[c1 - 1]->getOrderID()][vector[c1]->getOrderID()] +
-                                                  t >= 1);
-                     model->addGenConstrIndicator(pen, 0,
-                                                  order[vector[c1 - 1]->getOrderID()][vector[c1]->getOrderID()] +
-                                                  t == 0);
-                     result += pen * penalty;*/
+                    GRBVar sameW = model->addVar(0, 1, 0, GRB_BINARY, "sameWeekS_" + itos(vector[c1]->getOrderID()) +
+                                                                      "_" + itos(vector[c1]->getOrderID() - 1));
+                    model->addGenConstrIndicator(sameW, 1, resultW >= 1);
+                    model->addGenConstrIndicator(sameW, 0, resultW == 0);
 
-                    //}
+                    //day
+                    GRBLinExpr resultD = 0;
+                    GRBLinExpr prevDc1 = 0;
+                    GRBLinExpr prevDc2 = 0;
+                    for (int d = 1; d < instance->getNdays(); ++d) {
+                        prevDc1 += day[vector[c1]->getOrderID()][d - 1];
+                        prevDc2 += day[vector[c1]->getOrderID() - 1][d - 1];
+                        GRBVar sameD = model->addVar(0, 1, 0, GRB_BINARY, "sameDay_" + itos(vector[c1]->getOrderID()) +
+                                                                          "_" + itos(vector[c1]->getOrderID() - 1) +
+                                                                          "_" + itos(d));
+                        model->addGenConstrIndicator(sameD, 0,
+                                                     prevDc1 == 0);
+                        model->addGenConstrIndicator(sameD, 1,
+                                                     prevDc1 == 1);
+                        model->addGenConstrIndicator(sameD, 1,
+                                                     prevDc2 == 0);
+                        resultD += sameD;
+
+                    }
+                    GRBVar sameD = model->addVar(0, 1, 0, GRB_BINARY, "sameDayS_" + itos(vector[c1]->getOrderID()) +
+                                                                      "_" + itos(vector[c1]->getOrderID() - 1));
+                    model->addGenConstrIndicator(sameD, 1, resultD >= 1);
+                    model->addGenConstrIndicator(sameD, 0, resultD == 0);
+                    //time
+                    GRBVar sameT = model->addVar(0, 1, 0, GRB_BINARY, "sameTime_" + itos(vector[c1]->getOrderID()) +
+                                                                      "_" + itos(vector[c1]->getOrderID() - 1));
+                    model->addGenConstrIndicator(sameT, 1, endTime[vector[c1]->getOrderID() - 1] <=
+                                                           lectureTime[vector[c1]->getOrderID()]);
+                    model->addGenConstrIndicator(sameT, 0, endTime[vector[c1]->getOrderID() - 1] >=
+                                                           lectureTime[vector[c1]->getOrderID()] + 1);
+
+                    if (penalty == -1)
+                        model->addConstr(sameT + sameD + sameW >= 1);
+                    else {
+                        GRBVar pen = model->addVar(0, 1, 0, GRB_BINARY,
+                                                   "precedence_" + itos(vector[c1 - 1]->getOrderID()) +
+                                                   "_" + itos(vector[c1]->getOrderID()));
+                     model->addGenConstrIndicator(pen, 1,
+                                                  sameT + sameD + sameW >= 1);
+                     model->addGenConstrIndicator(pen, 0,
+                                                  sameT + sameD + sameW == 0);
+                        result += pen * penalty;
+
+                    }
                 }
 
 
@@ -778,7 +807,9 @@ private:
                     if (vector[c1]->isActive(currentW) && vector[c2]->isActive(currentW)) {
                         GRBVar sameweek[instance->getNweek()];
                         for (int i = 0; i < instance->getNweek(); ++i) {
-                            sameweek[i] = model->addVar(0, 1, 0, GRB_BINARY);
+                            sameweek[i] = model->addVar(0, 1, 0, GRB_BINARY, "sameWeek_" + itos(i) + "_" +
+                                                                             itos(vector[c1]->getOrderID()) + "_" +
+                                                                             itos(vector[c2]->getOrderID()));
                             model->addGenConstrIndicator(sameweek[i], 1,
                                                          we[i][vector[c1]->getOrderID()] +
                                                          we[i][vector[c2]->getOrderID()] == 2);
@@ -786,12 +817,17 @@ private:
                                                          we[i][vector[c1]->getOrderID()] +
                                                          we[i][vector[c2]->getOrderID()] <= 1);
                         }
-                        GRBVar weekTime = model->addVar(0, 1, 0, GRB_BINARY);
+                        GRBVar weekTime = model->addVar(0, 1, 0, GRB_BINARY,
+                                                        "sameWeekSum_" + itos(vector[c1]->getOrderID())
+                                                        + "_" +
+                                                        itos(vector[c2]->getOrderID()));
                         model->addGenConstrAnd(weekTime, sameweek, instance->getNweek());
 
                         if (b) {
                             //Same time
-                            GRBVar sameTime = model->addVar(0, 1, 0, GRB_BINARY);
+                            GRBVar sameTime = model->addVar(0, 1, 0, GRB_BINARY,
+                                                            "sameTime_" + itos(vector[c1]->getOrderID()) + "_" +
+                                                            itos(vector[c2]->getOrderID()));
                             //(Ci.end  ≤ Cj .start)
                             std::string name =
                                     "T_" + itos(vector[c1]->getOrderID()) + "_" + itos(vector[c2]->getOrderID());
@@ -801,7 +837,7 @@ private:
                                                          lectureTime[vector[c2]->getOrderID()]);
                             model->addGenConstrIndicator(temp_l1_l2, 0,
                                                          endTime[vector[c2]->getOrderID()] >=
-                                                         lectureTime[vector[c1]->getOrderID()] - 1);
+                                                         lectureTime[vector[c1]->getOrderID()] + 1);
                             //(Cj .end  ≤ Ci.start)
                             name = "T_" + itos(vector[c2]->getOrderID()) + "_" + itos(vector[c1]->getOrderID());
                             GRBVar temp_l2_l1 = model->addVar(0, 1, 0, GRB_BINARY, name);
@@ -810,7 +846,7 @@ private:
                                                          lectureTime[vector[c1]->getOrderID()]);
                             model->addGenConstrIndicator(temp_l2_l1, 0,
                                                          endTime[vector[c2]->getOrderID()] >=
-                                                         lectureTime[vector[c1]->getOrderID()] - 1);
+                                                         lectureTime[vector[c1]->getOrderID()] + 1);
 
                             model->addGenConstrIndicator(sameTime, 1,
                                                          temp_l1_l2 + temp_l2_l1 >= 1);
@@ -822,7 +858,9 @@ private:
                                         samedays[vector[c1]->getOrderID()][vector[c2]->getOrderID()] + sameTime +
                                         weekTime <= 3);
                             else {
-                                GRBVar temp = model->addVar(0, 1, 0, GRB_BINARY);
+                                GRBVar temp = model->addVar(0, 1, 0, GRB_BINARY,
+                                                            "overpen_" + itos(vector[c2]->getOrderID()) + "_" +
+                                                            itos(vector[c1]->getOrderID()));
                                 model->addGenConstrIndicator(temp, 0, weekTime +
                                                                       samedays[vector[c1]->getOrderID()][vector[c2]->getOrderID()] +
                                                                       sameTime <= 2);
@@ -834,7 +872,9 @@ private:
 
                         } else {
                             //Same time
-                            GRBVar sameTime = model->addVar(0, 1, 0, GRB_BINARY);
+                            GRBVar sameTime = model->addVar(0, 1, 0, GRB_BINARY,
+                                                            "sameTime_" + itos(vector[c1]->getOrderID()) + "_" +
+                                                            itos(vector[c2]->getOrderID()));
                             //(Ci.end  ≤ Cj .start)
                             std::string name =
                                     "T_" + itos(vector[c1]->getOrderID()) + "_" + itos(vector[c2]->getOrderID());
@@ -844,7 +884,7 @@ private:
                                                          lectureTime[vector[c1]->getOrderID()]);
                             model->addGenConstrIndicator(temp_l1_l2, 0,
                                                          endTime[vector[c1]->getOrderID()] >=
-                                                         lectureTime[vector[c1]->getOrderID()] - 1);
+                                                         lectureTime[vector[c1]->getOrderID()] + 1);
                             //(Cj .end  ≤ Ci.start)
                             name = "T_" + itos(vector[c2]->getOrderID()) + "_" + itos(vector[c1]->getOrderID());
                             GRBVar temp_l2_l1 = model->addVar(0, 1, 0, GRB_BINARY, name);
@@ -853,7 +893,7 @@ private:
                                                          lectureTime[vector[c1]->getOrderID()]);
                             model->addGenConstrIndicator(temp_l2_l1, 0,
                                                          endTime[vector[c2]->getOrderID()] >=
-                                                         lectureTime[vector[c1]->getOrderID()] - 1);
+                                                         lectureTime[vector[c1]->getOrderID()] + 1);
 
                             model->addGenConstrIndicator(sameTime, 1,
                                                          temp_l1_l2 + temp_l2_l1 >= 1);
@@ -867,7 +907,9 @@ private:
                                 //Same week!
                                 model->addConstr(weekTime == 1);
                             } else {
-                                GRBVar temp2 = model->addVar(0, 1, 0, GRB_BINARY);
+                                GRBVar temp2 = model->addVar(0, 1, 0, GRB_BINARY,
+                                                             "overpen_" + itos(vector[c2]->getOrderID()) + "_" +
+                                                             itos(vector[c1]->getOrderID()));
                                 model->addGenConstrIndicator(temp2, 1, weekTime +
                                                                        samedays[vector[c1]->getOrderID()][vector[c2]->getOrderID()] +
                                                                        sameTime <= 2);
