@@ -8,13 +8,15 @@
 
 #include <fstream>
 #include "../problem/Instance.h"
+#include <climits>
 
 class LocalSearch {
     int MAX_ITERATIONS = 5;
     Instance *instance;
-    bool **room;
-    bool ***time;
-    bool *allocated;
+    std::vector<Solution*> tabu;
+    int best = INT_MAX;
+    int currentV = INT_MAX;
+    Solution** current;
     std::ofstream seedFile;
     int sizeRCL;
 
@@ -43,13 +45,13 @@ private:
 
     void Local();
 
-    bool isAllocable(int lectureID, int roomID, int i, int i1);
+    int isAllocable(int lectureID, std::string week, std::string day, int start, int duration, int roomID);
 
     double cost(int lectureID, int roomID, int i, int i1);
 
     unsigned int seedHandler();
 
-    bool assign(int lectureID, int roomID, int day, int time);
+    bool assign(Solution*);
 
     int getGAP() const;
 

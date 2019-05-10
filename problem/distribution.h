@@ -2,24 +2,25 @@
 // Created by Alexandre Lemos on 05/11/2018.
 //
 
-#ifndef PROJECT_DISTRIBUTION_H
-#define PROJECT_DISTRIBUTION_H
+#ifndef TIMETABLER_DISTRIBUTION_H
+#define TIMETABLER_DISTRIBUTION_H
 
 
 #include <vector>
 #include "Course.h"
 #include "Constraint.h"
+#include "Class.h"
 
 
 class distribution {
-    std::vector<Class *> classes;
+    std::vector<int> classes;
     Constraint *type;
 public:
-    const std::vector<Class *> &getClasses() const {
+    const std::vector<int> &getClasses() const {
         return classes;
     }
 
-    void setClasses(const std::vector<Class *> &classes) {
+    void setClasses(const std::vector<int> &classes) {
         distribution::classes = classes;
     }
 
@@ -33,7 +34,7 @@ public:
 
     virtual int getPenalty()=0;
 
-    distribution(const std::vector<Class *> &classes, Constraint *type) : classes(classes),
+    distribution(const std::vector<int> &classes, Constraint *type) : classes(classes),
                                                                           type(type) {}
 
 };

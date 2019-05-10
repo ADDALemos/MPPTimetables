@@ -26,7 +26,7 @@ public:
     bool isClosebyDay(int day) {
         if (isClose())
             return true;
-        for (int i = 0; i < slots.size(); ++i) {
+        for (unsigned int  i = 0; i < slots.size(); ++i) {
             int k = 0;
             for (const char &c :slots[i].getDays()) {
                 if (c == '1') {

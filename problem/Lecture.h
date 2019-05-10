@@ -5,7 +5,7 @@
 #ifndef TIMETABLER_LECTURE_H
 #define TIMETABLER_LECTURE_H
 
-
+#include <string.h>
 #include <ostream>
 
 class Lecture {

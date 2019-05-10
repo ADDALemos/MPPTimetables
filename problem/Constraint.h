@@ -2,8 +2,8 @@
 // Created by Alexandre Lemos on 05/11/2018.
 //
 
-#ifndef PROJECT_CONSTRAINT_H
-#define PROJECT_CONSTRAINT_H
+#ifndef TIMETABLER_CONSTRAINT_H
+#define TIMETABLER_CONSTRAINT_H
 
 enum ConstraintType {
     NotOverlap,

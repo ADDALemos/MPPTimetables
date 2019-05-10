@@ -11,6 +11,8 @@
 #include <iostream>
 #include "Lecture.h"
 #include "Room.h"
+#include "distribution.h"
+#include "Solution.h"
 #include <stdexcept>
 
 
@@ -19,16 +21,11 @@ class Class {
     int id = 1;
     int orderID; //easy handle for the arrays of gurobi
     std::vector<int> conv;//legal time to time slot
-
-private:
+    std::vector<distribution*> hard;
+    std::vector<distribution*> soft;
     int limit;//limit number of students
     Class *parent = nullptr;
-    //Solution
-    int roomID = -1;
-    int start = -1;
-    std::string room = " ";
-    std::string week = "1";
-    std::string days;
+    Solution *sol;
     std::vector<int> student;
 
 public:
@@ -39,7 +36,7 @@ public:
 
     const std::set<int> getSlots(int min) const {
         std::set<int> temp;
-        for (int i = 0; i < lectures.size(); ++i) {
+        for (unsigned int i = 0; i < lectures.size(); ++i) {
             temp.insert(lectures[i]->getStart() - min);
         }
         return temp;
@@ -74,15 +71,15 @@ public:
     }
 
     int getSolRoom() const {
-        return roomID;
+        return sol->getSolRoom();
     }
 
     int getSolStart() const {
-        return start;
+        return sol->getSolStart();
     }
 
     std::string getSolWeek() const {
-        return lectures[0]->getWeeks();
+        return sol->getSolWeek();
     }
 
     int getMaxWeek() {
@@ -95,7 +92,7 @@ public:
     }
 
     std::string getSolDays() const {
-        return lectures[0]->getDays();
+        return sol->getSolDays();
     }
 
     int getSolDay() const {
@@ -110,7 +107,7 @@ public:
     }
 
     void setSolRoom(int roomID) {
-        Class::roomID = roomID;
+        sol->setSolRoom(roomID);
     }
 
     Class(int id, int limit, std::vector<Lecture *, std::allocator<Lecture *>> pLecture, std::map<Room, int> map,
@@ -339,11 +336,7 @@ public:
     }
 
     void setSolution(int start, int roomID, std::string room, std::string week, std::string day) {
-        Class::start = start;
-        Class::roomID = roomID;
-        Class::room = room;
-        Class::week = week;
-        Class::days = day;
+        sol= new Solution(start,roomID,room,week,day);
     }
 
 
@@ -358,14 +351,16 @@ public:
 
 
     void setSolutionTime(int time, char *day) {
-        Class::start = time;
-        Class::days = day;
+        sol = new Solution(time, day);
     }
 
     void setSolution(int time, std::string week, std::string day) {
-        Class::start = time;
-        Class::days = day;
-        Class::week = week;
+        sol = new Solution(time,week, day);
+
+    }
+
+    void setSolution(Solution* s) {
+        sol = s;
 
     }
 
@@ -373,10 +368,7 @@ public:
      * Set Solution for ITC-2007
      */
     void setSolution(int roomID, std::string room, char *day, int time) {
-        Class::start = time;
-        Class::days = day;
-        Class::roomID = roomID;
-        Class::room = room;
+        sol = new Solution(roomID,room, day,time);
 
     }
 
