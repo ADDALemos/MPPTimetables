@@ -5,10 +5,10 @@
 #ifndef PROJECT_TIMEUTIL_H
 #define PROJECT_TIMEUTIL_H
 
-bool quiet = false; //Print info
-clock_t tStart;
+const bool quiet = false; //Print info
+const clock_t myTimeStart = clock();
 
-double getTimeSpent() { return (double) (clock() - tStart) / CLOCKS_PER_SEC; }
+double getTimeSpent() { return (double) (clock() - myTimeStart) / CLOCKS_PER_SEC; }
 
 
 #endif //PROJECT_TIMEUTIL_H

@@ -8,7 +8,7 @@
 #define IL_STD
 #endif
 
-#include "/Library/gurobi810/mac64/include/gurobi_c++.h"
+#include <gurobi_c++.h>
 
 #include <ilconcert/iloenv.h>
 #include <ilconcert/ilomodel.h>
@@ -409,7 +409,7 @@ public:
         return 0;
     }
 
-    virtual void dist() {
+    virtual void dist(bool hard) {
 
     }
 

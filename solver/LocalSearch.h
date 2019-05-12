@@ -9,6 +9,11 @@
 #include <fstream>
 #include "../problem/Instance.h"
 #include <climits>
+#include <cfloat>
+#include <random>
+#include <chrono>
+
+extern double getTimeSpent();
 
 class LocalSearch {
     int MAX_ITERATIONS = 5;
@@ -51,7 +56,7 @@ private:
 
     unsigned int seedHandler();
 
-    bool assign(Solution*);
+    int assign(Solution *);
 
     int getGAP() const;
 
@@ -61,6 +66,8 @@ private:
     void swampLectures(int lect1, int lect2, int day, int start, int lenght, int solDay, int solStart, int getLenght);
 
     int getGAPStored();
+
+    int checkUpdate(int maxCost, int id, int time, const std::pair<Room, int> &room);
 };
 
 

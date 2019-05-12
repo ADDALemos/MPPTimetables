@@ -127,6 +127,9 @@ public:
 
     }
 
+    Room(int fakeRoom) : id(fakeRoom) {
+
+    }
 };
 
 

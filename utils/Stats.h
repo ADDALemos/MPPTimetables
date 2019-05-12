@@ -78,6 +78,7 @@ void printWeekStats(Instance *instance) {
 }
 
 void constraints(Instance *instance) {
+    int hard = 0, soft = 0;
     std::map<std::string, int> map;
     map.insert(std::pair<std::string, int>("SameAttendees", 0));
     map.insert(std::pair<std::string, int>("NotOverlap", 0));
@@ -101,6 +102,10 @@ void constraints(Instance *instance) {
 
 
     for (int i = 0; i < instance->getDist().size(); ++i) {
+        if (instance->getDist()[i]->getPenalty() == -1)
+            hard++;
+        else
+            soft++;
         if (instance->getDist()[i]->getType()->getType() == SameAttendees) {
             map["SameAttendees"]++;
         } else if (instance->getDist()[i]->getType()->getType() == NotOverlap) {

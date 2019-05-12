@@ -4,8 +4,8 @@
 #include <sstream>
 #include <set>
 #include <thread>
-#include "problem/Lecture.h"
 
+#include "problem/Lecture.h"
 #include "problem/Room.h"
 #include "problem/Course.h"
 #include "problem/distribution.h"
@@ -20,11 +20,12 @@
 #include "solver/GurobiExecuter.h"
 #include "randomGenerator/Perturbation.h"
 #include "utils/Stats.h"
+#include "utils/TimeUtil.h"
 #include "solver/BinaryModelGurobiExecuter.h"
 #include "solver/IntegerModelGurobiExecuter.h"
 #include "solver/MixedModelGurobiExecuter.h"
 #include "solver/LocalSearch.h"
-#include "utils/TimeUtil.h"
+
 
 using namespace rapidxml;
 
@@ -47,7 +48,6 @@ void readPerturbations(std::string filename, Instance *instance);
 void addPossibleRooms(Class *c, Instance *instance);
 
 
-double getDouble(clock_t tStart);
 
 bool cuts = false;
 bool warm = false;
@@ -55,14 +55,21 @@ bool opt = false;
 
 
 int main(int argc, char **argv) {
-    tStart = clock();
 
 
     if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
     Instance *instance = readInputXML(argv[1]);
-
+    if (!quiet) std::cout << getTimeSpent() << std::endl;
     if (!quiet) std::cout << "Compacting " << std::endl;
     instance->compact();
+    if (!quiet) std::cout << getTimeSpent() << std::endl;
+
+    auto *s = new LocalSearch(30, 0.5, instance);
+    s->GRASP();
+    if (!quiet) std::cout << "Solution Found: Writing output file" << std::endl;
+    writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + ".xml",
+                   instance, getTimeSpent());
+    std::exit(0);
 
     //if (!quiet) std::cout << "Starting Reading File: " << argv[2] << std::endl;
     //readOutputXML(argv[2], instance);
@@ -167,7 +174,7 @@ void genSingleShot(Instance *instance, ILPExecuter *runner, char *string) {
     //if (!quiet) std::cout << "Sol: DONE " << getTimeSpent() << std::endl;
     runner->block();
     if (!quiet) std::cout << "Block var : Done " << getTimeSpent() << std::endl;
-    runner->dist();
+    runner->dist(true);
     if (!quiet) std::cout << "Dist : Done " << getTimeSpent() << std::endl;
     runner->oneLectureRoom();
     if (!quiet) std::cout << "Lecture : Done " << getTimeSpent() << std::endl;
@@ -252,7 +259,7 @@ void genWeekly(Instance *instance, ILPExecuter *runner, char *string) {
 
         //if (cuts) runner->cuts();
         runner->dayConst();
-        runner->dist();
+        runner->dist(false);
         //runner->roomClose();
         //runner->slotClose();
         //runner->teacher();
@@ -572,8 +579,8 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                                     if (roomID.find(idRoom) == roomID.end()) {
                                         std::cerr << "Room does not exist: " << idRoom << std::endl;
                                         std::exit(11);
-                                    }
-                                    roomsv.insert(std::pair<Room, int>(instance->getRoom(roomID[idRoom]), penalty));
+                                    } else
+                                        roomsv.insert(std::pair<Room, int>(instance->getRoom(roomID[idRoom]), penalty));
                                 } else if (strcmp(lec->name(), "time") == 0) {
                                     int lenght = -1, start = -1, penalty = -1;
                                     std::string weeks, days;
@@ -630,7 +637,7 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                 bool isReq = false;
                 std::string type;
                 int penalty = -1;
-                std::vector<Class *> c;
+                std::vector<int> c;
                 int limit = -1, limit1 = -1;
                 for (const xml_attribute<> *a = sub->first_attribute(); a; a = a->next_attribute()) {
                     if (strcmp(a->name(), "required") == 0) {
@@ -655,7 +662,7 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                     for (const xml_attribute<> *a = course->first_attribute(); a; a = a->next_attribute()) {
                         idClassesDist = atoi(a->value());
                     }
-                    c.push_back(classMap[classID[idClassesDist]]);
+                    c.push_back(classMap[classID[idClassesDist]]->getId());
                 }
                 Constraint *limite;
                 distribution *req;
