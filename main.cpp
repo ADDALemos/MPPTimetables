@@ -25,6 +25,8 @@
 #include "solver/IntegerModelGurobiExecuter.h"
 #include "solver/MixedModelGurobiExecuter.h"
 #include "solver/LocalSearch.h"
+#include "solver/LocalSearchMultiShot.h"
+
 
 
 using namespace rapidxml;
@@ -60,11 +62,11 @@ int main(int argc, char **argv) {
     if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
     Instance *instance = readInputXML(argv[1]);
     if (!quiet) std::cout << getTimeSpent() << std::endl;
-    if (!quiet) std::cout << "Compacting " << std::endl;
-    instance->compact();
+    //if (!quiet) std::cout << "Compacting " << std::endl;
+    //instance->compact();
     if (!quiet) std::cout << getTimeSpent() << std::endl;
 
-    auto *s = new LocalSearch(30, 0.5, instance);
+    auto *s = new LocalSearchMultiShot(140, 0.5, instance);
     s->GRASP();
     if (!quiet) std::cout << "Solution Found: Writing output file" << std::endl;
     writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + ".xml",
@@ -333,8 +335,10 @@ void writeOutputXML(std::string filename, Instance *instance, double time) {
                 std::to_string(instance->getClasses()[c]->getId()).c_str())));
         child->append_attribute(
                 doc.allocate_attribute("days", doc.allocate_string(instance->getClasses()[c]->getSolDays().c_str())));
+
         child->append_attribute(doc.allocate_attribute("start", doc.allocate_string(
-                std::to_string(instance->getClasses()[c]->getSolStart() + instance->minTimeSlot()).c_str())));
+                std::to_string(instance->getClasses()[c]->getSolStart() +
+                               (instance->isisCompact() ? instance->minTimeSlot() : 0)).c_str())));
         child->append_attribute(
                 doc.allocate_attribute("weeks", doc.allocate_string(instance->getClasses()[c]->getSolWeek().c_str())));
         if (instance->getClasses()[c]->getSolRoom() != -1)

@@ -40,6 +40,7 @@ bool LocalSearch::eval() {
 
 LocalSearch::LocalSearch(int MAX_ITERATIONS, double rcl, Instance *instance) : MAX_ITERATIONS(MAX_ITERATIONS),
                                                                                instance(instance) {
+    instance->setCompact(false);
     init();
     sizeRCL = instance->getClasses().size() * rcl;
 
@@ -50,6 +51,7 @@ void LocalSearch::init() {
     for (int i = 0; i < instance->getClasses().size(); ++i) {
         current[i]= nullptr;
     }
+    currentV = 0;
 }
 
 
@@ -64,11 +66,11 @@ void LocalSearch::store() {
 }
 
 void LocalSearch::printStatus(int ite) {
-    std::cout << "Iteration: " << ite << " " << std::endl;
+    std::cout << "Iteration: " << ite << " " << best << std::endl;
 }
 
 void LocalSearch::printFinal() {
-    //std::cout << "Best result: " << getGAP() << std::endl;
+    std::cout << "Best result: " << best << std::endl;
 }
 
 int LocalSearch::getGAP() const {
@@ -105,6 +107,8 @@ void LocalSearch::Greedy() {
             if ((co = assign(tabu[l])) != -1) {
                 allocation++;
                 currentV += co;
+                std::cerr << "Here!! " << getTimeSpent() << std::endl;
+
             } else {
                 std::cerr << "There " << getTimeSpent() << std::endl;
             }
@@ -130,7 +134,7 @@ int LocalSearch::checkUpdate(int maxCost, int id, int time, const std::pair<Room
                              instance->getClasses()[id]->getLectures()[time]->getStart(),
                              instance->getClasses()[id]->getLectures()[time]->getLenght(),
                              roomID) != -1)) {
-        if (maxCost > (costR + costR)) {
+        if (maxCost > (costT + costR)) {
             if (tabu.size() == sizeRCL) {
                 tabu.pop_back();
                 maxCost = costT + costR;
@@ -139,7 +143,9 @@ int LocalSearch::checkUpdate(int maxCost, int id, int time, const std::pair<Room
                                         instance->getClasses()[id]->getLectures()[time]->getStart(),
                                         roomID,
                                         instance->getClasses()[id]->getLectures()[time]->getWeeks(),
-                                        instance->getClasses()[id]->getLectures()[time]->getDays()));
+                                        instance->getClasses()[id]->getLectures()[time]->getDays(),
+                                        instance->getClasses()[id]->getLectures()[time]->getLenght()));
+
 
         }
     }

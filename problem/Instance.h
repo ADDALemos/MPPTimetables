@@ -17,6 +17,7 @@
 
 class Instance {
 private:
+    bool isCompact = true;
     int ndays = -1;
     double alfa = 0;
     int nweek;
@@ -40,6 +41,15 @@ private:
     int roomPen;
     int distributionPen;
 public:
+
+    bool isisCompact() const {
+        return isCompact;
+    }
+
+    void setCompact(bool compact) {
+        Instance::isCompact = compact;
+    }
+
     int getTotalNumberSteatedStudent() const {
         return totalNumberSteatedStudent;
     }

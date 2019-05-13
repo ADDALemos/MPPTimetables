@@ -59,8 +59,9 @@ public:
 
     }
 
-    Solution(int lecture, int start, int roomID, std::string week, std::string day):lecture(lecture),
-    start(start),roomID(roomID), week(week), days(day){
+    Solution(int lecture, int start, int roomID, std::string week, std::string day, int duration) : duration(duration),
+                                                                                                    lecture(lecture),
+                                                                                                    start(start), roomID(roomID), week(week), days(day){
 
     }
 

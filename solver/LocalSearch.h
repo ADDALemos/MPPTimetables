@@ -2,8 +2,8 @@
 // Created by Alexandre Lemos on 15/03/2019.
 //
 
-#ifndef PROJECT_GRASP_H
-#define PROJECT_GRASP_H
+#ifndef TIMETABLER_GRASP_H
+#define TIMETABLER_GRASP_H
 
 
 #include <fstream>
@@ -16,6 +16,7 @@
 extern double getTimeSpent();
 
 class LocalSearch {
+protected:
     int MAX_ITERATIONS = 5;
     Instance *instance;
     std::vector<Solution*> tabu;
@@ -28,46 +29,50 @@ class LocalSearch {
 public:
     LocalSearch(int MAX_ITERATIONS, double rcl, Instance *instance);
 
-    void GRASP();
+    virtual void GRASP();
 
-    void LNS();
+    virtual void LNS();
 
     LocalSearch(Instance *pInstance);
 
-private:
+protected:
 
-    void init();
+    virtual void init();
 
-    bool eval();
+    virtual bool eval();
 
-    void store();
+    virtual void store();
 
-    void printStatus(int ite);
+    virtual void printStatus(int ite);
 
-    void printFinal();
+    virtual void printFinal();
 
-    void Greedy();
+    virtual void Greedy();
 
-    void Local();
+    virtual void Local();
 
-    int isAllocable(int lectureID, std::string week, std::string day, int start, int duration, int roomID);
-
-    double cost(int lectureID, int roomID, int i, int i1);
-
-    unsigned int seedHandler();
-
-    int assign(Solution *);
-
-    int getGAP() const;
+    virtual int isAllocable(int lectureID, std::string week, std::string day, int start, int duration, int roomID);
 
 
-    bool tryswampLectures(int l1, int l2, int d1, int t1, int le1, int d2, int t2, int le2);
+    virtual double cost(int lectureID, int roomID, int i, int i1);
 
-    void swampLectures(int lect1, int lect2, int day, int start, int lenght, int solDay, int solStart, int getLenght);
+    virtual unsigned int seedHandler();
 
-    int getGAPStored();
+    virtual int assign(Solution *);
 
-    int checkUpdate(int maxCost, int id, int time, const std::pair<Room, int> &room);
+    virtual int getGAP() const;
+
+
+    virtual bool tryswampLectures(int l1, int l2, int d1, int t1, int le1, int d2, int t2, int le2);
+
+    virtual void
+    swampLectures(int lect1, int lect2, int day, int start, int lenght, int solDay, int solStart, int getLenght);
+
+    virtual int getGAPStored();
+
+    virtual int checkUpdate(int maxCost, int id, int time, const std::pair<Room, int> &room);
+
+    virtual int checkUpdate(int maxCost, int id, int time) {};
 };
 
 
