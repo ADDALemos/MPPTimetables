@@ -56,17 +56,21 @@ bool warm = false;
 bool opt = false;
 
 
+std::map<int, std::vector<distribution *> *> classConst;
+std::map<int, std::vector<distribution *> *> classSoft;
+
 int main(int argc, char **argv) {
 
 
     if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
     Instance *instance = readInputXML(argv[1]);
+
     if (!quiet) std::cout << getTimeSpent() << std::endl;
     //if (!quiet) std::cout << "Compacting " << std::endl;
     //instance->compact();
     if (!quiet) std::cout << getTimeSpent() << std::endl;
 
-    auto *s = new LocalSearchMultiShot(140, 0.5, instance);
+    auto *s = new LocalSearchMultiShot(120, 1, instance);
     s->GRASP();
     if (!quiet) std::cout << "Solution Found: Writing output file" << std::endl;
     writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + ".xml",
@@ -323,7 +327,7 @@ void writeOutputXML(std::string filename, Instance *instance, double time) {
     root->append_attribute(doc.allocate_attribute("runtime", std::to_string(time).c_str()));
     root->append_attribute(
             doc.allocate_attribute("cores", std::to_string(std::thread::hardware_concurrency()).c_str()));
-    root->append_attribute(doc.allocate_attribute("technique", "ILP"));
+    root->append_attribute(doc.allocate_attribute("technique", instance->getMethod().c_str()));
     root->append_attribute(doc.allocate_attribute("author", "Alexandre Lemos"));
     root->append_attribute(doc.allocate_attribute("institution", "INESC-ID"));
     root->append_attribute(doc.allocate_attribute("country", "Portugal"));
@@ -430,11 +434,13 @@ void readOutputXML(std::string filename, Instance *instance) {
 }
 
 
+
 Instance *readInputXML(std::string filename) {//parent flag missing
     xml_document<> doc;
     int orderID = 0;
     std::map<int, Class *> classMap;
     std::map<int, int> classID;
+
 
     std::ifstream file(filename);
     if (file.fail()) {
@@ -645,7 +651,7 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                 int limit = -1, limit1 = -1;
                 for (const xml_attribute<> *a = sub->first_attribute(); a; a = a->next_attribute()) {
                     if (strcmp(a->name(), "required") == 0) {
-                        isReq = (atoi(a->value()) == 1);
+                        isReq = (strcmp(a->value(), "true") == 0);
                     } else if (strcmp(a->name(), "type") == 0) {
                         type = a->value();
                         long size;
@@ -680,6 +686,15 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                     }
                     limite->setType(type);
                     req = new DistributionRequired(limite, c);
+                    for (int restr = 0; restr < c.size(); restr++) {
+                        if (classSoft.count(c[restr])) {
+                            classConst[c[restr]]->push_back(req);
+                        } else {
+                            std::vector<distribution *> *t = new std::vector<distribution *>();
+                            t->push_back(req);
+                            classConst.insert(std::pair<int, std::vector<distribution *> *>(c[restr], t));
+                        }
+                    }
                 } else {
                     if (limit1 != -1) {
                         limite = new Limits(limit, limit1);
@@ -690,6 +705,15 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                     }
                     limite->setType(type);
                     req = new DistributionPenalty(limite, c, penalty);
+                    for (int restr = 0; restr < c.size(); restr++) {
+                        if (classSoft.count(c[restr])) {
+                            classSoft[c[restr]]->push_back(req);
+                        } else {
+                            std::vector<distribution *> *t = new std::vector<distribution *>();
+                            t->push_back(req);
+                            classSoft.insert(std::pair<int, std::vector<distribution *> *>(c[restr], t));
+                        }
+                    }
 
                 }
                 if (req)
@@ -721,6 +745,12 @@ Instance *readInputXML(std::string filename) {//parent flag missing
 
     }
     instance->setNumClasses();
+    for (auto i = classConst.begin(); i != classConst.end(); ++i) {
+        instance->getClass(i->first)->setHard(*i->second);
+    }
+    for (auto i = classSoft.begin(); i != classSoft.end(); ++i) {
+        instance->getClass(i->first)->setSoft(*i->second);
+    }
     return instance;
 }
 

@@ -18,6 +18,7 @@
 class Instance {
 private:
     bool isCompact = true;
+    std::string method = "";
     int ndays = -1;
     double alfa = 0;
     int nweek;
@@ -41,6 +42,13 @@ private:
     int roomPen;
     int distributionPen;
 public:
+    const std::string &getMethod() const {
+        return method;
+    }
+
+    void setMethod(const std::string &method) {
+        Instance::method = method;
+    }
 
     bool isisCompact() const {
         return isCompact;
@@ -227,6 +235,13 @@ public:
 
     std::vector<Class *> getClasses() {
         return classes;
+    }
+
+    Class *getClass(int i) {
+        for (int j = 0; j < classes.size(); ++j) {
+            if (classes[j]->getId() == i)
+                return classes[j];
+        }
     }
 
     unsigned int computeNumClasses() {

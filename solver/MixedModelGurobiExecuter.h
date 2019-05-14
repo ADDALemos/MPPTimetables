@@ -52,6 +52,7 @@ public:
 
     MixedModelGurobiExecuter(Instance *i) {
         setInstance(i);
+        instance->setMethod("ILP");
         roomLecture = new roomLectureGRB(instance, currentW);
     }
 

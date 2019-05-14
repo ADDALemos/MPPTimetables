@@ -99,6 +99,7 @@ protected:
 
             }
         }
+        return costT;
     }
 
 public:

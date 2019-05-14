@@ -41,8 +41,23 @@ public:
         }
         return temp;
     }
-    
-    
+
+    const std::vector<distribution *, std::allocator<distribution *>> &getHard() const {
+        return hard;
+    }
+
+    void setHard(std::vector<distribution *, std::allocator<distribution *>> &hard) {
+        Class::hard = hard;
+    }
+
+    const std::vector<distribution *, std::allocator<distribution *>> &getSoft() const {
+        return soft;
+    }
+
+    void setSoft(std::vector<distribution *> &soft) {
+        Class::soft = soft;
+    }
+
     const std::vector<int, std::allocator<int>> &getConv() const {
         return conv;
     }
@@ -156,6 +171,14 @@ public:
             if (i == n)
                 return it->first;
             i++;
+        }
+        throw std::out_of_range("possibleRooms::at: key not found");
+    }
+
+    int getPossibleRoomCost(int n) {
+        for (std::map<Room, int>::iterator it = possibleRooms.begin(); it != possibleRooms.end(); ++it) {
+            if (it->first.getId() == n)
+                return it->second;
         }
         throw std::out_of_range("possibleRooms::at: key not found");
     }
@@ -364,6 +387,14 @@ public:
 
     }
 
+    void addHard(distribution *pDistribution) {
+        hard.push_back(pDistribution);
+    }
+
+    void addSoft(distribution *pDistribution) {
+        soft.push_back(pDistribution);
+    }
+
     /**
      * Set Solution for ITC-2007
      */
@@ -375,6 +406,8 @@ public:
     void addStudent(int id) {
         Class::student.push_back(id);
     }
+
+
 };
 
 

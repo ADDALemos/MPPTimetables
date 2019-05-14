@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<solution name="lums-sum17" runtime="105.210359" cores="4" technique="LocalSearch" author="Alexandre Lemos"
+          institution="INESC-ID" country="Portugal">
+    <class id="1" days="1111000" start="96" weeks="111111111" room="22"/>
+    <class id="11" days="1111000" start="96" weeks="111111111" room="23"/>
+    <class id="12" days="1111000" start="96" weeks="111111111" room="12"/>
+    <class id="13" days="1111000" start="96" weeks="111111111" room="28"/>
+    <class id="14" days="1111000" start="144" weeks="111111111" room="8"/>
+    <class id="15" days="1111000" start="96" weeks="111111111" room="38"/>
+    <class id="16" days="1010000" start="96" weeks="111111111" room="18"/>
+    <class id="17" days="1111000" start="96" weeks="111111111" room="25"/>
+    <class id="18" days="1111000" start="96" weeks="111111111" room="29"/>
+    <class id="19" days="1111000" start="96" weeks="111111111" room="26"/>
+    <class id="20" days="1111000" start="96" weeks="111111111" room="27"/>
+    <class id="2" days="1111000" start="96" weeks="111111111" room="45"/>
+    <class id="3" days="1111000" start="96" weeks="111111111" room="8"/>
+    <class id="4" days="1010000" start="132" weeks="111111111" room="62"/>
+    <class id="5" days="1111000" start="96" weeks="111111111" room="24"/>
+    <class id="6" days="1111000" start="138" weeks="111111111" room="40"/>
+    <class id="7" days="1111000" start="120" weeks="111111111" room="23"/>
+    <class id="8" days="1111000" start="120" weeks="111111111" room="22"/>
+    <class id="9" days="1111000" start="132" weeks="111111111" room="24"/>
+    <class id="10" days="1111000" start="120" weeks="111111111" room="25"/>
+</solution>
+

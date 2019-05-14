@@ -41,6 +41,7 @@ bool LocalSearch::eval() {
 LocalSearch::LocalSearch(int MAX_ITERATIONS, double rcl, Instance *instance) : MAX_ITERATIONS(MAX_ITERATIONS),
                                                                                instance(instance) {
     instance->setCompact(false);
+    instance->setMethod("LocalSearch");
     init();
     sizeRCL = instance->getClasses().size() * rcl;
 
@@ -212,7 +213,91 @@ int LocalSearch::isAllocable(int lectureID, std::string week, std::string day, i
         }
 
     }
-    //cost+=;
+    if (roomID != -1) {
+        for (int una = 0; una < instance->getRoom(roomID).getSlots().size(); ++una) {
+            for (int i = 0; i < instance->getNweek(); ++i) {
+                if (week[i] == instance->getRoom(roomID).getSlots()[una].getWeeks()[i] &&
+                    instance->getRoom(roomID).getSlots()[una].getWeeks()[i] == '1') {
+                    for (int d = 0; d < instance->getNdays(); ++d) {
+                        if (day[d] == instance->getRoom(roomID).getSlots()[una].getDays()[d] && day[d] == '1') {
+                            if (start >= instance->getRoom(roomID).getSlots()[una].getStart() &&
+                                start < instance->getRoom(
+                                        roomID).getSlots()[una].getStart() + instance->getRoom(
+                                        roomID).getSlots()[una].getLenght())
+                                return -1;
+                            if (start + duration >= instance->getRoom(roomID).getSlots()[una].getStart() && start <
+                                                                                                            instance->getRoom(
+                                                                                                                    roomID).getSlots()[una].getStart() +
+                                                                                                            instance->getRoom(
+                                                                                                                    roomID).getSlots()[una].getLenght())
+                                return -1;
+                        }
+                    }
+
+                }
+            }
+
+        }
+
+        for (int h = 0; h < instance->getClasses()[lectureID]->getHard().size(); ++h) {
+            if (instance->getClasses()[lectureID]->getHard()[h]->getType()->getType() == SameAttendees) {
+                for (int i = 0; i < instance->getClasses()[lectureID]->getHard()[h]->getClasses().size(); ++i) {
+                    if (instance->getClasses()[lectureID]->getId() !=
+                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i]
+                        && current[instance->getClass(
+                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]
+                           != nullptr && current[instance->getClass(
+                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom() !=
+                                         -1) {
+                        if (start + duration + instance->getRoom(roomID).getTravel(current[instance->getClass(
+                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()) <=
+                            current[instance->getClass(
+                                    instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolStart()
+                            || current[instance->getClass(
+                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolStart() +
+                               current[instance->getClass(
+                                       instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getDuration() +
+                               instance->getRoom(current[instance->getClass(
+                                       instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()).getTravel(
+                                       roomID) <= start
+                            || week.compare(current[instance->getClass(
+                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolWeek()) ==
+                               0
+                            || day.compare(current[instance->getClass(
+                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolDays()) ==
+                               0) { ;
+                        } else
+                            return 90000000;
+                    }
+                }
+            } else if (instance->getClasses()[lectureID]->getHard()[h]->getType()->getType() == SameRoom) {
+                for (int i = 0; i < instance->getClasses()[lectureID]->getHard()[h]->getClasses().size(); ++i) {
+                    if (instance->getClasses()[lectureID]->getId() !=
+                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i]
+                        && current[instance->getClass(
+                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]
+                           != nullptr && current[instance->getClass(
+                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom() !=
+                                         -1) {
+                        std::cout << instance->getClasses()[lectureID]->getId() << " " << roomID << " "
+                                  << current[instance->getClass(
+                                          instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()
+                                  << " " << instance->getClass(
+                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()
+                                  << std::endl;
+                        if (roomID != current[instance->getClass(
+                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()) {
+                            return -1;
+                        }
+                    }
+
+                }
+
+            }
+
+        }
+        cost += instance->getClasses()[lectureID]->getPossibleRoomCost(roomID);
+    }
     return cost;
 }
 

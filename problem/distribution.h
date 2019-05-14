@@ -9,7 +9,6 @@
 #include <vector>
 #include "Course.h"
 #include "Constraint.h"
-#include "Class.h"
 
 
 class distribution {
