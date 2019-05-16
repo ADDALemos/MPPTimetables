@@ -15,6 +15,8 @@ class Student {
     std::vector<Course *> course;
     std::vector<Class *> classes;
 public:
+    Student() {}
+
     const std::vector<Class *, std::allocator<Class *>> &getClasses() const {
         return classes;
     }
@@ -61,6 +63,14 @@ public:
                 return true;
         }
         return false;
+    }
+
+    const int getNumbSubpart() const {
+        int value = 0;
+        for (int i = 0; i < course.size(); ++i) {
+            value += course[i]->getNumShifts();
+        }
+        return value;
     }
 
 public:

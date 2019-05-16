@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
     //instance->compact();
     if (!quiet) std::cout << getTimeSpent() << std::endl;
 
-    auto *s = new LocalSearchMultiShot(120, 1, instance);
+    auto *s = new LocalSearchMultiShot(5, .2, instance);
     s->GRASP();
     if (!quiet) std::cout << "Solution Found: Writing output file" << std::endl;
     writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + ".xml",
@@ -688,11 +688,11 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                     req = new DistributionRequired(limite, c);
                     for (int restr = 0; restr < c.size(); restr++) {
                         if (classSoft.count(c[restr])) {
-                            classConst[c[restr]]->push_back(req);
+                            classSoft[c[restr]]->push_back(req);
                         } else {
                             std::vector<distribution *> *t = new std::vector<distribution *>();
                             t->push_back(req);
-                            classConst.insert(std::pair<int, std::vector<distribution *> *>(c[restr], t));
+                            classSoft.insert(std::pair<int, std::vector<distribution *> *>(c[restr], t));
                         }
                     }
                 } else {

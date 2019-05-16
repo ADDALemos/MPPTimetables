@@ -20,11 +20,15 @@ protected:
     int MAX_ITERATIONS = 5;
     Instance *instance;
     std::vector<Solution*> tabu;
-    int best = INT_MAX;
-    int currentV = INT_MAX;
+    unsigned long long int best = ULLONG_MAX;
+    unsigned long long int currentV = ULLONG_MAX;
     Solution** current;
     std::ofstream seedFile;
     int sizeRCL;
+    bool **stu;
+    bool **stuSub;
+    int sizeRCLS;
+    int totalNassigment;
 
 public:
     LocalSearch(int MAX_ITERATIONS, double rcl, Instance *instance);
@@ -51,7 +55,8 @@ protected:
 
     virtual void Local();
 
-    virtual int isAllocable(int lectureID, std::string week, std::string day, int start, int duration, int roomID);
+    virtual unsigned long long int
+    isAllocable(int lectureID, std::string week, std::string day, int start, int duration, int roomID);
 
 
     virtual double cost(int lectureID, int roomID, int i, int i1);
@@ -63,16 +68,19 @@ protected:
     virtual int getGAP() const;
 
 
-    virtual bool tryswampLectures(int l1, int l2, int d1, int t1, int le1, int d2, int t2, int le2);
+    virtual bool tryswampLectures(int l1, const std::string &l2, std::string &d1, int t1, int le1);
 
     virtual void
-    swampLectures(int lect1, int lect2, int day, int start, int lenght, int solDay, int solStart, int getLenght);
+    swampLectures(int lect1, const std::string &lect2, std::string &day, int start, int lenght);
 
     virtual int getGAPStored();
 
     virtual int checkUpdate(int maxCost, int id, int time, const std::pair<Room, int> &room);
 
     virtual int checkUpdate(int maxCost, int id, int time) {};
+
+
+    bool tryswampLectures(int lecture, int roomID);
 };
 
 
