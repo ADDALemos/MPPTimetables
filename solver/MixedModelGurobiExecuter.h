@@ -52,7 +52,6 @@ public:
 
     MixedModelGurobiExecuter(Instance *i) {
         setInstance(i);
-        instance->setMethod("ILP");
         roomLecture = new roomLectureGRB(instance, currentW);
     }
 
@@ -446,14 +445,26 @@ private:
      */
 
     void warmStart() override {
-        for (int k = 0; k < instance->getNdays(); k++) {
-            for (int i = 0; i < instance->getSlotsperday(); i++) {
-                for (int j = 0; j < instance->getNumClasses(); j++) {
-                    if (solutionTime[k][i][j] && !instance->isTimeUnavailable(k * i))
-                        lectureTime[j].set(GRB_DoubleAttr_Start, k * i);
-                }
+
+        for (int j = 0; j < instance->getNumClasses(); j++) {
+            lectureTime[j].set(GRB_DoubleAttr_Start, instance->getClasses()[j]->getSolStart());
+            endTime[j].set(GRB_DoubleAttr_Start,
+                           instance->getClasses()[j]->getSolStart() + instance->getClasses()[j]->getSolDuration());
+            for (int w = 0; w < instance->getNweek(); ++w) {
+                we[w][instance->getClasses()[j]->getOrderID()].set(GRB_DoubleAttr_Start,
+                                                                   ('0' ==
+                                                                    instance->getClasses()[cla]->getSolWeek()[w] ? 0
+                                                                                                                 : 1));
             }
+            for (int d = 0; d < instance->getNdays(); ++d) {
+                day[instance->getClasses()[j]->getOrderID()][d].set(GRB_DoubleAttr_Start,
+                                                                    ('0' ==
+                                                                     instance->getClasses()[cla]->getSolDays()[w] ? 0
+                                                                                                                  : 1));
+            }
+
         }
+
         roomLecture->warmStart(solutionRoom);
     }
 

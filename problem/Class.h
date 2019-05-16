@@ -125,6 +125,10 @@ public:
         sol->setSolRoom(roomID);
     }
 
+    int getSolDuration() {
+        return sol->getDuration();
+    }
+
     Class(int id, int limit, std::vector<Lecture *, std::allocator<Lecture *>> pLecture, std::map<Room, int> map,
           int order) : id(id), limit(limit), orderID(order) {
         lectures = pLecture;

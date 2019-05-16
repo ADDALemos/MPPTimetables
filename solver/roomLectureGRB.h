@@ -116,14 +116,14 @@ public:
 
     void warmStart(int **sol) override {
         for (int l = 0; l < instance->getClassesWeek(currentW).size(); ++l) {
-            int rs = 0, rg = 0;
-            for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
+            for (std::map<Room, int>::const_iterator it = instance->getClassesWeek(
+                    currentW)[l]->getPossibleRooms().begin();
                  it != instance->getRooms().end(); it++) {
-                if (instance->getClassesWeek(currentW)[l]->containsRoom(instance->getRoom(rs + 1))) {
-                    vector[l][rg].set(GRB_DoubleAttr_Start, sol[rs][l]);
-                    rg++;
+                if (it->second.getId() == instance->getClassesWeek(currentW)[l]->getSolRoom()) {
+                    vector[l][rg].set(GRB_DoubleAttr_Start, 1);
+                } else {
+                    vector[l][rg].set(GRB_DoubleAttr_Start, 0);
                 }
-                rs++;
             }
         }
     }

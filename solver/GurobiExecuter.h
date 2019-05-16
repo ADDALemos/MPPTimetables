@@ -423,58 +423,62 @@ private:
         opt += (hard ? 0 : temp);
         std::cout << "Time Pen : Done " << getTimeSpent() << std::endl;
         for (int i = 0; i < instance->getDist().size(); ++i) {
+            std::vector<Class *> c;
+            for (int j = 0; j < instance->getDist()[i]->getClasses().size(); ++j) {
+                c.push_back(instance->getClass(instance->getDist()[i]->getClasses()[i]));
+            }
             if (instance->getDist()[i]->getPenalty() == -1 || !hard) {
-                /*if (instance->getDist()[i]->getType()->getType() == SameAttendees) {
-                    opt += travel(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty());
+                if (instance->getDist()[i]->getType()->getType() == SameAttendees) {
+                    opt += travel(c, instance->getDist()[i]->getPenalty());
                 } else if (instance->getDist()[i]->getType()->getType() == NotOverlap) {
-                    opt += overlap(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
-                } /*else if (instance->getDist()[i]->getType()->getType() == Overlap) {
-                    opt += overlap(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), false);
+                    opt += overlap(c, instance->getDist()[i]->getPenalty(), true);
+                } else if (instance->getDist()[i]->getType()->getType() == Overlap) {
+                    opt += overlap(c, instance->getDist()[i]->getPenalty(), false);
                 } else if (instance->getDist()[i]->getType()->getType() == SameTime) {
-                    opt += sameTime(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
+                    opt += sameTime(c, instance->getDist()[i]->getPenalty(), true);
                 } else if (instance->getDist()[i]->getType()->getType() == DifferentTime) {
-                    opt += sameTime(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), false);
+                    opt += sameTime(c, instance->getDist()[i]->getPenalty(), false);
                 } else if (instance->getDist()[i]->getType()->getType() == SameWeeks) {
-                    opt += sameWeek(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), true);
+                    opt += sameWeek(c, instance->getDist()[i]->getPenalty(), true);
                 } else if (instance->getDist()[i]->getType()->getType() == DifferentWeeks) {
-                    opt += sameWeek(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(), false);
+                    opt += sameWeek(c, instance->getDist()[i]->getPenalty(), false);
                 } else if (instance->getDist()[i]->getType()->getType() == SameDays) {
-                    opt += differentDay(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
+                    opt += differentDay(c, instance->getDist()[i]->getPenalty(),
                                         false);
                 } else if (instance->getDist()[i]->getType()->getType() == DifferentDays) {
-                    opt += differentDay(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
+                    opt += differentDay(c, instance->getDist()[i]->getPenalty(),
                                         true);
                 } else if (instance->getDist()[i]->getType()->getType() == Precedence) {
-                    opt += precedence(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty());
+                    opt += precedence(c, instance->getDist()[i]->getPenalty());
                 } else if (instance->getDist()[i]->getType()->getType() == SameRoom) {
-                    opt += differentRoom(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
+                    opt += differentRoom(c, instance->getDist()[i]->getPenalty(),
                                          false);
                 } else if (instance->getDist()[i]->getType()->getType() == DifferentRoom) {
-                    opt += differentRoom(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
+                    opt += differentRoom(c, instance->getDist()[i]->getPenalty(),
                                          true);
                 } else if (instance->getDist()[i]->getType()->getType() == SameStart) {
-                    opt += sameStart(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty());
+                    opt += sameStart(c, instance->getDist()[i]->getPenalty());
                 } else if (instance->getDist()[i]->getType()->getType() == MaxDays) {
-                    opt += maxDays(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
+                    opt += maxDays(c, instance->getDist()[i]->getPenalty(),
                                    instance->getDist()[i]->getType()->getLimit());
                 } else if (instance->getDist()[i]->getType()->getType() == MinGap) {
-                    opt += minGap(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
+                    opt += minGap(c, instance->getDist()[i]->getPenalty(),
                                   instance->getDist()[i]->getType()->getLimit());
                 } else if (instance->getDist()[i]->getType()->getType() == WorkDay) {
-                    opt += workDay(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
+                    opt += workDay(c, instance->getDist()[i]->getPenalty(),
                                    instance->getDist()[i]->getType()->getLimit());
                 } else if (instance->getDist()[i]->getType()->getType() == MaxDayLoad) {
-                    opt += maxDayLoad(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
+                    opt += maxDayLoad(c, instance->getDist()[i]->getPenalty(),
                                       instance->getDist()[i]->getType()->getLimit());
                 } else if (instance->getDist()[i]->getType()->getType() == MaxBreaks) {
-                    opt += maxBreaks(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
+                    opt += maxBreaks(c, instance->getDist()[i]->getPenalty(),
                                      instance->getDist()[i]->getType()->getLimit(),
                                      instance->getDist()[i]->getType()->getLimit1());
                 } else if (instance->getDist()[i]->getType()->getType() == MaxBlock) {
-                    opt += maxBlock(instance->getDist()[i]->getClasses(), instance->getDist()[i]->getPenalty(),
+                    opt += maxBlock(c, instance->getDist()[i]->getPenalty(),
                                     instance->getDist()[i]->getType()->getLimit(),
                                     instance->getDist()[i]->getType()->getLimit1());
-                }*/
+                }
             }
 
         }
