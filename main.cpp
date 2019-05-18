@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
     //instance->compact();
     if (!quiet) std::cout << getTimeSpent() << std::endl;
 
-    auto *s = new LocalSearch(45, .6, instance);
+    auto *s = new LocalSearch(45, .6, instance, 3600);
     s->GRASP();
     if (!quiet) std::cout << "Solution Found: Writing output file" << std::endl;
     writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + ".xml",
@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
         else
             genSingleShot(instance, runner, argv[4]);
     } else if (strcmp(argv[5], "GRASP") == 0) {
-        LocalSearch *g = new LocalSearch(std::stoi(argv[6]), std::stoi(argv[7]), instance);
+        LocalSearch *g = new LocalSearch(std::stoi(argv[6]), std::stoi(argv[7]), instance, 3600);
         g->GRASP();
         std::exit(42);
     } else if (strcmp(argv[5], "LNS") == 0) {

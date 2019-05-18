@@ -294,8 +294,10 @@ protected:
 
 public:
 
-    LocalSearchMultiShot(int MAX_ITERATIONS, double rcl, Instance *instance) : LocalSearch(MAX_ITERATIONS, rcl,
-                                                                                           instance) {
+    LocalSearchMultiShot(int MAX_ITERATIONS, double rcl, Instance *instance, int seconds) : LocalSearch(MAX_ITERATIONS,
+                                                                                                        rcl,
+                                                                                                        instance,
+                                                                                                        seconds) {
 
     }
 

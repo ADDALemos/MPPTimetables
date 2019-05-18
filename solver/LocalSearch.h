@@ -19,6 +19,7 @@ extern double getTimeSpent();
 class LocalSearch {
 protected:
     int MAX_ITERATIONS = 5;
+    int time;
     Instance *instance;
     std::vector<Solution*> tabu;
     unsigned long long int best = ULLONG_MAX;
@@ -32,7 +33,7 @@ protected:
     int totalNassigment;
 
 public:
-    LocalSearch(int MAX_ITERATIONS, double rcl, Instance *instance);
+    LocalSearch(int MAX_ITERATIONS, double rcl, Instance *instance, int seconds);
 
     virtual void GRASP();
 

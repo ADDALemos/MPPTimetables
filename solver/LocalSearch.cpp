@@ -15,7 +15,7 @@ void LocalSearch::LNS() {
 
 
 void LocalSearch::GRASP() {
-    for (int i = 0; i < MAX_ITERATIONS; i++) {
+    for (int i = 0; i < MAX_ITERATIONS && getTimeSpent() <= time; i++) {
         init();
         Greedy();
         store();
@@ -34,8 +34,10 @@ bool LocalSearch::eval() {
 
 }
 
-LocalSearch::LocalSearch(int MAX_ITERATIONS, double rcl, Instance *instance) : MAX_ITERATIONS(MAX_ITERATIONS),
-                                                                               instance(instance) {
+LocalSearch::LocalSearch(int MAX_ITERATIONS, double rcl, Instance *instance, int seconds) : MAX_ITERATIONS(
+        MAX_ITERATIONS),
+                                                                                            instance(instance),
+                                                                                            time(seconds) {
     instance->setCompact(false);
     instance->setMethod("LocalSearch");
     init();
