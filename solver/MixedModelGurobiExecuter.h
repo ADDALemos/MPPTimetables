@@ -453,14 +453,14 @@ private:
             for (int w = 0; w < instance->getNweek(); ++w) {
                 we[w][instance->getClasses()[j]->getOrderID()].set(GRB_DoubleAttr_Start,
                                                                    ('0' ==
-                                                                    instance->getClasses()[cla]->getSolWeek()[w] ? 0
-                                                                                                                 : 1));
+                                                                    instance->getClasses()[j]->getSolWeek()[w] ? 0
+                                                                                                               : 1));
             }
             for (int d = 0; d < instance->getNdays(); ++d) {
                 day[instance->getClasses()[j]->getOrderID()][d].set(GRB_DoubleAttr_Start,
                                                                     ('0' ==
-                                                                     instance->getClasses()[cla]->getSolDays()[w] ? 0
-                                                                                                                  : 1));
+                                                                     instance->getClasses()[j]->getSolDays()[d] ? 0
+                                                                                                                : 1));
             }
 
         }

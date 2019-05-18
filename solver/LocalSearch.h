@@ -12,6 +12,7 @@
 #include <cfloat>
 #include <random>
 #include <chrono>
+#include <ostream>
 
 extern double getTimeSpent();
 
@@ -55,7 +56,7 @@ protected:
 
     virtual void Local();
 
-    virtual unsigned long long int
+    virtual int
     isAllocable(int lectureID, std::string week, std::string day, int start, int duration, int roomID);
 
 
@@ -68,10 +69,10 @@ protected:
     virtual int getGAP() const;
 
 
-    virtual bool tryswampLectures(int l1, const std::string &l2, std::string &d1, int t1, int le1);
+    virtual int tryswampLectures(int l1, const std::string &l2, std::string &d1, int t1, int le1, int i);
 
     virtual void
-    swampLectures(int lect1, const std::string &lect2, std::string &day, int start, int lenght);
+    swampLectures(int lect1, const std::string &lect2, std::string &day, int start, int lenght, int i);
 
     virtual int getGAPStored();
 
@@ -80,7 +81,9 @@ protected:
     virtual int checkUpdate(int maxCost, int id, int time) {};
 
 
-    bool tryswampLectures(int lecture, int roomID);
+    virtual int tryswampLectures(int lecture, int roomID);
+
+    bool stringcompare(std::string s1, std::string s2, int size, bool orAND);
 };
 
 

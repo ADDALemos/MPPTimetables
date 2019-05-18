@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
     //instance->compact();
     if (!quiet) std::cout << getTimeSpent() << std::endl;
 
-    auto *s = new LocalSearchMultiShot(5, .2, instance);
+    auto *s = new LocalSearch(45, .6, instance);
     s->GRASP();
     if (!quiet) std::cout << "Solution Found: Writing output file" << std::endl;
     writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + ".xml",

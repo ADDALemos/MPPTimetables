@@ -116,14 +116,17 @@ public:
 
     void warmStart(int **sol) override {
         for (int l = 0; l < instance->getClassesWeek(currentW).size(); ++l) {
+            int rg = 0;
             for (std::map<Room, int>::const_iterator it = instance->getClassesWeek(
                     currentW)[l]->getPossibleRooms().begin();
-                 it != instance->getRooms().end(); it++) {
-                if (it->second.getId() == instance->getClassesWeek(currentW)[l]->getSolRoom()) {
+                 it != instance->getClassesWeek(
+                         currentW)[l]->getPossibleRooms().end(); it++) {
+                if (it->first.getId() == instance->getClassesWeek(currentW)[l]->getSolRoom()) {
                     vector[l][rg].set(GRB_DoubleAttr_Start, 1);
                 } else {
                     vector[l][rg].set(GRB_DoubleAttr_Start, 0);
                 }
+                rg++;
             }
         }
     }
@@ -177,7 +180,7 @@ public:
                                                  temp_l1_l2 + temp_l2_l1 == 0);
 
 
-                    int i1 = 0, i = 0;
+                    int i1 = 0, i = 0, i0 = 0;
                     for (std::map<int, Room>::const_iterator it = instance->getRooms().begin();
                          it != instance->getRooms().end(); it++) {
                         if (j->containsRoom(instance->getRoom(i1 + 1)) &&
@@ -188,9 +191,9 @@ public:
                                                          "SameRoom" + itos(i) + "_" + itos(j->getOrderID()) + "_" +
                                                          itos(j1->getOrderID()));
                             model->addGenConstrIndicator(tempV, 1, vector[j->getOrderID()][i]
-                                                                   + vector[j1->getOrderID()][i] == 2);
+                                                                   + vector[j1->getOrderID()][i0] == 2);
                             model->addGenConstrIndicator(tempV, 0, vector[j->getOrderID()][i]
-                                                                   + vector[j1->getOrderID()][i] <= 1);
+                                                                   + vector[j1->getOrderID()][i0] <= 1);
                             model->addConstr(
                                     tempV + sameTime + sameday[j1->getOrderID()][j->getOrderID()] + sameweek <= 3);
                             //same time same room same day
@@ -203,7 +206,12 @@ public:
                             //0 1 0 no problem
                             //0 1 1 no problem
 
+                        }
+                        if (j->containsRoom(instance->getRoom(i1 + 1))) {
                             i++;
+                        }
+                        if (j1->containsRoom(instance->getRoom(i1 + 1))) {
+                            i0++;
                         }
                         i1++;
                     }

@@ -17,8 +17,24 @@ class Solution {
     std::string room = "-1";
     std::string week = "-1";
     std::string days = "-1";
+    int penaltyTime = 0;
+    int penaltyRoom = 0;
 
 public:
+    friend std::ostream &operator<<(std::ostream &os, const Solution &s) {
+        os << " start: " << s.start << " duration: " << s.duration
+           << " days: " << s.days << " week: " << s.week << " room: " << s.roomID
+           << " penaltyTime: " << s.penaltyTime << " penaltyRoom: " << s.penaltyRoom;
+        return os;
+    }
+
+    int penRoom() const {
+        return penaltyRoom;
+    }
+
+    int penTime() const {
+        return penaltyTime;
+    }
     int getDuration() const {
         return duration;
     }
@@ -59,11 +75,13 @@ public:
 
     }
 
-    Solution(int lecture, int start, int roomID, std::string week, std::string day, int duration) : duration(duration),
-                                                                                                    lecture(lecture),
-                                                                                                    start(start), roomID(roomID), week(week), days(day){
+    Solution(int lecture, int start, int roomID, std::string week, std::string day, int duration, int penT, int penR)
+            : duration(duration),
+              lecture(lecture),
+              start(start), roomID(roomID), week(week), days(day), penaltyTime(penT), penaltyRoom(penR) {
 
     }
+
 
     Solution(int start, char *day) :start(start),days(day){
 

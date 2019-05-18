@@ -284,7 +284,8 @@ protected:
                                             -1,
                                             instance->getClasses()[id]->getLectures()[time]->getWeeks(),
                                             instance->getClasses()[id]->getLectures()[time]->getDays(),
-                                            instance->getClasses()[id]->getLectures()[time]->getLenght()));
+                                            instance->getClasses()[id]->getLectures()[time]->getLenght(),
+                                            instance->getClasses()[id]->getLectures()[time]->getPenalty(), 0));
 
             }
         }
