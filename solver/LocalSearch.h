@@ -31,6 +31,7 @@ protected:
     bool **stuSub;
     int sizeRCLS;
     int totalNassigment;
+    bool b = false;
 
 public:
     LocalSearch(int MAX_ITERATIONS, double rcl, Instance *instance, int seconds);
@@ -85,6 +86,8 @@ protected:
     virtual int tryswampLectures(int lecture, int roomID);
 
     bool stringcompare(std::string s1, std::string s2, int size, bool orAND);
+
+    bool isFirst(std::string s1, std::string s2, int size);
 };
 
 

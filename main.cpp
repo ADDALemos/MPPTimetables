@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
     //instance->compact();
     if (!quiet) std::cout << getTimeSpent() << std::endl;
 
-    auto *s = new LocalSearch(45, .6, instance, 3600);
+    auto *s = new LocalSearch(1, .6, instance, 600);
     s->GRASP();
     if (!quiet) std::cout << "Solution Found: Writing output file" << std::endl;
     writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + ".xml",
@@ -434,8 +434,7 @@ void readOutputXML(std::string filename, Instance *instance) {
 }
 
 
-
-Instance *readInputXML(std::string filename) {//parent flag missing
+Instance *readInputXML(std::string filename) {
     xml_document<> doc;
     int orderID = 0;
     std::map<int, Class *> classMap;
@@ -687,12 +686,12 @@ Instance *readInputXML(std::string filename) {//parent flag missing
                     limite->setType(type);
                     req = new DistributionRequired(limite, c);
                     for (int restr = 0; restr < c.size(); restr++) {
-                        if (classSoft.count(c[restr])) {
-                            classSoft[c[restr]]->push_back(req);
+                        if (classConst.count(c[restr])) {
+                            classConst[c[restr]]->push_back(req);
                         } else {
                             std::vector<distribution *> *t = new std::vector<distribution *>();
                             t->push_back(req);
-                            classSoft.insert(std::pair<int, std::vector<distribution *> *>(c[restr], t));
+                            classConst.insert(std::pair<int, std::vector<distribution *> *>(c[restr], t));
                         }
                     }
                 } else {
