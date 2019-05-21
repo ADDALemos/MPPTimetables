@@ -15,6 +15,9 @@ void LocalSearch::LNS() {
 
 
 void LocalSearch::GRASP() {
+    greedyStu();
+    printTime();
+
     for (int i = 0; i < MAX_ITERATIONS && getTimeSpent() <= time; i++) {
         init();
         printTime();
@@ -108,7 +111,11 @@ void LocalSearch::Greedy() {
             if (current[i] == nullptr) {
                 if (instance->getClasses()[i]->getPossibleRooms().size() > 0) {
                     for (std::pair<Room, int> room: instance->getClasses()[i]->getPossibleRooms()) {
-                        for (int time = 0; time < instance->getClasses()[i]->getLectures().size(); ++time) {
+                        std::default_random_engine generator(seedHandler());
+                        std::uniform_int_distribution<int> distribution(1,
+                                                                        instance->getClasses()[i]->getLectures().size());
+                        int l = distribution(generator);
+                        for (int time = 0; time < l; ++time) {
                             maxCost = checkUpdate(maxCost, i, time, room);
                             if (maxCost == 0)
                                 break;
@@ -156,38 +163,34 @@ void LocalSearch::Greedy() {
     }
     //First each student choose one in each subpart
     //Move to reduce conflicts and size
-    /*if(instance->getStudent().size()>0) {
+
+
+}
+
+void LocalSearch::greedyStu() {
+    if (instance->getStudent().size() > 0) {
         int totalAss = 0;
         int maxStu = INT_MAX;
-        std::vector<int> sub;
-        std::vector<Class *> co;
-        std::vector<Student> s;
-        while (totalAss < totalNassigment) {
             for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
                  it != instance->getStudent().end(); ++it) {
                 for (int c = 0; c < it->second.getCourse().size(); ++c) {
                     for (int conf = 0; conf < it->second.getCourse()[c]->getNumConfig(); ++conf) {
                         for (int part = 0;
                              part < it->second.getCourse()[c]->getSubpart(conf).size(); ++part) {
-                            if(stuSub[it->second.getId()-1][part]==0) {
-                                for (int cla = 0;
+                            Class *c1 = it->second.getCourse()[c]->getSubpart(
+                                    conf)[part]->getClasses()[0];
+                            for (int cla = 0;
                                      cla < it->second.getCourse()[c]->getSubpart(
                                              conf)[part]->getClasses().size(); ++cla) {
                                     Class *cla1 = it->second.getCourse()[c]->getSubpart(
                                             conf)[part]->getClasses()[cla];
-                                    if (maxStu > stuCost(cla1, it->second) &&
-                                        stuCost(cla1, it->second) != -1) {
-                                        if (s.size() == sizeRCLS) {
-                                            s.pop_back();
-                                            sub.pop_back();
-                                            co.pop_back();
-                                        }
-                                        sub.push_back(part);
-                                        maxStu = stuCost(cla1, it->second);
-                                        co.push_back(cla1);
-                                        s.push_back(it->second);
+                                if (maxStu > stuCost(cla1, it->second)) {
+                                    maxStu = stuCost(cla1, it->second);
+                                    c1 = cla1;
+
                                     }
                                 }
+                            c1->addStudent(it->second.getId());
                             }
 
                         }
@@ -198,23 +201,10 @@ void LocalSearch::Greedy() {
                 }
 
             }
-            if (!s.empty()) {
-                std::default_random_engine generator(seedHandler());
-                std::uniform_int_distribution<int> distribution(0, s.size() - 1);
-                int l = distribution(generator);
-                if (stuCost(co[l], s[l]) != -1) {
-                    stu[s[l].getId()-1][co[l]->getOrderID()]=1;
-                    stuSub[s[l].getId()-1][s[l].getId()-1]=1;
-                    totalAss++;
-                    s[l].addClass(co[l]);
-                }
-            }
-            s.clear();co.clear();sub.clear();
 
-        }
-    }*/
 
 }
+
 
 int LocalSearch::checkUpdate(int maxCost, int id, int time, const std::pair<Room, int> &room) {
     int roomID = room.first.getId();
@@ -985,13 +975,13 @@ int LocalSearch::tryswampRoom(int lecture, int roomID) {
 int LocalSearch::stuCost(Class *c, Student s) {
     if (c->getParent() != nullptr) {
         if (stu[s.getId() - 1][c->getOrderID()] == 1)
-            return -1;
+            return INT_MAX;
     }
     int limit = 0;
     for (int i = 0; i < instance->getStudent().size(); ++i) {
         limit += stu[i][c->getOrderID()];
     }
     if (c->getLimit() < limit)
-        return -1;
+        return INT_MAX;
 
 }

@@ -92,6 +92,8 @@ protected:
     int isFirst(std::string s1, std::string s2, int size);
 
     int stuCost(Class *c, Student s);
+
+    void greedyStu();
 };
 
 
