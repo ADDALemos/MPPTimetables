@@ -13,7 +13,9 @@
 #include <random>
 #include <chrono>
 #include <ostream>
+#include <algorithm>
 
+extern void printTime();
 extern double getTimeSpent();
 
 class LocalSearch {
@@ -83,11 +85,13 @@ protected:
     virtual int checkUpdate(int maxCost, int id, int time) {};
 
 
-    virtual int tryswampLectures(int lecture, int roomID);
+    virtual int tryswampRoom(int lecture, int roomID);
 
     bool stringcompare(std::string s1, std::string s2, int size, bool orAND);
 
-    bool isFirst(std::string s1, std::string s2, int size);
+    int isFirst(std::string s1, std::string s2, int size);
+
+    int stuCost(Class *c, Student s);
 };
 
 

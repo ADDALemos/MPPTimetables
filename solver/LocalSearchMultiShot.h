@@ -63,7 +63,7 @@ protected:
                         if (roomID != -1)
                             current[tabu[l]->getLecture()]->setSolRoom(roomID);
                         else
-                            currentV += 10000000;
+                            currentV += INT_MAX;
 
                     }
                     /*if(instance->getStudent().size()>0) {
@@ -256,19 +256,7 @@ protected:
         }
     }*/
 
-    int stuCost(Class *c, Student s) {
-        if (c->getParent() != nullptr) {
-            if (stu[s.getId() - 1][c->getOrderID()] == 1)
-                return -1;
-        }
-        int limit = 0;
-        for (int i = 0; i < instance->getStudent().size(); ++i) {
-            limit += stu[i][c->getOrderID()];
-        }
-        if (c->getLimit() < limit)
-            return -1;
 
-    }
 
 
     int checkUpdate(int maxCost, int id, int time) override {

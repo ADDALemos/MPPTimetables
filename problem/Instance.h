@@ -233,6 +233,22 @@ public:
         return nClasses;
     }
 
+    double timePerClass() {
+        int c = 0;
+        for (int i = 0; i < getClasses().size(); ++i) {
+            c += getClasses()[i]->getLectures().size();
+        }
+        return c / getClasses().size();
+    }
+
+    double roomPerClass() {
+        int c = 0;
+        for (int i = 0; i < getClasses().size(); ++i) {
+            c += getClasses()[i]->getPossibleRooms().size();
+        }
+        return c / getClasses().size();
+    }
+
     std::vector<Class *> getClasses() {
         return classes;
     }

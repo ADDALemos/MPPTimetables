@@ -10,5 +10,7 @@ const clock_t myTimeStart = clock();
 
 double getTimeSpent() { return (double) (clock() - myTimeStart) / CLOCKS_PER_SEC; }
 
+void printTime() { std::cout << getTimeSpent() << std::endl; }
+
 
 #endif //PROJECT_TIMEUTIL_H

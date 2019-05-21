@@ -17,7 +17,9 @@ void LocalSearch::LNS() {
 void LocalSearch::GRASP() {
     for (int i = 0; i < MAX_ITERATIONS && getTimeSpent() <= time; i++) {
         init();
+        printTime();
         Greedy();
+        printTime();
         store();
         printStatus(i);
         Local();
@@ -104,19 +106,26 @@ void LocalSearch::Greedy() {
         int maxCost = INT_MAX;
         for (int i = 0; i < instance->getClasses().size(); ++i) {
             if (current[i] == nullptr) {
-                for (int time = 0; time < instance->getClasses()[i]->getLectures().size(); ++time) {
-                    if (instance->getClasses()[i]->getPossibleRooms().size() > 0) {
-                        for (std::pair<Room, int> room: instance->getClasses()[i]->getPossibleRooms()) {
+                if (instance->getClasses()[i]->getPossibleRooms().size() > 0) {
+                    for (std::pair<Room, int> room: instance->getClasses()[i]->getPossibleRooms()) {
+                        for (int time = 0; time < instance->getClasses()[i]->getLectures().size(); ++time) {
                             maxCost = checkUpdate(maxCost, i, time, room);
+                            if (maxCost == 0)
+                                break;
                         }
-                    } else {
+                    }
+                } else {
+                    for (int time = 0; time < instance->getClasses()[i]->getLectures().size(); ++time) {
                         std::pair<Room, int> room(Room(-1), 0);
                         maxCost = checkUpdate(maxCost, i, time, room);
+                        if (maxCost == 0)
+                            break;
                     }
 
                 }
             }
         }
+
 
         if (!tabu.empty()) {
             std::default_random_engine generator(seedHandler());
@@ -124,6 +133,7 @@ void LocalSearch::Greedy() {
             int l = distribution(generator);
             int co = 0;
             while ((co = assign(tabu[l])) != -1) {
+                printTime();
                 if (co != -1) {
                     allocation++;
                     currentV += co;
@@ -136,6 +146,7 @@ void LocalSearch::Greedy() {
             }
 
 
+
         } else {
             std::cout << "Not FOUND " << instance->getClasses().size() << std::endl;
             currentV = INT_MAX;
@@ -143,6 +154,65 @@ void LocalSearch::Greedy() {
         }
         tabu.clear();
     }
+    //First each student choose one in each subpart
+    //Move to reduce conflicts and size
+    /*if(instance->getStudent().size()>0) {
+        int totalAss = 0;
+        int maxStu = INT_MAX;
+        std::vector<int> sub;
+        std::vector<Class *> co;
+        std::vector<Student> s;
+        while (totalAss < totalNassigment) {
+            for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
+                 it != instance->getStudent().end(); ++it) {
+                for (int c = 0; c < it->second.getCourse().size(); ++c) {
+                    for (int conf = 0; conf < it->second.getCourse()[c]->getNumConfig(); ++conf) {
+                        for (int part = 0;
+                             part < it->second.getCourse()[c]->getSubpart(conf).size(); ++part) {
+                            if(stuSub[it->second.getId()-1][part]==0) {
+                                for (int cla = 0;
+                                     cla < it->second.getCourse()[c]->getSubpart(
+                                             conf)[part]->getClasses().size(); ++cla) {
+                                    Class *cla1 = it->second.getCourse()[c]->getSubpart(
+                                            conf)[part]->getClasses()[cla];
+                                    if (maxStu > stuCost(cla1, it->second) &&
+                                        stuCost(cla1, it->second) != -1) {
+                                        if (s.size() == sizeRCLS) {
+                                            s.pop_back();
+                                            sub.pop_back();
+                                            co.pop_back();
+                                        }
+                                        sub.push_back(part);
+                                        maxStu = stuCost(cla1, it->second);
+                                        co.push_back(cla1);
+                                        s.push_back(it->second);
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+
+
+
+                }
+
+            }
+            if (!s.empty()) {
+                std::default_random_engine generator(seedHandler());
+                std::uniform_int_distribution<int> distribution(0, s.size() - 1);
+                int l = distribution(generator);
+                if (stuCost(co[l], s[l]) != -1) {
+                    stu[s[l].getId()-1][co[l]->getOrderID()]=1;
+                    stuSub[s[l].getId()-1][s[l].getId()-1]=1;
+                    totalAss++;
+                    s[l].addClass(co[l]);
+                }
+            }
+            s.clear();co.clear();sub.clear();
+
+        }
+    }*/
 
 }
 
@@ -156,7 +226,9 @@ int LocalSearch::checkUpdate(int maxCost, int id, int time, const std::pair<Room
                              instance->getClasses()[id]->getLectures()[time]->getStart(),
                              instance->getClasses()[id]->getLectures()[time]->getLenght(),
                              roomID) != -1)) {
-        costT += instance->getClasses()[id]->getLectures()[time]->getPenalty();
+        if (costT == INT_MAX)
+            return INT_MAX;
+        //costT += instance->getClasses()[id]->getLectures()[time]->getPenalty();
         if (maxCost > (costT + costR)) {
             if (tabu.size() == sizeRCL) {
                 tabu.pop_back();
@@ -183,7 +255,7 @@ void LocalSearch::Local() {
     int old = 0;
     bool bigmove = true;
     std::cout << "LNS: " << getTimeSpent() << std::endl;
-    while (bigmove) {
+    //while (bigmove) {
         bool bigSwamp = false;
         for (int i = 0; i < instance->getClasses().size(); ++i) {
             //bool move = true;
@@ -194,9 +266,10 @@ void LocalSearch::Local() {
             //while (move) {
             //bool swamp = false;
             for (std::pair<Room, int> room: instance->getClasses()[i]->getPossibleRooms()) {
-                if ((cost = tryswampLectures(i, room.first.getId())) > 0) {
+                if ((cost = tryswampRoom(i, room.first.getId())) > 0) {
                     current[i]->setSolRoom(room.first.getId());
                     bigSwamp = true;
+                    std::cout << currentV << " " << cost << " " << (currentV - cost) << std::endl;
                     currentV -= cost;
                     if (old - cost == 0)
                         break;
@@ -219,6 +292,7 @@ void LocalSearch::Local() {
                                   instance->getClasses()[i]->getLectures()[time]->getStart(),
                                   instance->getClasses()[i]->getLectures()[time]->getLenght(),
                                   instance->getClasses()[i]->getLectures()[time]->getPenalty());
+                    std::cout << currentV << " " << cost << " " << (currentV - cost) << std::endl;
                     currentV -= cost;
                     bigSwamp = true;
                     if (old - cost == 0) {
@@ -234,8 +308,12 @@ void LocalSearch::Local() {
                                    current[i]->getSolStart(), current[i]->getLecture(),
                                    current[i]->getSolRoom())) > 0) {
                 for (std::pair<Room, int> room: instance->getClasses()[i]->getPossibleRooms()) {
-                    if ((cost = tryswampLectures(i, room.first.getId())) == old) {
+                    if ((cost = tryswampRoom(i, room.first.getId())) == old) {
                         current[i]->setSolRoom(room.first.getId());
+                        std::cout << currentV << " " << cost << " " << (currentV - cost) << std::endl;
+                        currentV -= cost;
+                        if (old - cost == 0)
+                            break;
                         for (int time = 0; time < instance->getClasses()[i]->getLectures().size(); ++time) {
                             if ((cost = tryswampLectures(i,
                                                          instance->getClasses()[i]->getLectures()[time]->getWeeks(),
@@ -249,15 +327,14 @@ void LocalSearch::Local() {
                                               instance->getClasses()[i]->getLectures()[time]->getStart(),
                                               instance->getClasses()[i]->getLectures()[time]->getLenght(),
                                               instance->getClasses()[i]->getLectures()[time]->getPenalty());
+                                std::cout << currentV << " " << cost << " " << (currentV - cost) << std::endl;
                                 currentV -= cost;
                                 if (old - cost == 0)
                                     break;
                             }
 
                         }
-                        currentV -= cost;
-                        if (old - cost == 0)
-                            break;
+
 
                     }
                 }
@@ -267,7 +344,7 @@ void LocalSearch::Local() {
             //  move = false;
 
             //}
-        }
+            //}
         if (!bigSwamp)
             bigmove = false;
     }
@@ -328,78 +405,108 @@ LocalSearch::isAllocable(int lectureID, std::string week, std::string day, int s
             }
 
         }
+    }
 
         for (int h = 0; h < instance->getClasses()[lectureID]->getHard().size(); ++h) {
             if (instance->getClasses()[lectureID]->getHard()[h]->getType()->getType() == SameAttendees) {
-                for (int i = 0; i < instance->getClasses()[lectureID]->getHard()[h]->getClasses().size(); ++i) {
-                    if (instance->getClasses()[lectureID]->getId() !=
-                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i]
-                        && current[instance->getClass(
-                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]
-                           != nullptr && current[instance->getClass(
-                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom() !=
-                                         -1) {
-                        if (start + duration + instance->getRoom(roomID).getTravel(current[instance->getClass(
-                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()) <=
-                            current[instance->getClass(
-                                    instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolStart()
-                            || current[instance->getClass(
-                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolStart() +
-                               current[instance->getClass(
-                                       instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getDuration() +
-                               instance->getRoom(current[instance->getClass(
-                                       instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()).getTravel(
-                                       roomID) <= start
-                               || stringcompare(week, current[instance->getClass(
-                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolWeek(),
-                                                instance->getNweek(), false) ==
-                                  0
-                               || stringcompare(day, current[instance->getClass(
-                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolDays(),
-                                                instance->getNdays(), false) ==
-                                  0) {
-                            /*std::cout<<
-                                    instance->getClasses()[lectureID]->getId()<<" "<<instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i]<<std::endl;
-                            std::cout<<current[instance->getClass(
+                if (roomID != -1) {
+                    for (int i = 0; i < instance->getClasses()[lectureID]->getHard()[h]->getClasses().size(); ++i) {
+                        if (instance->getClasses()[lectureID]->getId() !=
+                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i]
+                            && current[instance->getClass(
+                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]
+                               != nullptr && current[instance->getClass(
+                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom() !=
+                                             -1) {
+                            if (start + duration + instance->getRoom(roomID).getTravel(current[instance->getClass(
+                                    instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()) <=
+                                current[instance->getClass(
+                                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolStart()
+                                || current[instance->getClass(
                                     instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolStart() +
-                                       current[instance->getClass(
-                                               instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getDuration() +
-                                       instance->getRoom(current[instance->getClass(
-                                               instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()).getTravel(
-                                               roomID)<<" "<<start<<std::endl;
-                            std::cout<<start + duration + instance->getRoom(roomID).getTravel(current[instance->getClass(instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()) <<" "<<
-                                        current[instance->getClass(
-                                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolStart()<<std::endl;
-                            std::cout<< stringcompare(day, current[instance->getClass(
+                                   current[instance->getClass(
+                                           instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getDuration() +
+                                   instance->getRoom(current[instance->getClass(
+                                           instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()).getTravel(
+                                           roomID) <= start
+                                || stringcompare(week, current[instance->getClass(
+                                    instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolWeek(),
+                                                 instance->getNweek(), false) ==
+                                   0
+                                || stringcompare(day, current[instance->getClass(
                                     instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolDays(),
-                                                      instance->getNdays(), false) <<" OLD "<<current[instance->getClass(
-                                    instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolDays()<<" "<<day<<std::endl;*/
-                        } else {
-                            return INT_MAX;
+                                                 instance->getNdays(), false) ==
+                                   0) {
+                                /*std::cout<<
+                                        instance->getClasses()[lectureID]->getId()<<" "<<instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i]<<std::endl;
+                                std::cout<<current[instance->getClass(
+                                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolStart() +
+                                           current[instance->getClass(
+                                                   instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getDuration() +
+                                           instance->getRoom(current[instance->getClass(
+                                                   instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()).getTravel(
+                                                   roomID)<<" "<<start<<std::endl;
+                                std::cout<<start + duration + instance->getRoom(roomID).getTravel(current[instance->getClass(instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()) <<" "<<
+                                            current[instance->getClass(
+                                                    instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolStart()<<std::endl;
+                                std::cout<< stringcompare(day, current[instance->getClass(
+                                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolDays(),
+                                                          instance->getNdays(), false) <<" OLD "<<current[instance->getClass(
+                                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolDays()<<" "<<day<<std::endl;*/
+                            } else {
+                                return INT_MAX;
+                            }
                         }
                     }
                 }
             } else if (instance->getClasses()[lectureID]->getHard()[h]->getType()->getType() == SameRoom) {
-                for (int i = 0; i < instance->getClasses()[lectureID]->getHard()[h]->getClasses().size(); ++i) {
-                    if (instance->getClasses()[lectureID]->getId() !=
-                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i]
-                        && current[instance->getClass(
-                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]
-                           != nullptr && current[instance->getClass(
-                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom() !=
-                                         -1) {
-                        /*std::cout << instance->getClasses()[lectureID]->getId() << " " << roomID << " "
-                                  << current[instance->getClass(
-                                          instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()
-                                  << " " << instance->getClass(
-                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()
-                                  << std::endl;*/
-                        if (roomID != current[instance->getClass(
-                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()) {
-                            return INT_MAX;
+                if (roomID != -1) {
+                    for (int i = 0; i < instance->getClasses()[lectureID]->getHard()[h]->getClasses().size(); ++i) {
+                        if (instance->getClasses()[lectureID]->getId() !=
+                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i]
+                            && current[instance->getClass(
+                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]
+                               != nullptr && current[instance->getClass(
+                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom() !=
+                                             -1) {
+                            /*std::cout << instance->getClasses()[lectureID]->getId() << " " << roomID << " "
+                                      << current[instance->getClass(
+                                              instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()
+                                      << " " << instance->getClass(
+                                    instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()
+                                      << std::endl;*/
+                            if (roomID != current[instance->getClass(
+                                    instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()) {
+                                return INT_MAX;
+                            }
                         }
-                    }
 
+                    }
+                }
+
+            } else if (instance->getClasses()[lectureID]->getHard()[h]->getType()->getType() == DifferentRoom) {
+                if (roomID != -1) {
+                    for (int i = 0; i < instance->getClasses()[lectureID]->getHard()[h]->getClasses().size(); ++i) {
+                        if (instance->getClasses()[lectureID]->getId() !=
+                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i]
+                            && current[instance->getClass(
+                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]
+                               != nullptr && current[instance->getClass(
+                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom() !=
+                                             -1) {
+                            /*std::cout << instance->getClasses()[lectureID]->getId() << " " << roomID << " "
+                                      << current[instance->getClass(
+                                              instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()
+                                      << " " << instance->getClass(
+                                    instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()
+                                      << std::endl;*/
+                            if (roomID == current[instance->getClass(
+                                    instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()) {
+                                return INT_MAX;
+                            }
+                        }
+
+                    }
                 }
 
             } else if (instance->getClasses()[lectureID]->getHard()[h]->getType()->getType() == NotOverlap) {
@@ -408,9 +515,7 @@ LocalSearch::isAllocable(int lectureID, std::string week, std::string day, int s
                         instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i]
                         && current[instance->getClass(
                             instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]
-                           != nullptr && current[instance->getClass(
-                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom() !=
-                                         -1) {
+                           != nullptr) {
                         if (start + duration <=
                             current[instance->getClass(
                                     instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolStart()
@@ -439,9 +544,7 @@ LocalSearch::isAllocable(int lectureID, std::string week, std::string day, int s
                         instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i]
                         && current[instance->getClass(
                             instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]
-                           != nullptr && current[instance->getClass(
-                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom() !=
-                                         -1) {
+                           != nullptr) {
                         if (start < (current[instance->getClass(
                                 instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolStart() +
                                      current[instance->getClass(
@@ -468,9 +571,7 @@ LocalSearch::isAllocable(int lectureID, std::string week, std::string day, int s
                         instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i]
                         && current[instance->getClass(
                             instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]
-                           != nullptr && current[instance->getClass(
-                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom() !=
-                                         -1) {
+                           != nullptr) {
                         if (start != current[instance->getClass(
                                 instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolStart())
                             return INT_MAX;
@@ -482,9 +583,7 @@ LocalSearch::isAllocable(int lectureID, std::string week, std::string day, int s
                         instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i]
                         && current[instance->getClass(
                             instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]
-                           != nullptr && current[instance->getClass(
-                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom() !=
-                                         -1) {
+                           != nullptr) {
                         if (start <= current[instance->getClass(
                                 instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolStart()
                             && start + duration <= current[instance->getClass(
@@ -511,9 +610,7 @@ LocalSearch::isAllocable(int lectureID, std::string week, std::string day, int s
                         instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i]
                         && current[instance->getClass(
                             instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]
-                           != nullptr && current[instance->getClass(
-                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom() !=
-                                         -1) {
+                           != nullptr) {
                         if (current[instance->getClass(
                                 instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolStart() +
                             current[instance->getClass(
@@ -532,9 +629,7 @@ LocalSearch::isAllocable(int lectureID, std::string week, std::string day, int s
                         instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i]
                         && current[instance->getClass(
                             instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]
-                           != nullptr && current[instance->getClass(
-                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom() !=
-                                         -1) {
+                           != nullptr) {
                         if (stringcompare(week, current[instance->getClass(
                                 instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolWeek(),
                                           instance->getNweek(), true) ==
@@ -549,9 +644,7 @@ LocalSearch::isAllocable(int lectureID, std::string week, std::string day, int s
                         instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i]
                         && current[instance->getClass(
                             instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]
-                           != nullptr && current[instance->getClass(
-                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom() !=
-                                         -1) {
+                           != nullptr) {
                         if (stringcompare(week, current[instance->getClass(
                                 instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolWeek(),
                                           instance->getNweek(),
@@ -567,9 +660,7 @@ LocalSearch::isAllocable(int lectureID, std::string week, std::string day, int s
                         instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i]
                         && current[instance->getClass(
                             instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]
-                           != nullptr && current[instance->getClass(
-                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom() !=
-                                         -1) {
+                           != nullptr) {
                         if (stringcompare(day, current[instance->getClass(
                                 instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolDays(),
                                           instance->getNdays(),
@@ -585,9 +676,7 @@ LocalSearch::isAllocable(int lectureID, std::string week, std::string day, int s
                         instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i]
                         && current[instance->getClass(
                             instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]
-                           != nullptr && current[instance->getClass(
-                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom() !=
-                                         -1) {
+                           != nullptr) {
                         if (stringcompare(day, current[instance->getClass(
                                 instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolDays(),
                                           instance->getNdays(), true) ==
@@ -596,18 +685,178 @@ LocalSearch::isAllocable(int lectureID, std::string week, std::string day, int s
                             return INT_MAX;
                     }
                 }
+            } else if (instance->getClasses()[lectureID]->getHard()[h]->getType()->getType() == Precedence) {
+                for (int i = 0; i < instance->getClasses()[lectureID]->getHard()[h]->getClasses().size(); ++i) {
+                    if (instance->getClasses()[lectureID]->getId() ==
+                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i]) {
+                        if (i > 0) {
+                            if (current[instance->getClass(
+                                    instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i - 1])->getOrderID()]
+                                != nullptr) {
+                                if (isFirst(week, current[instance->getClass(
+                                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i -
+                                                                                                      1])->getOrderID()]->getSolWeek(),
+                                            instance->getNweek()) == -1)
+                                    return INT_MAX;
+                                else if (isFirst(week, current[instance->getClass(
+                                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i -
+                                                                                                      1])->getOrderID()]->getSolWeek(),
+                                                 instance->getNdays()) == 0 && isFirst(day, current[instance->getClass(
+                                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i -
+                                                                                                      1])->getOrderID()]->getSolDays(),
+                                                                                       instance->getNdays()) == -1)
+                                    return INT_MAX;
+                                else if (isFirst(week, current[instance->getClass(
+                                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i -
+                                                                                                      1])->getOrderID()]->getSolWeek(),
+                                                 instance->getNdays()) == 0 && isFirst(day, current[instance->getClass(
+                                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i -
+                                                                                                      1])->getOrderID()]->getSolDays(),
+                                                                                       instance->getNdays()) == 0 &&
+                                         current[instance->getClass(
+                                                 instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i -
+                                                                                                               1])->getOrderID()]->getSolStart() +
+                                         current[instance->getClass(
+                                                 instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i -
+                                                                                                               1])->getOrderID()]->getDuration() >
+                                         start)
+                                    return INT_MAX;
+
+                            }
+                        } else if (i < instance->getClasses()[lectureID]->getHard()[h]->getClasses().size()) {
+                            if (current[instance->getClass(
+                                    instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i + 1])->getOrderID()]
+                                != nullptr) {
+                                if (isFirst(current[instance->getClass(
+                                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i +
+                                                                                                      1])->getOrderID()]->getSolWeek(),
+                                            week,
+                                            instance->getNweek()) == -1)
+                                    return INT_MAX;
+                                else if (isFirst(current[instance->getClass(
+                                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i +
+                                                                                                      1])->getOrderID()]->getSolWeek(),
+                                                 week,
+                                                 instance->getNweek()) == 0 && isFirst(current[instance->getClass(
+                                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i +
+                                                                                                      1])->getOrderID()]->getSolDays(),
+                                                                                       day,
+                                                                                       instance->getNdays()) == -1)
+                                    return INT_MAX;
+                                else if (isFirst(current[instance->getClass(
+                                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i +
+                                                                                                      1])->getOrderID()]->getSolWeek(),
+                                                 week,
+                                                 instance->getNweek()) == 0 && isFirst(current[instance->getClass(
+                                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i +
+                                                                                                      1])->getOrderID()]->getSolDays(),
+                                                                                       day,
+                                                                                       instance->getNdays()) == 0 &&
+                                         start + duration > current[instance->getClass(
+                                                 instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i +
+                                                                                                               1])->getOrderID()]->getSolStart())
+                                    return INT_MAX;
+
+                            }
+                        }
+                    }
+                }
+            } else if (instance->getClasses()[lectureID]->getHard()[h]->getType()->getType() == WorkDay) {
+                for (int i = 0; i < instance->getClasses()[lectureID]->getHard()[h]->getClasses().size(); ++i) {
+                    if (instance->getClasses()[lectureID]->getId() !=
+                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i] && current[instance->getClass(
+                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]
+                                                                                            != nullptr) {
+                        if (stringcompare(week, current[instance->getClass(
+                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolWeek(),
+                                          instance->getNweek(), false) ==
+                            0 || stringcompare(day, current[instance->getClass(
+                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolDays(),
+                                               instance->getNdays(), false) ==
+                                 0);
+                        else if (std::max(start + duration, current[instance->getClass(
+                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolStart() +
+                                                            current[instance->getClass(
+                                                                    instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getDuration()) -
+                                 std::min(start, current[instance->getClass(
+                                         instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolStart()) >
+                                 instance->getClasses()[lectureID]->getHard()[h]->getType()->getLimit())
+                            return INT_MAX;
+
+                    }
+                }
+            } else if (instance->getClasses()[lectureID]->getHard()[h]->getType()->getType() == MinGap) {
+                for (int i = 0; i < instance->getClasses()[lectureID]->getHard()[h]->getClasses().size(); ++i) {
+                    if (instance->getClasses()[lectureID]->getId() !=
+                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i] && current[instance->getClass(
+                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]
+                                                                                            != nullptr) {
+                        if (stringcompare(week, current[instance->getClass(
+                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolWeek(),
+                                          instance->getNweek(), false) ==
+                            0 || stringcompare(day, current[instance->getClass(
+                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolDays(),
+                                               instance->getNdays(), false) ==
+                                 0 ||
+                            start + duration + instance->getClasses()[lectureID]->getHard()[h]->getType()->getLimit() <=
+                            current[instance->getClass(
+                                    instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolStart() ||
+                            current[instance->getClass(
+                                    instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolStart() +
+                            current[instance->getClass(
+                                    instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getDuration() +
+                            instance->getClasses()[lectureID]->getHard()[h]->getType()->getLimit() <= start);
+                        else
+                            return INT_MAX;
+
+                    }
+                }
+            } else if (instance->getClasses()[lectureID]->getHard()[h]->getType()->getType() == MaxDays) {
+                int d = 0;
+                for (int i = 0; i < instance->getNdays(); ++i) {
+                    if (day[i] == '1')
+                        d++;
+                }
+                if (d > instance->getClasses()[lectureID]->getHard()[h]->getType()->getLimit())
+                    return INT_MAX;
+            } else if (instance->getClasses()[lectureID]->getHard()[h]->getType()->getType() == MaxDayLoad) {
+                for (int i = 0; i < instance->getClasses()[lectureID]->getHard()[h]->getClasses().size(); ++i) {
+                    if (instance->getClasses()[lectureID]->getId() !=
+                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i] && current[instance->getClass(
+                            instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]
+                                                                                            != nullptr) {
+                        for (int w = 0; w < instance->getNweek(); ++w) {
+                            for (int d = 0; d < instance->getNdays(); ++d) {
+
+
+                            }
+
+                        }
+
+                    }
+                }
+
             }
+
         }
         //cost += instance->getClasses()[lectureID]->getPossibleRoomCost(roomID);
 
-    }
+
 
 
     return 0;
 }
 
-bool LocalSearch::isFirst(std::string s1, std::string s2, int size) {
-
+int LocalSearch::isFirst(std::string s1, std::string s2, int size) {
+    for (int i = 0; i < size; ++i) {
+        if (s1[i] == '0' && s2[i] == '1')
+            return 1;
+        if (s1[i] == '1' && s2[i] == '0')
+            return -1;
+        if (s1[i] == '1' && s2[i] == '1')
+            return 0;
+    }
+    return 0;
 }
 
 bool LocalSearch::stringcompare(std::string s1, std::string s2, int size, bool orAND) {
@@ -671,8 +920,11 @@ int LocalSearch::tryswampLectures(int id, const std::string &week, std::string &
 
 void
 LocalSearch::swampLectures(int id, const std::string &week, std::string &day, int start, int le, int pen) {
-    Solution *s = new Solution(id, start, current[id]->getSolRoom(), week, day, le, pen,
-                               instance->getClasses()[id]->getPossibleRoomCost(current[id]->getSolRoom()));
+    int i = -1;
+    if (current[id]->getSolRoom() != -1)
+        i = instance->getClasses()[id]->getPossibleRoomCost(current[id]->getSolRoom());
+
+    Solution *s = new Solution(id, start, current[id]->getSolRoom(), week, day, le, pen, i);
     current[id] = s;
     //std::cout<<instance->getClasses()[id]->getId()<<" "<<*current[id]<<std::endl;
 }
@@ -708,10 +960,15 @@ LocalSearch::LocalSearch(Instance *pInstance) : instance(pInstance) {
 
 }
 
-int LocalSearch::tryswampLectures(int lecture, int roomID) {
-    int old = isAllocable(lecture, current[lecture]->getSolWeek(), current[lecture]->getSolDays(),
+int LocalSearch::tryswampRoom(int lecture, int roomID) {
+    int old;
+    if (current[lecture]->getSolRoom() != -1)
+        old = isAllocable(lecture, current[lecture]->getSolWeek(), current[lecture]->getSolDays(),
                           current[lecture]->getSolStart(), current[lecture]->getLecture(),
-                          current[lecture]->getSolRoom()), newV = isAllocable(lecture,
+                          current[lecture]->getSolRoom());
+    else
+        old = INT_MAX;
+    int newV = isAllocable(lecture,
                                                                               current[lecture]->getSolWeek(),
                                                                               current[lecture]->getSolDays(),
                                                                               current[lecture]->getSolStart(),
@@ -723,4 +980,18 @@ int LocalSearch::tryswampLectures(int lecture, int roomID) {
     old += instance->getTimePen()*current[lecture]->penTime();*/
     //std::cout << old << " " << newV << " " << (old - newV) << std::endl;
     return old - newV;
+}
+
+int LocalSearch::stuCost(Class *c, Student s) {
+    if (c->getParent() != nullptr) {
+        if (stu[s.getId() - 1][c->getOrderID()] == 1)
+            return -1;
+    }
+    int limit = 0;
+    for (int i = 0; i < instance->getStudent().size(); ++i) {
+        limit += stu[i][c->getOrderID()];
+    }
+    if (c->getLimit() < limit)
+        return -1;
+
 }

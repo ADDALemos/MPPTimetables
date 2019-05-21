@@ -64,13 +64,14 @@ int main(int argc, char **argv) {
 
     if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
     Instance *instance = readInputXML(argv[1]);
+    printProblemStats(instance);
 
     if (!quiet) std::cout << getTimeSpent() << std::endl;
     //if (!quiet) std::cout << "Compacting " << std::endl;
     //instance->compact();
     if (!quiet) std::cout << getTimeSpent() << std::endl;
 
-    auto *s = new LocalSearch(1, .6, instance, 600);
+    auto *s = new LocalSearch(20, .6, instance, 36600);
     s->GRASP();
     if (!quiet) std::cout << "Solution Found: Writing output file" << std::endl;
     writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + ".xml",

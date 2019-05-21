@@ -26,6 +26,10 @@ void printProblemStats(Instance *instance) {
     std::cout << "Number of Rooms: " << instance->getNumRoom() << std::endl;
     std::cout << "Average Capacity by Room: " << instance->getAvCapacity() << std::endl;
     std::cout << "Standard Deviation Capacity by Room: " << instance->getSTDCapacity() << std::endl;
+    std::cout << "Time option per Class: " << instance->timePerClass() << std::endl;
+    std::cout << "Room option per Class: " << instance->roomPerClass() << std::endl;
+
+
 }
 
 void printStats(Instance *instance) {
