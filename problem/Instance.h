@@ -258,6 +258,7 @@ public:
             if (classes[j]->getId() == i)
                 return classes[j];
         }
+        return nullptr;
     }
 
     unsigned int computeNumClasses() {

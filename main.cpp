@@ -26,6 +26,8 @@
 #include "solver/MixedModelGurobiExecuter.h"
 #include "solver/LocalSearch.h"
 #include "solver/LocalSearchMultiShot.h"
+#include "solver/LocalSearchMultiShotRoom.h"
+
 
 
 
@@ -71,7 +73,7 @@ int main(int argc, char **argv) {
     //instance->compact();
     if (!quiet) std::cout << getTimeSpent() << std::endl;
 
-    auto *s = new LocalSearch(20, .6, instance, 36600);
+    auto *s = new LocalSearch(1, .6, instance, 36600);
     s->GRASP();
     if (!quiet) std::cout << "Solution Found: Writing output file" << std::endl;
     writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + ".xml",

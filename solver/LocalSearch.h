@@ -82,7 +82,7 @@ protected:
 
     virtual int checkUpdate(int maxCost, int id, int time, const std::pair<Room, int> &room);
 
-    virtual int checkUpdate(int maxCost, int id, int time) {};
+    virtual int checkUpdate(int maxCost, int id, int time) { return 0; };
 
 
     virtual int tryswampRoom(int lecture, int roomID);
