@@ -26,18 +26,18 @@ protected:
 
 public:
 
-    virtual void definedRoomLecture()= 0;
+    virtual void definedRoomLecture() {}
 
 
-    virtual void definedLectureTime()= 0;
+    virtual void definedLectureTime() {}
 
-    virtual void definedAuxVar()= 0;
+    virtual void definedAuxVar() {}
 
     /**
      * The lecture can only be scheduled in one slot
      */
 
-    virtual void oneLectureperSlot()= 0;
+    virtual void oneLectureperSlot() {}
 
 
     /**
@@ -45,60 +45,60 @@ public:
      */
 
 
-    virtual void oneLectureSlot()= 0;
+    virtual void oneLectureSlot() {}
 
     /**
      * A lecture can only be in one room at time
      */
 
-    virtual void oneLectureRoom()= 0;
+    virtual void oneLectureRoom() {}
 
     /**
      * Ensure room r is used to lecture l
      */
-    virtual void roomPreference(int r, int l)= 0;
+    virtual void roomPreference(int r, int l) {}
 
     /***
      * The room can only have one lecture per slot
      */
 
-    virtual void oneLectureRoomConflict()= 0;
+    virtual void oneLectureRoomConflict() {}
 
     /**
     * Ensure Room closed cannot be used
     */
-    virtual void roomClose()= 0;
+    virtual void roomClose() {}
 
     /**
     * Ensure Room closed in a day cannot be used
     */
-    virtual void roomClosebyDay()= 0;
+    virtual void roomClosebyDay() {}
 
 
     /**
     * Ensure times lot in a day is closed cannot be used
     */
-    virtual void slotClose()= 0;
+    virtual void slotClose() {}
 
     /**
      * One assignment, is invalid and needs to be assigned
      * to a different room or to a different time slot
      */
-    virtual void assignmentInvalid()= 0;
+    virtual void assignmentInvalid() {}
 
     /**Teacher's conflict*/
-    virtual void teacher()= 0;
+    virtual void teacher() {}
 
 
     /** Student conflicts hard constraint based on the input model
      *
      */
-    virtual void studentConflict()= 0;
+    virtual void studentConflict() {}
 
     /** Student conflicts hard constraint based on the original solution
      *
      */
-    virtual void studentConflictSolution()= 0;
+    virtual void studentConflictSolution() {}
 
     void loadOutput() {
         for (int j = 0; j < instance->getSlotsperday(); j++) {
@@ -135,9 +135,9 @@ public:
     }
 
 
-    virtual void saveEncoding()= 0;
+    virtual void saveEncoding() {}
 
-    virtual void loadPreviousWeekSolution(int ***time, int **room)=0;
+    virtual void loadPreviousWeekSolution(int ***time, int **room) {}
 
 
     /**
@@ -146,23 +146,23 @@ public:
      * For slack cosntraint use slackStudent()
      * @param students
      */
-    virtual void constraintSeatedStudents(double students)= 0;
+    virtual void constraintSeatedStudents(double students) {}
 
-    virtual void optimizeRoomUsage()= 0;
+    virtual void optimizeRoomUsage() {}
 
-    virtual void optimizeSeatedStudents()= 0;
+    virtual void optimizeSeatedStudents() {}
 
 
-    virtual void optimizeGapStudentsTimetable()= 0;
+    virtual void optimizeGapStudentsTimetable() {}
 
-    virtual double run(bool mpp)= 0;
+    virtual double run(bool mpp) {}
 
     /**
      * Create a hard constraint on the number of studnets seated.
      * Can be controled by the value of slack of each instance
      */
 
-    virtual void slackStudent()= 0;
+    virtual void slackStudent() {}
 
     Instance *getInstance() const {
         return instance;
@@ -173,7 +173,7 @@ public:
     }
 
 
-    virtual void distanceToSolution(bool w)= 0;
+    virtual void distanceToSolution(bool w) {}
 
     /**
      * Minimization statement distance solutions
@@ -183,15 +183,15 @@ public:
      * @param weighted
      */
 
-    virtual void distanceToSolution(int **oldRoom, int ***oldTime, bool weighted)= 0;
+    virtual void distanceToSolution(int **oldRoom, int ***oldTime, bool weighted) {}
 
     /**
      * Minimization statement distance between solutions: Number of students seated
      */
-    virtual void minimizeDifferenceSeatedStudents()= 0;
+    virtual void minimizeDifferenceSeatedStudents() {}
 
 
-    virtual void cuts()=0;
+    virtual void cuts() {}
 
     virtual bool run2019(bool warm) {
         return false;
