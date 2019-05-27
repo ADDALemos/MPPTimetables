@@ -22,7 +22,7 @@ class Solution {
 
 public:
     friend std::ostream &operator<<(std::ostream &os, const Solution &s) {
-        os << " start: " << s.start << " duration: " << s.duration
+        os << " id " << s.lecture << " start: " << s.start << " duration: " << s.duration
            << " days: " << s.days << " week: " << s.week << " room: " << s.roomID
            << " penaltyTime: " << s.penaltyTime << " penaltyRoom: " << s.penaltyRoom;
         return os;

@@ -33,7 +33,7 @@ protected:
     bool **stuSub;
     int sizeRCLS;
     int totalNassigment;
-    bool b = false;
+    bool isRoomProblem = false;
 
 public:
     LocalSearch(int MAX_ITERATIONS, double rcl, Instance *instance, int seconds);
@@ -94,6 +94,10 @@ protected:
     int stuCost(Class *c, Student s);
 
     void greedyStu();
+
+    void removeElement();
+
+    bool stringcontains(std::string s1, std::string s2, int size);
 };
 
 

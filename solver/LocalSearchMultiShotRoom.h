@@ -72,13 +72,17 @@ protected:
                 int co = 0;
                 while ((co = assign(tabu[l])) == -1) {
                     l = distribution(generator);
+                    std::cout << "while" << std::endl;
                 }
+                std::cout << "while-out" << std::endl;
+
                 if (co != -1) {
                     allocation++;
                     currentV += co;
 
                 } else {
                     std::cerr << "There " << getTimeSpent() << std::endl;
+                    break;
                 }
 
 

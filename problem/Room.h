@@ -13,7 +13,7 @@
 
 class Room {
 private:
-    int id;
+    int id = -1;
     std::string name;
     std::string type;
     int capacity;

@@ -336,6 +336,16 @@ public:
         return possibleRooms;
     }
 
+    std::pair<Room, int> getPossibleRoomPair(int v) {
+        int i = 0;
+        for (std::pair<Room, int> r: getPossibleRooms()) {
+            if (i == v)
+                return r;
+            i++;
+        }
+        throw std::out_of_range("possibleRooms::at: key not found");
+    }
+
     int getPen(Room r) {
         return possibleRooms[r];
     }
@@ -389,6 +399,10 @@ public:
     void setSolution(Solution* s) {
         sol = s;
 
+    }
+
+    Solution *getSolution() {
+        return sol;
     }
 
     void addHard(distribution *pDistribution) {

@@ -24,6 +24,7 @@
 #include "solver/BinaryModelGurobiExecuter.h"
 #include "solver/IntegerModelGurobiExecuter.h"
 #include "solver/MixedModelGurobiExecuter.h"
+#include "solver/MIXEDCplexExecuter.h"
 #include "solver/LocalSearch.h"
 #include "solver/LocalSearchMultiShot.h"
 #include "solver/LocalSearchMultiShotRoom.h"
@@ -69,11 +70,21 @@ int main(int argc, char **argv) {
     printProblemStats(instance);
 
     if (!quiet) std::cout << getTimeSpent() << std::endl;
-    //if (!quiet) std::cout << "Compacting " << std::endl;
-    //instance->compact();
-    if (!quiet) std::cout << getTimeSpent() << std::endl;
+    /*if (!quiet) std::cout << "Compacting " << std::endl;
+    instance->compact();
+    MIXEDCplexExecuter m = MIXEDCplexExecuter();
+    m.setInstance(instance);
+    m.run(false);
+    std::exit(0);
 
-    auto *s = new LocalSearch(1, .6, instance, 36600);
+
+
+
+    if (!quiet) std::cout << getTimeSpent() << std::endl;
+    ILPExecuter*         runner = new MixedModelGurobiExecuter((bool) std::stoi(argv[6]), (bool) std::stoi(argv[7]), instance);
+    genSingleShot(instance, runner, argv[4]);
+             std::exit(42);  */
+    auto *s = new LocalSearch(2, .6, instance, 7200);
     s->GRASP();
     if (!quiet) std::cout << "Solution Found: Writing output file" << std::endl;
     writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + ".xml",
@@ -207,8 +218,9 @@ void genSingleShot(Instance *instance, ILPExecuter *runner, char *string) {
         }
     }
     if (!quiet) std::cout << "Execute" << std::endl;
-    runner->run2019(warm);
-    runner->save();
+    runner->saveEncoding();
+    //runner->run2019(warm);
+    //runner->save();
 
 
 }
@@ -654,7 +666,10 @@ Instance *readInputXML(std::string filename) {
                 for (const xml_attribute<> *a = sub->first_attribute(); a; a = a->next_attribute()) {
                     if (strcmp(a->name(), "required") == 0) {
                         isReq = (strcmp(a->value(), "true") == 0);
+                    } else if (strcmp(a->name(), "penalty") == 0) {
+                        penalty = atoi(a->value());
                     } else if (strcmp(a->name(), "type") == 0) {
+
                         type = a->value();
                         long size;
                         std::string rest;
