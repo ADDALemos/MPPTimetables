@@ -28,6 +28,8 @@
 #include "solver/LocalSearch.h"
 #include "solver/LocalSearchMultiShot.h"
 #include "solver/LocalSearchMultiShotRoom.h"
+#include "solver/LSDivided.h"
+
 
 
 
@@ -66,7 +68,7 @@ int main(int argc, char **argv) {
 
 
     if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
-    Instance *instance = readInputXML(argv[1]);
+    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/muni-fsps-spr17.xml");
     printProblemStats(instance);
 
     if (!quiet) std::cout << getTimeSpent() << std::endl;
@@ -76,18 +78,16 @@ int main(int argc, char **argv) {
     m.setInstance(instance);
     m.run(false);
     std::exit(0);
-
-
-
-
     if (!quiet) std::cout << getTimeSpent() << std::endl;
     ILPExecuter*         runner = new MixedModelGurobiExecuter((bool) std::stoi(argv[6]), (bool) std::stoi(argv[7]), instance);
     genSingleShot(instance, runner, argv[4]);
              std::exit(42);  */
-    auto *s = new LocalSearch(2, .6, instance, 7200);
+
+    auto *s = new LocalSearch(4, .6, instance, 3600);
     s->GRASP();
     if (!quiet) std::cout << "Solution Found: Writing output file" << std::endl;
-    writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + ".xml",
+    writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() +
+                   ".xml",
                    instance, getTimeSpent());
     std::exit(0);
 

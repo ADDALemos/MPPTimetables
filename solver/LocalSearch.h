@@ -6,6 +6,8 @@
 #define TIMETABLER_GRASP_H
 
 
+static const int sizeWindow = 2;
+
 #include <fstream>
 #include "../problem/Instance.h"
 #include <climits>
@@ -13,6 +15,7 @@
 #include <random>
 #include <chrono>
 #include <ostream>
+#include "LSDivided.h"
 #include <algorithm>
 
 extern void printTime();
@@ -21,7 +24,9 @@ extern double getTimeSpent();
 class LocalSearch {
 protected:
     int MAX_ITERATIONS = 5;
+    LSDivided *lsDivided;
     int time;
+    int alreadyDone = 0;
     Instance *instance;
     std::vector<Solution*> tabu;
     unsigned long long int best = ULLONG_MAX;
@@ -33,6 +38,7 @@ protected:
     bool **stuSub;
     int sizeRCLS;
     int totalNassigment;
+    std::vector<int> problems;
     bool isRoomProblem = false;
 
 public:
@@ -47,6 +53,10 @@ public:
 protected:
 
     virtual void init();
+
+    void tryMove(int i, int i1);
+
+    std::vector<Solution *> findPossibleMove(int i);
 
     virtual bool eval();
 
@@ -98,6 +108,12 @@ protected:
     void removeElement();
 
     bool stringcontains(std::string s1, std::string s2, int size);
+
+    void conflict(int lecture);
+
+    bool assignable(int id, int pInt[]);
+
+    void Greedy1();
 };
 
 
