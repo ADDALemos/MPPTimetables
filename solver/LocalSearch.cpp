@@ -15,6 +15,64 @@ void LocalSearch::LNS() {
 }
 
 
+void LocalSearch::allRandom() {
+    int a = 0;
+    while (a < instance->getClasses().size()) {
+        std::default_random_engine generatorC(seedHandler());
+        std::uniform_int_distribution<int> distributionC(0,
+                                                         instance->getClasses().size() -
+                                                         1);
+        int c = distributionC(generatorC);
+        std::default_random_engine generatorR(seedHandler());
+        std::uniform_int_distribution<int> distributionR(0,
+                                                         instance->getClasses()[c]->getPossibleRooms().size() -
+                                                         1);
+        std::default_random_engine generatorT(seedHandler());
+        std::uniform_int_distribution<int> distributionT(0,
+                                                         instance->getClasses()[c]->getLectures().size() -
+                                                         1);
+        int t = distributionT(generatorT);
+        int r =
+                distributionR(generatorR);
+        if (instance->getClasses()[c]->getPossibleRooms().size() > 0) {
+            if (isAllocable(c,
+                            instance->getClasses()[c]->getLectures()[t]->getWeeks(),
+                            instance->getClasses()[c]->getLectures()[t]->getDays(),
+                            instance->getClasses()[c]->getLectures()[t]->getStart(),
+                            instance->getClasses()[c]->getLectures()[t]->getLenght(),
+                            instance->getClasses()[c]->getPossibleRoomPair(
+                                    r).first.getId()) == 0) {
+                current[c] = new Solution(c, instance->getClasses()[c]->getLectures()[t]->getStart(),
+                                          instance->getClasses()[c]->getPossibleRoomPair(
+                                                  r).first.getId(),
+                                          instance->getClasses()[c]->getLectures()[t]->getWeeks(),
+                                          instance->getClasses()[c]->getLectures()[t]->getDays(),
+                                          instance->getClasses()[c]->getLectures()[t]->getLenght(), 0, 0);
+            }
+        } else {
+            if (isAllocable(c,
+                            instance->getClasses()[c]->getLectures()[t]->getWeeks(),
+                            instance->getClasses()[c]->getLectures()[t]->getDays(),
+                            instance->getClasses()[c]->getLectures()[t]->getStart(),
+                            instance->getClasses()[c]->getLectures()[t]->getLenght(),
+                            -1) == 0) {
+                current[c] = new Solution(c, instance->getClasses()[c]->getLectures()[t]->getStart(),
+                                          -1,
+                                          instance->getClasses()[c]->getLectures()[t]->getWeeks(),
+                                          instance->getClasses()[c]->getLectures()[t]->getDays(),
+                                          instance->getClasses()[c]->getLectures()[t]->getLenght(), 0, 0);
+            } else {
+                currentV += INT_MAX;
+            }
+        }
+        a++;
+    }
+
+
+}
+
+
+
 void LocalSearch::GRASP() {
     lsDivided = new LSDivided(instance, false);
     lsDivided->init();
@@ -22,15 +80,17 @@ void LocalSearch::GRASP() {
     printTime();
     for (int i = 0; i < MAX_ITERATIONS && getTimeSpent() <= time; i++) {
         init();
-        printTime();
         Greedy();
         Greedy1();
+        store();
+        printStatus(i);
+        Local1();
+        //allRandom();
+        store();
+        printStatus(i);
         printTime();
-        store();
-        printStatus(i);
-        Local();
-        store();
-        printStatus(i);
+
+
 
     }
     printFinal();
@@ -80,7 +140,7 @@ void LocalSearch::init() {
     currentV = 0;
     tabu.clear();
 }
-
+//remove all
 
 void LocalSearch::store() {
     if (eval()) {
@@ -117,11 +177,13 @@ void LocalSearch::Greedy1() {
     while ((instance->getClasses().size() - alreadyDone) != allocation) {
 
         int maxCost = INT_MAX;
+        bool maxCostB = false;
         for (int part = 0; part < lsDivided->div.size(); part++) {
             for (std::set<int>::iterator it = lsDivided->div[part].begin(); it != lsDivided->div[part].end(); ++it) {
                 int i = instance->getClass(*it)->getOrderID();
                 if ((instance->getClasses()[i]->getPossibleRooms().size() +
                      instance->getClasses()[i]->getLectures().size()) > sizeWindow) {
+                    maxCostB = true;
                     if (current[instance->getClasses()[i]->getOrderID()] == nullptr) {
                         if (instance->getClasses()[i]->getPossibleRooms().size() > 0) {
                             std::default_random_engine generatorR(seedHandler());
@@ -162,6 +224,10 @@ void LocalSearch::Greedy1() {
                         }
                     }
                 }
+            }
+            if (!maxCostB) {
+                maxCost--;
+                maxCostB = false;
             }
 
 
@@ -306,6 +372,8 @@ void LocalSearch::Greedy() {
         for (int part = 0; part < lsDivided->div.size(); part++) {
             for (std::set<int>::iterator it = lsDivided->div[part].begin(); it != lsDivided->div[part].end(); ++it) {
                 int i = instance->getClass(*it)->getOrderID();
+                if (maxCons < instance->getClasses()[i]->getHard().size())
+                    maxCost = instance->getClasses()[i]->getHard().size();
                 if ((instance->getClasses()[i]->getPossibleRooms().size() +
                      instance->getClasses()[i]->getLectures().size()) == wind) {
                     futureAlloc++;
@@ -569,7 +637,7 @@ int LocalSearch::checkUpdate(int maxCost, int id, int time, const std::pair<Room
 }
 
 
-void LocalSearch::Local() {
+void LocalSearch::Local1() {
 
     int cost = 0;
     int old = 0;
@@ -604,6 +672,7 @@ void LocalSearch::Local() {
                                         current[instance->getClass(
                                                 instance->getClasses()[i]->getHard()[j]->getClasses()[k])->getOrderID()] = sp2;
                                         currentV -= INT_MAX;
+                                        //bigSwamp=true;
                                         break;
                                     }
                                 }
@@ -661,6 +730,170 @@ void LocalSearch::Local() {
 
 }
 
+void LocalSearch::Local2() {
+    std::vector<int> remo1;
+    std::vector<Solution *> oldSol;
+
+    for (int i = 0; i < instance->getClasses().size(); ++i) {
+        if (current[instance->getClasses()[i]->getOrderID()] == nullptr) {
+            for (int l = 0; l < this->instance->getClasses()[i]->getPossibleRooms().size(); ++l) {
+                for (int m = 0; m < this->instance->getClasses()[i]->getLectures().size(); ++m) {
+                    int remo = 0;
+                    while ((remo = isAllocable(i, instance->getClasses()[i]->getLectures()[l]->getWeeks(),
+                                               instance->getClasses()[i]->getLectures()[l]->getDays(),
+                                               instance->getClasses()[i]->getLectures()[l]->getStart(),
+                                               instance->getClasses()[i]->getLectures()[l]->getLenght(),
+                                               instance->getClasses()[i]->getPossibleRoomPair(l).first.getId())) !=
+                           0) {
+                        remo1.push_back(remo);
+                        oldSol.push_back(current[instance->getClasses()[remo]->getOrderID()]);
+                        current[instance->getClasses()[remo]->getOrderID()] = nullptr;
+                    }
+                }
+            }
+
+        }
+    }
+    int maxCost = INT_MAX;
+    for (int j = 0; j < remo1.size(); ++j) {
+        std::default_random_engine generatorR(seedHandler());
+        std::uniform_int_distribution<int> distributionR(0,
+                                                         instance->getClasses()[remo1[j]]->getPossibleRooms().size() -
+                                                         1);
+        std::default_random_engine generatorT(seedHandler());
+        std::uniform_int_distribution<int> distributionT(0,
+                                                         instance->getClasses()[remo1[j]]->getLectures().size() -
+                                                         1);
+        int it = 0;
+        int t = distributionT(generatorT), r = distributionR(generatorR);
+        while (checkUpdate(maxCost, remo1[j], t, instance->getClasses()[remo1[j]]->getPossibleRoomPair(r)) != 0 &&
+               it <= instance->getClasses()[remo1[j]]->getPossibleRooms().size() *
+                     instance->getClasses()[remo1[j]]->getLectures().size()) {
+
+            r = distributionR(generatorR);
+
+            t = distributionT(generatorT);
+            it++;
+
+        }
+
+    }
+    while (!tabu.empty()) {
+        std::default_random_engine generator(seedHandler());
+        std::uniform_int_distribution<int> distribution(0, tabu.size() - 1);
+        int l = distribution(generator);
+        if (current[instance->getClasses()[tabu[l]->getLecture()]->getOrderID()] != nullptr) {
+            tabu.erase(tabu.begin() + l);
+        } else {
+            int co = assign(tabu[l]);
+            if (co == 0) {
+                //std::cout<<*tabu[l]<<" A"<<instance->getClasses()[tabu[l]->getLecture()]->getId()<<" "<<(instance->getClasses()[tabu[l]->getLecture()]->getPossibleRooms().size() +
+                //                                                                                         instance->getClasses()[tabu[l]->getLecture()]->getLectures().size() == wind)<<std::endl;
+                currentV -= INT_MAX;
+            }
+        }
+    }
+}
+
+void LocalSearch::Local() {
+
+    int cost = 0;
+    int old = 0;
+    bool bigmove = true;
+    std::cout << "LNS: " << getTimeSpent() << std::endl;
+    while (bigmove) {
+        bool bigSwamp = false;
+        for (int i = 0; i < instance->getClasses().size(); ++i) {
+            if (current[instance->getClasses()[i]->getOrderID()] == nullptr) {
+                for (int j = 0; j < instance->getClasses()[i]->getHard().size(); ++j) {
+                    std::vector<Solution *> t;
+                    std::vector<std::vector<Solution *>> p2;
+                    std::vector<Solution *> p1;
+                    for (int k = 0; k < instance->getClasses()[i]->getHard()[j]->getClasses().size(); ++k) {
+                        if (current[instance->getClass(
+                                instance->getClasses()[i]->getHard()[j]->getClasses()[k])->getOrderID()] != nullptr) {
+                            p1 = findPossibleMove(i);
+                            if (p1.size() == 0) {
+                                continue;
+                            }
+                            t.push_back(current[instance->getClass(
+                                    instance->getClasses()[i]->getHard()[j]->getClasses()[k])->getOrderID()]);
+                            current[instance->getClass(
+                                    instance->getClasses()[i]->getHard()[j]->getClasses()[k])->getOrderID()] = nullptr;
+
+                            p2.push_back(findPossibleMove(instance->getClass(
+                                    instance->getClasses()[i]->getHard()[j]->getClasses()[k])->getOrderID()));
+
+
+                            /*while(n<instance->getClasses()[i]->getPossibleRooms().size()*instance->getClasses()[i]->getLectures().size()) {
+                                tryMove(i, n);
+                                tryMove(instance->getClass(
+                                        instance->getClasses()[i]->getHard()[j]->getClasses()[k])->getOrderID(), 0);
+                                if (current[instance->getClass(
+                                        instance->getClasses()[i]->getHard()[j]->getClasses()[k])->getOrderID()] !=
+                                    nullptr && current[instance->getClasses()[i]->getOrderID()] != nullptr) {
+                                    currentV -= INT_MAX;
+                                    bigSwamp = true;
+                                    break;
+                                }
+                                current[instance->getClass(instance->getClasses()[i]->getHard()[j]->getClasses()[k])->getOrderID()]= t;
+                                current[i]= nullptr;
+
+                                n++;
+                            }*/
+
+
+                        }
+
+
+                    }
+                    for (std::vector<Solution *> temp: p2) {
+                        for (Solution *sp1: p1) {
+                            Solution *s = nullptr;
+                            for (Solution *sp2: temp) {
+                                current[instance->getClasses()[i]->getOrderID()] = sp1;
+                                if (isAllocable(sp2->getLecture(), sp2->getSolWeek(), sp2->getSolDays(),
+                                                sp2->getSolStart(), sp2->getDuration(), sp2->getSolRoom())) {
+                                    current[sp2->getLecture()] = sp2;
+                                    s = sp2;
+                                    currentV -= INT_MAX;
+                                    //bigSwamp=true;
+                                    break;
+                                }
+                            }
+                            if (current[instance->getClasses()[i]->getOrderID()] != nullptr &&
+                                s !=
+                                nullptr)
+                                break;
+
+                        }
+
+                    }
+                    int x = 0;
+                    for (std::vector<Solution *> temp: p2) {
+                        if (temp.size() > 0) {
+                            if (current[temp[0]->getLecture()] == nullptr)
+                                current[temp[0]->getLecture()] = t[x];
+                        }
+                        x++;
+                    }
+
+
+                    if (current[instance->getClasses()[i]->getOrderID()] != nullptr) {
+                        break;
+                    }
+                }
+            }
+        }
+
+
+        if (!bigSwamp)
+            bigmove = false;
+    }
+    std::cout << "LNS-END: " << getTimeSpent() << std::endl;
+
+
+}
 
 int
 LocalSearch::isAllocable(int lectureID, std::string week, std::string day, int start, int duration, int roomID) {

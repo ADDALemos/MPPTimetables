@@ -33,13 +33,18 @@ public:
                         }
                     } else {
                         for (int k = 0; k < instance->getClasses()[i]->getHard().size(); ++k) {
-                            for (int l = 0; l < instance->getClasses()[i]->getHard()[k]->getClasses().size(); ++l) {
-                                if (div[j].find(instance->getClasses()[i]->getHard()[k]->getClasses()[l]) !=
+                            for (int l0 = 0; l0 < instance->getClasses()[i]->getHard()[k]->getClasses().size(); ++l0) {
+                                if (div[j].find(instance->getClasses()[i]->getHard()[k]->getClasses()[l0]) !=
                                     div[j].end()) {
                                     isHere = true;
-                                    div[j].insert(instance->getClasses()[i]->getHard()[k]->getClasses()[l]);
-                                    std::cout << j << " " << instance->getClasses()[i]->getHard()[k]->getClasses()[l]
-                                              << std::endl;
+                                    for (int l = 0;
+                                         l < instance->getClasses()[i]->getHard()[k]->getClasses().size(); ++l) {
+                                        div[j].insert(instance->getClasses()[i]->getHard()[k]->getClasses()[l]);
+                                        std::cout << j << " "
+                                                  << instance->getClasses()[i]->getHard()[k]->getClasses()[l]
+                                                  << std::endl;
+                                    }
+                                    break;
                                 }
                             }
 

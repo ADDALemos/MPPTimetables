@@ -23,6 +23,7 @@ extern double getTimeSpent();
 
 class LocalSearch {
 protected:
+    int maxCons = 0;
     int MAX_ITERATIONS = 5;
     LSDivided *lsDivided;
     int time;
@@ -52,6 +53,8 @@ public:
 
 protected:
 
+    void allRandom();
+
     virtual void init();
 
     void tryMove(int i, int i1);
@@ -69,6 +72,11 @@ protected:
     virtual void Greedy();
 
     virtual void Local();
+
+    virtual void Local1();
+
+    void Local2();
+
 
     virtual int
     isAllocable(int lectureID, std::string week, std::string day, int start, int duration, int roomID);

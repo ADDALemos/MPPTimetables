@@ -68,8 +68,9 @@ int main(int argc, char **argv) {
 
 
     if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
-    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/muni-fsps-spr17.xml");
+    Instance *instance = readInputXML(argv[1]);
     printProblemStats(instance);
+
 
     if (!quiet) std::cout << getTimeSpent() << std::endl;
     /*if (!quiet) std::cout << "Compacting " << std::endl;
@@ -83,7 +84,7 @@ int main(int argc, char **argv) {
     genSingleShot(instance, runner, argv[4]);
              std::exit(42);  */
 
-    auto *s = new LocalSearch(4, .6, instance, 3600);
+    auto *s = new LocalSearch(10000, .6, instance, 360000);
     s->GRASP();
     if (!quiet) std::cout << "Solution Found: Writing output file" << std::endl;
     writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() +
