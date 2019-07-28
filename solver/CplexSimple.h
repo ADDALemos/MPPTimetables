@@ -21,6 +21,7 @@
 class CplexSimple : public ILPExecuter {
     IloEnv env; //CPLEX execution
     IloModel model = IloModel(env);
+    std::vector<std::vector<Class *>> conflictV;
 
     typedef IloArray <IloBoolVarArray> NumVarMatrix;// Matrix
 
@@ -29,8 +30,7 @@ class CplexSimple : public ILPExecuter {
     NumVarMatrix student = NumVarMatrix(env);
 
 public:
-    GurobiSimple(Instance
-    *i) {
+    CplexSimple(Instance *i) {
         setInstance(i);
         i->setCompact(false);
 
@@ -40,31 +40,31 @@ public:
     bool run2019(bool warm) override {
         if (instance->getStudent().size() > 0) {
             init();
-            std::cout << "init : Done " << getTimeSpent() << std::endl;
+            ////std::cout << "init : Done " << getTimeSpent() << std::endl;
             requiredClasses();
-            std::cout << "classes : Done " << getTimeSpent() << std::endl;
+            //std::cout << "classes : Done " << getTimeSpent() << std::endl;
             parentChild();
-            std::cout << "family : Done " << getTimeSpent() << std::endl;
+            //std::cout << "family : Done " << getTimeSpent() << std::endl;
             //cost =
-            //std::cout << "conflicts : Done " << getTimeSpent() << std::endl;
+            ////std::cout << "conflicts : Done " << getTimeSpent() << std::endl;
             limit();
             std::cout << "limit : Done " << getTimeSpent() << std::endl;
         }
 
         IloExpr opt(env);//costRoom*instance->getRoomPen()+costTime*instance->getTimePen();
         if (instance->getStudent().size() > 0)
-            opt += conflicts(timetable) * instance->getStudentPen();
+            opt += conflicts() * instance->getStudentPen();
         model.add(IloMinimize(env, opt));
         std::cout << getTimeSpent() << std::endl;
         IloCplex cplex(model);
-        cplex.setParam(IloCplex::TiLim, 100.000);
-        cplex.exportModel("/Volumes/MAC/ClionProjects/timetabler/" + instance->getName() + ".lp");
+        //cplex.setParam(IloCplex::TiLim, 100.000);
+        //cplex.exportModel("/Volumes/MAC/ClionProjects/timetabler/nome.lp");
 
         if (cplex.solve()) {
-            std::cout << "solved" << std::endl;
+            //std::cout << "solved" << std::endl;
             //printdistanceToSolutionRooms(cplex);
             double value = cplex.getObjValue();
-            std::cout << value << std::endl;
+            //std::cout << value << std::endl;
             save(cplex);
             if (instance->getStudent().size() > 0)
                 saveStu(cplex);
@@ -73,14 +73,14 @@ public:
 
     }
 
-    IloExpr costTime(env);
+    IloExpr costTime=  IloNumExpr(env);;
 
-    IloExpr costRoom(env);
+    IloExpr costRoom=  IloNumExpr(env);;
 
 
     void definedAuxVar() {
         for (int c = 0; c < instance->getNumClasses(); ++c) {
-            IloNumExpr oneEach = IloNumExpr(env);
+            IloNumExpr oneEach =  IloNumExpr(env);;
             instance->getClasses()[c]->setOrderID(c);
             instance->getClasses()[c]->computeSize();
             timetable.add(IloBoolVarArray(env, instance->getClasses()[c]->getPossiblePairSize()));
@@ -104,18 +104,15 @@ public:
     ) {
         for (int c = 0; c < vector.size(); ++c) {
             for (int c1 = c + 1; c1 < vector.size(); ++c1) {
-                IloNumExpr
-                side1 IloNumExpr(env);
+                IloNumExpr side1 =  IloNumExpr(env);;
                 for (int p = 0; p < vector[c]->getPossiblePairSize(); ++p) {
                     side1 += timetable[vector[c]->getOrderID()][p] * vector[c]->getPossiblePairLecture(p)->getStart();
                 }
-                IloNumExpr
-                side2 IloNumExpr(env);
+                IloNumExpr side2 =  IloNumExpr(env);;
                 for (int p = 0; p < vector[c1]->getPossiblePairSize(); ++p) {
                     side2 += timetable[vector[c1]->getOrderID()][p] * vector[c1]->getPossiblePairLecture(p)->getStart();
                 }
-                model.add(side1 == side2,
-                          "sameStart_" + itos(vector[c]->getId()) + "_" + itos(vector[c1]->getId()));
+                model.add(side1 == side2);
 
             }
         }
@@ -129,8 +126,7 @@ public:
     ) {
         for (int c = 0; c < vector.size(); ++c) {
             for (int c1 = c + 1; c1 < vector.size(); ++c1) {
-                IloNumExpr
-                side1 IloNumExpr(env);
+                IloNumExpr side1 =  IloNumExpr(env);;
                 for (int p = 0; p < vector[c]->getPossiblePairSize(); ++p) {
                     for (int p1 = 0; p1 < vector[c1]->getPossiblePairSize(); ++p1) {
                         if (isFirst(vector[c]->getPossiblePairLecture(p)->getWeeks(),
@@ -149,11 +145,7 @@ public:
                                  vector[c1]->getPossiblePairLecture(p1)->getEnd());
                         else
                             model.add(timetable[vector[c]->getOrderID()][p] +
-                                      timetable[vector[c1]->getOrderID()][p1] <= 1,
-                                      "prec" + itos(vector[c1]->getId()) + "_" +
-                                      itos(vector[c]->getId()) + "_" +
-                                      itos(p) + "_" +
-                                      itos(p1));
+                                      timetable[vector[c1]->getOrderID()][p1] <= 1);
 
 
                     }
@@ -186,11 +178,7 @@ public:
                                       vector[c1]->getPossiblePairLecture(p1)->getEnd()) { ;
                         } else {
                             model.add(timetable[vector[c]->getOrderID()][p] +
-                                      timetable[vector[c1]->getOrderID()][p1] <= 1,
-                                      "sameTime" + itos(vector[c1]->getId()) + "_" +
-                                      itos(vector[c]->getId()) + "_" +
-                                      itos(p) + "_" +
-                                      itos(p1));
+                                      timetable[vector[c1]->getOrderID()][p1] <= 1);
                         }
                     }
 
@@ -218,11 +206,7 @@ public:
                             vector[c]->getPossiblePairLecture(p)->getStart()) { ;
                         } else {
                             model.add(timetable[vector[c]->getOrderID()][p] +
-                                      timetable[vector[c1]->getOrderID()][p1] <= 1,
-                                      "diffTime" + itos(vector[c1]->getId()) + "_" +
-                                      itos(vector[c]->getId()) + "_" +
-                                      itos(p) + "_" +
-                                      itos(p1));
+                                      timetable[vector[c1]->getOrderID()][p1] <= 1);
                         }
                     }
 
@@ -243,20 +227,19 @@ public:
         for (int c = 0; c < vector.size(); ++c) {
             for (int c1 = c + 1; c1 < vector.size(); ++c1) {
                 IloNumExpr
-                side1 IloNumExpr(env);
+                side1 =  IloNumExpr(env);;
                 for (int p = 0; p < vector[c]->getPossiblePairSize(); ++p) {
                     side1 += timetable[vector[c]->getOrderID()][p] *
                              vector[c]->getPossiblePairRoom(p).getId();
                 }
                 IloNumExpr
-                side2 IloNumExpr(env);
+                side2 =  IloNumExpr(env);;
                 for (int p = 0; p < vector[c1]->getPossiblePairSize(); ++p) {
                     side2 +=
                             timetable[vector[c1]->getOrderID()][p] *
                             vector[c1]->getPossiblePairRoom(p).getId();
                 }
-                model.add(side1 == side2,
-                          "sameRoom_" + itos(vector[c]->getId()) + "_" + itos(vector[c1]->getId()));
+                model.add(side1 == side2);
             }
 
 
@@ -302,11 +285,7 @@ public:
                                    1) { ;
                             } else {
                                 model.add(timetable[vector[c]->getOrderID()][p] +
-                                          timetable[vector[c1]->getOrderID()][p1] <= 1,
-                                          "sameAttendees_" + itos(vector[c1]->getId()) + "_" +
-                                          itos(vector[c]->getId()) + "_" +
-                                          itos(p) + "_" +
-                                          itos(p1));
+                                          timetable[vector[c1]->getOrderID()][p1] <= 1);
                             }
                         }
 
@@ -344,9 +323,7 @@ public:
                                 vector[c]->getPossiblePairLecture(p)->getStart()) { ;
                             } else {
                                 model.add(timetable[vector[c]->getOrderID()][p] +
-                                          timetable[vector[c1]->getOrderID()][p1] <= 1,
-                                          "NotOverlap_" + itos(vector[c1]->getId()) + "_" +
-                                          itos(vector[c]->getId()));
+                                          timetable[vector[c1]->getOrderID()][p1] <= 1);
                             }
                         }
 
@@ -385,9 +362,7 @@ public:
                                 vector[c1]->getPossiblePairLecture(p1)->getEnd() <=
                                 vector[c]->getPossiblePairLecture(p)->getStart()) {
                                 model.add(timetable[vector[c]->getOrderID()][p] +
-                                          timetable[vector[c1]->getOrderID()][p1] <= 1,
-                                          "NotOverlap_" + itos(vector[c1]->getId()) + "_" +
-                                          itos(vector[c]->getId()));
+                                          timetable[vector[c1]->getOrderID()][p1] <= 1);
                             }
                         }
 
@@ -451,11 +426,7 @@ public:
                                 1) { ;
                             } else {
                                 model.add(timetable[vector[c]->getOrderID()][p] +
-                                          timetable[vector[c1]->getOrderID()][p1] <= 1,
-                                          "samedays_" + itos(vector[c]->getId()) + "_" +
-                                          itos(vector[c1]->getId()) + "_" +
-                                          vector[c1]->getPossiblePairLecture(p1)->getDays() + "_" +
-                                          vector[c]->getPossiblePairLecture(p)->getDays());
+                                          timetable[vector[c1]->getOrderID()][p1] <= 1);
 
 
                             }
@@ -601,9 +572,7 @@ public:
                                 l <= vector[c1]->getPossiblePairLecture(p1)->getStart()) { ;
                             } else {
                                 model.add(timetable[vector[c]->getOrderID()][p] +
-                                          timetable[vector[c1]->getOrderID()][p1] <= 1,
-                                          "minGAP_" + itos(vector[c]->getOrderID()) + "_" +
-                                          itos(vector[c1]->getOrderID()) + "_" + itos(p) + "_" + itos(p1));
+                                          timetable[vector[c1]->getOrderID()][p1] <= 1);
 
 
                             }
@@ -628,7 +597,7 @@ public:
     ) {
         for (int w = 0; w < instance->getNweek(); ++w) {
             for (int d = 0; d < instance->getNdays(); ++d) {
-                IloNumExpr t = IloNumExpr(env);
+                IloNumExpr t =  IloNumExpr(env);;
 
                 for (int c = 0; c < vector.size(); ++c) {
                     for (int p = 0; p < vector[c]->getPossiblePairSize(); ++p) {
@@ -656,7 +625,7 @@ public:
             for (int j = 0; j < instance->getDist()[i]->getClasses().size(); ++j) {
                 c.push_back(instance->getClass(instance->getDist()[i]->getClasses()[j]));
             }
-            std::cout << getTimeSpent() << std::endl;
+            //std::cout << getTimeSpent() << std::endl;
             if (instance->getDist()[i]->getPenalty() == -1) {
                 if (instance->getDist()[i]->getType()->getType() == SameStart) {
                     sameStart(c, instance->getDist()[i]->getPenalty());
@@ -732,15 +701,7 @@ public:
                                                 r)[p].first]
                                         +
                                         timetable[instance->getClassbyclusterRoom()[clu]->getClasses()[c1]->getOrderID()][instance->getClassbyclusterRoom()[clu]->getClasses()[c1]->getPossiblePair(
-                                                r)[p1].first] <= 1, "RoomConflict" + itos(r.getId()) + "_" +
-                                                                    itos(instance->getClassbyclusterRoom()[clu]->getClasses()[c1]->getId())
-                                                                    + "_" +
-                                                                    itos(instance->getClassbyclusterRoom()[clu]->getClasses()[c]->getId()) +
-                                                                    "_" +
-                                                                    itos(instance->getClassbyclusterRoom()[clu]->getClasses()[c]->getPossiblePair(
-                                                                            r)[p].first) + "_" +
-                                                                    itos(instance->getClassbyclusterRoom()[clu]->getClasses()[c1]->getPossiblePair(
-                                                                            r)[p1].first));
+                                                r)[p1].first] <= 1);
 
 
                             }
@@ -804,7 +765,7 @@ private:
 
 
     //Stu
-    void init(IloEnv env, IloModel model) {
+    void init() {
         for (int i = 0; i < instance->getStudent().size(); ++i) {
             student.add(IloBoolVarArray(env, instance->getClasses().size()));
         }
@@ -817,11 +778,11 @@ private:
              it != instance->getStudent().end(); ++it) {
             std::vector < Class * > temp;
             for (int c = 0; c < it->second.getCourse().size(); ++c) {
-                IloNumExpr course = IloNumExpr(env);
+                IloNumExpr course =  IloNumExpr(env);;
                 for (int conf = 0; conf < it->second.getCourse()[c]->getNumConfig(); ++conf) {
-                    IloNumExpr con = IloNumExpr(env);
+                    IloNumExpr con =  IloNumExpr(env);;
                     for (int part = 0; part < it->second.getCourse()[c]->getSubpart(conf).size(); ++part) {
-                        IloNumExpr sub = IloNumExpr(env);
+                        IloNumExpr sub =  IloNumExpr(env);;
 
                         for (int cla = 0;
                              cla < it->second.getCourse()[c]->getSubpart(conf)[part]->getClasses().size(); ++cla) {
@@ -866,8 +827,8 @@ private:
 
     }
 
-    IloNumExpr conflicts(GRBVar **time) {
-        IloNumExpr cost = IloNumExpr(env);
+    IloNumExpr conflicts() {
+        IloNumExpr cost =  IloNumExpr(env);;
         for (int s = 0; s < conflictV.size(); ++s) {
             for (int cla = 0; cla < conflictV[s].size(); ++cla) {
                 for (int cla1 = cla + 1; cla1 < conflictV[s].size(); ++cla1) {
@@ -878,8 +839,8 @@ private:
                         for (int t1 = 0; t1 < class2->getPossiblePairSize(); ++t1) {
                             if (checkStu(class2->getPossiblePair(t1),
                                          class1->getPossiblePair(t))) {
-                                cost += (time[class1->getOrderID()][t] +
-                                         time[class2->getOrderID()][t1] +
+                                cost += (timetable[class1->getOrderID()][t] +
+                                         timetable[class2->getOrderID()][t1] +
                                          student[s][class2->getOrderID()] +
                                          student[s][class1->getOrderID()] == 4);
 
@@ -931,7 +892,7 @@ private:
 
     void limit() {
         for (int cla = 0; cla < instance->getClasses().size(); ++cla) {
-            IloNumExpr stu = IloNumExpr(env);
+            IloNumExpr stu =  IloNumExpr(env);;
             for (int i = 0; i < instance->getStudent().size(); ++i) {
                 stu += student[i][instance->getClasses()[cla]->getOrderID()];
             }
@@ -939,10 +900,10 @@ private:
         }
     }
 
-    void saveStu() {
+    void saveStu(IloCplex cplex) {
         for (int s = 0; s < instance->getStudent().size(); ++s) {
             for (int cla = 0; cla < instance->getClasses().size(); ++cla) {
-                if (student[s][instance->getClasses()[cla]->getOrderID()].get(GRB_DoubleAttr_X) == 1) {
+                if (cplex.getValue(student[s][instance->getClasses()[cla]->getOrderID()]) == 1) {
                     Class *c = instance->getClasses()[cla];
                     c->addStudent(instance->getStudent(s + 1).getId());
                     instance->getStudent(s + 1).addClass(c);

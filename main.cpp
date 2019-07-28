@@ -22,6 +22,8 @@
 #include "utils/TimeUtil.h"
 #include "solver/Gurobi1.h"
 #include "solver/GurobiSimple.h"
+#include "solver/CplexSimple.h"
+
 #include "solver/IntegerModelGurobiExecuter.h"
 #include "solver/BinaryModelGurobiExecuter.h"
 #include <thread>
@@ -185,11 +187,11 @@ int main(int argc, char **argv) {
 
     }
     std::cout << "PRE " << getTimeSpent() << std::endl;
-    ILPExecuter *runner = new GurobiSimple(instance);
+    ILPExecuter *runner = new CplexSimple(instance);
     runner->definedAuxVar();
     std::cout << "AUX " << getTimeSpent() << std::endl;
     runner->dist(true);
-    std::cout << "Run " << getTimeSpent() << std::endl;
+    std::cout << "DIST " << getTimeSpent() << std::endl;
     runner->run2019(true);
     writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() +
                    ".xml",
