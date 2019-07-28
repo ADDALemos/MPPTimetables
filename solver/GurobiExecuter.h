@@ -105,7 +105,11 @@ public:
     }
 
     void saveEncoding(std::string name, GRBModel m) {
-        m.write("/Volumes/MAC/ClionProjects/timetabler/" + name + ".lp");
+        m.write("/Volumes/MAC/ClionProjects/timetabler/" + name + ".ilp");
+    }
+
+    void saveEncoding() {
+        saveEncoding("temp", *model);
     }
 
 protected:
@@ -425,7 +429,7 @@ private:
         for (int i = 0; i < instance->getDist().size(); ++i) {
             std::vector<Class *> c;
             for (int j = 0; j < instance->getDist()[i]->getClasses().size(); ++j) {
-                c.push_back(instance->getClass(instance->getDist()[i]->getClasses()[i]));
+                c.push_back(instance->getClass(instance->getDist()[i]->getClasses()[j]));
             }
             if (instance->getDist()[i]->getPenalty() == -1 || !hard) {
                 if (instance->getDist()[i]->getType()->getType() == SameAttendees) {
@@ -448,8 +452,7 @@ private:
                 } else if (instance->getDist()[i]->getType()->getType() == DifferentDays) {
                     opt += differentDay(c, instance->getDist()[i]->getPenalty(),
                                         true);
-                } else if (instance->getDist()[i]->getType()->getType() == Precedence) {
-                    opt += precedence(c, instance->getDist()[i]->getPenalty());
+                } else if (instance->getDist()[i]->getType()->getType() == Precedence) { ;//                    opt += precedence(c, instance->getDist()[i]->getPenalty());
                 } else if (instance->getDist()[i]->getType()->getType() == SameRoom) {
                     opt += differentRoom(c, instance->getDist()[i]->getPenalty(),
                                          false);

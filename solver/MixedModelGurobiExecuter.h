@@ -318,7 +318,7 @@ public:
         std::cout << "classes : Done " << getTimeSpent() << std::endl;
         studentSectioning->parentChild();
         std::cout << "family : Done " << getTimeSpent() << std::endl;
-        cost = studentSectioning->conflicts(lectureTime, endTime);
+//        cost = studentSectioning->conflicts(lectureTime, endTime);
         std::cout << "conflicts : Done " << getTimeSpent() << std::endl;
         studentSectioning->limit();
         std::cout << "limit : Done " << getTimeSpent() << std::endl;
@@ -590,7 +590,7 @@ private:
      **/
 
 
-    virtual GRBLinExpr precedence(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty) override {
+    virtual GRBLinExpr precedence(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty) {
         GRBLinExpr result = 0;
         try {
             for (int c1 = 1; c1 < vector.size(); c1++) {

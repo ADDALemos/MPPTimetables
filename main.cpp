@@ -3,8 +3,7 @@
 #include <vector>
 #include <sstream>
 #include <set>
-#include <thread>
-
+#include <list>
 #include "problem/Lecture.h"
 #include "problem/Room.h"
 #include "problem/Course.h"
@@ -21,17 +20,18 @@
 #include "randomGenerator/Perturbation.h"
 #include "utils/Stats.h"
 #include "utils/TimeUtil.h"
-#include "solver/BinaryModelGurobiExecuter.h"
+#include "solver/Gurobi1.h"
+#include "solver/GurobiSimple.h"
 #include "solver/IntegerModelGurobiExecuter.h"
+#include "solver/BinaryModelGurobiExecuter.h"
+#include <thread>
 #include "solver/MixedModelGurobiExecuter.h"
 #include "solver/MIXEDCplexExecuter.h"
 #include "solver/LocalSearch.h"
+#include "solver/Search.h"
 #include "solver/LocalSearchMultiShot.h"
 #include "solver/LocalSearchMultiShotRoom.h"
 #include "solver/LSDivided.h"
-
-
-
 
 
 using namespace rapidxml;
@@ -55,7 +55,6 @@ void readPerturbations(std::string filename, Instance *instance);
 void addPossibleRooms(Class *c, Instance *instance);
 
 
-
 bool cuts = false;
 bool warm = false;
 bool opt = false;
@@ -64,11 +63,140 @@ bool opt = false;
 std::map<int, std::vector<distribution *> *> classConst;
 std::map<int, std::vector<distribution *> *> classSoft;
 
+
 int main(int argc, char **argv) {
 
 
-    if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
-    Instance *instance = readInputXML(argv[1]);
+    //if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
+    std::map<int, int> roomCluster;
+    std::vector<Cluster *> cluster;
+    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/wbg-fal10.xml");
+    std::cout << instance->getName() << std::endl;
+    /*for (int j = 0; j < instance->getClasses().size(); ++j) {
+        bool exist=false;
+        std::cout<<instance->getClasses()[j]->getId()<<std::endl;
+        for (int i = 0; i < instance->getClasses()[j]->getPossibleRooms().size(); ++i) {
+            if(roomCluster.find(instance->getClasses()[j]->getPossibleRoom(i).getId())!=roomCluster.end())
+                exist=true;
+            if(exist){
+                cluster[roomCluster.find(instance->getClasses()[j]->getPossibleRoom(i).getId())->second-1]->addClass(instance->getClasses()[j]);
+                /*for (int r = 0; r < instance->getClasses()[j]->getPossibleRooms().size(); ++r) {
+                    cluster[roomCluster.find(instance->getClasses()[j]->getPossibleRoom(i).getId())->second-1]->addRoom(
+                            instance->getClasses()[j]->getPossibleRoom(r).getId());
+                    roomCluster.insert(std::pair<int,int>(instance->getClasses()[j]->getPossibleRoom(i).getId(),cluster[roomCluster.find(instance->getClasses()[j]->getPossibleRoom(i).getId())->second-1]->getClusterID()));
+
+
+                }
+                break;
+            }
+
+        }
+        if(!exist){
+            Cluster* c= new Cluster(cluster.size()+1,instance->getClasses()[j]);
+            for (int i = 0; i < instance->getClasses()[j]->getPossibleRooms().size(); ++i) {
+                c->addRoom(instance->getClasses()[j]->getPossibleRoom(i).getId());
+                roomCluster.insert(std::pair<int,int>(instance->getClasses()[j]->getPossibleRoom(i).getId(),c->getClusterID()));
+            }
+            cluster.push_back(c);
+
+        }
+    }*/
+    for (int j = 0; j < instance->getClasses().size(); ++j) {
+        for (int i = 0; i < instance->getClasses()[j]->getPossibleRooms().size(); ++i) {
+            if (roomCluster.find(instance->getClasses()[j]->getPossibleRoom(i).getId()) != roomCluster.end()) {
+                cluster[roomCluster.find(instance->getClasses()[j]->getPossibleRoom(i).getId())->second - 1]->addClass(
+                        instance->getClasses()[j], i);
+            } else {
+                Cluster *c = new Cluster(cluster.size() + 1, instance->getClasses()[j], i,
+                                         instance->getClasses()[j]->getPossibleRoom(i).getId());
+                roomCluster.insert(
+                        std::pair<int, int>(instance->getClasses()[j]->getPossibleRoom(i).getId(), c->getClusterID()));
+                cluster.push_back(c);
+
+            }
+
+        }
+    }
+    instance->setClassbyclusterRoom(cluster);
+    for (int j = 0; j < instance->getClasses().size(); ++j) {
+        int v = 0;
+
+        for (int k = 0; k < instance->getClasses()[j]->getLectures().size(); ++k) {
+
+            if (instance->getClasses()[j]->getPossibleRooms().size() == 0) {
+                instance->getClasses()[j]->setPossiblePair(
+                        Room(-1),
+                        instance->getClasses()[j]->getLectures()[k], v);
+                v++;
+            } else {
+                for (int r = 0; r < instance->getClasses()[j]->getPossibleRooms().size(); ++r) {
+                    int roomID = instance->getClasses()[j]->getPossibleRoomPair(r).first.getId();
+                    std::string week = instance->getClasses()[j]->getLectures()[k]->getWeeks();
+                    std::string day = instance->getClasses()[j]->getLectures()[k]->getDays();
+                    int start = instance->getClasses()[j]->getLectures()[k]->getStart();
+                    int duration = instance->getClasses()[j]->getLectures()[k]->getLenght();
+                    bool isNotAddableTime = false;
+                    for (int una = 0; una < instance->getRoom(roomID).getSlots().size(); ++una) {
+                        for (int i = 0; i < instance->getNweek(); ++i) {
+                            if (week[i] == instance->getRoom(roomID).getSlots()[una].getWeeks()[i] &&
+                                instance->getRoom(roomID).getSlots()[una].getWeeks()[i] == '1') {
+                                for (int d = 0; d < instance->getNdays(); ++d) {
+                                    if (day[d] == instance->getRoom(roomID).getSlots()[una].getDays()[d] &&
+                                        day[d] == '1') {
+
+                                        if (start >= instance->getRoom(roomID).getSlots()[una].getStart() &&
+                                            start < instance->getRoom(
+                                                    roomID).getSlots()[una].getStart() + instance->getRoom(
+                                                    roomID).getSlots()[una].getLenght()) {
+
+                                            isNotAddableTime = true;
+                                        } else if (instance->getRoom(roomID).getSlots()[una].getStart() >= start &&
+                                                   instance->getRoom(
+                                                           roomID).getSlots()[una].getStart() < start + duration) {
+
+
+                                            isNotAddableTime = true;
+
+                                        }
+                                    }
+                                    if (isNotAddableTime)
+                                        break;
+
+                                }
+                            }
+                            if (isNotAddableTime)
+                                break;
+                        }
+                        if (isNotAddableTime)
+                            break;
+
+                    }
+                    if (!isNotAddableTime) {
+                        instance->getClasses()[j]->setPossiblePair(
+                                instance->getClasses()[j]->getPossibleRoomPair(r).first,
+                                instance->getClasses()[j]->getLectures()[k], v);
+                        v++;
+                        // std::cout<<instance->getClasses()[j]->getPossibleRoomPair(r).first<<" "<<instance->getClasses()[j]->getId()<<" "<<*instance->getClasses()[j]->getLectures()[k]<<std::endl;
+                    }
+
+                }
+            }
+        }
+
+    }
+    std::cout << "PRE " << getTimeSpent() << std::endl;
+    ILPExecuter *runner = new GurobiSimple(instance);
+    runner->definedAuxVar();
+    std::cout << "AUX " << getTimeSpent() << std::endl;
+    runner->dist(true);
+    std::cout << "Run " << getTimeSpent() << std::endl;
+    runner->run2019(true);
+    writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() +
+                   ".xml",
+                   instance, getTimeSpent());
+
+    std::exit(1);
+
     printProblemStats(instance);
 
 
@@ -84,8 +212,42 @@ int main(int argc, char **argv) {
     genSingleShot(instance, runner, argv[4]);
              std::exit(42);  */
 
-    auto *s = new LocalSearch(10000, .6, instance, 360000);
-    s->GRASP();
+    //auto *s = new LocalSearch(10000000000, .6, instance, 36000000000);
+    //s->GRASP();
+    std::list<Class *> classesbyCost;
+    for (int j = 0; j < instance->getClasses().size(); ++j) {
+        /*if( instance->getClasses()[j]->getLectures().size() > 1 || instance->getClasses()[j]->getPossibleRooms().size() > 1) {
+            int cost = 0;
+            for (int i = 0; i < instance->getClasses()[j]->getHard().size(); ++i) {
+                for (int m = 0; m < instance->getClasses()[j]->getHard()[i]->getClasses().size(); ++m) {
+                    for (int k = 0; k < instance->getClasses()[j]->getLectures().size(); ++k) {
+                        for (int l = 0; l < instance->getClass(
+                                instance->getClasses()[j]->getHard()[i]->getClasses()[m])->getLectures().size(); ++l) {
+                            if (instance->getClasses()[j]->getLectures()[k]->getStart() == instance->getClass(
+                                    instance->getClasses()[j]->getHard()[i]->getClasses()[m])->getLectures()[l]->getStart())
+                                cost++;
+                        }
+                    }
+                }
+
+            }
+            instance->getClasses()[j]->setCostG(cost / instance->getClasses()[j]->getLectures().size());
+            classesbyCost.push_back(instance->getClasses()[j]);
+        }
+        lhs->getCostG() > rhs->getCostG()*/
+        classesbyCost.push_back(instance->getClasses()[j]);
+
+    }
+    std::cout << classesbyCost.size() << std::endl;
+    classesbyCost.sort([](Class *lhs, Class *rhs) {
+        return lhs->getPossibleRooms().size() + lhs->getLectures().size() <
+               rhs->getPossibleRooms().size() + rhs->getLectures().size();
+    });
+
+    if (!quiet) std::cout << getTimeSpent() << std::endl;
+
+    auto *s = new Search(instance, classesbyCost, 0);
+    s->run();
     if (!quiet) std::cout << "Solution Found: Writing output file" << std::endl;
     writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() +
                    ".xml",
@@ -106,7 +268,7 @@ int main(int argc, char **argv) {
         }
     }
     if (!quiet) std::cout << "Generating ILP model" << std::endl;
-    ILPExecuter *runner;
+    //ILPExecuter *runner;
     if (strcmp(argv[5], "Integer") == 0) {
         runner = new IntegerModelGurobiExecuter();
         runner->setInstance(instance);
@@ -535,9 +697,8 @@ Instance *readInputXML(std::string filename) {
                                 weeks = a->value();
                             }
                         }
-                        Unavailability *u = new Unavailability(days, start, length, weeks);
                         //std::cout<<*u<<std::endl;
-                        una.push_back(*u);
+                        una.push_back(Unavailability(days, start, length, weeks));
                     }
 
 
@@ -547,11 +708,11 @@ Instance *readInputXML(std::string filename) {
                     size++;
                     roomID.insert(std::pair<std::string, int>(id, size));
                 }
-                Room *r = new Room(roomID[id], id, capacity, travel,
-                                   una, type);
+
                 //   std::cout<<*r<<std::endl;
                 //      std::cout<<r->getSlots().size()<<std::endl;
-                instance->addRoom(r);
+                instance->addRoom(Room(roomID[id], id, capacity, travel,
+                                       una, type));
                 //std::cout<<instance->getRooms().size()<<std::endl;
             }
 
@@ -690,7 +851,7 @@ Instance *readInputXML(std::string filename) {
                     for (const xml_attribute<> *a = course->first_attribute(); a; a = a->next_attribute()) {
                         idClassesDist = atoi(a->value());
                     }
-                    c.push_back(classMap[classID[idClassesDist]]->getId());
+                    c.push_back(idClassesDist);
                 }
                 Constraint *limite;
                 distribution *req;
@@ -839,9 +1000,7 @@ Instance *readInputXML2007(std::string filename) {
                     newID++;
                     roomID.insert(std::pair<std::string, int>(id, newID));
                 }
-                Room *r = new Room(roomID[id], id, size);
-                //TODO: Tranform building into Travel constraints
-                instance->addRoom(r);
+                instance->addRoom(Room(roomID[id], id, size));
             }
         } else if (strcmp("courses", n->name()) == 0) {
             for (const xml_node<> *ne = n->first_node(); ne; ne = ne->next_sibling()) {

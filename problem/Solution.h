@@ -70,6 +70,13 @@ public:
         Solution::lecture = lecture;
     }
 
+    void updateSolution(int time, std::string week, std::string day, int duration) {
+        start = time;
+        this->week = week;
+        this->days = day;
+        this->duration = duration;
+    }
+
     Solution(int start, int roomID, std::string room,std::string week, std::string day):start(start),roomID(roomID),
     room(room), week(week), days(day){
 

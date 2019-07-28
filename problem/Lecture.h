@@ -9,9 +9,11 @@
 #include <ostream>
 
 class Lecture {
+    int cost;
     std::string days;
     int start;
     int lenght;
+    int end;
     std::string weeks;
     int penalty;
     bool doubleL = false;
@@ -19,9 +21,18 @@ class Lecture {
     Lecture(int lenght, int start, std::string weeks, std::string days, int penalty) : days(days), start(start),
                                                                                        lenght(lenght),
                                                                                        weeks(weeks),
-                                                                                       penalty(penalty) {}
+                                                                                       penalty(penalty) {
+        end = start + lenght;
+    }
+
 
     Lecture(int lenght) : lenght(lenght) {}
+
+    int getCost() { return cost; }
+
+    void setCost(int c) { cost = c; }
+
+    int getEnd() { return end; }
 
     std::string &getDays() {
         return days;

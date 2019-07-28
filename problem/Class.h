@@ -25,10 +25,35 @@ class Class {
     std::vector<distribution*> soft;
     int limit;//limit number of students
     Class *parent = nullptr;
-    Solution *sol;
+    Solution *sol = new Solution(-1, "-1", "-1");
     std::vector<int> student;
 
+    int cost = 0;
+    int costG = 0;
+
 public:
+
+    int getCost() {
+        return cost;
+    }
+
+    const int getCostG() const {
+        return costG;
+    }
+
+    void setCostG(int cost) {
+        costG = cost;
+    }
+
+
+    void computeCost() {
+        int c = 0;
+        for (int i = 0; i < lectures.size(); ++i) {
+            c += lectures[i]->getCost();
+        }
+        cost += c / lectures.size();
+
+    }
 
     const int getNumSlots() const {
         return lectures.size();
@@ -160,7 +185,73 @@ private:
     std::vector<Lecture *> lectures;
     std::map<Room, int> possibleRooms;
 
+    std::map<Room, std::vector<std::pair<int, Lecture *>>> possiblePair;
+
 public:
+    void setPossiblePair(Room r, Lecture *l, int v) {
+        if (possiblePair.find(r) != possiblePair.end())
+            possiblePair[r].push_back(std::pair<int, Lecture *>(v, l));
+        else {
+            std::vector<std::pair<int, Lecture *>> lv;
+            lv.push_back(std::pair<int, Lecture *>(v, l));
+            possiblePair.insert(std::pair<Room, std::vector<std::pair<int, Lecture *>>>(r, lv));
+        }
+    }
+
+    int size = 0;
+
+    void computeSize() {
+        int s = 0;
+        for (std::map<Room, std::vector<std::pair<int, Lecture *>>>::iterator it = possiblePair.begin();
+             it != possiblePair.end(); ++it) {
+            s += it->second.size();
+        }
+        size = s;
+    }
+
+    std::pair<Room, Lecture *> getPossiblePair(int v) {
+        for (std::map<Room, std::vector<std::pair<int, Lecture *>>>::iterator it = possiblePair.begin();
+             it != possiblePair.end(); ++it) {
+            for (int i = 0; i < it->second.size(); i++) {
+                if (it->second[i].first == v)
+                    return std::pair<Room, Lecture *>(it->first, it->second[i].second);
+            }
+        }
+
+    }
+
+    std::vector<std::pair<int, Lecture *>> getPossiblePair(Room r) {
+        return possiblePair[r];
+    }
+
+    Room getPossiblePairRoom(int v) {
+        for (std::map<Room, std::vector<std::pair<int, Lecture *>>>::iterator it = possiblePair.begin();
+             it != possiblePair.end(); ++it) {
+            for (int i = 0; i < it->second.size(); i++) {
+                if (it->second[i].first == v)
+                    return it->first;
+            }
+        }
+        throw std::out_of_range("getPossiblePairRoom::at: key not found");
+
+    }
+
+    Lecture *getPossiblePairLecture(int v) {
+        for (std::map<Room, std::vector<std::pair<int, Lecture *>>>::iterator it = possiblePair.begin();
+             it != possiblePair.end(); ++it) {
+            for (int i = 0; i < it->second.size(); i++) {
+                if (it->second[i].first == v)
+                    return it->second[i].second;
+            }
+        }
+        throw std::out_of_range("getPossiblePairLecture::at: key not found");
+
+    }
+
+    int getPossiblePairSize() {
+        return size;
+    }
+
     void addRoom(Room r) {
         possibleRooms.insert(std::pair<Room, int>(r, 1));
     }
@@ -168,6 +259,18 @@ public:
     Room getFirstPossibleRoom() {
         return possibleRooms.begin()->first;
     }
+
+    /*void setOderIDLec(int n){
+        for(int i=0; i<lectures.size();i++) {
+            if(i==n) {
+                lectures[i]->setOrderID(i);
+                return;
+            }
+
+        }
+        throw std::out_of_range("setOderIDLec::at: key not found");
+
+    }*/
 
     Room getPossibleRoom(int n) {
         int i = 0;
@@ -177,6 +280,25 @@ public:
             i++;
         }
         throw std::out_of_range("possibleRooms::at: key not found");
+    }
+
+    int getPossibleRoom(Room n) {
+        int i = 0;
+        for (std::map<Room, int>::iterator it = possibleRooms.begin(); it != possibleRooms.end(); ++it) {
+            if (it->first.getId() == n.getId())
+                return i;
+            i++;
+        }
+        return -1;
+    }
+
+
+    int getPossibleRoomCost(Room n) {
+        for (std::map<Room, int>::iterator it = possibleRooms.begin(); it != possibleRooms.end(); ++it) {
+            if (it->first.getId() == n.getId())
+                return it->second;
+        }
+        return -1;
     }
 
     int getPossibleRoomCost(int n) {
@@ -393,7 +515,10 @@ public:
 
     void setSolution(int time, std::string week, std::string day) {
         sol = new Solution(time,week, day);
+    }
 
+    void updateSolution(int time, std::string week, std::string day, int duration) {
+        sol->updateSolution(time, week, day, duration);
     }
 
     void setSolution(Solution* s) {
@@ -424,6 +549,28 @@ public:
     void addStudent(int id) {
         Class::student.push_back(id);
     }
+
+    int roomLevel = 0;
+
+    int getRoomLevel() const {
+        return roomLevel;
+    }
+
+    int getLectLevel() const {
+        return lectLevel;
+    }
+
+    int lectLevel = 0;
+
+    void setTree(int lec, int room) {
+        lectLevel = lec;
+        roomLevel = room;
+    }
+
+    bool operator<(const Class a) const {
+        return (costG < a.getCostG());
+    }
+
 
 
 };

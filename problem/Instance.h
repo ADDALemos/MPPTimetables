@@ -14,6 +14,7 @@
 #include "distribution.h"
 #include "Room.h"
 #include "Student.h"
+#include "Cluster.h"
 
 class Instance {
 private:
@@ -28,7 +29,18 @@ private:
     int min = -1, max = -1;
     unsigned int nClasses = 0;
     std::vector<Class *> classes;
+    std::vector<Cluster *> cluster;
     std::map<int, std::vector<Class *>> classesWeek;
+public:
+    const std::vector<Cluster *> &getClassbyclusterRoom() const {
+        return cluster;
+    }
+
+    void setClassbyclusterRoom(std::vector<Cluster *> cluster) {
+        Instance::cluster = cluster;
+    }
+
+private:
     std::map<int, std::set<int>> classesWeekID;
     std::set<int> uva;
     std::set<int> incorrentAssignments;
@@ -138,7 +150,6 @@ public:
     }
 
     Instance(char *string): name(string) {
-
     }
 
     Instance(std::string name, int days, int slots, int min, int max) : ndays(days), nweek(1),
@@ -188,9 +199,8 @@ public:
     }
 
 
-    void addRoom(Room *pRoom) {
-        std::pair<int,Room> *p= new std::pair<int, Room>(pRoom->getId(),*pRoom);
-        rooms.insert(*p);
+    void addRoom(Room pRoom) {
+        rooms.insert(std::pair<int, Room>(pRoom.getId(), pRoom));
 
     }
 
@@ -205,8 +215,7 @@ public:
     }
 
     void addCourse(Course *pCourse) {
-        std::pair<std::string, Course *> *p = new std::pair<std::string, Course *>(pCourse->getName(), pCourse);
-        courses.insert(*p);
+        courses.insert(std::pair<std::string, Course *>(pCourse->getName(), pCourse));
 
     }
 

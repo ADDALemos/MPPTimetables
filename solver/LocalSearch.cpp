@@ -48,6 +48,8 @@ void LocalSearch::allRandom() {
                                           instance->getClasses()[c]->getLectures()[t]->getWeeks(),
                                           instance->getClasses()[c]->getLectures()[t]->getDays(),
                                           instance->getClasses()[c]->getLectures()[t]->getLenght(), 0, 0);
+            } else {
+                currentV += INT_MAX;
             }
         } else {
             if (isAllocable(c,
@@ -80,12 +82,12 @@ void LocalSearch::GRASP() {
     printTime();
     for (int i = 0; i < MAX_ITERATIONS && getTimeSpent() <= time; i++) {
         init();
-        Greedy();
+        /*Greedy();
         Greedy1();
         store();
         printStatus(i);
-        Local1();
-        //allRandom();
+        Local1();*/
+        allRandom();
         store();
         printStatus(i);
         printTime();

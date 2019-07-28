@@ -19,8 +19,8 @@ find_package(Cplex)
 include_directories(SYSTEM ${CPLEX_INCLUDE_DIRS})
 include_directories(SYSTEM ${GUROBI_INCLUDE_DIRS})
 
-set(SOURCE_FILES main.cpp problem/Course.h problem/Instance.h problem/Lecture.h problem/Class.h problem/Room.h problem/Subpart.h problem/Unavailability.h problem/Student.h problem/distribution.h problem/DistributionRequired.h problem/DistributionPenalty.h problem/Constraint.h problem/WithLimit.h problem/NoLimit.h problem/Limits.h solver/ILPExecuter.h randomGenerator/Perturbation.cpp randomGenerator/Perturbation.h solver/GurobiExecuter.h solver/CplexExecuter.h utils/Stats.h solver/roomLecture.h solver/GurobiAux.h solver/LocalSearch.cpp solver/LocalSearch.h solver/StudentSectioning.h utils/TimeUtil.h solver/LSDivided.h)
-add_executable(timetabler ${SOURCE_FILES})
+set(SOURCE_FILES main.cpp problem/Course.h problem/Instance.h problem/Lecture.h problem/Class.h problem/Room.h problem/Subpart.h problem/Unavailability.h problem/Student.h problem/distribution.h problem/DistributionRequired.h problem/DistributionPenalty.h problem/Constraint.h problem/WithLimit.h problem/NoLimit.h problem/Limits.h solver/ILPExecuter.h randomGenerator/Perturbation.cpp randomGenerator/Perturbation.h solver/GurobiExecuter.h solver/CplexExecuter.h utils/Stats.h solver/roomLecture.h solver/GurobiAux.h solver/LocalSearch.cpp solver/LocalSearch.h solver/StudentSectioning.h utils/TimeUtil.h solver/LSDivided.h problem/Cluster.h)
+add_executable(timetabler ${SOURCE_FILES} problem/Cluster.h problem/Cluster.h)
 target_link_libraries(timetabler ${GUROBI_LIBRARIES} ${Boost_LIBRARIES} ${CPLEX_LIBRARIES})
 
 

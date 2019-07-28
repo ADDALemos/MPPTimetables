@@ -114,10 +114,7 @@ public:
     virtual void studentConflictSolution() =0;
 
 
-    void saveEncoding() {
-        model->write("/Volumes/MAC/ClionProjects/timetabler/model.lp");
 
-    }
 
 protected:
 //Number of seated students for optimization or constraint
