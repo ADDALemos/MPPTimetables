@@ -42,4 +42,11 @@ bool stringcontains(std::string s1, std::string s2, int size) {
 
 }
 
+std::string itos(int i) {
+    std::stringstream s;
+    s << i;
+    return s.str();
+}
+
+
 #endif //PROJECT_STRINGUTIL_H

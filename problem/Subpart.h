@@ -64,10 +64,11 @@ public:
         return nullptr;
     }
 
+    //TODO: implemet id before use
     void newShift(int numberNewShifts, int id) {
         for (int i = 0; i < numberNewShifts; ++i) {
             classes.push_back(
-                    new Class(id++, averageClassLimit(), averageLectureLenght(), classes[0]->getStudent()));
+                    new Class(id++, averageClassLimit(), averageLectureLenght(), classes[0]->getStudent(),"UNUSED"));
         }
 
     }

@@ -9,6 +9,7 @@
 #include "GurobiAux.h"
 #include "../problem/Instance.h"
 #include "../problem/Class.h"
+#include "../utils/StringUtil.h"
 
 class StudentSectioning {
     GRBVar **student;

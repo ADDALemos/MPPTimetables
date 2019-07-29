@@ -18,6 +18,7 @@
 
 class Class {
     bool modified = false;
+    std::string subconfcour="";
     int id = 1;
     int orderID; //easy handle for the arrays of gurobi
     std::vector<int> conv;//legal time to time slot
@@ -155,13 +156,13 @@ public:
     }
 
     Class(int id, int limit, std::vector<Lecture *, std::allocator<Lecture *>> pLecture, std::map<Room, int> map,
-          int order) : id(id), limit(limit), orderID(order) {
+          int order,std::string subconfcour) : id(id), limit(limit), orderID(order), subconfcour(subconfcour) {
         lectures = pLecture;
         possibleRooms = map;
     }
 
     Class(int id, int limit, Lecture *pLecture, std::map<Room, int> map,
-          int order) : id(id), limit(limit), orderID(order) {
+          int order,std::string subconfcour) : id(id), limit(limit), orderID(order), subconfcour(subconfcour) {
         lectures.push_back(pLecture);
     }
 
@@ -175,7 +176,7 @@ public:
     }
 
 
-    Class(int id, int limit, int lenght, std::vector<int> student) : id(id), limit(limit), student(student) {
+    Class(int id, int limit, int lenght, std::vector<int> student,std::string subconfcour) : id(id), limit(limit), student(student),subconfcour(subconfcour) {
         Lecture *l = new Lecture(lenght);
         lectures.push_back(l);
 
@@ -315,8 +316,8 @@ public:
 
     inline bool isModified() { return modified; }
     Class(int id, int limit, const std::vector<Lecture *, std::allocator<Lecture *>> &lectures,
-          std::map<Room, int> possibleRooms) : id(id), limit(limit), lectures(lectures), possibleRooms(possibleRooms),
-                                               parent(nullptr) {
+          std::map<Room, int> possibleRooms, std::string subconfcour) : id(id), limit(limit), lectures(lectures), possibleRooms(possibleRooms),
+                                               parent(nullptr), subconfcour(subconfcour) {
     }
 
 
@@ -571,9 +572,13 @@ public:
         return (costG < a.getCostG());
     }
 
-
+    const std::string &getSubconfcour() const {
+        return subconfcour;
+    }
 
 };
+
+
 
 
 #endif //TIMETABLER_CLASS_H

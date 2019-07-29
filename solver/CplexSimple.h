@@ -13,10 +13,10 @@
 #include <thread>
 #include <stdlib.h>
 #include "../problem/Instance.h"
-#include "StudentSectioning.h"
 #include "../utils/TimeUtil.h"
 #include "../utils/StringUtil.h"
 #include <algorithm>
+
 
 class CplexSimple : public ILPExecuter {
     IloEnv env; //CPLEX execution
@@ -61,7 +61,7 @@ public:
         //cplex.exportModel("/Volumes/MAC/ClionProjects/timetabler/nome.lp");
 
         if (cplex.solve()) {
-            //std::cout << "solved" << std::endl;
+            std::cout << "solved" << std::endl;
             //printdistanceToSolutionRooms(cplex);
             double value = cplex.getObjValue();
             //std::cout << value << std::endl;
@@ -112,7 +112,9 @@ public:
                 for (int p = 0; p < vector[c1]->getPossiblePairSize(); ++p) {
                     side2 += timetable[vector[c1]->getOrderID()][p] * vector[c1]->getPossiblePairLecture(p)->getStart();
                 }
-                model.add(side1 == side2);
+                IloConstraint ctemp(side1 == side2);
+                ctemp.setName(("sameStart_"+itos(vector[c1]->getId())+"_"+itos(vector[c]->getId())).c_str());
+                model.add(ctemp);
 
             }
         }
@@ -560,16 +562,14 @@ public:
                         for (int p1 = 0; p1 < vector[c1]->getPossiblePairSize(); ++p1) {
                             if (stringcompare(vector[c1]->getPossiblePairLecture(p1)->getWeeks(),
                                               vector[c]->getPossiblePairLecture(p)->getWeeks(),
-                                              instance->getNweek(), false) == 0 ||
+                                              instance->getNweek(), false) == 1 ||
                                 stringcompare(vector[c1]->getPossiblePairLecture(p1)->getDays(),
                                               vector[c]->getPossiblePairLecture(p)->getDays(),
-                                              instance->getNdays(), false) == 0 ||
-                                vector[c1]->getPossiblePairLecture(p1)->getStart() +
-                                vector[c1]->getPossiblePairLecture(p1)->getLenght() + l <=
+                                              instance->getNdays(), false) == 1 ||
+                                    (vector[c1]->getPossiblePairLecture(p1)->getEnd() + l) <=
                                 vector[c]->getPossiblePairLecture(p)->getStart() ||
-                                vector[c]->getPossiblePairLecture(p)->getStart() +
-                                vector[c]->getPossiblePairLecture(p)->getLenght() +
-                                l <= vector[c1]->getPossiblePairLecture(p1)->getStart()) { ;
+                                    (vector[c]->getPossiblePairLecture(p)->getEnd() +
+                                l )<= vector[c1]->getPossiblePairLecture(p1)->getStart()) { ;
                             } else {
                                 model.add(timetable[vector[c]->getOrderID()][p] +
                                           timetable[vector[c1]->getOrderID()][p1] <= 1);
@@ -792,15 +792,21 @@ private:
                                     conf)[part]->getClasses()[cla]);
 
                         }
-                        model.add(sub <= 1);
+                        IloConstraint ctemp(sub <= 1);
+                        ctemp.setName(("requiredClassesSub_"+itos(s)+"_"+itos(c)+"_"+itos(conf)+"_"+itos(part)).c_str());
+                        model.add(ctemp);
                         con += sub;
                     }
-                    model.add(con - it->second.getCourse()[c]->getSubpart(conf).size() ==
-                              it->second.getCourse()[c]->getSubpart(conf).size() - con);
+                    IloConstraint ctemp(con == it->second.getCourse()[c]->getSubpart(conf).size() ||
+                                        0 == con);
+                    ctemp.setName(("requiredClassesConf_"+itos(s)+"_"+itos(c)+"_"+itos(conf)).c_str());
+                    model.add(ctemp);
                     size = it->second.getCourse()[c]->getSubpart(conf).size();
                     course += con;
                 }
-                model.add(course == size);
+                IloConstraint ctemp(course == size);
+                ctemp.setName(("requiredClassesCourse_"+itos(s)+"_"+itos(c)).c_str());
+                model.add(ctemp);
             }
             conflictV.push_back(temp);
             s++;
@@ -834,7 +840,8 @@ private:
                 for (int cla1 = cla + 1; cla1 < conflictV[s].size(); ++cla1) {
                     Class *class1 = conflictV[s][cla];
                     Class *class2 = conflictV[s][cla1];
-
+                    if(class1->getSubconfcour().compare(class2->getSubconfcour())==0)
+                        continue;
                     for (int t = 0; t < class1->getPossiblePairSize(); ++t) {
                         for (int t1 = 0; t1 < class2->getPossiblePairSize(); ++t1) {
                             if (checkStu(class2->getPossiblePair(t1),
@@ -896,7 +903,9 @@ private:
             for (int i = 0; i < instance->getStudent().size(); ++i) {
                 stu += student[i][instance->getClasses()[cla]->getOrderID()];
             }
-            model.add(stu <= instance->getClasses()[cla]->getLimit());
+            IloConstraint c(stu <= instance->getClasses()[cla]->getLimit());
+            c.setName(("limit"+itos(instance->getClasses()[cla]->getId())).c_str());
+            model.add(c);
         }
     }
 
@@ -911,6 +920,8 @@ private:
             }
         }
     }
+
+
 
 
 };

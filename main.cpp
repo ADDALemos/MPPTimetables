@@ -24,16 +24,6 @@
 #include "solver/GurobiSimple.h"
 #include "solver/CplexSimple.h"
 
-#include "solver/IntegerModelGurobiExecuter.h"
-#include "solver/BinaryModelGurobiExecuter.h"
-#include <thread>
-#include "solver/MixedModelGurobiExecuter.h"
-#include "solver/MIXEDCplexExecuter.h"
-#include "solver/LocalSearch.h"
-#include "solver/Search.h"
-#include "solver/LocalSearchMultiShot.h"
-#include "solver/LocalSearchMultiShotRoom.h"
-#include "solver/LSDivided.h"
 
 
 using namespace rapidxml;
@@ -193,7 +183,7 @@ int main(int argc, char **argv) {
     runner->dist(true);
     std::cout << "DIST " << getTimeSpent() << std::endl;
     runner->run2019(true);
-    writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() +
+    writeOutputXML("data/output/ITC-2019/" + instance->getName() +
                    ".xml",
                    instance, getTimeSpent());
 
@@ -248,13 +238,7 @@ int main(int argc, char **argv) {
 
     if (!quiet) std::cout << getTimeSpent() << std::endl;
 
-    auto *s = new Search(instance, classesbyCost, 0);
-    s->run();
-    if (!quiet) std::cout << "Solution Found: Writing output file" << std::endl;
-    writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() +
-                   ".xml",
-                   instance, getTimeSpent());
-    std::exit(0);
+
 
     //if (!quiet) std::cout << "Starting Reading File: " << argv[2] << std::endl;
     //readOutputXML(argv[2], instance);
@@ -271,30 +255,7 @@ int main(int argc, char **argv) {
     }
     if (!quiet) std::cout << "Generating ILP model" << std::endl;
     //ILPExecuter *runner;
-    if (strcmp(argv[5], "Integer") == 0) {
-        runner = new IntegerModelGurobiExecuter();
-        runner->setInstance(instance);
-    } else if (strcmp(argv[5], "Binary") == 0) {
-        runner = new BinaryModelGurobiExecuter((bool) std::stoi(argv[6]), (bool) std::stoi(argv[7]), instance);
-        if (std::stoi(argv[7]) == 1)
-            genWeekly(instance, runner, argv[4]);
-        else
-            genSingleShot(instance, runner, argv[4]);
-    } else if (strcmp(argv[5], "Mixed") == 0) {
-        runner = new MixedModelGurobiExecuter((bool) std::stoi(argv[6]), (bool) std::stoi(argv[7]), instance);
-        if (std::stoi(argv[7]) == 1)
-            genWeekly(instance, runner, argv[4]);
-        else
-            genSingleShot(instance, runner, argv[4]);
-    } else if (strcmp(argv[5], "GRASP") == 0) {
-        LocalSearch *g = new LocalSearch(std::stoi(argv[6]), std::stoi(argv[7]), instance, 3600);
-        g->GRASP();
-        std::exit(42);
-    } else if (strcmp(argv[5], "LNS") == 0) {
-        LocalSearch *g = new LocalSearch(instance);
-        g->LNS();
-        std::exit(42);
-    }
+
 
 
     if (!quiet) std::cout << "Solution Found: Writing output file" << std::endl;
@@ -561,7 +522,7 @@ void readOutputXML(std::string filename, Instance *instance) {
     std::stringstream buffer;
     buffer << file.rdbuf();
     file.close();
-    std::__1::string content(buffer.str());
+    std::string content(buffer.str());
     doc.parse<0>(&content[0]);
     xml_node<> *pRoot = doc.first_node();
     for (const xml_attribute<> *a = pRoot->first_attribute(); a; a = a->next_attribute()) {
@@ -630,7 +591,7 @@ Instance *readInputXML(std::string filename) {
     std::stringstream buffer;
     buffer << file.rdbuf();
     file.close();
-    std::__1::string content(buffer.str());
+    std::string content(buffer.str());
     doc.parse<0>(&content[0]);
     xml_node<> *pRoot = doc.first_node();
     Instance *instance;
@@ -721,21 +682,21 @@ Instance *readInputXML(std::string filename) {
         } else if (strcmp(n->name(), "courses") == 0) {
             for (const xml_node<> *s = n->first_node(); s; s = s->next_sibling()) {
                 char *id;
-                std::__1::map<int, std::__1::vector<Subpart *>> config;
+                std::map<int, std::vector<Subpart *>> config;
                 for (const xml_attribute<> *a = s->first_attribute(); a; a = a->next_attribute()) {
                     id = a->value();
                 }
                 for (const xml_node<> *rs = s->first_node(); rs; rs = rs->next_sibling()) {
                     int idConf = -1;
 
-                    std::__1::vector<Subpart *> subpartvec;
+                    std::vector<Subpart *> subpartvec;
 
                     for (const xml_attribute<> *a = rs->first_attribute(); a; a = a->next_attribute()) {
                         idConf = atoi(a->value());
                     }
                     for (const xml_node<> *sub = rs->first_node(); sub; sub = sub->next_sibling()) {
-                        std::__1::string idsub;
-                        std::__1::vector<Class *> clasv;
+                        std::string idsub;
+                        std::vector<Class *> clasv;
                         for (const xml_attribute<> *a = sub->first_attribute(); a; a = a->next_attribute()) {
                             idsub = a->value();
                         }
@@ -797,7 +758,7 @@ Instance *readInputXML(std::string filename) {
 
 
                             }
-                            Class *c = new Class(idclass, limit, lecv, roomsv, orderID);
+                            Class *c = new Class(idclass, limit, lecv, roomsv, orderID,idsub+"_"+itos(idConf)+"_"+id);
                             classMap.insert(std::pair<int, Class *>(orderID, c));
                             classID.insert(std::pair<int, int>(idclass, orderID));
                             orderID++;
@@ -902,15 +863,15 @@ Instance *readInputXML(std::string filename) {
 
             }
         } else if (strcmp(n->name(), "students") == 0) {
-            std::__1::map<int, Student> std;
+            std::map<int, Student> std;
             for (const xml_node<> *sub = n->first_node(); sub; sub = sub->next_sibling()) {
                 int studentID = -1;
                 for (const xml_attribute<> *a = sub->first_attribute(); a; a = a->next_attribute()) {
                     studentID = atoi(a->value());
                 }
-                std::__1::vector<Course *> c;
+                std::vector<Course *> c;
                 for (const xml_node<> *course = sub->first_node(); course; course = course->next_sibling()) {
-                    std::__1::string courseIDstd;
+                    std::string courseIDstd;
                     for (const xml_attribute<> *a = course->first_attribute(); a; a = a->next_attribute()) {
                         courseIDstd = a->value();
                     }
@@ -952,7 +913,7 @@ Instance *readInputXML2007(std::string filename) {
     std::stringstream buffer;
     buffer << file.rdbuf();
     file.close();
-    std::__1::string content(buffer.str());
+    std::string content(buffer.str());
     doc.parse<0>(&content[0]);
     xml_node<> *pRoot = doc.first_node();
     Instance *instance;

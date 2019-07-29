@@ -289,13 +289,13 @@ void Perturbation::randomShiftChange(Instance *i, double factorCourse, double st
 
 
 /**
- *
+ *TODO:ID
  */
 void Perturbation::addNewCurriculum(Instance *i, double lecture, double lenght, double student) {
     std::vector<Subpart *> vector;
     for (int j = 0; j < lecture; ++j) {
         std::vector<Class *> cl;
-        Class *c = new Class(i->getClasses().size() + 1, student, new Lecture(lenght), std::map<Room, int>(), 0);
+        Class *c = new Class(i->getClasses().size() + 1, student, new Lecture(lenght), std::map<Room, int>(), 0,"UNUSED");
         cl.push_back(c);
         std::ostringstream oss;
         oss << " " << (i->getClasses().size() + 1);
