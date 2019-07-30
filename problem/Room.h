@@ -20,8 +20,9 @@ private:
     bool close = false;
     std::map<int,int> travel;//room time
     std::vector<Unavailability> slots;
-    std::vector<std::vector<std::pair<int, int>>> t;
 public:
+    std::map<int,std::vector<std::pair<int, int>>> t;
+
 
     //Legacy
     bool isClosebyDay(int day) {

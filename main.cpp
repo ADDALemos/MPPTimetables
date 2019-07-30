@@ -62,8 +62,11 @@ int main(int argc, char **argv) {
     //if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
     std::map<int, int> roomCluster;
     std::vector<Cluster *> cluster;
-    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/wbg-fal10.xml");
+    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/bet-sum18.xml");
     std::cout << instance->getName() << std::endl;
+    printStudentsStats(instance);
+    std::exit(1);
+
     /*for (int j = 0; j < instance->getClasses().size(); ++j) {
         bool exist=false;
         std::cout<<instance->getClasses()[j]->getId()<<std::endl;
@@ -93,7 +96,7 @@ int main(int argc, char **argv) {
 
         }
     }*/
-    for (int j = 0; j < instance->getClasses().size(); ++j) {
+    /*for (int j = 0; j < instance->getClasses().size(); ++j) {
         for (int i = 0; i < instance->getClasses()[j]->getPossibleRooms().size(); ++i) {
             if (roomCluster.find(instance->getClasses()[j]->getPossibleRoom(i).getId()) != roomCluster.end()) {
                 cluster[roomCluster.find(instance->getClasses()[j]->getPossibleRoom(i).getId())->second - 1]->addClass(
@@ -109,7 +112,7 @@ int main(int argc, char **argv) {
 
         }
     }
-    instance->setClassbyclusterRoom(cluster);
+    instance->setClassbyclusterRoom(cluster);*/
     for (int j = 0; j < instance->getClasses().size(); ++j) {
         int v = 0;
 
@@ -167,6 +170,15 @@ int main(int argc, char **argv) {
                         instance->getClasses()[j]->setPossiblePair(
                                 instance->getClasses()[j]->getPossibleRoomPair(r).first,
                                 instance->getClasses()[j]->getLectures()[k], v);
+                        for (int i = 0; i < instance->getClasses()[j]->getLectures()[k]->getLenght(); ++i) {
+                            if(instance->getClasses()[j]->getPossibleRoomPair(r).first.t.find(instance->getClasses()[j]->getLectures()[k]->getStart()+i)!=instance->getClasses()[j]->getPossibleRoomPair(r).first.t.end())
+                                instance->getClasses()[j]->getPossibleRoomPair(r).first.t[instance->getClasses()[j]->getLectures()[k]->getStart()+i].push_back(std::pair<int,int>(instance->getClasses()[j]->getOrderID(),v));
+                            else {
+                                std::vector<std::pair<int, int>> temp; temp.push_back(std::pair<int,int>(instance->getClasses()[j]->getOrderID(),v));
+                                instance->getClasses()[j]->getPossibleRoomPair(r).first.t.insert(std::pair<int,std::vector<std::pair<int, int>>>(instance->getClasses()[j]->getLectures()[k]->getStart()+i,temp));
+                            }
+
+                        }
                         v++;
                         // std::cout<<instance->getClasses()[j]->getPossibleRoomPair(r).first<<" "<<instance->getClasses()[j]->getId()<<" "<<*instance->getClasses()[j]->getLectures()[k]<<std::endl;
                     }

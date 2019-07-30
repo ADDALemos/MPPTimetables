@@ -101,7 +101,7 @@ public:
         Instance::dist = dist;
     }
 
-    const std::map<int, Room> &getRooms() const {
+    std::map<int, Room> &getRooms() {
         return rooms;
     }
 
@@ -109,7 +109,7 @@ public:
         Instance::rooms = rooms;
     }
 
-    const std::map<int, Student> &getStudent() const {
+     std::map<int, Student> &getStudent()  {
         return student;
     }
 

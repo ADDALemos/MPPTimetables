@@ -11,6 +11,36 @@
 #include "../problem/Constraint.h"
 #include "../solver/ILPExecuter.h"
 
+void printStudentsStats(Instance *instance){
+    int v =0;int v1=0;
+    for (std::map<int, Student>::iterator it = instance->getStudent().begin(); it != instance->getStudent().end(); ++it) {
+        std::map<int, Student>::iterator it1 = it; it1++;
+        for (; it1 != instance->getStudent().end(); ++it1) {
+            if(it->second.getId()!=it1->second.getId()){
+            bool t=false;
+            for (int c= 0; c < it->second.getCourse().size(); c++) {
+                for (int c1= 0; c1 < it1->second.getCourse().size(); c1++) {
+                    if(it->second.getCourse()[c]->getName().compare(it1->second.getCourse()[c1]->getName())!=0){
+                        t=true;
+                        break;
+                    }
+                }
+                if(t)
+                    break;
+
+            }
+            if(!t) {
+                v++;
+            }
+                v1++;
+
+            }
+        }
+    }
+    std::cout<<v<<std::endl;
+    std::cout<<(float)v/instance->getStudent().size()<<std::endl;
+}
+
 
 void printProblemStats(Instance *instance) {
     std::cout << "*****Problem Description*****" << std::endl;

@@ -670,11 +670,35 @@ public:
     }
 
 
+    void oneLectureRoom() {
+        for (std::map<int, Room>::iterator it = instance->getRooms().begin(); it != instance->getRooms().end(); ++it) {
+            Room r = it->second;//    std::map<int,std::vector<std::pair<int, int>>> t;
+            for (std::map<int, std::vector<std::pair<int, int>>>::iterator it1 =
+                    r.t.begin(); it1 != r.t.end(); ++it1) {
+                for (int c = 0; c < it1->second.size(); ++c) {
+                    for (int c1 = c + 1; c1 < it1->second.size(); ++c1) {
+                            model.add(
+                                    timetable[it1->second[c].first][it1->second[c].second]
+                                    +
+                                    timetable[it1->second[c1].first][it1->second[c1].second] <= 1);
+
+
+
+
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
     /**
      * A lecture can only be in one room at time
      */
 
-    void oneLectureRoom() {
+    void oneLectureRoom1() {
         for (int clu = 0; clu < instance->getClassbyclusterRoom().size(); ++clu) {
             Room r = instance->getClassbyclusterRoom()[clu]->getRooms();
             for (int c = 0; c < instance->getClassbyclusterRoom()[clu]->numberofClasses(); ++c) {
