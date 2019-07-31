@@ -15,9 +15,11 @@
 #include "Room.h"
 #include "Student.h"
 #include "Cluster.h"
+#include "ClusterStudents.h"
 
 class Instance {
 private:
+    std::vector<ClusterStudent> clusterStudent;
     bool isCompact = true;
     std::string method = "";
     int ndays = -1;
@@ -617,6 +619,14 @@ public:
     void compact() {
         slotsperday = actualSpace();
         ndays = actualSpaceDay();
+    }
+
+    void setStudentCluster(std::vector<ClusterStudent, std::allocator<ClusterStudent>> clusterStudent) {
+        Instance::clusterStudent=clusterStudent;
+    }
+
+    std::vector<ClusterStudent> getClusterStudent(){
+        return clusterStudent;
     }
 };
 

@@ -57,7 +57,13 @@ public:
         model.add(IloMinimize(env, opt));
         std::cout << getTimeSpent() << std::endl;
         IloCplex cplex(model);
-        //cplex.setParam(IloCplex::TiLim, 100.000);
+        cplex.setParam(IloCplex::WorkMem, 0);
+        cplex.setParam(IloCplex::TreLim, 10000);
+        cplex.setParam(IloCplex::NodeFileInd, 0);
+        cplex.setParam(IloCplex::AuxRootThreads, -1);
+        cplex.setParam(IloCplex::PrePass, 0);
+        cplex.setParam(IloCplex::AggInd, 0);
+
         //cplex.exportModel("/Volumes/MAC/ClionProjects/timetabler/nome.lp");
 
         if (cplex.solve()) {
@@ -790,29 +796,27 @@ private:
 
     //Stu
     void init() {
-        for (int i = 0; i < instance->getStudent().size(); ++i) {
+        for (int i = 0; i < instance->getClusterStudent().size(); ++i) {
             student.add(IloBoolVarArray(env, instance->getClasses().size()));
         }
     }
 
     void requiredClasses() {
-        int s = 0;
         int size = 0;
-        for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
-             it != instance->getStudent().end(); ++it) {
+        for (int s = 0; s < instance->getClusterStudent().size(); ++s) {
             std::vector < Class * > temp;
-            for (int c = 0; c < it->second.getCourse().size(); ++c) {
+            for (int c = 0; c < instance->getClusterStudent()[s].getCourses().size(); ++c) {
                 IloNumExpr course =  IloNumExpr(env);;
-                for (int conf = 0; conf < it->second.getCourse()[c]->getNumConfig(); ++conf) {
+                for (int conf = 0; conf < instance->getClusterStudent()[s].getCourses()[c]->getNumConfig(); ++conf) {
                     IloNumExpr con =  IloNumExpr(env);;
-                    for (int part = 0; part < it->second.getCourse()[c]->getSubpart(conf).size(); ++part) {
+                    for (int part = 0; part < instance->getClusterStudent()[s].getCourses()[c]->getSubpart(conf).size(); ++part) {
                         IloNumExpr sub =  IloNumExpr(env);;
 
                         for (int cla = 0;
-                             cla < it->second.getCourse()[c]->getSubpart(conf)[part]->getClasses().size(); ++cla) {
-                            sub += student[s][it->second.getCourse()[c]->getSubpart(
+                             cla < instance->getClusterStudent()[s].getCourses()[c]->getSubpart(conf)[part]->getClasses().size(); ++cla) {
+                            sub += student[s][instance->getClusterStudent()[s].getCourses()[c]->getSubpart(
                                     conf)[part]->getClasses()[cla]->getOrderID()];
-                            temp.push_back(it->second.getCourse()[c]->getSubpart(
+                            temp.push_back(instance->getClusterStudent()[s].getCourses()[c]->getSubpart(
                                     conf)[part]->getClasses()[cla]);
 
                         }
@@ -821,11 +825,11 @@ private:
                         model.add(ctemp);
                         con += sub;
                     }
-                    IloConstraint ctemp(con == it->second.getCourse()[c]->getSubpart(conf).size() ||
+                    IloConstraint ctemp(con == instance->getClusterStudent()[s].getCourses()[c]->getSubpart(conf).size() ||
                                         0 == con);
                     ctemp.setName(("requiredClassesConf_"+itos(s)+"_"+itos(c)+"_"+itos(conf)).c_str());
                     model.add(ctemp);
-                    size = it->second.getCourse()[c]->getSubpart(conf).size();
+                    size = instance->getClusterStudent()[s].getCourses()[c]->getSubpart(conf).size();
                     course += con;
                 }
                 IloConstraint ctemp(course == size);
@@ -833,7 +837,6 @@ private:
                 model.add(ctemp);
             }
             conflictV.push_back(temp);
-            s++;
 
         }
 
@@ -842,17 +845,14 @@ private:
 
 
     void parentChild() {
-        int s = 0;
-        for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
-             it != instance->getStudent().end(); ++it) {
+        for (int i = 0; i < instance->getClusterStudent().size(); ++i) {
             for (int c = 0; c < instance->getClasses().size(); ++c) {
                 if (instance->getClasses()[c]->getParent() != nullptr) {
-                    model.add(IloIfThen(env, student[s][instance->getClasses()[c]->getOrderID()] == 1,
-                                        student[s][instance->getClasses()[c]->getParent()->getOrderID()] == 1));
+                    model.add(IloIfThen(env, student[i][instance->getClasses()[c]->getOrderID()] == 1,
+                                        student[i][instance->getClasses()[c]->getParent()->getOrderID()] == 1));
                 }
 
             }
-            s++;
         }
 
     }
@@ -924,7 +924,7 @@ private:
     void limit() {
         for (int cla = 0; cla < instance->getClasses().size(); ++cla) {
             IloNumExpr stu =  IloNumExpr(env);;
-            for (int i = 0; i < instance->getStudent().size(); ++i) {
+            for (int i = 0; i < instance->getClusterStudent().size(); ++i) {
                 stu += student[i][instance->getClasses()[cla]->getOrderID()];
             }
             IloConstraint c(stu <= instance->getClasses()[cla]->getLimit());
@@ -934,12 +934,25 @@ private:
     }
 
     void saveStu(IloCplex cplex) {
-        for (int s = 0; s < instance->getStudent().size(); ++s) {
+        for (int s = 0; s < instance->getClusterStudent().size(); ++s) {
+            std::cout<<"New CLuster "<< instance->getClusterStudent()[s].getId()<<std::endl;
+            for (int j = 0; j < instance->getClusterStudent()[s].getCourses().size(); ++j) {
+                std::cout<<instance->getClusterStudent()[s].getCourses()[j]->getName()<<std::endl;
+            }
+            std::cout<<"Student"<<std::endl;
+            for (int i = 0; i < instance->getClusterStudent()[s].getStudent().size(); ++i) {
+                std::cout<<instance->getClusterStudent()[s].getStudent()[i].getId()<<std::endl;
+            }
             for (int cla = 0; cla < instance->getClasses().size(); ++cla) {
                 if (cplex.getValue(student[s][instance->getClasses()[cla]->getOrderID()]) == 1) {
                     Class *c = instance->getClasses()[cla];
-                    c->addStudent(instance->getStudent(s + 1).getId());
-                    instance->getStudent(s + 1).addClass(c);
+                    for (int i = 0; i < instance->getClusterStudent()[s].getStudent().size(); ++i) {
+                        c->addStudent(instance->getClusterStudent()[s].getStudent()[i].getId());
+                        instance->getClusterStudent()[s].getStudent()[i].addClass(c);
+                        std::cout<<instance->getClusterStudent()[s].getStudent()[i].getId()<<" "<<c->getId()<<std::endl;
+
+                    }
+
                 }
             }
         }

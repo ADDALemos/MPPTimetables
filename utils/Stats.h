@@ -31,6 +31,7 @@ void printStudentsStats(Instance *instance){
             }
             if(!t) {
                 v++;
+                std::cout<<it->second.getId()<<" "<<it1->second.getId()<<std::endl;
             }
                 v1++;
 

@@ -6,7 +6,7 @@
 #include <list>
 #include "problem/Lecture.h"
 #include "problem/Room.h"
-#include "problem/Course.h"
+#include "problem/ClusterStudents.h"
 #include "problem/distribution.h"
 #include "rapidXMLParser/rapidxml.hpp"
 #include "rapidXMLParser/rapidxml_print.hpp"
@@ -57,15 +57,56 @@ std::map<int, std::vector<distribution *> *> classSoft;
 
 
 int main(int argc, char **argv) {
+    int idc=0;
 
 
     //if (!quiet) std::cout << "Starting Reading File: " << argv[1] << std::endl;
     std::map<int, int> roomCluster;
-    std::vector<Cluster *> cluster;
-    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/bet-sum18.xml");
+    std::vector<ClusterStudent> clusterStudent;
+    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/pu-cs-fal07.xml");
     std::cout << instance->getName() << std::endl;
-    printStudentsStats(instance);
-    std::exit(1);
+    for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
+         it != instance->getStudent().end(); ++it) {
+        bool temp=false;
+        if(clusterStudent.size()==0)
+            clusterStudent.push_back(ClusterStudent(idc++,it->second.getCourse(),it->second));
+        for (int i = 0; i < clusterStudent.size(); ++i) {
+            bool  t=false;
+            for (int c = 0; c < it->second.getCourse().size(); ++c) {
+                t=false;
+                for (int c1 = 0; c1 < clusterStudent[i].getCourses().size(); ++c1) {
+                    if(clusterStudent[i].getCourses()[c1]->getName().compare(it->second.getCourse()[c]->getName())==0){
+                        t=true;
+                        break;
+                    }
+                }
+                if(!t)
+                    break;
+
+            }
+            if(t) {
+                temp=true;
+                clusterStudent[i].addStudent(it->second);
+            }
+        }
+        if(!temp)
+            clusterStudent.push_back(ClusterStudent(idc++,it->second.getCourse(),it->second));
+
+        
+    }
+    for (int l = 0; l < clusterStudent.size(); ++l) {
+        std::cout<<"NEW CLUSTER"<<std::endl;
+        for (int i = 0; i < clusterStudent[l].getStudent().size(); ++i) {
+            std::cout<<clusterStudent[l].getStudent()[i].getId()<<" ";
+            for (int j = 0; j < clusterStudent[l].getCourses().size(); ++j) {
+                std::cout<<clusterStudent[l].getCourses()[j]->getName()<<" ";
+            }
+            std::cout<<std::endl;
+
+        }
+
+    }
+    instance->setStudentCluster(clusterStudent);
 
     /*for (int j = 0; j < instance->getClasses().size(); ++j) {
         bool exist=false;
