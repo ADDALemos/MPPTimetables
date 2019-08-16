@@ -50,7 +50,7 @@ private:
 
     std::map<std::string, Course *> courses;
     std::vector<distribution *> dist;
-    std::map<int, Room> rooms;
+    std::map<int, Room*> rooms;
     std::map<int, Student> student;
     int timePen;
     int roomPen;
@@ -103,11 +103,11 @@ public:
         Instance::dist = dist;
     }
 
-    std::map<int, Room> &getRooms() {
+    std::map<int, Room*> &getRooms() {
         return rooms;
     }
 
-    void setRooms(const std::map<int, Room> &rooms) {
+    void setRooms(const std::map<int, Room*> &rooms) {
         Instance::rooms = rooms;
     }
 
@@ -201,12 +201,12 @@ public:
     }
 
 
-    void addRoom(Room pRoom) {
-        rooms.insert(std::pair<int, Room>(pRoom.getId(), pRoom));
+    void addRoom(Room *pRoom) {
+        rooms.insert(std::pair<int, Room*>(pRoom->getId(), pRoom));
 
     }
 
-    Room getRoom(int roomID) {
+    Room* getRoom(int roomID) {
         if (rooms.find(roomID) != rooms.end())
             return rooms.at(roomID);
         else {
@@ -270,6 +270,11 @@ public:
                 return classes[j];
         }
         return nullptr;
+    }
+
+    void setClasses(std::vector<Class *> result) {
+        classes=result;
+        nClasses=classes.size();
     }
 
     unsigned int computeNumClasses() {
@@ -375,13 +380,13 @@ public:
     }
 
     void blockRoom(int roomID) {
-        rooms.at(roomID).block();
+        rooms.at(roomID)->block();
 
     }
 
     bool isRoomBlocked(int roomID) {
         if (rooms.find(roomID) != rooms.end())
-            return rooms.at(roomID).isClose();
+            return rooms.at(roomID)->isClose();
         else {
             std::cerr << "Room does not exist: " << roomID << std::endl;
             std::exit(11);
@@ -389,12 +394,12 @@ public:
     }
 
     void blockRoombyDay(int roomID, std::string day) {
-        rooms.at(roomID).block(day);
+        rooms.at(roomID)->block(day);
 
     }
 
     bool isRoomBlockedbyDay(int roomID, int day) {
-        return rooms.at(roomID).isClosebyDay(day);
+        return rooms.at(roomID)->isClosebyDay(day);
     }
 
     bool isTimeUnavailable(int slot) {
@@ -451,7 +456,7 @@ public:
     double getAvCapacity() {
         double d = 0;
         for (int i = 1; i <= getNumRoom(); ++i) {
-            d += getRoom(i).getCapacity();
+            d += getRoom(i)->getCapacity();
         }
         return d / getNumRoom();
     }
@@ -465,7 +470,7 @@ public:
         int mean = getAvCapacity();
         double d = 0;
         for (int i = 1; i <= getNumRoom(); ++i) {
-            d += std::pow(getRoom(i).getCapacity() - mean, 2);
+            d += std::pow(getRoom(i)->getCapacity() - mean, 2);
         }
         return std::sqrt(d / (getNumRoom() - 1));
     }

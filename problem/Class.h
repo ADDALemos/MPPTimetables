@@ -28,12 +28,10 @@ class Class {
     Class *parent = nullptr;
     Solution *sol = new Solution(-1, "-1", "-1");
     std::vector<int> student;
-
     int cost = 0;
     int costG = 0;
 
 public:
-
     int getCost() {
         return cost;
     }
@@ -155,13 +153,17 @@ public:
         return sol->getDuration();
     }
 
-    Class(int id, int limit, std::vector<Lecture *, std::allocator<Lecture *>> pLecture, std::map<Room, int> map,
+    Class(int id, int limit, std::vector<Lecture *, std::allocator<Lecture *>> pLecture, std::map<Room*, int> map,
           int order,std::string subconfcour) : id(id), limit(limit), orderID(order), subconfcour(subconfcour) {
         lectures = pLecture;
         possibleRooms = map;
     }
+    Class(int id, int limit,
+          int order,std::string subconfcour) : id(id), limit(limit), orderID(order), subconfcour(subconfcour) {
 
-    Class(int id, int limit, Lecture *pLecture, std::map<Room, int> map,
+    }
+
+    Class(int id, int limit, Lecture *pLecture, std::map<Room*, int> map,
           int order,std::string subconfcour) : id(id), limit(limit), orderID(order), subconfcour(subconfcour) {
         lectures.push_back(pLecture);
     }
@@ -184,80 +186,54 @@ public:
 
 private:
     std::vector<Lecture *> lectures;
-    std::map<Room, int> possibleRooms;
+    std::map<Room*, int> possibleRooms;
 
-    std::map<Room, std::vector<std::pair<int, Lecture *>>> possiblePair;
+    std::vector<std::pair<Room*, Lecture *>> possiblePair;
+
+    std::map<Room*,std::vector<int>> value;
 
 public:
-    void setPossiblePair(Room r, Lecture *l, int v) {
-        if (possiblePair.find(r) != possiblePair.end())
-            possiblePair[r].push_back(std::pair<int, Lecture *>(v, l));
-        else {
-            std::vector<std::pair<int, Lecture *>> lv;
-            lv.push_back(std::pair<int, Lecture *>(v, l));
-            possiblePair.insert(std::pair<Room, std::vector<std::pair<int, Lecture *>>>(r, lv));
-        }
+
+    std::vector<int> getRoomKey(Room*r){
+        return value[r];
     }
 
-    int size = 0;
 
-    void computeSize() {
-        int s = 0;
-        for (std::map<Room, std::vector<std::pair<int, Lecture *>>>::iterator it = possiblePair.begin();
-             it != possiblePair.end(); ++it) {
-            s += it->second.size();
-        }
-        size = s;
-    }
-
-    std::pair<Room, Lecture *> getPossiblePair(int v) {
-        for (std::map<Room, std::vector<std::pair<int, Lecture *>>>::iterator it = possiblePair.begin();
-             it != possiblePair.end(); ++it) {
-            for (int i = 0; i < it->second.size(); i++) {
-                if (it->second[i].first == v)
-                    return std::pair<Room, Lecture *>(it->first, it->second[i].second);
-            }
-        }
+    std::pair<Room*, Lecture *> getPossiblePair(int v) {
+        return possiblePair[v];
 
     }
 
-    std::vector<std::pair<int, Lecture *>> getPossiblePair(Room r) {
-        return possiblePair[r];
+    void setPossiblePair(Room *r, Lecture *l, int v){
+        possiblePair.push_back(std::pair<Room*,Lecture*>(r,l));
+        if(value.find(r)!=value.end()){
+            value[r].push_back(v);
+        } else{
+            std::vector<int> t; t.push_back(v);
+            value.insert(std::pair<Room*,std::vector<int>>(r,t));
+        }
     }
 
-    Room getPossiblePairRoom(int v) {
-        for (std::map<Room, std::vector<std::pair<int, Lecture *>>>::iterator it = possiblePair.begin();
-             it != possiblePair.end(); ++it) {
-            for (int i = 0; i < it->second.size(); i++) {
-                if (it->second[i].first == v)
-                    return it->first;
-            }
-        }
-        throw std::out_of_range("getPossiblePairRoom::at: key not found");
+
+    Room* getPossiblePairRoom(int v) {
+        return possiblePair[v].first;
 
     }
 
     Lecture *getPossiblePairLecture(int v) {
-        for (std::map<Room, std::vector<std::pair<int, Lecture *>>>::iterator it = possiblePair.begin();
-             it != possiblePair.end(); ++it) {
-            for (int i = 0; i < it->second.size(); i++) {
-                if (it->second[i].first == v)
-                    return it->second[i].second;
-            }
-        }
-        throw std::out_of_range("getPossiblePairLecture::at: key not found");
+        return possiblePair[v].second;
 
     }
 
     int getPossiblePairSize() {
-        return size;
+        return possiblePair.size();
     }
 
-    void addRoom(Room r) {
-        possibleRooms.insert(std::pair<Room, int>(r, 1));
+    void addRoom(Room* r) {
+        possibleRooms.insert(std::pair<Room*, int>(r, 1));
     }
 
-    Room getFirstPossibleRoom() {
+    Room* getFirstPossibleRoom() {
         return possibleRooms.begin()->first;
     }
 
@@ -273,9 +249,9 @@ public:
 
     }*/
 
-    Room getPossibleRoom(int n) {
+    Room* getPossibleRoom(int n) {
         int i = 0;
-        for (std::map<Room, int>::iterator it = possibleRooms.begin(); it != possibleRooms.end(); ++it) {
+        for (std::map<Room*, int>::iterator it = possibleRooms.begin(); it != possibleRooms.end(); ++it) {
             if (i == n)
                 return it->first;
             i++;
@@ -283,10 +259,10 @@ public:
         throw std::out_of_range("possibleRooms::at: key not found");
     }
 
-    int getPossibleRoom(Room n) {
+    int getPossibleRoom(Room* n) {
         int i = 0;
-        for (std::map<Room, int>::iterator it = possibleRooms.begin(); it != possibleRooms.end(); ++it) {
-            if (it->first.getId() == n.getId())
+        for (std::map<Room*, int>::iterator it = possibleRooms.begin(); it != possibleRooms.end(); ++it) {
+            if (it->first->getId() == n->getId())
                 return i;
             i++;
         }
@@ -294,29 +270,29 @@ public:
     }
 
 
-    int getPossibleRoomCost(Room n) {
-        for (std::map<Room, int>::iterator it = possibleRooms.begin(); it != possibleRooms.end(); ++it) {
-            if (it->first.getId() == n.getId())
+    int getPossibleRoomCost(Room* n) {
+        for (std::map<Room*, int>::iterator it = possibleRooms.begin(); it != possibleRooms.end(); ++it) {
+            if (it->first->getId() == n->getId())
                 return it->second;
         }
         return -1;
     }
 
     int getPossibleRoomCost(int n) {
-        for (std::map<Room, int>::iterator it = possibleRooms.begin(); it != possibleRooms.end(); ++it) {
-            if (it->first.getId() == n)
+        for (std::map<Room*, int>::iterator it = possibleRooms.begin(); it != possibleRooms.end(); ++it) {
+            if (it->first->getId() == n)
                 return it->second;
         }
         throw std::out_of_range("possibleRooms::at: key not found");
     }
 
-    bool containsRoom(Room id) {
+    bool containsRoom(Room* id) {
         return possibleRooms.find(id) != possibleRooms.end();
     }
 
     inline bool isModified() { return modified; }
     Class(int id, int limit, const std::vector<Lecture *, std::allocator<Lecture *>> &lectures,
-          std::map<Room, int> possibleRooms, std::string subconfcour) : id(id), limit(limit), lectures(lectures), possibleRooms(possibleRooms),
+          std::map<Room*, int> possibleRooms, std::string subconfcour) : id(id), limit(limit), lectures(lectures), possibleRooms(possibleRooms),
                                                parent(nullptr), subconfcour(subconfcour) {
     }
 
@@ -455,13 +431,13 @@ public:
         Class::lectures = lectures;
     }
 
-    std::map<Room, int> getPossibleRooms() {
+    std::map<Room*, int> getPossibleRooms() {
         return possibleRooms;
     }
 
-    std::pair<Room, int> getPossibleRoomPair(int v) {
+    std::pair<Room*, int> getPossibleRoomPair(int v) {
         int i = 0;
-        for (std::pair<Room, int> r: getPossibleRooms()) {
+        for (std::pair<Room*, int> r: getPossibleRooms()) {
             if (i == v)
                 return r;
             i++;
@@ -469,7 +445,7 @@ public:
         throw std::out_of_range("possibleRooms::at: key not found");
     }
 
-    int getPen(Room r) {
+    int getPen(Room* r) {
         return possibleRooms[r];
     }
 
@@ -480,7 +456,7 @@ public:
     }
 
     void
-    setPossibleRooms(const std::map<Room, int> &possibleRooms) {
+    setPossibleRooms(const std::map<Room*, int> &possibleRooms) {
         Class::possibleRooms = possibleRooms;
     }
 

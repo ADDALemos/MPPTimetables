@@ -13,7 +13,7 @@ class Cluster {
     int id;
     std::vector<Class *> classes;
     std::map<Class *, int> map;
-    Room rooms;
+    Room* rooms;
 
 public:
 
@@ -21,7 +21,7 @@ public:
 
     std::vector<Class *> getClasses() { return classes; }
 
-    Room getRooms() { return rooms; }
+    Room* getRooms() { return rooms; }
 
     int getClusterID() { return id; }
 
@@ -30,13 +30,13 @@ public:
         map.insert(std::pair<Class *, int>(c, p));
     }
 
-    void addRoom(Room r) { rooms = r; }
+    void addRoom(Room* r) { rooms = r; }
 
-    Cluster(int id, Room r) : id(id), rooms(r) {
+    Cluster(int id, Room* r) : id(id), rooms(r) {
 
     }
 
-    Cluster(int id, Class *c, int p, Room r) : id(id), rooms(r) {
+    Cluster(int id, Class *c, int p, Room* r) : id(id), rooms(r) {
         addClass(c, p);
     }
 

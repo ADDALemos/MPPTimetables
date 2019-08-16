@@ -10,6 +10,7 @@
 #include <ostream>
 #include <map>
 #include "Unavailability.h"
+#include "Time.h"
 
 class Room {
 private:
@@ -21,7 +22,8 @@ private:
     std::map<int,int> travel;//room time
     std::vector<Unavailability> slots;
 public:
-    std::map<int,std::vector<std::pair<int, int>>> t;
+    //std::map<int,std::vector<std::pair<int, int>>> t;
+    std::vector<Time*> t;
 
 
     //Legacy
