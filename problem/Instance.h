@@ -14,7 +14,7 @@
 #include "distribution.h"
 #include "Room.h"
 #include "Student.h"
-#include "Cluster.h"
+#include "ClassbyRoom.h"
 #include "ClusterStudents.h"
 
 class Instance {
@@ -31,14 +31,14 @@ private:
     int min = -1, max = -1;
     unsigned int nClasses = 0;
     std::vector<Class *> classes;
-    std::vector<Cluster *> cluster;
+    std::vector<ClassbyRoom *> cluster;
     std::map<int, std::vector<Class *>> classesWeek;
 public:
-    const std::vector<Cluster *> &getClassbyclusterRoom() const {
+    const std::vector<ClassbyRoom *> &getClassbyclusterRoom() const {
         return cluster;
     }
 
-    void setClassbyclusterRoom(std::vector<Cluster *> cluster) {
+    void setClassbyclusterRoom(std::vector<ClassbyRoom *> cluster) {
         Instance::cluster = cluster;
     }
 
