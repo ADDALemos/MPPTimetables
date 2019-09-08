@@ -4,7 +4,12 @@
 
 #ifndef TIMETABLER_CLASS_H
 #define TIMETABLER_CLASS_H
-
+#ifndef IL_STD
+#define IL_STD
+#endif
+#include <ilconcert/iloenv.h>
+#include <ilconcert/ilomodel.h>
+#include <ilcplex/ilocplex.h>
 #include <vector>
 #include <utility>
 #include <ostream>
@@ -30,8 +35,25 @@ class Class {
     std::vector<int> student;
     int cost = 0;
     int costG = 0;
-
+    int courseID;
+    IloNumExpr oneeach;
 public:
+    const IloNumExpr &getOneeach() const {
+        return oneeach;
+    }
+
+    void setOneeach(const IloNumExpr &oneeach) {
+        Class::oneeach = oneeach;
+    }
+
+    int getCourseID() {
+        return courseID;
+    }
+
+    void setCourseID(int courseID) {
+        Class::courseID = courseID;
+    }
+
     int getCost() {
         return cost;
     }

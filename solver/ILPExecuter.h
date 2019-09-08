@@ -8,7 +8,6 @@
 #define IL_STD
 #endif
 
-#include <gurobi_c++.h>
 
 #include <ilconcert/iloenv.h>
 #include <ilconcert/ilomodel.h>
@@ -214,9 +213,7 @@ public:
     }
 
 public:
-    virtual GRBLinExpr timeOptions() {
-        return 0;
-    }
+
 
     int **getSolutionRoom() const {
         return solutionRoom;
@@ -324,7 +321,7 @@ protected:
         for (int i = 0; i < instance->getRooms().size(); i++) {
             for (int j = 0; j < instance->getClasses().size(); ++j) {
                 if (solutionRoom[i][j] != 0) {
-                    std::cout << instance->getRoom(i + 1).getName() << " " << instance->getClasses()[j]->getId() << " "
+                    std::cout << instance->getRoom(i + 1)->getName() << " " << instance->getClasses()[j]->getId() << " "
                               << solutionRoom[i][j] << std::endl;
                 }
             }
@@ -373,12 +370,12 @@ protected:
                     for (int i = 0; i < instance->getClasses().size(); i++)
                         lecture += solutionTime[d][t][i] * solutionRoom[r][i];
                     if (lecture > 1) {
-                        std::cout << "!!Invalid solution room!!: " << instance->getRoom(r).getName() << " " << d << " "
+                        std::cout << "!!Invalid solution room!!: " << instance->getRoom(r)->getName() << " " << d << " "
                                   << t << " lectures: ";
                         for (int i = 0; i < instance->getClasses().size(); i++)
                             if (solutionTime[d][t][i] * solutionRoom[r][i] == 1)
                                 std::cout << instance->getClasses()[i]->getDay() << " "
-                                          << instance->getRoom(instance->getClasses()[i]->getSolRoom()).getName() << " "
+                                          << instance->getRoom(instance->getClasses()[i]->getSolRoom())->getName() << " "
                                           << instance->getClasses()[i]->getSolStart() << " \n";
                         std::cout << std::endl;
                     }
@@ -393,26 +390,11 @@ protected:
 public:
 
 
-    virtual GRBLinExpr travel(std::vector<Class *> c, int pen) { return 0; }
-
-    virtual void dayConst() {}
-
-    virtual GRBLinExpr overlap(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
-        return 0;
-    }
-
-    virtual GRBLinExpr differentDay(const std::vector<Class *, std::allocator<Class *>> &vector, int penalty, bool b) {
-        return 0;
-    }
-
 
     virtual void dist(bool hard) {
 
     }
 
-    virtual GRBLinExpr roomPen() {
-        return 0;
-    }
 
     virtual void roomUnavailable() {
 

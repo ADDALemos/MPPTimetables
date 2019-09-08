@@ -43,13 +43,36 @@ protected:
     bool isRoomProblem = false;
 
 public:
+
+    bool ** getStu(){ return stu;}
+
+    LocalSearch(Instance *instance): instance(instance){
+        stu = new bool *[instance->getStudent().size()];
+        stuSub = new bool *[instance->getStudent().size()];
+        int i = 0;
+        for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
+             it != instance->getStudent().end(); ++it) {
+            stu[i] = new bool[instance->getClasses().size()];
+            stuSub[i] = new bool[it->second.getNumbSubpart()];
+            for (int j = 0; j < instance->getClasses().size(); ++j) {
+                stu[i][j] = 0;
+            }
+            for (int j = 0; j < it->second.getNumbSubpart(); ++j) {
+                stuSub[i][j] = 0;
+            }
+            totalNassigment += it->second.getNumbSubpart();
+            i++;
+        }
+    }
     LocalSearch(int MAX_ITERATIONS, double rcl, Instance *instance, int seconds);
 
     virtual void GRASP();
 
     virtual void LNS();
 
-    LocalSearch(Instance *pInstance);
+    void greedyStu();
+
+
 
 protected:
 
@@ -98,7 +121,7 @@ protected:
 
     virtual int getGAPStored();
 
-    virtual int checkUpdate(int maxCost, int id, int time, const std::pair<Room, int> &room);
+    virtual int checkUpdate(int maxCost, int id, int time, const std::pair<Room*, int> &room);
 
     virtual int checkUpdate(int maxCost, int id, int time) { return 0; };
 
@@ -111,7 +134,6 @@ protected:
 
     int stuCost(Class *c, Student s);
 
-    void greedyStu();
 
     void removeElement();
 

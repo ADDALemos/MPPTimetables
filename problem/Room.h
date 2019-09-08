@@ -101,7 +101,7 @@ public:
         return 0;
     }
 
-    const std::map<int, int> &getTravel() const {
+     std::map<int, int> &getTravel()  {
         return travel;
     }
 

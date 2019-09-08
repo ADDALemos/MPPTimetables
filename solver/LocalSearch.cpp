@@ -41,10 +41,10 @@ void LocalSearch::allRandom() {
                             instance->getClasses()[c]->getLectures()[t]->getStart(),
                             instance->getClasses()[c]->getLectures()[t]->getLenght(),
                             instance->getClasses()[c]->getPossibleRoomPair(
-                                    r).first.getId()) == 0) {
+                                    r).first->getId()) == 0) {
                 current[c] = new Solution(c, instance->getClasses()[c]->getLectures()[t]->getStart(),
                                           instance->getClasses()[c]->getPossibleRoomPair(
-                                                  r).first.getId(),
+                                                  r).first->getId(),
                                           instance->getClasses()[c]->getLectures()[t]->getWeeks(),
                                           instance->getClasses()[c]->getLectures()[t]->getDays(),
                                           instance->getClasses()[c]->getLectures()[t]->getLenght(), 0, 0);
@@ -113,22 +113,6 @@ LocalSearch::LocalSearch(int MAX_ITERATIONS, double rcl, Instance *instance, int
     init();
     totalNassigment = 0;
     sizeRCL = instance->getClasses().size() * rcl;
-    stu = new bool *[instance->getStudent().size()];
-    stuSub = new bool *[instance->getStudent().size()];
-    int i = 0;
-    for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
-         it != instance->getStudent().end(); ++it) {
-        stu[i] = new bool[instance->getClasses().size()];
-        stuSub[i] = new bool[it->second.getNumbSubpart()];
-        for (int j = 0; j < instance->getClasses().size(); ++j) {
-            stu[i][j] = 0;
-        }
-        for (int j = 0; j < it->second.getNumbSubpart(); ++j) {
-            stuSub[i][j] = 0;
-        }
-        totalNassigment += it->second.getNumbSubpart();
-        i++;
-    }
     sizeRCLS = instance->getStudent().size() * rcl;
 
 
@@ -215,7 +199,7 @@ void LocalSearch::Greedy1() {
                                                                              instance->getClasses()[i]->getLectures().size() -
                                                                              1);
                             int t = distributionT(generatorT);
-                            std::pair<Room, int> room(Room(-1), 0);
+                            std::pair<Room*, int> room(new Room(-1), 0);
                             while (checkUpdate(maxCost, i, t, room) != 0 &&
                                    it <= instance->getClasses()[i]->getLectures().size()) {
 
@@ -266,10 +250,10 @@ void LocalSearch::Greedy1() {
                                                 tabu[l]->getSolStart(),
                                                 tabu[l]->getDuration(),
                                                 instance->getClasses()[tabu[l]->getLecture()]->getPossibleRoomPair(
-                                                        rP).first.getId()) == 0) {
+                                                        rP).first->getId()) == 0) {
                                     tabu[l]->setSolRoom(
                                             instance->getClasses()[tabu[l]->getLecture()]->getPossibleRoomPair(
-                                                    rP).first.getId());
+                                                    rP).first->getId());
                                     assign(tabu[l]);
                                     allocation++;
                                     break;
@@ -314,13 +298,13 @@ void LocalSearch::Greedy1() {
                                                              instance->getClasses()[tabu[l]->getLecture()]->getLectures()[tP]->getStart(),
                                                              instance->getClasses()[tabu[l]->getLecture()]->getLectures()[tP]->getLenght(),
                                                              instance->getClasses()[tabu[l]->getLecture()]->getPossibleRoomPair(
-                                                                     rP).first.getId())) == 0) {
+                                                                     rP).first->getId())) == 0) {
 
 
                                             tabu[l] = new Solution(tabu[l]->getLecture(),
                                                                    instance->getClasses()[tabu[l]->getLecture()]->getLectures()[tP]->getStart(),
                                                                    instance->getClasses()[tabu[l]->getLecture()]->getPossibleRoomPair(
-                                                                           rP).first.getId(),
+                                                                           rP).first->getId(),
                                                                    instance->getClasses()[tabu[l]->getLecture()]->getLectures()[tP]->getWeeks(),
                                                                    instance->getClasses()[tabu[l]->getLecture()]->getLectures()[tP]->getDays(),
                                                                    instance->getClasses()[tabu[l]->getLecture()]->getLectures()[tP]->getLenght(),
@@ -417,7 +401,7 @@ void LocalSearch::Greedy() {
                                                                              instance->getClasses()[i]->getLectures().size() -
                                                                              1);
                             int t = distributionT(generatorT);
-                            std::pair<Room, int> room(Room(-1), 0);
+                            std::pair<Room*, int> room(new Room(-1), 0);
                             while (checkUpdate(maxCost, i, t, room) != 0 &&
                                    it <= instance->getClasses()[i]->getLectures().size()) {
 
@@ -470,10 +454,10 @@ void LocalSearch::Greedy() {
                                             tabu[l]->getSolStart(),
                                             tabu[l]->getDuration(),
                                             instance->getClasses()[tabu[l]->getLecture()]->getPossibleRoomPair(
-                                                    rP).first.getId()) == 0) {
+                                                    rP).first->getId()) == 0) {
                                 tabu[l]->setSolRoom(
                                         instance->getClasses()[tabu[l]->getLecture()]->getPossibleRoomPair(
-                                                rP).first.getId());
+                                                rP).first->getId());
                                 assign(tabu[l]);
                                 allocation++;
                                 break;
@@ -518,12 +502,12 @@ void LocalSearch::Greedy() {
                                                          instance->getClasses()[tabu[l]->getLecture()]->getLectures()[tP]->getStart(),
                                                          instance->getClasses()[tabu[l]->getLecture()]->getLectures()[tP]->getLenght(),
                                                          instance->getClasses()[tabu[l]->getLecture()]->getPossibleRoomPair(
-                                                                 rP).first.getId())) == 0) {
+                                                                 rP).first->getId())) == 0) {
 
                                         tabu[l] = new Solution(tabu[l]->getLecture(),
                                                                instance->getClasses()[tabu[l]->getLecture()]->getLectures()[tP]->getStart(),
                                                                instance->getClasses()[tabu[l]->getLecture()]->getPossibleRoomPair(
-                                                                       rP).first.getId(),
+                                                                       rP).first->getId(),
                                                                instance->getClasses()[tabu[l]->getLecture()]->getLectures()[tP]->getWeeks(),
                                                                instance->getClasses()[tabu[l]->getLecture()]->getLectures()[tP]->getDays(),
                                                                instance->getClasses()[tabu[l]->getLecture()]->getLectures()[tP]->getLenght(),
@@ -586,7 +570,6 @@ void LocalSearch::greedyStu() {
 
                             }
                         }
-                        c1->addStudent(it->second.getId());
                         stu[it->second.getId() - 1][c1->getOrderID()] = 1;
                     }
 
@@ -602,8 +585,10 @@ void LocalSearch::greedyStu() {
 }
 
 
-int LocalSearch::checkUpdate(int maxCost, int id, int time, const std::pair<Room, int> &room) {
-    int roomID = room.first.getId();
+
+
+int LocalSearch::checkUpdate(int maxCost, int id, int time, const std::pair<Room*, int> &room) {
+    int roomID = room.first->getId();
     int costR = room.second;
     int costT = isAllocable(id,
                             instance->getClasses()[id]->getLectures()[time]->getWeeks(),
@@ -745,7 +730,7 @@ void LocalSearch::Local2() {
                                                instance->getClasses()[i]->getLectures()[l]->getDays(),
                                                instance->getClasses()[i]->getLectures()[l]->getStart(),
                                                instance->getClasses()[i]->getLectures()[l]->getLenght(),
-                                               instance->getClasses()[i]->getPossibleRoomPair(l).first.getId())) !=
+                                               instance->getClasses()[i]->getPossibleRoomPair(l).first->getId())) !=
                            0) {
                         remo1.push_back(remo);
                         oldSol.push_back(current[instance->getClasses()[remo]->getOrderID()]);
@@ -939,25 +924,25 @@ LocalSearch::isAllocable(int lectureID, std::string week, std::string day, int s
 
     }
     if (roomID != -1) {
-        for (int una = 0; una < instance->getRoom(roomID).getSlots().size(); ++una) {
+        for (int una = 0; una < instance->getRoom(roomID)->getSlots().size(); ++una) {
             for (int i = 0; i < instance->getNweek(); ++i) {
-                if (week[i] == instance->getRoom(roomID).getSlots()[una].getWeeks()[i] &&
-                    instance->getRoom(roomID).getSlots()[una].getWeeks()[i] == '1') {
+                if (week[i] == instance->getRoom(roomID)->getSlots()[una].getWeeks()[i] &&
+                    instance->getRoom(roomID)->getSlots()[una].getWeeks()[i] == '1') {
                     for (int d = 0; d < instance->getNdays(); ++d) {
-                        if (day[d] == instance->getRoom(roomID).getSlots()[una].getDays()[d] && day[d] == '1') {
-                            if (start >= instance->getRoom(roomID).getSlots()[una].getStart() &&
+                        if (day[d] == instance->getRoom(roomID)->getSlots()[una].getDays()[d] && day[d] == '1') {
+                            if (start >= instance->getRoom(roomID)->getSlots()[una].getStart() &&
                                 start < instance->getRoom(
-                                        roomID).getSlots()[una].getStart() + instance->getRoom(
-                                        roomID).getSlots()[una].getLenght()) {
+                                        roomID)->getSlots()[una].getStart() + instance->getRoom(
+                                        roomID)->getSlots()[una].getLenght()) {
                                 isRoomProblem = true;
                                 problems = problemsTemp;
                                 return lectureID;
                             }
-                            if (start + duration >= instance->getRoom(roomID).getSlots()[una].getStart() && start <
+                            if (start + duration >= instance->getRoom(roomID)->getSlots()[una].getStart() && start <
                                                                                                             instance->getRoom(
-                                                                                                                    roomID).getSlots()[una].getStart() +
+                                                                                                                    roomID)->getSlots()[una].getStart() +
                                                                                                             instance->getRoom(
-                                                                                                                    roomID).getSlots()[una].getLenght()) {
+                                                                                                                    roomID)->getSlots()[una].getLenght()) {
                                 isRoomProblem = true;
                                 problems = problemsTemp;
                                 return lectureID;
@@ -982,7 +967,7 @@ LocalSearch::isAllocable(int lectureID, std::string week, std::string day, int s
                            != nullptr && current[instance->getClass(
                             instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom() !=
                                          -1) {
-                        if (start + duration + instance->getRoom(roomID).getTravel(current[instance->getClass(
+                        if (start + duration + instance->getRoom(roomID)->getTravel(current[instance->getClass(
                                 instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()) <=
                             current[instance->getClass(
                                     instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolStart()
@@ -991,7 +976,7 @@ LocalSearch::isAllocable(int lectureID, std::string week, std::string day, int s
                                current[instance->getClass(
                                        instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getDuration() +
                                instance->getRoom(current[instance->getClass(
-                                       instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()).getTravel(
+                                       instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom())->getTravel(
                                        roomID) <= start
                             || stringcompare(week, current[instance->getClass(
                                 instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolWeek(),
@@ -1010,7 +995,7 @@ LocalSearch::isAllocable(int lectureID, std::string week, std::string day, int s
                                        instance->getRoom(current[instance->getClass(
                                                instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()).getTravel(
                                                roomID)<<" "<<start<<std::endl;
-                            std::cout<<start + duration + instance->getRoom(roomID).getTravel(current[instance->getClass(instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()) <<" "<<
+                            std::cout<<start + duration + instance->getRoom(roomID)->getTravel(current[instance->getClass(instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolRoom()) <<" "<<
                                         current[instance->getClass(
                                                 instance->getClasses()[lectureID]->getHard()[h]->getClasses()[i])->getOrderID()]->getSolStart()<<std::endl;
                             std::cout<< stringcompare(day, current[instance->getClass(
@@ -1664,9 +1649,7 @@ int LocalSearch::getGAPStored() {
     return count;
 }
 
-LocalSearch::LocalSearch(Instance *pInstance) : instance(pInstance) {
 
-}
 
 int LocalSearch::tryswampRoom(int lecture, int roomID) {
     int old;
@@ -1767,7 +1750,7 @@ bool LocalSearch::assignable(int id, int pInt[]) {
                        instance->getClass(id)->getLectures()[rP]->getStart(),
                        instance->getClass(id)->getLectures()[rP]->getLenght(),
                        instance->getClass(id)->getPossibleRoomPair(
-                               tP).first.getId()) != 0) {
+                               tP).first->getId()) != 0) {
         tP = distributionR(generatorR);
         rP = distributionT(generatorT);
     }
@@ -1777,12 +1760,12 @@ bool LocalSearch::assignable(int id, int pInt[]) {
                     instance->getClass(id)->getLectures()[rP]->getStart(),
                     instance->getClass(id)->getLectures()[rP]->getLenght(),
                     instance->getClass(id)->getPossibleRoomPair(
-                            tP).first.getId()) == 0) {
+                            tP).first->getId()) == 0) {
 
         assign(new Solution(id,
                             instance->getClass(id)->getLectures()[rP]->getStart(),
                             instance->getClass(id)->getPossibleRoomPair(
-                                    tP).first.getId(),
+                                    tP).first->getId(),
                             instance->getClass(id)->getLectures()[rP]->getWeeks(),
                             instance->getClass(id)->getLectures()[rP]->getDays(),
                             instance->getClass(id)->getLectures()[rP]->getLenght(),
@@ -1832,12 +1815,12 @@ std::vector<Solution *> LocalSearch::findPossibleMove(int i) {
                                   this->instance->getClasses()[i]->getLectures()[m]->getStart(),
                                   this->instance->getClasses()[i]->getLectures()[m]->getLenght(),
                                   this->instance->getClasses()[i]->getPossibleRoomPair(
-                                          l).first.getId()) == 0) {
+                                          l).first->getId()) == 0) {
 
                 reslut.push_back(new Solution(this->tabu[l]->getLecture(),
                                               this->instance->getClasses()[i]->getLectures()[m]->getStart(),
                                               this->instance->getClasses()[i]->getPossibleRoomPair(
-                                                      l).first.getId(),
+                                                      l).first->getId(),
                                               this->instance->getClasses()[i]->getLectures()[m]->getWeeks(),
                                               this->instance->getClasses()[i]->getLectures()[m]->getDays(),
                                               this->instance->getClasses()[i]->getLectures()[m]->getLenght(),
