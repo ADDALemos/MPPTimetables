@@ -36,13 +36,13 @@ class Class {
     int cost = 0;
     int costG = 0;
     int courseID;
-    IloNumExpr oneeach;
+    std::string oneeach;
 public:
-    const IloNumExpr &getOneeach() const {
+    const std::string &getOneeach() const {
         return oneeach;
     }
 
-    void setOneeach(const IloNumExpr &oneeach) {
+    void setOneeach(const std::string &oneeach) {
         Class::oneeach = oneeach;
     }
 

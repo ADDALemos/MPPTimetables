@@ -37,6 +37,7 @@
 using namespace rapidxml;
 
 Instance *readInputXML(std::string filename);
+int max=0;
 
 
 void readOutputXML(std::string filename, Instance *instance);
@@ -63,19 +64,18 @@ bool optTime = false;
 bool optStu = false;
 
 IloEnv env; //CPLEX execution
-std::map<int, std::vector<IloBoolVar>> cplexMap;
+std::map<int, std::vector<int>> cplexMap;
 std::vector<Curriculum*> problem;
 
-std::vector<ConstraintShort *> classConst;
-std::vector<ConstraintShort *> classSoft;
 
-IloExpr costTime = IloNumExpr(env);
 
-IloExpr costRoom = IloNumExpr(env);
+std::string costTime=" ";
+std::string costRoom=" ";
+//IloExpr costRoom = IloNumExpr(env);
 void save(IloCplex cplex, Instance * instance) {
     for (int c = 0; c < instance->getNumClasses(); c++) {
         for (int p = 0; p < instance->getClasses()[c]->getPossiblePairSize(); ++p) {
-            bool active = cplex.getValue(cplexMap[c][p]);
+            bool active;// = cplex.getValue(cplexMap[c][p]);
             if (active != 0) {
                 instance->getClasses()[c]->setSolution(new Solution(instance->getClasses()[c]->getId(),
                                                                     instance->getClasses()[c]->getPossiblePairLecture(
@@ -114,7 +114,7 @@ void save(IloCplex cplex, Instance * instance) {
          long long used_memory = ((int64_t)vm_stats.active_count +
                                   (int64_t)vm_stats.inactive_count +
                                   (int64_t)vm_stats.wire_count) *  (int64_t)page_size;
-         printf("free memory: %lld\nused memory: %lld\n", free_memory, used_memory);
+         printf("free memory: %lldused memory: %lld", free_memory, used_memory);
      }
      struct task_basic_info t_info;
      mach_msg_type_number_t t_info_count = TASK_BASIC_INFO_COUNT;
@@ -141,18 +141,24 @@ int main(int argc, char **argv) {
 
     printRAM();
 
-    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/iku-fal17_0.xml");
+    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/iku-fal17_15.xml");
+    std::ofstream file("/Volumes/MAC/ClionProjects/timetabler/iku-fal17_15.pb");
+
+
+
     /*for (int k = 0; k < problem.size(); ++k) {
         writeXML(instance,k,problem[k]);
     }
     std::exit(1);*/
     instance->setCompact(false);
+    std::cout<<max<<std::endl;
+    file<<"min: "<<costRoom<<" "<<costTime<<";"<<std::endl;
     printRAM();
 
 
     std::cout << instance->getName() <<" "<< problem.size()<<std::endl;
     for(Curriculum *c: problem) {
-        IloModel model = IloModel(env);
+        //IloModel model = IloModel(env);
 //        model.add(*c->getRange());
         //Size of c
         Class *idClassesDist,*idClassesDist1;
@@ -168,7 +174,8 @@ int main(int argc, char **argv) {
                                 if (idClassesDist->getPossiblePairLecture(p)->getDays()[i] ==
                                     idClassesDist1->getPossiblePairLecture(p1)->getDays()[i] &&
                                     idClassesDist->getPossiblePairLecture(p)->getDays()[i] == '1') {
-                                    ;
+                                    file<<"+1 x"<<std::to_string(cplexMap[idClassesDist->getOrderID()][p]) <<" +1 x"<< std::to_string(cplexMap[idClassesDist->getOrderID()][p])<<"<=1;"<<std::endl;
+
                                     /*model.add(cplexMap[idClassesDist->getOrderID()][p] +
                                           cplexMap[idClassesDist1->getOrderID()][p1] <= 1);*/
 
@@ -190,7 +197,8 @@ int main(int argc, char **argv) {
                                                    instance->getNdays()) ==
                                     1) { ;
                                 } else {
-                                    ;
+                                    file<<"+1 x"<<std::to_string(cplexMap[idClassesDist->getOrderID()][p]) <<" +1 x"<< std::to_string(cplexMap[idClassesDist->getOrderID()][p])<<"<=1;"<<std::endl;
+
                                     /*model.add(cplexMap[idClassesDist->getOrderID()][p] +
                                           cplexMap[idClassesDist1->getOrderID()][p1] <= 1);*/
 
@@ -235,9 +243,10 @@ int main(int argc, char **argv) {
                                                  instance->getNdays(), false) ==
                                    1) { ;
                             } else {
+                                file<<"+1 x"<<std::to_string(cplexMap[idClassesDist->getOrderID()][p]) <<" +1 x"<< std::to_string(cplexMap[idClassesDist->getOrderID()][p])<<"<=1;"<<std::endl;
 
-                                model.add(cplexMap[idClassesDist->getOrderID()][p] +
-                                          cplexMap[idClassesDist1->getOrderID()][p1] <= 1);
+                                /*model.add(cplexMap[idClassesDist->getOrderID()][p] +
+                                          cplexMap[idClassesDist1->getOrderID()][p1] <= 1);*/
                             }
                         }
 
@@ -258,7 +267,8 @@ int main(int argc, char **argv) {
                                 idClassesDist1->getPossiblePairLecture(p1)->getEnd() <=
                                 idClassesDist->getPossiblePairLecture(p)->getStart()) { ;
                             } else {
-                                ;
+                                file<<"+1 x"<<std::to_string(cplexMap[idClassesDist->getOrderID()][p]) <<" +1 x"<< std::to_string(cplexMap[idClassesDist->getOrderID()][p])<<"<=1;"<<std::endl;
+
                                 /*model.add(cplexMap[idClassesDist->getOrderID()][p] +
                                            cplexMap[idClassesDist1->getOrderID()][p1] <= 1);*/
 
@@ -290,7 +300,8 @@ int main(int argc, char **argv) {
                                      idClassesDist->getPossiblePairLecture(p)->getEnd() <=
                                      idClassesDist1->getPossiblePairLecture(p1)->getEnd());
                             else {
-                                ;
+                                file<<"+1 x"<<std::to_string(cplexMap[idClassesDist->getOrderID()][p]) <<" +1 x"<< std::to_string(cplexMap[idClassesDist->getOrderID()][p])<<"<=1;"<<std::endl;
+
                                 /*model.add(cplexMap[idClassesDist->getOrderID()][p] +
                                           cplexMap[idClassesDist1->getOrderID()][p1] <= 1);*/
 
@@ -315,7 +326,8 @@ int main(int argc, char **argv) {
                                        && idClassesDist->getPossiblePairLecture(p)->getEnd() <=
                                           idClassesDist1->getPossiblePairLecture(p1)->getEnd()) { ;
                             } else {
-                               ;/*model.add(cplexMap[idClassesDist->getOrderID()][p] +
+                                file<<"+1 x"<<std::to_string(cplexMap[idClassesDist->getOrderID()][p]) <<" +1 x"<< std::to_string(cplexMap[idClassesDist->getOrderID()][p])<<"<=1;"<<std::endl;
+/*model.add(cplexMap[idClassesDist->getOrderID()][p] +
                                           cplexMap[idClassesDist1->getOrderID()][p1] <= 1);*/
                             }
                         }
@@ -327,7 +339,8 @@ int main(int argc, char **argv) {
                     for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
                         for (int p1 = 0; p1< idClassesDist1->getPossiblePairSize(); ++p1) {
                             if(idClassesDist1->getPossiblePairLecture(p1)->getStart()!=idClassesDist->getPossiblePairLecture(p)->getStart())
-                                ;//model.add(cplexMap[idClassesDist1->getOrderID()][p1]+cplexMap[idClassesDist->getOrderID()][p]<=1);
+                                file<<"+1 x"<<std::to_string(cplexMap[idClassesDist->getOrderID()][p]) <<" +1 x"<< std::to_string(cplexMap[idClassesDist->getOrderID()][p])<<"<=1;"<<std::endl;
+//model.add(cplexMap[idClassesDist1->getOrderID()][p1]+cplexMap[idClassesDist->getOrderID()][p]<=1;);
                         }
 
                     }
@@ -339,28 +352,34 @@ int main(int argc, char **argv) {
                 }
             }
         }
+
         printRAM();
         //IloNumExpr t;
         for (auto *clu: c->getPClass()) {
             for (auto *x: clu->getClasses()) {
-                model.add(x->getOneeach());
+                file<<x->getOneeach()<<" <=1;"<<std::endl;
+                //model.add(x->getOneeach());
             }
             for (Room *r: clu->getRooms()) {
                 for (Time *time1: r->t) {
                     for (int con = 0; con < time1->getClassesC().size(); ++con) {
                         /*t = IloNumExpr(env);
                         t += cplexMap[time1->getClassesC()[con]][time1->getLectureC()[con]];*/
+                        file<<"+1 x"<<std::to_string(cplexMap[time1->getClassesC()[con]][time1->getLectureC()[con]]);
                         for (int cla = 0; cla < time1->getClassesS().size(); ++cla) {
-                            //model.add(cplexMap[time1->getClassesC()[con]][time1->getLectureC()[con]]+cplexMap[time1->getClassesS()[cla]][time1->getLectureS()[cla]]<=1);
+                            file<<" +1 x"<< std::to_string(cplexMap[time1->getClassesS()[cla]][time1->getLectureS()[cla]]);
+
+                            //model.add(cplexMap[time1->getClassesC()[con]][time1->getLectureC()[con]]+cplexMap[time1->getClassesS()[cla]][time1->getLectureS()[cla]]<=1;);
                             //t += cplexMap[time1->getClassesS()[cla]][time1->getLectureS()[cla]];
                         }
+                        file<<" <=1;"<<std::endl;
                         //start: 108 end: 142 day: 0100000 week: 11111111111111
                         /*IloConstraint tmep(t <= 1);
                         std::ostringstream stream;
                         stream << *time1;
                         tmep.setName(("oneLectureRoom" + itos(r->getId()) + "_" + stream.str() + "_" +
                                       itos(time1->getClassesC()[con])).c_str());*/
-                        //model.add(t<=1);
+                        //model.add(t<=1;);
                     }
                 }
             }
@@ -370,19 +389,20 @@ int main(int argc, char **argv) {
         std::cout << "const" << std::endl;
 
 
-        IloExpr opt(env); opt+=costRoom*instance->getRoomPen()+costTime*instance->getTimePen();
-        model.add(IloMinimize(env, opt));
+        //IloExpr opt(env); opt+=costRoom*instance->getRoomPen()+costTime*instance->getTimePen();
+        //model.add(IloMinimize(env, opt));
         std::cout << "opt" << std::endl;
         printRAM();
-        IloCplex cplex(model);
+        std::exit(1);
+        //IloCplex cplex(model);
 
         printRAM();
-        if (cplex.solve()) {
+        /*if (cplex.solve()) {
             std::cout << "solved" << std::endl;
             std::cout<<cplex.getObjValue()<<std::endl;
             save(cplex,instance);
 
-        }
+        }*/
 
     }
     writeOutputXML("data/output/ITC-2019/" + instance->getName() +
@@ -675,7 +695,6 @@ void readOutputXML(std::string filename, Instance *instance) {
 
 }
 
-
 Instance *readInputXML(std::string filename) {
     xml_document<> doc;
     int orderID = 0;
@@ -822,7 +841,7 @@ Instance *readInputXML(std::string filename) {
                                     parent = atoi(a->value());
                             }
                             Class *c = new Class(idclass, limit, orderID, idsub + "_" + itos(idConf) + "_" + id);
-                            IloNumExpr oneEach = IloNumExpr(env);
+                            std::string oneEach= " ";
                             c->setOrderID(order);
                             c->setCourseID(atoi(id));
                             order++;
@@ -874,30 +893,30 @@ Instance *readInputXML(std::string filename) {
 
 
                                     }
-                                    //std::cout<<idclass<<" "<<lenght<<" "<<start<<std::endl;
                                     Lecture *l = new Lecture(lenght, start, weeks, days, penalty);
                                     lecv.push_back(l);
 
 
                                     if (roomsv.size() == 0) {
-                                        IloBoolVar classCplexcplexMap(env);
+                                        std::string old=std::to_string(max);
                                         if (cplexMap.find(c->getOrderID()) != cplexMap.end()) {
-                                            cplexMap[c->getOrderID()].push_back(classCplexcplexMap);
+                                            cplexMap[c->getOrderID()].push_back(++max);
                                         } else {
-                                            std::vector<IloBoolVar> classCplex;
-                                            classCplex.push_back(classCplexcplexMap);
-                                            cplexMap.insert(std::pair<int, std::vector<IloBoolVar>>(c->getOrderID(),
+                                            std::vector<int> classCplex;
+                                            classCplex.push_back(++max);
+                                            cplexMap.insert(std::pair<int, std::vector<int>>(c->getOrderID(),
                                                                                                     classCplex));
 
                                         }
                                         c->setPossiblePair(
                                                 new Room(-1),
                                                 l, v);
-                                        oneEach += cplexMap[c->getOrderID()][v];
-                                        costTime += cplexMap[c->getOrderID()][v] *
-                                                    c->getPossiblePairLecture(v)->getPenalty();
-                                        costRoom += cplexMap[c->getOrderID()][v] *
-                                                    c->getPossibleRoomCost(c->getPossiblePairRoom(v));
+                                        oneEach=" +1 x"+old;
+                                        if(penalty!=0)
+                                            costTime += " +"+ std::to_string(instance->getTimePen()*penalty)+" x"+old;
+                                        else
+                                            costTime += " +"+std::to_string(instance->getTimePen()) +"x"+old;
+
                                         v++;
 
                                     } else {
@@ -989,22 +1008,28 @@ Instance *readInputXML(std::string filename) {
 
                                                     }*/
                                                 }
-                                                IloBoolVar classCplexcplexMap(env);
+                                                std::string old=std::to_string(max);
                                                 if (cplexMap.find(c->getOrderID()) != cplexMap.end()) {
-                                                    cplexMap[c->getOrderID()].push_back(classCplexcplexMap);
+                                                    cplexMap[c->getOrderID()].push_back(++max);
                                                 } else {
-                                                    std::vector<IloBoolVar> classCplex;
-                                                    classCplex.push_back(classCplexcplexMap);
+                                                    std::vector<int> classCplex;
+                                                    classCplex.push_back(++max);
                                                     cplexMap.insert(
-                                                            std::pair<int, std::vector<IloBoolVar>>(c->getOrderID(),
+                                                            std::pair<int, std::vector<int>>(c->getOrderID(),
                                                                                                     classCplex));
 
                                                 }
-                                                oneEach += cplexMap[c->getOrderID()][v];
-                                                costTime += cplexMap[c->getOrderID()][v] *
-                                                            c->getPossiblePairLecture(v)->getPenalty();
-                                                costRoom += cplexMap[c->getOrderID()][v] *
-                                                            c->getPossibleRoomCost(c->getPossiblePairRoom(v));
+                                                oneEach+=" +1 x"+old;
+
+                                                if(penalty!=0) {
+                                                    costTime += " +"+std::to_string(instance->getTimePen()*penalty)+ " x"+old;
+                                                } else
+                                                    costTime += " +"+std::to_string(instance->getTimePen())+" x"+old;
+                                                if( j->second!=0)
+                                                    costRoom += " +"+ std::to_string(instance->getRoomPen()*j->second)+" x"+old;
+                                                else
+                                                    costRoom += " +"+ std::to_string(instance->getRoomPen())+" x"+old;
+
                                                 v++;
                                                 // std::cout<<instance->getClasses()[j]->getPossibleRoomPair(r).first<<" "<<instance->getClasses()[j]->getId()<<" "<<*l<<std::endl;
                                             }
