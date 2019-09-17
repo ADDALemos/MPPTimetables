@@ -212,12 +212,12 @@ private:
 
     std::vector<std::pair<Room*, Lecture *>> possiblePair;
 
-    std::map<Room*,std::vector<int>> value;
+    std::map<Room*,std::map<Lecture*,std::string>> value;
 
 public:
 
-    std::vector<int> getRoomKey(Room*r){
-        return value[r];
+    std::string getKey(Room*r, Lecture*l){
+        return value[r][l];
     }
 
 
@@ -226,13 +226,18 @@ public:
 
     }
 
-    void setPossiblePair(Room *r, Lecture *l, int v){
+    void setPossiblePair(Room *r, Lecture *l, std::string v){
         possiblePair.push_back(std::pair<Room*,Lecture*>(r,l));
         if(value.find(r)!=value.end()){
-            value[r].push_back(v);
+            if(value[r].find(l)!=value[r].end()) {
+                value[r][l]=v;
+            } else {
+                value[r].insert(std::pair<Lecture*,std::string>(l,v));
+            }
         } else{
-            std::vector<int> t; t.push_back(v);
-            value.insert(std::pair<Room*,std::vector<int>>(r,t));
+            std::map<Lecture*,std::string> t;
+            t.insert(std::pair<Lecture*,std::string>(l,v));
+            value.insert(std::pair<Room*,std::map<Lecture*,std::string>>(r,t));
         }
     }
 
@@ -247,7 +252,7 @@ public:
 
     }
 
-    int getPossiblePairSize() {
+    unsigned long getPossiblePairSize() {
         return possiblePair.size();
     }
 

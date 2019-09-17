@@ -8,14 +8,19 @@
 
 #include "Class.h"
 #include "Room.h"
+#include "ConstraintShort.h"
 
 class ClusterbyRoom {
     int id;
     std::set<Class *> classes;
-    std::map<Class *, int> map;
+    std::vector<ConstraintShort*> range;
     std::set<Room*> rooms;
 
 public:
+
+    void setRange(ConstraintShort* newRange){ range.push_back(newRange);}
+
+    std::vector<ConstraintShort*>  getRange(){ return range;}
 
     int numberofClasses() { return classes.size(); }
 
@@ -25,12 +30,11 @@ public:
 
     int getClusterID() { return id; }
 
-    void addClass(Class *c, int p) {
+    void addClass(Class *c) {
         classes.insert(c);
-        map.insert(std::pair<Class *, int>(c, p));
     }
 
-    void addRoom(Room* r, Class *c, int p) { rooms.insert(r);        map.insert(std::pair<Class *, int>(c, p));
+    void addRoom(Room* r, Class *c) { rooms.insert(r);
     }
 
     void addRoom(Room* r) { rooms.insert(r);
@@ -44,15 +48,10 @@ public:
 
     }
 
-    ClusterbyRoom(int id, Class *c, int p, Room* r) : id(id) {
-        addClass(c, p);
+    ClusterbyRoom(int id, Class *c, Room* r) : id(id) {
         rooms.insert(r);
     }
 
-    int getP(Class *c) {
-        return map[c];
-
-    }
 
 
 };

@@ -82,7 +82,7 @@ public:
 
 
 
-    const std::vector<Unavailability, std::allocator<Unavailability>> &getSlots() const {
+    std::vector<Unavailability, std::allocator<Unavailability>> &getSlots()  {
         return slots;
     }
 

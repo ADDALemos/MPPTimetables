@@ -17,20 +17,17 @@ class Time {
     int end;
     std::string day;
     std::string week;
-    std::vector<int> classesS;
-    std::vector<int> lectureS;
-    std::vector<int> classesC;
-    std::vector<int> lectureC;
+    std::vector<std::string> classesS;
+
+    std::vector<std::string> classesC;
 public:
 
-    void addS(int c, int l){
+    void addS(std::string c){
         classesS.push_back(c);
-        lectureS.push_back(l);
     }
 
-    void addC(int c, int l){
+    void addC(std::string c){
         classesC.push_back(c);
-        lectureC.push_back(l);
     }
 
     int getStart() const {
@@ -49,42 +46,21 @@ public:
         Time::end = end;
     }
 
-    const std::vector<int, std::allocator<int>> &getClassesS() const {
+    const std::vector<std::string, std::allocator<std::string>> &getClassesS() const {
         return classesS;
     }
 
-    void setClassesS(const std::vector<int, std::allocator<int>> &classes) {
-        Time::classesS = classes;
-    }
 
-    const std::vector<int, std::allocator<int>> &getLectureS() const {
-        return lectureS;
-    }
 
-    void setLectureS(const std::vector<int, std::allocator<int>> &lecture) {
-        Time::lectureS = lecture;
-    }
 
-    Time(int start, int end, const std::string &week, std::string &day, int clID, int lectureID) : start(start), end(end),week(week),day(day) {
+    Time(int start, int end, const std::string &week, std::string &day, std::string clID) : start(start), end(end),week(week),day(day) {
         classesS.push_back(clID);
-        lectureS.push_back(lectureID);
     }
 
-    const std::vector<int, std::allocator<int>> &getClassesC() const {
+    const std::vector<std::string, std::allocator<std::string>> &getClassesC() const {
         return classesC;
     }
 
-    void setClassesC(const std::vector<int, std::allocator<int>> &classesC) {
-        Time::classesC = classesC;
-    }
-
-    const std::vector<int, std::allocator<int>> &getLectureC() const {
-        return lectureC;
-    }
-
-    void setLectureC(const std::vector<int, std::allocator<int>> &lectureC) {
-        Time::lectureC = lectureC;
-    }
 
     bool check(Lecture *p1, int nw, int nd) {
         for (int j = 0; j < nw; ++j) {

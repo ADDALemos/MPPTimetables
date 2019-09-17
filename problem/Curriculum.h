@@ -14,17 +14,14 @@
 class Curriculum {
     int id;
     std::set<ClusterbyRoom*> pClass;
-    std::vector<ConstraintShort*>* range;
 
 
 
 public:
-    Curriculum(ClusterbyRoom *c, std::vector<ConstraintShort*>* ra) :range(ra){pClass.insert(c); }
-    Curriculum(std::set<ClusterbyRoom*> pClass,std::vector<ConstraintShort*>*ra) :range(ra),pClass(pClass) {}
+    Curriculum(ClusterbyRoom *c) {pClass.insert(c); }
+    Curriculum(std::set<ClusterbyRoom*> pClass) :pClass(pClass) {}
 
-    void setRange(std::vector<ConstraintShort*>* newRange){ range=newRange;}
 
-    std::vector<ConstraintShort*>* getRange(){ return range;}
 
     void addClass(ClusterbyRoom * c){
         pClass.insert(c);

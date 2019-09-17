@@ -37,8 +37,6 @@
 using namespace rapidxml;
 
 Instance *readInputXML(std::string filename);
-int max=0;
-
 
 void readOutputXML(std::string filename, Instance *instance);
 
@@ -48,11 +46,15 @@ void readPerturbations(std::string filename, Instance *instance);
 
 void addPossibleRooms(Class *c, Instance *instance);
 
-void writeXML(Instance * instance, int version, Curriculum *cur);
+void writeXML(Instance *instance, int version, Curriculum *cur);
 
 void printClusterofStudents(Instance *instance);
 
 void printCurricular();
+
+std::string constraint(Class *idClassesDist, Class *idClassesDist1, int p, int p1);
+
+void readSAT();
 
 bool mergeStudent = true;
 bool mergeRoom = false;
@@ -63,458 +65,399 @@ bool optRoom = false;
 bool optTime = false;
 bool optStu = false;
 
-IloEnv env; //CPLEX execution
-std::map<int, std::vector<int>> cplexMap;
-std::vector<Curriculum*> problem;
+int max = 0;
 
 
+std::vector<Curriculum *> problem;
 
-std::string costTime=" ";
-std::string costRoom=" ";
-//IloExpr costRoom = IloNumExpr(env);
-void save(IloCplex cplex, Instance * instance) {
-    for (int c = 0; c < instance->getNumClasses(); c++) {
-        for (int p = 0; p < instance->getClasses()[c]->getPossiblePairSize(); ++p) {
-            bool active;// = cplex.getValue(cplexMap[c][p]);
-            if (active != 0) {
-                instance->getClasses()[c]->setSolution(new Solution(instance->getClasses()[c]->getId(),
-                                                                    instance->getClasses()[c]->getPossiblePairLecture(
-                                                                            p)->getStart(),
-                                                                    instance->getClasses()[c]->getPossiblePairRoom(
-                                                                            p)->getId(),
-                                                                    instance->getClasses()[c]->getPossiblePairLecture(
-                                                                            p)->getWeeks(),
-                                                                    instance->getClasses()[c]->getPossiblePairLecture(
-                                                                            p)->getDays(),
-                                                                    instance->getClasses()[c]->getPossiblePairLecture(
-                                                                            p)->getLenght(), 0, 0));
-            }
 
-        }
+std::string costTime = " ";
+std::string costRoom = " ";
+std::string oneEachG = " ";
 
+void printRAM() {
+    vm_size_t page_size;
+    mach_port_t mach_port;
+    mach_msg_type_number_t count;
+    vm_statistics64_data_t vm_stats;
+
+    mach_port = mach_host_self();
+    count = sizeof(vm_stats) / sizeof(natural_t);
+    if (KERN_SUCCESS == host_page_size(mach_port, &page_size) &&
+        KERN_SUCCESS == host_statistics64(mach_port, HOST_VM_INFO,
+                                          (host_info64_t) &vm_stats, &count)) {
+        long long free_memory = (int64_t) vm_stats.free_count * (int64_t) page_size;
+
+        long long used_memory = ((int64_t) vm_stats.active_count +
+                                 (int64_t) vm_stats.inactive_count +
+                                 (int64_t) vm_stats.wire_count) * (int64_t) page_size;
+        printf("free memory: %lldused memory: %lld", free_memory, used_memory);
     }
+    struct task_basic_info t_info;
+    mach_msg_type_number_t t_info_count = TASK_BASIC_INFO_COUNT;
 
+    if (KERN_SUCCESS != task_info(mach_task_self(),
+                                  TASK_BASIC_INFO, (task_info_t) &t_info,
+                                  &t_info_count)) {
+        std::exit(-1);
+    }
+    std::cout << "resident_size: " << t_info.resident_size << std::endl;
+    std::cout << "virtual_size: " << t_info.virtual_size << std::endl;
 
 }
-
- void printRAM(){
-     vm_size_t page_size;
-     mach_port_t mach_port;
-     mach_msg_type_number_t count;
-     vm_statistics64_data_t vm_stats;
-
-     mach_port = mach_host_self();
-     count = sizeof(vm_stats) / sizeof(natural_t);
-     if (KERN_SUCCESS == host_page_size(mach_port, &page_size) &&
-         KERN_SUCCESS == host_statistics64(mach_port, HOST_VM_INFO,
-                                           (host_info64_t)&vm_stats, &count))
-     {
-         long long free_memory = (int64_t)vm_stats.free_count * (int64_t)page_size;
-
-         long long used_memory = ((int64_t)vm_stats.active_count +
-                                  (int64_t)vm_stats.inactive_count +
-                                  (int64_t)vm_stats.wire_count) *  (int64_t)page_size;
-         printf("free memory: %lldused memory: %lld", free_memory, used_memory);
-     }
-     struct task_basic_info t_info;
-     mach_msg_type_number_t t_info_count = TASK_BASIC_INFO_COUNT;
-
-     if (KERN_SUCCESS != task_info(mach_task_self(),
-                                   TASK_BASIC_INFO, (task_info_t)&t_info,
-                                   &t_info_count))
-     {
-         std::exit(-1);
-     }
-     std::cout<<"resident_size: "<<t_info.resident_size<<std::endl;
-     std::cout<<"virtual_size: "<<t_info.virtual_size<<std::endl;
-
- }
-
 
 
 int main(int argc, char **argv) {
 
 
-    if (!quiet)
-        std::cout << "Starting Reading File: "
-                  << "/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/iku-fal17.xml" << std::endl;
+    //if (!quiet)
+    std::cout << "Starting Reading File: "
+              << "/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/tg-fal17_0.xml" << std::endl;
 
     printRAM();
 
-    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/iku-fal17_15.xml");
-    std::ofstream file("/Volumes/MAC/ClionProjects/timetabler/iku-fal17_15.pb");
-
-
-
+    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/tg-fal17_0.xml");
+    instance->setCompact(false);
+    /*readSAT();
+    writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + ".xml",
+                   instance, getTimeSpent());
     /*for (int k = 0; k < problem.size(); ++k) {
-        writeXML(instance,k,problem[k]);
+        writeXML(instance, k, problem[k]);
     }
     std::exit(1);*/
-    instance->setCompact(false);
-    std::cout<<max<<std::endl;
-    file<<"min: "<<costRoom<<" "<<costTime<<";"<<std::endl;
+    std::cout << max << std::endl;
     printRAM();
 
+    int i = 0;
+    std::cout << instance->getName() << " " << problem.size() << std::endl;
+    for (Curriculum *c: problem) {
+        std::string nome = "/Volumes/MAC/ClionProjects/timetabler/tg-fal17" + std::to_string(0) + ".opb";
+        std::ofstream file(nome);
+        file << "min: " << costRoom << " + " << costTime << " ;" << std::endl;
+        file << oneEachG;
 
-    std::cout << instance->getName() <<" "<< problem.size()<<std::endl;
-    for(Curriculum *c: problem) {
-        //IloModel model = IloModel(env);
-//        model.add(*c->getRange());
-        //Size of c
-        Class *idClassesDist,*idClassesDist1;
-        for (int i = 0; i < c->getRange()->size(); ++i) {
-            for (int ci = 1; ci < c->getRange()->at(i)->getClasses().size(); ++ci) {
-                idClassesDist= c->getRange()->at(i)->getClasses()[ci - 1];
-                idClassesDist1 = c->getRange()->at(i)->getClasses()[ci];
-                if (c->getRange()->at(i)->getType().compare("DifferentDays") ==
-                    0) {
-                    for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                        for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-                            for (int i = 0; i < instance->getNdays(); ++i) {
-                                if (idClassesDist->getPossiblePairLecture(p)->getDays()[i] ==
-                                    idClassesDist1->getPossiblePairLecture(p1)->getDays()[i] &&
-                                    idClassesDist->getPossiblePairLecture(p)->getDays()[i] == '1') {
-                                    file<<"+1 x"<<std::to_string(cplexMap[idClassesDist->getOrderID()][p]) <<" +1 x"<< std::to_string(cplexMap[idClassesDist->getOrderID()][p])<<"<=1;"<<std::endl;
-
-                                    /*model.add(cplexMap[idClassesDist->getOrderID()][p] +
-                                          cplexMap[idClassesDist1->getOrderID()][p1] <= 1);*/
-
-
-                                    //tempModel.add();
-                                }
-
-                            }
-
-
-                        }
-                    }
-                } else if (c->getRange()->at(i)->getType().compare("SameDays") == 0) {
-                    for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                        for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-                            for (int i = 0; i < instance->getNdays(); ++i) {
-                                if (stringcontains(idClassesDist1->getPossiblePairLecture(p1)->getDays(),
-                                                   idClassesDist->getPossiblePairLecture(p)->getDays(),
-                                                   instance->getNdays()) ==
-                                    1) { ;
-                                } else {
-                                    file<<"+1 x"<<std::to_string(cplexMap[idClassesDist->getOrderID()][p]) <<" +1 x"<< std::to_string(cplexMap[idClassesDist->getOrderID()][p])<<"<=1;"<<std::endl;
-
-                                    /*model.add(cplexMap[idClassesDist->getOrderID()][p] +
-                                          cplexMap[idClassesDist1->getOrderID()][p1] <= 1);*/
-
-                                    //tempModel.add();
-
-
-                                }
-
-                            }
-
-
-                        }
-                    }
-                } else if (c->getRange()->at(i)->getType().compare("SameAttendees") == 0) {
-                    for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                        for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-                            int travel = 0;
-                            if (idClassesDist->getPossiblePairRoom(p)->getId() != -1 &&
-                                idClassesDist1->getPossiblePairRoom(p1)->getId() != -1) {
-                                if (instance->getRoom(
-                                        idClassesDist->getPossiblePairRoom(p)->getId())->getTravel(
-                                        idClassesDist1->getPossiblePairRoom(p1)->getId()) > 0)
-                                    travel = instance->getRoom(
-                                            idClassesDist->getPossiblePairRoom(p)->getId())->getTravel(
-                                            idClassesDist1->getPossiblePairRoom(p1)->getId());
-                                else
-                                    travel = instance->getRoom(
-                                            idClassesDist1->getPossiblePairRoom(p1)->getId())->getTravel(
-                                            idClassesDist->getPossiblePairRoom(p)->getId());
-                            }
-
-                            if (idClassesDist->getPossiblePairLecture(p)->getEnd() + travel <=
-                                idClassesDist1->getPossiblePairLecture(p1)->getStart()
-                                || idClassesDist1->getPossiblePairLecture(p1)->getEnd() +
-                                   travel <= idClassesDist->getPossiblePairLecture(p)->getStart()
-                                || stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
-                                                 idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
-                                                 instance->getNweek(), false) ==
-                                   1
-                                || stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
-                                                 idClassesDist1->getPossiblePairLecture(p1)->getDays(),
-                                                 instance->getNdays(), false) ==
-                                   1) { ;
-                            } else {
-                                file<<"+1 x"<<std::to_string(cplexMap[idClassesDist->getOrderID()][p]) <<" +1 x"<< std::to_string(cplexMap[idClassesDist->getOrderID()][p])<<"<=1;"<<std::endl;
-
-                                /*model.add(cplexMap[idClassesDist->getOrderID()][p] +
-                                          cplexMap[idClassesDist1->getOrderID()][p1] <= 1);*/
-                            }
-                        }
-
-
-                    }
-                } else if (c->getRange()->at(i)->getType().compare("NotOverlap") == 0) {
-                    for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                        for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-                            if (stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
-                                              idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
-                                              instance->getNweek(), false) ==
-                                1
-                                || stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
-                                                 idClassesDist1->getPossiblePairLecture(p1)->getDays(),
-                                                 instance->getNdays(), false) ==
-                                   1 || idClassesDist->getPossiblePairLecture(p)->getEnd() <=
-                                        idClassesDist1->getPossiblePairLecture(p1)->getStart() ||
-                                idClassesDist1->getPossiblePairLecture(p1)->getEnd() <=
-                                idClassesDist->getPossiblePairLecture(p)->getStart()) { ;
-                            } else {
-                                file<<"+1 x"<<std::to_string(cplexMap[idClassesDist->getOrderID()][p]) <<" +1 x"<< std::to_string(cplexMap[idClassesDist->getOrderID()][p])<<"<=1;"<<std::endl;
-
-                                /*model.add(cplexMap[idClassesDist->getOrderID()][p] +
-                                           cplexMap[idClassesDist1->getOrderID()][p1] <= 1);*/
-
-                            }
-                        }
-
-
-                    }
-
-
-                } else if (c->getRange()->at(i)->getType().compare("Precedence") == 0) {
-                    for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                        for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-                            if (isFirst(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
-                                        idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
-                                        instance->getNweek()) == -1);
-                            else if (isFirst(idClassesDist->getPossiblePairLecture(p)->getDays(),
-                                             idClassesDist1->getPossiblePairLecture(p1)->getDays(),
-                                             instance->getNdays()) ==
-                                     -1 && isFirst(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
-                                                   idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
-                                                   instance->getNweek()) == 0);
-                            else if (isFirst(idClassesDist->getPossiblePairLecture(p)->getDays(),
-                                             idClassesDist1->getPossiblePairLecture(p1)->getDays(),
-                                             instance->getNdays()) ==
-                                     0 && isFirst(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
-                                                  idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
-                                                  instance->getNweek()) == 0 &&
-                                     idClassesDist->getPossiblePairLecture(p)->getEnd() <=
-                                     idClassesDist1->getPossiblePairLecture(p1)->getEnd());
-                            else {
-                                file<<"+1 x"<<std::to_string(cplexMap[idClassesDist->getOrderID()][p]) <<" +1 x"<< std::to_string(cplexMap[idClassesDist->getOrderID()][p])<<"<=1;"<<std::endl;
-
-                                /*model.add(cplexMap[idClassesDist->getOrderID()][p] +
-                                          cplexMap[idClassesDist1->getOrderID()][p1] <= 1);*/
-
-                            }
-
-
-                        }
-
-                    }
-
-
-                } else if (c->getRange()->at(i)->getType().compare("SameTime") == 0) {
-                    for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                        for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-
-                            if (idClassesDist->getPossiblePairLecture(p)->getStart() <=
-                                idClassesDist1->getPossiblePairLecture(p1)->getStart()
-                                && idClassesDist1->getPossiblePairLecture(p1)->getEnd() <=
-                                   idClassesDist->getPossiblePairLecture(p)->getEnd()) { ;
-                            } else if (idClassesDist1->getPossiblePairLecture(p1)->getStart() <=
-                                       idClassesDist->getPossiblePairLecture(p)->getStart()
-                                       && idClassesDist->getPossiblePairLecture(p)->getEnd() <=
-                                          idClassesDist1->getPossiblePairLecture(p1)->getEnd()) { ;
-                            } else {
-                                file<<"+1 x"<<std::to_string(cplexMap[idClassesDist->getOrderID()][p]) <<" +1 x"<< std::to_string(cplexMap[idClassesDist->getOrderID()][p])<<"<=1;"<<std::endl;
-/*model.add(cplexMap[idClassesDist->getOrderID()][p] +
-                                          cplexMap[idClassesDist1->getOrderID()][p1] <= 1);*/
-                            }
-                        }
-
-
-                    }
-                } else if (c->getRange()->at(i)->getType().compare("SameStart") == 0) {
-                    //side1 = IloNumExpr(env);
-                    for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                        for (int p1 = 0; p1< idClassesDist1->getPossiblePairSize(); ++p1) {
-                            if(idClassesDist1->getPossiblePairLecture(p1)->getStart()!=idClassesDist->getPossiblePairLecture(p)->getStart())
-                                file<<"+1 x"<<std::to_string(cplexMap[idClassesDist->getOrderID()][p]) <<" +1 x"<< std::to_string(cplexMap[idClassesDist->getOrderID()][p])<<"<=1;"<<std::endl;
-//model.add(cplexMap[idClassesDist1->getOrderID()][p1]+cplexMap[idClassesDist->getOrderID()][p]<=1;);
-                        }
-
-                    }
-
-
-                    // IloConstraint ctemp(side1 == side2);
-                    //ctemp.setName(("sameStart_"+itos( idClassesDist1->getId())+"_"+itos( idClassesDist->getId())).c_str());
-
-                }
-            }
-        }
 
         printRAM();
         //IloNumExpr t;
         for (auto *clu: c->getPClass()) {
-            for (auto *x: clu->getClasses()) {
-                file<<x->getOneeach()<<" <=1;"<<std::endl;
-                //model.add(x->getOneeach());
+            Class *idClassesDist, *idClassesDist1;
+            for (int y = 0; y < clu->getRange().size(); ++y) {
+                for (int ci = 1; ci < clu->getRange().at(y)->getClasses().size(); ++ci) {
+                    idClassesDist = clu->getRange().at(y)->getClasses()[ci - 1];
+                    idClassesDist1 = clu->getRange().at(y)->getClasses()[ci];//
+                    if (clu->getRange().at(y)->getType().compare("MaxDayLoad") == 0) {
+                        for (int w = 0; w < instance->getNweek(); ++w) {
+                            for (int d = 0; d < instance->getNdays(); ++d) {
+                                for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                    if (idClassesDist->getPossiblePairLecture(p)->getWeeks()[w] == '1'
+                                        && idClassesDist->getPossiblePairLecture(p)->getDays()[d] == '1') {
+                                        /*t += var[vector[c]->getOrderID()][p] *
+                                             vector[c]->getPossiblePairLecture(p)->getLenght();*/
+                                    }
+                                }
+                            }
+                            //  model.add(t <= l);
+
+                        }
+
+
+                    } else if (clu->getRange().at(y)->getType().compare("WorkDay") == 0) {
+                        for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                            for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                if (stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                  idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                  instance->getNweek(),
+                                                  false) == 1 ||
+                                    stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                  idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                  instance->getNdays(),
+                                                  false) == 1) { ;
+                                } else {
+                                    if (std::max(idClassesDist->getPossiblePairLecture(p)->getEnd(),
+                                                 idClassesDist1->getPossiblePairLecture(p1)->getEnd()) -
+                                        std::min(idClassesDist->getPossiblePairLecture(p)->getStart(),
+                                                 idClassesDist1->getPossiblePairLecture(p1)->getStart()) >
+                                        clu->getRange().at(y)->getParameter1()) {
+                                        file << constraint(idClassesDist, idClassesDist1, p, p1);
+                                    }
+                                }
+
+
+                            }
+                        }
+
+
+                    } else if (clu->getRange().at(y)->getType().compare("DifferentDays") ==
+                               0) {
+                        for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                            for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                for (int d = 0; d < instance->getNdays(); ++d) {
+                                    if (idClassesDist->getPossiblePairLecture(p)->getDays()[d] ==
+                                        idClassesDist1->getPossiblePairLecture(p1)->getDays()[d] &&
+                                        idClassesDist->getPossiblePairLecture(p)->getDays()[d] == '1') {
+                                        file << constraint(idClassesDist, idClassesDist1, p, p1);
+
+
+                                    }
+
+                                }
+
+
+                            }
+                        }
+                    } else if (clu->getRange().at(y)->getType().compare("SameDays") == 0) {
+                        for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                            for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                for (int d = 0; d < instance->getNdays(); ++d) {
+                                    if (stringcontains(idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                       idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                       instance->getNdays()) ==
+                                        1) { ;
+                                    } else {
+                                        file << constraint(idClassesDist, idClassesDist1, p, p1);
+
+
+                                    }
+
+                                }
+
+
+                            }
+                        }
+                    } else if (clu->getRange().at(y)->getType().compare("SameAttendees") == 0) {
+                        std::cout<<idClassesDist->getId()<<" "<<idClassesDist1->getId()<<std::endl;
+                        for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                            for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                int travel = 0;
+                                if (idClassesDist->getPossiblePairRoom(p)->getId() != -1 &&
+                                    idClassesDist1->getPossiblePairRoom(p1)->getId() != -1) {
+                                    if (instance->getRoom(
+                                            idClassesDist->getPossiblePairRoom(p)->getId())->getTravel(
+                                            idClassesDist1->getPossiblePairRoom(p1)->getId()) > 0)
+                                        travel = instance->getRoom(
+                                                idClassesDist->getPossiblePairRoom(p)->getId())->getTravel(
+                                                idClassesDist1->getPossiblePairRoom(p1)->getId());
+                                    else
+                                        travel = instance->getRoom(
+                                                idClassesDist1->getPossiblePairRoom(p1)->getId())->getTravel(
+                                                idClassesDist->getPossiblePairRoom(p)->getId());
+                                }
+
+                                if (idClassesDist->getPossiblePairLecture(p)->getEnd() + travel <=
+                                    idClassesDist1->getPossiblePairLecture(p1)->getStart()
+                                    || idClassesDist1->getPossiblePairLecture(p1)->getEnd() +
+                                       travel <= idClassesDist->getPossiblePairLecture(p)->getStart()
+                                    || stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                     idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                     instance->getNweek(), false) ==
+                                       1
+                                    || stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                     idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                     instance->getNdays(), false) ==
+                                       1) { ;
+                                } else {
+                                    if(idClassesDist->getId()==298||idClassesDist1->getId()==298)
+                                        std::cout<< constraint(idClassesDist, idClassesDist1, p, p1);
+                                    file << constraint(idClassesDist, idClassesDist1, p, p1);
+
+
+                                }
+                            }
+
+
+                        }
+                    } else if (clu->getRange().at(y)->getType().compare("NotOverlap") == 0) {
+                        for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                            for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                if (stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                  idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                  instance->getNweek(), false) ==
+                                    1
+                                    || stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                     idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                     instance->getNdays(), false) ==
+                                       1 || idClassesDist->getPossiblePairLecture(p)->getEnd() <=
+                                            idClassesDist1->getPossiblePairLecture(p1)->getStart() ||
+                                    idClassesDist1->getPossiblePairLecture(p1)->getEnd() <=
+                                    idClassesDist->getPossiblePairLecture(p)->getStart()) { ;
+                                } else {
+                                    file << constraint(idClassesDist, idClassesDist1, p, p1);
+
+
+                                }
+                            }
+
+
+                        }
+
+
+                    } else if (clu->getRange().at(y)->getType().compare("Precedence") == 0) {
+                        for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                            for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                if (isFirst(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                            idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                            instance->getNweek()) == -1);
+                                else if (isFirst(idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                 idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                 instance->getNdays()) ==
+                                         -1 && isFirst(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                       idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                       instance->getNweek()) == 0);
+                                else if (isFirst(idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                 idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                 instance->getNdays()) ==
+                                         0 && isFirst(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                      idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                      instance->getNweek()) == 0 &&
+                                         idClassesDist->getPossiblePairLecture(p)->getEnd() <=
+                                         idClassesDist1->getPossiblePairLecture(p1)->getEnd());
+                                else {
+                                    file << constraint(idClassesDist, idClassesDist1, p, p1);
+
+
+                                }
+
+
+                            }
+
+                        }
+
+
+                    } else if (clu->getRange().at(y)->getType().compare("SameTime") == 0) {
+                        for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                            for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+
+                                if (idClassesDist->getPossiblePairLecture(p)->getStart() <=
+                                    idClassesDist1->getPossiblePairLecture(p1)->getStart()
+                                    && idClassesDist1->getPossiblePairLecture(p1)->getEnd() <=
+                                       idClassesDist->getPossiblePairLecture(p)->getEnd()) { ;
+                                } else if (idClassesDist1->getPossiblePairLecture(p1)->getStart() <=
+                                           idClassesDist->getPossiblePairLecture(p)->getStart()
+                                           && idClassesDist->getPossiblePairLecture(p)->getEnd() <=
+                                              idClassesDist1->getPossiblePairLecture(p1)->getEnd()) { ;
+                                } else {
+                                    file << constraint(idClassesDist, idClassesDist1, p, p1);
+
+                                }
+                            }
+
+
+                        }
+                    } else if (clu->getRange().at(y)->getType().compare("SameStart") == 0) {
+                        for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                            for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                if (idClassesDist1->getPossiblePairLecture(p1)->getStart() !=
+                                    idClassesDist->getPossiblePairLecture(p)->getStart())
+                                    file << constraint(idClassesDist, idClassesDist1, p, p1);
+                            }
+
+                        }
+
+
+                    }
+                }
             }
+
+
             for (Room *r: clu->getRooms()) {
                 for (Time *time1: r->t) {
                     for (int con = 0; con < time1->getClassesC().size(); ++con) {
-                        /*t = IloNumExpr(env);
-                        t += cplexMap[time1->getClassesC()[con]][time1->getLectureC()[con]];*/
-                        file<<"+1 x"<<std::to_string(cplexMap[time1->getClassesC()[con]][time1->getLectureC()[con]]);
+
                         for (int cla = 0; cla < time1->getClassesS().size(); ++cla) {
-                            file<<" +1 x"<< std::to_string(cplexMap[time1->getClassesS()[cla]][time1->getLectureS()[cla]]);
+                            if (time1->getClassesC()[con] != time1->getClassesS()[cla]) {
+                                file << "+1 " << time1->getClassesC()[con] << " +1 " << time1->getClassesS()[cla]
+                                     << "    <=   1;" << std::endl;
 
-                            //model.add(cplexMap[time1->getClassesC()[con]][time1->getLectureC()[con]]+cplexMap[time1->getClassesS()[cla]][time1->getLectureS()[cla]]<=1;);
-                            //t += cplexMap[time1->getClassesS()[cla]][time1->getLectureS()[cla]];
+                            }
+
                         }
-                        file<<" <=1;"<<std::endl;
-                        //start: 108 end: 142 day: 0100000 week: 11111111111111
-                        /*IloConstraint tmep(t <= 1);
-                        std::ostringstream stream;
-                        stream << *time1;
-                        tmep.setName(("oneLectureRoom" + itos(r->getId()) + "_" + stream.str() + "_" +
-                                      itos(time1->getClassesC()[con])).c_str());*/
-                        //model.add(t<=1;);
+
                     }
                 }
             }
         }
-        printRAM();
-
-        std::cout << "const" << std::endl;
-
-
-        //IloExpr opt(env); opt+=costRoom*instance->getRoomPen()+costTime*instance->getTimePen();
-        //model.add(IloMinimize(env, opt));
-        std::cout << "opt" << std::endl;
-        printRAM();
-        std::exit(1);
-        //IloCplex cplex(model);
-
-        printRAM();
-        /*if (cplex.solve()) {
-            std::cout << "solved" << std::endl;
-            std::cout<<cplex.getObjValue()<<std::endl;
-            save(cplex,instance);
-
-        }*/
-
+        i++;
     }
-    writeOutputXML("data/output/ITC-2019/" + instance->getName() +
-                   ".xml",
-                   instance, getTimeSpent());
-
-
-    //printCurricular();
-    std::exit(0);
-
-  //  std::vector<Curriculum *> sep;
- //   oldCurricuculum(instance, sep);
-//    printCurriculum(sep);
-
-
-    if (!quiet) printClusterofStudents(instance);
-
-
-    std::cout << "PRE " << getTimeSpent() << std::endl;
-    //ILPExecuter *runner = new CplexSimple(instance, model, env, cplexMap);
-    std::cout << "AUX " << getTimeSpent() << std::endl;
-    //runner->dist(true);
-    std::cout << "DIST " << getTimeSpent() << std::endl;
-    //runner->run2019(false);
-    writeOutputXML("data/output/ITC-2019/" + instance->getName() +
-                   ".xml",
-                   instance, getTimeSpent());
-
-    std::exit(1);
-
-    printProblemStats(instance);
-
-
-    if (!quiet) std::cout << getTimeSpent() << std::endl;
-    /*if (!quiet) std::cout << "Compacting " << std::endl;
-    instance->compact();
-    MIXEDCplexExecuter m = MIXEDCplexExecuter();
-    m.setInstance(instance);
-    m.run(false);
-    std::exit(0);
-    if (!quiet) std::cout << getTimeSpent() << std::endl;
-    ILPExecuter*         runner = new MixedModelGurobiExecuter((bool) std::stoi(argv[6]), (bool) std::stoi(argv[7]), instance);
-    genSingleShot(instance, runner, argv[4]);
-             std::exit(42);  */
-
-    //auto *s = new LocalSearch(10000000000, .6, instance, 36000000000);
-    //s->GRASP();
-    std::list<Class *> classesbyCost;
-    for (int j = 0; j < instance->getClasses().size(); ++j) {
-        /*if( instance->getClasses()[j]->getLectures().size() > 1 || instance->getClasses()[j]->getPossibleRooms().size() > 1) {
-            int cost = 0;
-            for (int i = 0; i < instance->getClasses()[j]->getHard().size(); ++i) {
-                for (int m = 0; m < instance->getClasses()[j]->getHard()[i]->getClasses().size(); ++m) {
-                    for (int k = 0; k < instance->getClasses()[j]->getLectures().size(); ++k) {
-                        for (int l = 0; l < instance->getClass(
-                                instance->getClasses()[j]->getHard()[i]->getClasses()[m])->getLectures().size(); ++l) {
-                            if (instance->getClasses()[j]->getLectures()[k]->getStart() == instance->getClass(
-                                    instance->getClasses()[j]->getHard()[i]->getClasses()[m])->getLectures()[l]->getStart())
-                                cost++;
-                        }
-                    }
-                }
-
-            }
-            instance->getClasses()[j]->setCostG(cost / instance->getClasses()[j]->getLectures().size());
-            classesbyCost.push_back(instance->getClasses()[j]);
-        }
-        lhs->getCostG() > rhs->getCostG()*/
-        classesbyCost.push_back(instance->getClasses()[j]);
-
-    }
-    std::cout << classesbyCost.size() << std::endl;
-    classesbyCost.sort([](Class *lhs, Class *rhs) {
-        return lhs->getPossibleRooms().size() + lhs->getLectures().size() <
-               rhs->getPossibleRooms().size() + rhs->getLectures().size();
-    });
-
-    if (!quiet) std::cout << getTimeSpent() << std::endl;
-
-
-
-    //if (!quiet) std::cout << "Starting Reading File: " << argv[2] << std::endl;
-    //readOutputXML(argv[2], instance);
-    //if (!quiet) std::cout << "Generating Perturbations based on the file: " << argv[3] << std::endl;
-    //readPerturbations(argv[3], instance);
-
-
-    if (!quiet) std::cout << "Generating ILP model" << std::endl;
-    //ILPExecuter *runner;
-
+    printRAM();
 
 
     if (!quiet) std::cout << "Solution Found: Writing output file" << std::endl;
-    writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + ".xml",
-                   instance, getTimeSpent());
 
 
     return 0;
 }
 
+void readSAT() {
+    std::ifstream infile("/Volumes/MAC/ClionProjects/timetabler/a.txt");
+    std::string line;
+    bool temp = false;
+    while (std::getline(infile, line)) {
+        std::istringstream iss(line);
+        std::string a, b;
+        while (iss >> a) {
+            if (temp) {
+                if (a[0] != '-') {
+                    bool find = false;
+                    for (Curriculum *c: problem) {
+                        for (auto *clu: c->getPClass()) {
+                            for (auto *cla: clu->getClasses()) {
+                                for (int i = 0; i < cla->getPossiblePairSize(); ++i) {
+                                    if (cla->getKey(cla->getPossiblePair(i).first, cla->getPossiblePair(i).second) ==
+                                        a) {
+                                        cla->setSolution(cla->getPossiblePair(i).second->getStart(),
+                                                         cla->getPossiblePair(i).first->getId(),
+                                                         cla->getPossiblePair(i).first->getName(),
+                                                         cla->getPossiblePair(i).second->getWeeks(),
+                                                         cla->getPossiblePair(i).second->getDays());
+                                        std::cout << a << " " << cla->getId() << std::endl;
+                                        find = true;
+                                        break;
+                                    }
+
+                                }
+                                if (find)
+                                    break;
+
+                            }
+                            if (find)
+                                break;
+                        }
+                        if (find)
+                            break;
+
+
+                    }
+
+                }
+
+            }
+            if (a == "v")
+                temp = true;
+        }
+
+    }
+
+}
+
+std::string constraint(Class *idClassesDist, Class *idClassesDist1, int p, int p1) {
+    return "+1 " + idClassesDist->getKey(idClassesDist->getPossiblePairRoom(p),
+                                         idClassesDist->getPossiblePairLecture(p)) + " +1 "
+           + idClassesDist1->getKey(idClassesDist1->getPossiblePairRoom(p1),
+                                    idClassesDist1->getPossiblePairLecture(p1)) + "  <=  1;\n";
+}
+
 void printCurricular() {
-    for(Curriculum *c: problem){
+    for (Curriculum *c: problem) {
         std::cout << "New" << std::endl;
-        for (ClusterbyRoom* clus: c->getPClass()) {
+        for (ClusterbyRoom *clus: c->getPClass()) {
             std::cout << "C";
-            for (Class* c: clus->getClasses()) {
-                std::cout << c->getId() << ",";
+            for (Class *c: clus->getClasses()) {
+                std::cout << c->getId() << std::endl;
             }
             std::cout << std::endl;
             std::cout << "R";
-            for (Room* c: clus->getRooms()) {
-                std::cout << c->getId() << ",";
+            for (Room *c: clus->getRooms()) {
+                std::cout << c->getId() << std::endl;
             }
             std::cout << std::endl;
 
@@ -699,12 +642,11 @@ Instance *readInputXML(std::string filename) {
     xml_document<> doc;
     int orderID = 0;
     std::map<int, Class *> classMap;
-    std::map<Class*,ClusterbyRoom*> mapCluster;
-    std::map<int, std::pair<std::set<ClusterbyRoom*>*,std::vector<ConstraintShort*>*>*> curMap;
+    std::map<Class *, ClusterbyRoom *> mapCluster;
+    std::map<int, std::set<ClusterbyRoom *> *> curMap;
 
     std::map<int, int> classID;
     std::vector<ClusterbyRoom *> cluster;
-
 
 
     std::ifstream file(filename);
@@ -841,13 +783,12 @@ Instance *readInputXML(std::string filename) {
                                     parent = atoi(a->value());
                             }
                             Class *c = new Class(idclass, limit, orderID, idsub + "_" + itos(idConf) + "_" + id);
-                            std::string oneEach= " ";
+                            std::string oneEach = " ";
                             c->setOrderID(order);
                             c->setCourseID(atoi(id));
                             order++;
                             all.push_back(c);
                             int i = 0;
-                            int v = 0;
                             for (const xml_node<> *lec = cla->first_node(); lec; lec = lec->next_sibling()) {
                                 if (strcmp(lec->name(), "room") == 0) {
                                     std::string idRoom = " ";
@@ -863,10 +804,10 @@ Instance *readInputXML(std::string filename) {
 
                                     }
                                     if (roomID.find(idRoom) == roomID.end()) {
-                                        std::cerr << "Room does not exist: " << idRoom <<" "<<id<<" "<<idclass<< std::endl;
+                                        std::cerr << "Room does not exist: " << idRoom << " " << id << " " << idclass
+                                                  << std::endl;
                                         std::exit(11);
                                     } else {
-
 
 
                                         roomsv.insert(
@@ -898,26 +839,17 @@ Instance *readInputXML(std::string filename) {
 
 
                                     if (roomsv.size() == 0) {
-                                        std::string old=std::to_string(max);
-                                        if (cplexMap.find(c->getOrderID()) != cplexMap.end()) {
-                                            cplexMap[c->getOrderID()].push_back(++max);
-                                        } else {
-                                            std::vector<int> classCplex;
-                                            classCplex.push_back(++max);
-                                            cplexMap.insert(std::pair<int, std::vector<int>>(c->getOrderID(),
-                                                                                                    classCplex));
+                                        std::string old;
+                                        old = "x" + std::to_string(max);
+                                        max++;
 
-                                        }
                                         c->setPossiblePair(
                                                 new Room(-1),
-                                                l, v);
-                                        oneEach=" +1 x"+old;
-                                        if(penalty!=0)
-                                            costTime += " +"+ std::to_string(instance->getTimePen()*penalty)+" x"+old;
-                                        else
-                                            costTime += " +"+std::to_string(instance->getTimePen()) +"x"+old;
-
-                                        v++;
+                                                l, old);
+                                        oneEach = " +1 " + old;
+                                        if (penalty != 0)
+                                            costTime +=
+                                                    " +" + std::to_string(instance->getTimePen() * penalty) + " " + old;
 
                                     } else {
                                         for (std::map<Room *, int>::iterator j = roomsv.begin();
@@ -925,26 +857,27 @@ Instance *readInputXML(std::string filename) {
                                             int roomID = j->first->getId();
                                             std::string week = l->getWeeks();
                                             std::string day = l->getDays();
-                                            int start = l->getStart();
+                                            int startTime = l->getStart();
                                             int duration = l->getLenght();
                                             bool isNotAddableTime = false;
                                             for (int una = 0; una < j->first->getSlots().size(); ++una) {
-                                                for (int i = 0; i < instance->getNweek(); ++i) {
-                                                    if (week[i] == j->first->getSlots()[una].getWeeks()[i] &&
-                                                        j->first->getSlots()[una].getWeeks()[i] == '1') {
+                                                for (int weeki = 0; weeki < instance->getNweek(); ++weeki) {
+                                                    if (week[weeki] == j->first->getSlots()[una].getWeeks()[weeki] &&
+                                                        j->first->getSlots()[una].getWeeks()[weeki] == '1') {
                                                         for (int d = 0; d < instance->getNdays(); ++d) {
                                                             if (day[d] == j->first->getSlots()[una].getDays()[d] &&
                                                                 day[d] == '1') {
 
-                                                                if (start >= j->first->getSlots()[una].getStart() &&
-                                                                    start < j->first->getSlots()[una].getStart() +
-                                                                            j->first->getSlots()[una].getLenght()) {
+                                                                if (startTime >= j->first->getSlots()[una].getStart() &&
+                                                                    startTime < j->first->getSlots()[una].getStart() +
+                                                                                j->first->getSlots()[una].getLenght()) {
 
                                                                     isNotAddableTime = true;
                                                                 } else if (
-                                                                        j->first->getSlots()[una].getStart() >= start &&
+                                                                        j->first->getSlots()[una].getStart() >=
+                                                                        startTime &&
                                                                         j->first->getSlots()[una].getStart() <
-                                                                        start + duration) {
+                                                                        startTime + duration) {
 
 
                                                                     isNotAddableTime = true;
@@ -964,9 +897,25 @@ Instance *readInputXML(std::string filename) {
 
                                             }
                                             if (!isNotAddableTime) {
+                                                std::string old;
+                                                old = "x" + std::to_string(max);
+                                                max++;
+
+                                                oneEach += " +1 " + old;
+
+                                                if (penalty != 0)
+                                                    costTime +=
+                                                            " +" + std::to_string(instance->getTimePen() * penalty) +
+                                                            " " + old;
+
+                                                if (j->second != 0)
+                                                    costRoom +=
+                                                            " +" + std::to_string(instance->getRoomPen() * j->second) +
+                                                            " " + old;
+
                                                 c->setPossiblePair(
                                                         j->first,
-                                                        l, v);
+                                                        l, old);
                                                 if (roomTime) {
                                                     bool is = true;
                                                     for (int ti = 0; ti < j->first->t.size(); ++ti) {
@@ -974,22 +923,20 @@ Instance *readInputXML(std::string filename) {
                                                             l->getWeeks().compare(j->first->t[ti]->getWeek()) == 0 &&
                                                             l->getStart() == j->first->t[ti]->getStart() &&
                                                             l->getEnd() == j->first->t[ti]->getEnd()) {
-                                                            j->first->t[ti]->addS(c->getOrderID(), v);
+                                                            j->first->t[ti]->addS(old);
                                                             is = false;
                                                         } else if (j->first->t[ti]->check(l, instance->getNweek(),
                                                                                           instance->getNdays())) {
-                                                            j->first->t[ti]->addC(c->getOrderID(), v);
+                                                            j->first->t[ti]->addC(old);
                                                             is = false;
-//                                                                std::cout<<"L1 "<<*l<<" "<<c->getOrderID()<<std::endl;
 
 
                                                         }
                                                     }
                                                     if (is) {
-//                                                            std::cout<<"L "<<*l<<" "<<c->getOrderID()<<std::endl;
                                                         j->first->t.push_back(
                                                                 new Time(l->getStart(), l->getEnd(), l->getWeeks(),
-                                                                         l->getDays(), c->getOrderID(), v));
+                                                                         l->getDays(), old));
                                                     }
                                                     /*
                                                     for (int i = 0; i < l->getLenght(); ++i) {
@@ -1008,29 +955,8 @@ Instance *readInputXML(std::string filename) {
 
                                                     }*/
                                                 }
-                                                std::string old=std::to_string(max);
-                                                if (cplexMap.find(c->getOrderID()) != cplexMap.end()) {
-                                                    cplexMap[c->getOrderID()].push_back(++max);
-                                                } else {
-                                                    std::vector<int> classCplex;
-                                                    classCplex.push_back(++max);
-                                                    cplexMap.insert(
-                                                            std::pair<int, std::vector<int>>(c->getOrderID(),
-                                                                                                    classCplex));
 
-                                                }
-                                                oneEach+=" +1 x"+old;
 
-                                                if(penalty!=0) {
-                                                    costTime += " +"+std::to_string(instance->getTimePen()*penalty)+ " x"+old;
-                                                } else
-                                                    costTime += " +"+std::to_string(instance->getTimePen())+" x"+old;
-                                                if( j->second!=0)
-                                                    costRoom += " +"+ std::to_string(instance->getRoomPen()*j->second)+" x"+old;
-                                                else
-                                                    costRoom += " +"+ std::to_string(instance->getRoomPen())+" x"+old;
-
-                                                v++;
                                                 // std::cout<<instance->getClasses()[j]->getPossibleRoomPair(r).first<<" "<<instance->getClasses()[j]->getId()<<" "<<*l<<std::endl;
                                             }
 
@@ -1051,12 +977,10 @@ Instance *readInputXML(std::string filename) {
                             classMap.insert(std::pair<int, Class *>(orderID, c));
                             classID.insert(std::pair<int, int>(idclass, orderID));
                             orderID++;
-                            //addPossibleRooms(c, instance);
                             if (parent != -1)
                                 c->setParent(classMap[classID[parent]]);
                             clasv.push_back(c);
-                            c->setOneeach(oneEach);
-                            //tempModel.add(oneEach == 1);
+                            oneEachG += oneEach + " = 1 ; \n";
 
                         }
                         Subpart *subpart = new Subpart(idsub, clasv);
@@ -1071,18 +995,30 @@ Instance *readInputXML(std::string filename) {
 
             }
             instance->setClasses(all);
-            std::set<Room*> temp;
-            for(std::pair<Room*,int> t: all[0]->getPossibleRooms()) {
+            std::set<Room *> temp;
+            for (std::pair<Room *, int> t: all[0]->getPossibleRooms()) {
                 temp.insert(t.first);
             }
-            cluster.push_back(new ClusterbyRoom(0,temp,all[0]));
-            mapCluster.insert(std::pair<Class*,ClusterbyRoom*>(all[0],cluster[0]));
+            cluster.push_back(new ClusterbyRoom(0, temp, all[0]));
+            mapCluster.insert(std::pair<Class *, ClusterbyRoom *>(all[0], cluster[0]));
             for (int k = 1; k < all.size(); ++k) {
-                    bool test=false;
-                    for (int i = 0; i <cluster.size() ; ++i) {
-                        if(all[k]->getCourseID()==(*cluster[i]->getClasses().begin())->getCourseID()) {
+                bool test = false;
+                for (int i = 0; i < cluster.size(); ++i) {
+                    /*if(all[k]->getCourseID()==(*cluster[i]->getClasses().begin())->getCourseID()) {
+                        test = true;
+                        cluster[i]->addClass(all[k], -1);
+                        if (all[k]->getPossibleRooms().size() > 0) {
+                            for (std::pair<Room *, int> it : all[k]->getPossibleRooms()) {
+                                cluster[i]->addRoom(it.first);
+                            }
+                        }
+                        mapCluster.insert(std::pair<Class *, ClusterbyRoom *>(all[k], cluster[i]));
+                        break;
+                    }else {*/
+                    for (Room *j:cluster[i]->getRooms()) {
+                        if (all[k]->getPossibleRoom(j) != -1) {
                             test = true;
-                            cluster[i]->addClass(all[k], -1);
+                            cluster[i]->addClass(all[k]);
                             if (all[k]->getPossibleRooms().size() > 0) {
                                 for (std::pair<Room *, int> it : all[k]->getPossibleRooms()) {
                                     cluster[i]->addRoom(it.first);
@@ -1090,50 +1026,36 @@ Instance *readInputXML(std::string filename) {
                             }
                             mapCluster.insert(std::pair<Class *, ClusterbyRoom *>(all[k], cluster[i]));
                             break;
-                        }else {
-                            for (Room *j:cluster[i]->getRooms()) {
-                                if (all[k]->getPossibleRoom(j) != -1) {
-                                    test = true;
-                                    cluster[i]->addClass(all[k], -1);
-                                    if (all[k]->getPossibleRooms().size() > 0) {
-                                        for (std::pair<Room *, int> it : all[k]->getPossibleRooms()) {
-                                            cluster[i]->addRoom(it.first);
-                                        }
-                                    }
-                                    mapCluster.insert(std::pair<Class *, ClusterbyRoom *>(all[k], cluster[i]));
-                                    break;
-                                }
-
-                            }
-                            if (test) {
-                                break;
-                            }
                         }
 
                     }
-                if(!test){
-                    std::set<Room*> temp;
-                    for (std::pair<Room *, int> it : all[k]->getPossibleRooms()) {
-                        temp.insert(it.first);
+                    if (test) {
+                        break;
                     }
-                    cluster.push_back(new ClusterbyRoom(cluster.size(),temp,all[k]));
-                    mapCluster.insert(std::pair<Class*,ClusterbyRoom*>(all[k],cluster[cluster.size()-1]));
+                    //}
+
+                }
+                if (!test) {
+                    std::set<Room *> temp1;
+                    for (std::pair<Room *, int> it : all[k]->getPossibleRooms()) {
+                        temp1.insert(it.first);
+                    }
+                    cluster.push_back(new ClusterbyRoom(cluster.size(), temp, all[k]));
+                    mapCluster.insert(std::pair<Class *, ClusterbyRoom *>(all[k], cluster[cluster.size() - 1]));
                 }
 
             }
 
 
-
-
         } else if (strcmp(n->name(), "distributions") == 0) {
             for (const xml_node<> *sub = n->first_node(); sub; sub = sub->next_sibling()) {
+                std::stringstream constSTR;
                 bool isReq = false;
-                //IloRangeArray *range = new IloRangeArray ( env );
-                std::vector<ConstraintShort*> *temp = new std::vector<ConstraintShort*>();
+                std::vector<ConstraintShort *> *temp = new std::vector<ConstraintShort *>();
                 std::string type;
                 int penalty = -1;
-                std::vector<Class*> c1;
-                std::set<ClusterbyRoom*> *c=new std::set<ClusterbyRoom*>();
+                std::vector<Class *> c1;
+                std::set<ClusterbyRoom *> *c = new std::set<ClusterbyRoom *>();
                 int limit = -1, limit1 = -1;
                 for (const xml_attribute<> *a = sub->first_attribute(); a; a = a->next_attribute()) {
                     if (strcmp(a->name(), "required") == 0) {
@@ -1163,271 +1085,25 @@ Instance *readInputXML(std::string filename) {
                     c1.push_back(idClassesDist);
                     if (curMap.find(idClassesDist->getId()) != curMap.end()) {
                         for (ClusterbyRoom *r: *c)
-                            curMap[idClassesDist->getId()]->first->insert(r);
-                        c = curMap[idClassesDist->getId()]->first;
-                        curMap[idClassesDist->getId()]->second->insert(curMap[idClassesDist->getId()]->second->end(),temp->begin(),temp->end());
+                            curMap[idClassesDist->getId()]->insert(r);
+                        c = curMap[idClassesDist->getId()];
                     } else {
-                        std::pair<std::set<ClusterbyRoom *> *, std::vector<ConstraintShort *> *> *t = new std::pair<std::set<ClusterbyRoom *> *, std::vector<ConstraintShort *> *>(
-                                c, temp);
                         curMap.insert(std::pair<int,
-                                std::pair<std::set<ClusterbyRoom *> *, std::vector<ConstraintShort *> *> *>(
-                                idClassesDist->getId(), t));
+                                std::set<ClusterbyRoom *> *>(
+                                idClassesDist->getId(), c));
                     }
                 }
-                temp->push_back(new ConstraintShort(type,penalty,c1,limit,limit1));
-                for (const xml_node<> *course = sub->first_node(); course; course = course->next_sibling()) {
-                    if (curMap.find(idClassesDist->getId()) != curMap.end()) {
-                        for (ClusterbyRoom *r: *c)
-                            curMap[idClassesDist->getId()]->first->insert(r);
-                        c = curMap[idClassesDist->getId()]->first;
-                        curMap[idClassesDist->getId()]->second->insert(curMap[idClassesDist->getId()]->second->end(),temp->begin(),temp->end());
-                    } else {
-                        std::pair<std::set<ClusterbyRoom *> *, std::vector<ConstraintShort *> *> *t = new std::pair<std::set<ClusterbyRoom *> *, std::vector<ConstraintShort *> *>(
-                                c, temp);
-                        curMap.insert(std::pair<int,
-                                std::pair<std::set<ClusterbyRoom *> *, std::vector<ConstraintShort *> *> *>(
-                                idClassesDist->getId(), t));
+                if (isReq) {
+                    for (ClusterbyRoom *clusterbyRoom: *c) {
+                        clusterbyRoom->setRange(new ConstraintShort(type, penalty, c1, limit, limit1));
+                        break;
                     }
+
                 }
-                /*if(penalty==-1){
-                    classConst.push_back(new ConstraintShort(type,penalty,*c,limit,limit1));
-                } else{
-                    classSoft.push_back(new ConstraintShort(type,penalty,*c,limit,limit1));
-                }*/
-
-                    /*Class *idClassesDist1 = nullptr;
-                    if (course->next_sibling())
-                        idClassesDist1 = instance->getClass(atoi(course->next_sibling()->first_attribute()->value()));
-                    if(isReq && idClassesDist1!= nullptr) {
-                        if (type.compare("DifferentDays") ==
-                            0) { 
-                                for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                                    for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-                                        for (int i = 0; i < instance->getNdays(); ++i) {
-                                            if (idClassesDist->getPossiblePairLecture(p)->getDays()[i] ==
-                                                idClassesDist1->getPossiblePairLecture(p1)->getDays()[i] &&
-                                                idClassesDist->getPossiblePairLecture(p)->getDays()[i] == '1') {
-                                                range->add(cplexMap[idClassesDist->getOrderID()][p] +
-                                                           cplexMap[idClassesDist1->getOrderID()][p1] <= 1);
-
-
-                                                //tempModel.add();
-                                            }
-
-                                        }
-
-
-                                    }
-                                }
-                        } else if (  type.compare("SameDays") == 0) {
-                                for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                                    for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-                                        for (int i = 0; i < instance->getNdays(); ++i) {
-                                            if (stringcontains(idClassesDist1->getPossiblePairLecture(p1)->getDays(),
-                                                               idClassesDist->getPossiblePairLecture(p)->getDays(),
-                                                               instance->getNdays()) ==
-                                                1) { ;
-                                            } else {
-                                                range->add(cplexMap[idClassesDist->getOrderID()][p] +
-                                                           cplexMap[idClassesDist1->getOrderID()][p1] <= 1);
-
-                                                //tempModel.add();
-
-
-                                            }
-
-                                        }
-
-
-
-                                }
-                            }
-                        } else if (  type.compare("SameAttendees") == 0) {
-                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-                                    int travel = 0;
-                                    if (idClassesDist->getPossiblePairRoom(p)->getId() != -1 &&
-                                        idClassesDist1->getPossiblePairRoom(p1)->getId() != -1) {
-                                        if (instance->getRoom(
-                                                idClassesDist->getPossiblePairRoom(p)->getId())->getTravel(
-                                                idClassesDist1->getPossiblePairRoom(p1)->getId()) > 0)
-                                            travel = instance->getRoom(
-                                                    idClassesDist->getPossiblePairRoom(p)->getId())->getTravel(
-                                                    idClassesDist1->getPossiblePairRoom(p1)->getId());
-                                        else
-                                            travel = instance->getRoom(
-                                                    idClassesDist1->getPossiblePairRoom(p1)->getId())->getTravel(
-                                                    idClassesDist->getPossiblePairRoom(p)->getId());
-                                    }
-
-                                    if (idClassesDist->getPossiblePairLecture(p)->getEnd() + travel <=
-                                        idClassesDist1->getPossiblePairLecture(p1)->getStart()
-                                        || idClassesDist1->getPossiblePairLecture(p1)->getEnd() +
-                                           travel <= idClassesDist->getPossiblePairLecture(p)->getStart()
-                                        || stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
-                                                         idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
-                                                         instance->getNweek(), false) ==
-                                           1
-                                        || stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
-                                                         idClassesDist1->getPossiblePairLecture(p1)->getDays(),
-                                                         instance->getNdays(), false) ==
-                                           1) { ;
-                                    } else {
-                                        range->add(cplexMap[idClassesDist->getOrderID()][p] +
-                                                   cplexMap[idClassesDist1->getOrderID()][p1] <= 1);
-                                    }
-                                }
-
-
-                            }
-                        } else if (  type.compare("NotOverlap") == 0) {
-                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-                                    if (stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
-                                                      idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
-                                                      instance->getNweek(), false) ==
-                                        1
-                                        || stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
-                                                         idClassesDist1->getPossiblePairLecture(p1)->getDays(),
-                                                         instance->getNdays(), false) ==
-                                           1 || idClassesDist->getPossiblePairLecture(p)->getEnd() <=
-                                                idClassesDist1->getPossiblePairLecture(p1)->getStart() ||
-                                        idClassesDist1->getPossiblePairLecture(p1)->getEnd() <=
-                                        idClassesDist->getPossiblePairLecture(p)->getStart()) { ;
-                                    } else {
-                                        range->add(cplexMap[idClassesDist->getOrderID()][p] +
-                                                   cplexMap[idClassesDist1->getOrderID()][p1] <= 1);
-
-                                    }
-                                }
-
-
-                            }
-
-
-                        } else if (  type.compare("Precedence") == 0) {
-                            IloNumExpr side1 = IloNumExpr(env);
-                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-                                    if (isFirst(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
-                                                idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
-                                                instance->getNweek()) == -1);
-                                    else if (isFirst(idClassesDist->getPossiblePairLecture(p)->getDays(),
-                                                     idClassesDist1->getPossiblePairLecture(p1)->getDays(),
-                                                     instance->getNdays()) ==
-                                             -1 && isFirst(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
-                                                           idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
-                                                           instance->getNweek()) == 0);
-                                    else if (isFirst(idClassesDist->getPossiblePairLecture(p)->getDays(),
-                                                     idClassesDist1->getPossiblePairLecture(p1)->getDays(),
-                                                     instance->getNdays()) ==
-                                             0 && isFirst(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
-                                                          idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
-                                                          instance->getNweek()) == 0 &&
-                                             idClassesDist->getPossiblePairLecture(p)->getEnd() <=
-                                             idClassesDist1->getPossiblePairLecture(p1)->getEnd());
-                                    else {
-                                        range->add(cplexMap[idClassesDist->getOrderID()][p] +
-                                                   cplexMap[idClassesDist1->getOrderID()][p1] <= 1);
-                                    }
-
-
-                                }
-
-                            }
-
-
-                        } else if(type.compare("SameTime") == 0){
-                            for (int p = 0; p <  idClassesDist->getPossiblePairSize(); ++p) {
-                                for (int p1 = 0; p1 <  idClassesDist1->getPossiblePairSize(); ++p1) {
-
-                                    if ( idClassesDist->getPossiblePairLecture(p)->getStart() <=
-                                         idClassesDist1->getPossiblePairLecture(p1)->getStart()
-                                        &&  idClassesDist1->getPossiblePairLecture(p1)->getEnd() <=
-                                            idClassesDist->getPossiblePairLecture(p)->getEnd()) { ;
-                                    } else if ( idClassesDist1->getPossiblePairLecture(p1)->getStart() <=
-                                                idClassesDist->getPossiblePairLecture(p)->getStart()
-                                               &&  idClassesDist->getPossiblePairLecture(p)->getEnd() <=
-                                                   idClassesDist1->getPossiblePairLecture(p1)->getEnd()) { ;
-                                    } else {
-                                        range->add(cplexMap[ idClassesDist->getOrderID()][p] +
-                                                  cplexMap[ idClassesDist1->getOrderID()][p1] <= 1);
-                                    }
-                                }
-
-
-                            }
-                        } else if(type.compare("SameStart") == 0) {
-                            IloNumExpr side1 =  IloNumExpr(env);;
-                            for (int p = 0; p <  idClassesDist->getPossiblePairSize(); ++p) {
-                                side1 += cplexMap[ idClassesDist->getOrderID()][p] *  idClassesDist->getPossiblePairLecture(p)->getStart();
-                            }
-                            IloNumExpr side2 =  IloNumExpr(env);;
-                            for (int p = 0; p <  idClassesDist1->getPossiblePairSize(); ++p) {
-                                side2 += cplexMap[ idClassesDist1->getOrderID()][p] *  idClassesDist1->getPossiblePairLecture(p)->getStart();
-                            }
-                           // IloConstraint ctemp(side1 == side2);
-                            //ctemp.setName(("sameStart_"+itos( idClassesDist1->getId())+"_"+itos( idClassesDist->getId())).c_str());
-                            range->add(side1 - side2==0);
-
-                        }
-                    }
-                }
-                curMap[idClassesDist->getId()]->second = range;
-
-
-
-
-
-
-
-
-                /* Constraint *limite;
-                 distribution *req;
-                 if (isReq) {
-                     if (limit1 != -1) {
-                         limite = new Limits(limit, limit1);
-                     } else if (limit != -1) {
-                         limite = new WithLimit(limit);
-                     } else {
-                         limite = new NoLimit();
-                     }
-                     limite->setType(type);
-                     req = new DistributionRequired(limite, c);
-                     for (int restr = 0; restr < c.size(); restr++) {
-                         if (classConst.count(c[restr])) {
-                             classConst[c[restr]]->push_back(req);
-                         } else {
-                             std::vector<distribution *> *t = new std::vector<distribution *>();
-                             t->push_back(req);
-                             classConst.insert(std::pair<int, std::vector<distribution *> *>(c[restr], t));
-                         }
-                     }
-                 } else {
-                     if (limit1 != -1) {
-                         limite = new Limits(limit, limit1);
-                     } else if (limit != -1) {
-                         limite = new WithLimit(limit);
-                     } else {
-                         limite = new NoLimit();
-                     }
-                     limite->setType(type);
-                     req = new DistributionPenalty(limite, c, penalty);
-                     for (int restr = 0; restr < c.size(); restr++) {
-                         if (classSoft.count(c[restr])) {
-                             classSoft[c[restr]]->push_back(req);
-                         } else {
-                             std::vector<distribution *> *t = new std::vector<distribution *>();
-                             t->push_back(req);
-                             classSoft.insert(std::pair<int, std::vector<distribution *> *>(c[restr], t));
-                         }
-                     }
-
-                 }
-                 if (req)
-                     instance->addDistribution(req);*/
 
             }
+
+
         } else if (strcmp(n->name(), "students") == 0) {
             std::map<int, Student> std;
             int idc = 0;
@@ -1491,46 +1167,53 @@ Instance *readInputXML(std::string filename) {
 
 
     }
-    for (auto it= curMap.begin(); it!=curMap.end();++it) {
-        if(problem.size()==0)
-            problem.push_back(new Curriculum(*it->second->first,it->second->second));
-        else{
-            bool test=false;
-            for (int i = 0; i <problem.size() ; ++i) {
-                if(problem[i]->getPClass().size()!=it->second->first->size())
-                    continue;
-                else {
-                    for (ClusterbyRoom *c:problem[i]->getPClass()) {
-                        for (ClusterbyRoom *c1: *it->second->first) {
-                            if(c==c1){
-                                test=true;
-                                break;
-                            }
-                        }
-                        if(test)
-                            break;
 
+
+    for (auto it = curMap.begin(); it != curMap.end(); ++it) {
+        if (problem.size() == 0)
+            problem.push_back(new Curriculum(*it->second));
+        else {
+            bool test = false;
+            for (int i = 0; i < problem.size(); ++i) {
+
+                for (ClusterbyRoom *c:problem[i]->getPClass()) {
+                    for (ClusterbyRoom *c1: *it->second) {
+                        for (Class *aClass: c->getClasses()) {
+                            for (Class *aClass1: c1->getClasses()) {
+                                if (aClass->getId() == aClass1->getId()) {
+                                    test = true;
+                                    break;
+                                }
+                            }
+                            if (test)
+                                break;
+
+                        }
+                        if (test)
+                            break;
                     }
+                    if (test)
+                        break;
                 }
-                if(test)
+                if (test)
                     break;
 
+
             }
-            if(!test)
-                problem.push_back(new Curriculum(*it->second->first,it->second->second));
+
+
+            if (!test)
+                problem.push_back(new Curriculum(*it->second));
         }
 
     }
-    //model.add(
-    //
-    // );
 
-   
+
     return instance;
 }
 
-void writeXML(Instance * instance, int version, Curriculum *cur) {
-    std::map<int,int> courseM;
+void writeXML(Instance *instance, int version, Curriculum *cur) {
+    std::map<int, int> courseM;
     xml_document<> doc;
     xml_node<> *decl = doc.allocate_node(node_declaration);
     decl->append_attribute(doc.allocate_attribute("version", "1.0"));
@@ -1547,22 +1230,23 @@ void writeXML(Instance * instance, int version, Curriculum *cur) {
     xml_node<> *child;
     //<optimization time="1" room="1" distribution="30" student="0"/>
     child = doc.allocate_node(node_element, "optimization");
-    child->append_attribute(doc.allocate_attribute("time",std::to_string(instance->getTimePen()).c_str()));
-    child->append_attribute(doc.allocate_attribute("room",std::to_string(instance->getRoomPen()).c_str()));
-    child->append_attribute(doc.allocate_attribute("distribution",std::to_string(instance->getDistributionPen()).c_str()));
-    child->append_attribute(doc.allocate_attribute("student",std::to_string(instance->getStudentPen()).c_str()));
+    child->append_attribute(doc.allocate_attribute("time", std::to_string(instance->getTimePen()).c_str()));
+    child->append_attribute(doc.allocate_attribute("room", std::to_string(instance->getRoomPen()).c_str()));
+    child->append_attribute(
+            doc.allocate_attribute("distribution", std::to_string(instance->getDistributionPen()).c_str()));
+    child->append_attribute(doc.allocate_attribute("student", std::to_string(instance->getStudentPen()).c_str()));
     root->append_node(child);
     child = doc.allocate_node(node_element, "rooms");
     xml_node<> *grandchild;
-    for(ClusterbyRoom* clu: cur->getPClass()){
+    for (ClusterbyRoom *clu: cur->getPClass()) {
         for (Room *r: clu->getRooms()) {
-            grandchild= doc.allocate_node(node_element, "room");
+            grandchild = doc.allocate_node(node_element, "room");
             grandchild->append_attribute(doc.allocate_attribute("id", doc.allocate_string(
                     std::to_string(r->getId()).c_str())));
             grandchild->append_attribute(doc.allocate_attribute("capacity", doc.allocate_string(
                     std::to_string(r->getCapacity()).c_str())));
-            for (std::pair<int,int> t: r->getTravel()) {
-                xml_node<> *travel= doc.allocate_node(node_element, "travel");
+            for (std::pair<int, int> t: r->getTravel()) {
+                xml_node<> *travel = doc.allocate_node(node_element, "travel");
                 travel->append_attribute(doc.allocate_attribute("room", doc.allocate_string(
                         std::to_string(t.first).c_str())));
                 travel->append_attribute(doc.allocate_attribute("capacity", doc.allocate_string(
@@ -1570,15 +1254,28 @@ void writeXML(Instance * instance, int version, Curriculum *cur) {
                 grandchild->append_node(travel);
 
             }
+            for (Unavailability t: r->getSlots()) {
+                xml_node<> *una = doc.allocate_node(node_element, "unavailable");
+                una->append_attribute(doc.allocate_attribute("days", doc.allocate_string(
+                        t.getDays().c_str())));
+                una->append_attribute(doc.allocate_attribute("start", doc.allocate_string(
+                        std::to_string(t.getStart()).c_str())));
+                una->append_attribute(doc.allocate_attribute("length", doc.allocate_string(
+                        std::to_string(t.getLenght()).c_str())));
+                una->append_attribute(doc.allocate_attribute("weeks", doc.allocate_string(
+                        t.getWeeks().c_str())));
+                grandchild->append_node(una);
+
+            }
             child->append_node(grandchild);
         }
     }
     root->append_node(child);
-    child=doc.allocate_node(node_element, "courses");
-    for(ClusterbyRoom* clu: cur->getPClass()){
+    child = doc.allocate_node(node_element, "courses");
+    for (ClusterbyRoom *clu: cur->getPClass()) {
         for (Class *c: clu->getClasses()) {
             if (courseM.find(c->getCourseID()) == courseM.end()) {
-                courseM.insert(std::pair<int,int>(c->getCourseID(),1));
+                courseM.insert(std::pair<int, int>(c->getCourseID(), 1));
                 grandchild = doc.allocate_node(node_element, "course");
                 grandchild->append_attribute(doc.allocate_attribute("id", doc.allocate_string(
                         std::to_string(c->getCourseID()).c_str())));
@@ -1647,40 +1344,44 @@ void writeXML(Instance * instance, int version, Curriculum *cur) {
 
     }
     root->append_node(child);
-    child=doc.allocate_node(node_element, "distributions");
-    for(ConstraintShort* clu: *cur->getRange()){
-        grandchild=doc.allocate_node(node_element, "distribution");
-        std::stringstream name;
-        if(clu->getParameter1()!=-1&&clu->getParameter2()!=-1){
-            name<<clu->getType()<<"("<<clu->getParameter1()<<","<<clu->getParameter2()<<")";
-        } else  if(clu->getParameter1()!=-1&&clu->getParameter2()==-1){
-            name<<clu->getType()<<"("<<clu->getParameter1()<<")";
-        } else
-            name<<clu->getType();
-        grandchild->append_attribute(doc.allocate_attribute("type", doc.allocate_string(
-                name.str().c_str())));
-        if(clu->getWeight()!=-1)
-            grandchild->append_attribute(doc.allocate_attribute("penalty", doc.allocate_string(
-                    std::to_string(clu->getWeight()).c_str())));
-        else
-            grandchild->append_attribute(doc.allocate_attribute("required", doc.allocate_string(
-                    "true")));
-        xml_node<> *classXML;
-        for (Class* c: clu->getClasses()) {
-            classXML=doc.allocate_node(node_element, "class");
-            classXML->append_attribute(doc.allocate_attribute("id", doc.allocate_string(
-                    std::to_string(c->getId()).c_str())));
-            grandchild->append_node(classXML);
+    child = doc.allocate_node(node_element, "distributions");
+    for (ClusterbyRoom *clusterbyRoom: cur->getPClass()) {
+        for (ConstraintShort *clu :clusterbyRoom->getRange()) {
+
+            grandchild = doc.allocate_node(node_element, "distribution");
+            std::stringstream name;
+            if (clu->getParameter1() != -1 && clu->getParameter2() != -1) {
+                name << clu->getType() << "(" << clu->getParameter1() << "," << clu->getParameter2() << ")";
+            } else if (clu->getParameter1() != -1 && clu->getParameter2() == -1) {
+                name << clu->getType() << "(" << clu->getParameter1() << ")";
+            } else
+                name << clu->getType();
+            grandchild->append_attribute(doc.allocate_attribute("type", doc.allocate_string(
+                    name.str().c_str())));
+            if (clu->getWeight() != -1)
+                grandchild->append_attribute(doc.allocate_attribute("penalty", doc.allocate_string(
+                        std::to_string(clu->getWeight()).c_str())));
+            else
+                grandchild->append_attribute(doc.allocate_attribute("required", doc.allocate_string(
+                        "true")));
+            xml_node<> *classXML;
+            for (Class *c: clu->getClasses()) {
+                classXML = doc.allocate_node(node_element, "class");
+                classXML->append_attribute(doc.allocate_attribute("id", doc.allocate_string(
+                        std::to_string(c->getId()).c_str())));
+                grandchild->append_node(classXML);
+            }
+            child->append_node(grandchild);
+
         }
-        child->append_node(grandchild);
-        
     }
     root->append_node(child);
 
 
-        //TODO:Students
+    //TODO:Students
 
-    std::stringstream name;name<<instance->getName()<<"_"<<version<<".xml";
+    std::stringstream name;
+    name << instance->getName() << "_" << version << ".xml";
     std::ofstream file_stored(name.str());
     //print(std::cout, doc, 0);
     file_stored << doc;
@@ -1690,12 +1391,3 @@ void writeXML(Instance * instance, int version, Curriculum *cur) {
 }
 
 
-void addPossibleRooms(Class *c, Instance *instance) {
-    if (c->getPossibleRooms().size() > 0) {
-        for (int i = 0; i < instance->getRooms().size(); ++i) {
-            if (instance->getRoom(i + 1)->getType().compare(c->getFirstPossibleRoom()->getType()) == 0)
-                c->addRoom(instance->getRoom(i + 1));
-        }
-    }
-
-}
