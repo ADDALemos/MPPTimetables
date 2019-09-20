@@ -107,31 +107,30 @@ void printRAM() {
 }
 
 
+
 int main(int argc, char **argv) {
 
 
     //if (!quiet)
     std::cout << "Starting Reading File: "
-              << "/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/tg-fal17_0.xml" << std::endl;
+              << "/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/lums-sum17.xml" << std::endl;
 
     printRAM();
 
-    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/tg-fal17_0.xml");
+    Instance *instance = readInputXML("/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/lums-sum17.xml");
     instance->setCompact(false);
-    /*readSAT();
+    readSAT();
     writeOutputXML("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + ".xml",
                    instance, getTimeSpent());
-    /*for (int k = 0; k < problem.size(); ++k) {
-        writeXML(instance, k, problem[k]);
-    }
-    std::exit(1);*/
+    std::exit(1);
     std::cout << max << std::endl;
     printRAM();
 
     int i = 0;
+    writeXML(instance, 1, problem[0]);
     std::cout << instance->getName() << " " << problem.size() << std::endl;
     for (Curriculum *c: problem) {
-        std::string nome = "/Volumes/MAC/ClionProjects/timetabler/tg-fal17" + std::to_string(0) + ".opb";
+        std::string nome = "/Volumes/MAC/ClionProjects/timetabler/lums-sum17" + std::to_string(0) + ".opb";
         std::ofstream file(nome);
         file << "min: " << costRoom << " + " << costTime << " ;" << std::endl;
         file << oneEachG;
@@ -142,230 +141,232 @@ int main(int argc, char **argv) {
         for (auto *clu: c->getPClass()) {
             Class *idClassesDist, *idClassesDist1;
             for (int y = 0; y < clu->getRange().size(); ++y) {
-                for (int ci = 1; ci < clu->getRange().at(y)->getClasses().size(); ++ci) {
-                    idClassesDist = clu->getRange().at(y)->getClasses()[ci - 1];
-                    idClassesDist1 = clu->getRange().at(y)->getClasses()[ci];//
-                    if (clu->getRange().at(y)->getType().compare("MaxDayLoad") == 0) {
-                        for (int w = 0; w < instance->getNweek(); ++w) {
-                            for (int d = 0; d < instance->getNdays(); ++d) {
-                                for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                                    if (idClassesDist->getPossiblePairLecture(p)->getWeeks()[w] == '1'
-                                        && idClassesDist->getPossiblePairLecture(p)->getDays()[d] == '1') {
-                                        /*t += var[vector[c]->getOrderID()][p] *
-                                             vector[c]->getPossiblePairLecture(p)->getLenght();*/
-                                    }
-                                }
-                            }
-                            //  model.add(t <= l);
+                for (int ci = 0; ci < clu->getRange().at(y)->getClasses().size(); ++ci) {
+                    for (int ci1 = ci+1; ci1 < clu->getRange().at(y)->getClasses().size(); ++ci1) {
 
-                        }
+                        idClassesDist = clu->getRange().at(y)->getClasses()[ci];
+                        idClassesDist1 = clu->getRange().at(y)->getClasses()[ci1];//
 
-
-                    } else if (clu->getRange().at(y)->getType().compare("WorkDay") == 0) {
-                        for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                            for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-                                if (stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
-                                                  idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
-                                                  instance->getNweek(),
-                                                  false) == 1 ||
-                                    stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
-                                                  idClassesDist1->getPossiblePairLecture(p1)->getDays(),
-                                                  instance->getNdays(),
-                                                  false) == 1) { ;
-                                } else {
-                                    if (std::max(idClassesDist->getPossiblePairLecture(p)->getEnd(),
-                                                 idClassesDist1->getPossiblePairLecture(p1)->getEnd()) -
-                                        std::min(idClassesDist->getPossiblePairLecture(p)->getStart(),
-                                                 idClassesDist1->getPossiblePairLecture(p1)->getStart()) >
-                                        clu->getRange().at(y)->getParameter1()) {
-                                        file << constraint(idClassesDist, idClassesDist1, p, p1);
-                                    }
-                                }
-
-
-                            }
-                        }
-
-
-                    } else if (clu->getRange().at(y)->getType().compare("DifferentDays") ==
-                               0) {
-                        for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                            for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                        if (clu->getRange().at(y)->getType().compare("MaxDayLoad") == 0) {
+                            for (int w = 0; w < instance->getNweek(); ++w) {
                                 for (int d = 0; d < instance->getNdays(); ++d) {
-                                    if (idClassesDist->getPossiblePairLecture(p)->getDays()[d] ==
-                                        idClassesDist1->getPossiblePairLecture(p1)->getDays()[d] &&
-                                        idClassesDist->getPossiblePairLecture(p)->getDays()[d] == '1') {
+                                    for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                        if (idClassesDist->getPossiblePairLecture(p)->getWeeks()[w] == '1'
+                                            && idClassesDist->getPossiblePairLecture(p)->getDays()[d] == '1') {
+                                            /*t += var[vector[c]->getOrderID()][p] *
+                                                 vector[c]->getPossiblePairLecture(p)->getLenght();*/
+                                        }
+                                    }
+                                }
+                                //  model.add(t <= l);
+
+                            }
+
+
+                        } else if (clu->getRange().at(y)->getType().compare("WorkDay") == 0) {
+                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                    if (stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                      idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                      instance->getNweek(),
+                                                      false) == 1 ||
+                                        stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                      idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                      instance->getNdays(),
+                                                      false) == 1) { ;
+                                    } else {
+                                        if (std::max(idClassesDist->getPossiblePairLecture(p)->getEnd(),
+                                                     idClassesDist1->getPossiblePairLecture(p1)->getEnd()) -
+                                            std::min(idClassesDist->getPossiblePairLecture(p)->getStart(),
+                                                     idClassesDist1->getPossiblePairLecture(p1)->getStart()) >
+                                            clu->getRange().at(y)->getParameter1()) {
+                                            file << constraint(idClassesDist, idClassesDist1, p, p1);
+                                        }
+                                    }
+
+
+                                }
+                            }
+
+
+                        } else if (clu->getRange().at(y)->getType().compare("DifferentDays") ==
+                                   0) {
+                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                    for (int d = 0; d < instance->getNdays(); ++d) {
+                                        if (idClassesDist->getPossiblePairLecture(p)->getDays()[d] ==
+                                            idClassesDist1->getPossiblePairLecture(p1)->getDays()[d] &&
+                                            idClassesDist->getPossiblePairLecture(p)->getDays()[d] == '1') {
+                                            file << constraint(idClassesDist, idClassesDist1, p, p1);
+
+
+                                        }
+
+                                    }
+
+
+                                }
+                            }
+                        } else if (clu->getRange().at(y)->getType().compare("SameDays") == 0) {
+                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                    for (int d = 0; d < instance->getNdays(); ++d) {
+                                        if (stringcontains(idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                           idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                           instance->getNdays()) ==
+                                            1) { ;
+                                        } else {
+                                            file << constraint(idClassesDist, idClassesDist1, p, p1);
+
+
+                                        }
+
+                                    }
+
+
+                                }
+                            }
+                        } else if (clu->getRange().at(y)->getType().compare("SameAttendees") == 0) {
+                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                    int travel = 0;
+                                    if (idClassesDist->getPossiblePairRoom(p)->getId() != -1 &&
+                                        idClassesDist1->getPossiblePairRoom(p1)->getId() != -1) {
+                                        if (instance->getRoom(
+                                                idClassesDist->getPossiblePairRoom(p)->getId())->getTravel(
+                                                idClassesDist1->getPossiblePairRoom(p1)->getId()) > 0)
+                                            travel = instance->getRoom(
+                                                    idClassesDist->getPossiblePairRoom(p)->getId())->getTravel(
+                                                    idClassesDist1->getPossiblePairRoom(p1)->getId());
+                                        else
+                                            travel = instance->getRoom(
+                                                    idClassesDist1->getPossiblePairRoom(p1)->getId())->getTravel(
+                                                    idClassesDist->getPossiblePairRoom(p)->getId());
+                                    }
+
+                                    if (idClassesDist->getPossiblePairLecture(p)->getEnd() + travel <=
+                                        idClassesDist1->getPossiblePairLecture(p1)->getStart()
+                                        || idClassesDist1->getPossiblePairLecture(p1)->getEnd() +
+                                           travel <= idClassesDist->getPossiblePairLecture(p)->getStart()
+                                        || stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                         idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                         instance->getNweek(), false) ==
+                                           1
+                                        || stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                         idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                         instance->getNdays(), false) ==
+                                           1) { ;
+                                    } else {
+
                                         file << constraint(idClassesDist, idClassesDist1, p, p1);
 
 
                                     }
-
                                 }
 
 
                             }
-                        }
-                    } else if (clu->getRange().at(y)->getType().compare("SameDays") == 0) {
-                        for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                            for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-                                for (int d = 0; d < instance->getNdays(); ++d) {
-                                    if (stringcontains(idClassesDist1->getPossiblePairLecture(p1)->getDays(),
-                                                       idClassesDist->getPossiblePairLecture(p)->getDays(),
-                                                       instance->getNdays()) ==
-                                        1) { ;
+                        } else if (clu->getRange().at(y)->getType().compare("NotOverlap") == 0) {
+                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                    if (stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                      idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                      instance->getNweek(), false) ==
+                                        1
+                                        || stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                         idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                         instance->getNdays(), false) ==
+                                           1 || idClassesDist->getPossiblePairLecture(p)->getEnd() <=
+                                                idClassesDist1->getPossiblePairLecture(p1)->getStart() ||
+                                        idClassesDist1->getPossiblePairLecture(p1)->getEnd() <=
+                                        idClassesDist->getPossiblePairLecture(p)->getStart()) { ;
                                     } else {
                                         file << constraint(idClassesDist, idClassesDist1, p, p1);
 
 
                                     }
-
                                 }
 
 
                             }
-                        }
-                    } else if (clu->getRange().at(y)->getType().compare("SameAttendees") == 0) {
-                        std::cout<<idClassesDist->getId()<<" "<<idClassesDist1->getId()<<std::endl;
-                        for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                            for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-                                int travel = 0;
-                                if (idClassesDist->getPossiblePairRoom(p)->getId() != -1 &&
-                                    idClassesDist1->getPossiblePairRoom(p1)->getId() != -1) {
-                                    if (instance->getRoom(
-                                            idClassesDist->getPossiblePairRoom(p)->getId())->getTravel(
-                                            idClassesDist1->getPossiblePairRoom(p1)->getId()) > 0)
-                                        travel = instance->getRoom(
-                                                idClassesDist->getPossiblePairRoom(p)->getId())->getTravel(
-                                                idClassesDist1->getPossiblePairRoom(p1)->getId());
-                                    else
-                                        travel = instance->getRoom(
-                                                idClassesDist1->getPossiblePairRoom(p1)->getId())->getTravel(
-                                                idClassesDist->getPossiblePairRoom(p)->getId());
-                                }
 
-                                if (idClassesDist->getPossiblePairLecture(p)->getEnd() + travel <=
-                                    idClassesDist1->getPossiblePairLecture(p1)->getStart()
-                                    || idClassesDist1->getPossiblePairLecture(p1)->getEnd() +
-                                       travel <= idClassesDist->getPossiblePairLecture(p)->getStart()
-                                    || stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
-                                                     idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
-                                                     instance->getNweek(), false) ==
-                                       1
-                                    || stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
+
+                        } else if (clu->getRange().at(y)->getType().compare("Precedence") == 0) {
+                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                    if (isFirst(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                instance->getNweek()) == -1);
+                                    else if (isFirst(idClassesDist->getPossiblePairLecture(p)->getDays(),
                                                      idClassesDist1->getPossiblePairLecture(p1)->getDays(),
-                                                     instance->getNdays(), false) ==
-                                       1) { ;
-                                } else {
-                                    if(idClassesDist->getId()==298||idClassesDist1->getId()==298)
-                                        std::cout<< constraint(idClassesDist, idClassesDist1, p, p1);
-                                    file << constraint(idClassesDist, idClassesDist1, p, p1);
-
-
-                                }
-                            }
-
-
-                        }
-                    } else if (clu->getRange().at(y)->getType().compare("NotOverlap") == 0) {
-                        for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                            for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-                                if (stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
-                                                  idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
-                                                  instance->getNweek(), false) ==
-                                    1
-                                    || stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                     instance->getNdays()) ==
+                                             -1 && isFirst(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                           idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                           instance->getNweek()) == 0);
+                                    else if (isFirst(idClassesDist->getPossiblePairLecture(p)->getDays(),
                                                      idClassesDist1->getPossiblePairLecture(p1)->getDays(),
-                                                     instance->getNdays(), false) ==
-                                       1 || idClassesDist->getPossiblePairLecture(p)->getEnd() <=
-                                            idClassesDist1->getPossiblePairLecture(p1)->getStart() ||
-                                    idClassesDist1->getPossiblePairLecture(p1)->getEnd() <=
-                                    idClassesDist->getPossiblePairLecture(p)->getStart()) { ;
-                                } else {
-                                    file << constraint(idClassesDist, idClassesDist1, p, p1);
+                                                     instance->getNdays()) ==
+                                             0 && isFirst(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                          idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                          instance->getNweek()) == 0 &&
+                                             idClassesDist->getPossiblePairLecture(p)->getEnd() <=
+                                             idClassesDist1->getPossiblePairLecture(p1)->getEnd());
+                                    else {
+                                        file << constraint(idClassesDist, idClassesDist1, p, p1);
 
 
-                                }
-                            }
-
-
-                        }
-
-
-                    } else if (clu->getRange().at(y)->getType().compare("Precedence") == 0) {
-                        for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                            for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-                                if (isFirst(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
-                                            idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
-                                            instance->getNweek()) == -1);
-                                else if (isFirst(idClassesDist->getPossiblePairLecture(p)->getDays(),
-                                                 idClassesDist1->getPossiblePairLecture(p1)->getDays(),
-                                                 instance->getNdays()) ==
-                                         -1 && isFirst(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
-                                                       idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
-                                                       instance->getNweek()) == 0);
-                                else if (isFirst(idClassesDist->getPossiblePairLecture(p)->getDays(),
-                                                 idClassesDist1->getPossiblePairLecture(p1)->getDays(),
-                                                 instance->getNdays()) ==
-                                         0 && isFirst(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
-                                                      idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
-                                                      instance->getNweek()) == 0 &&
-                                         idClassesDist->getPossiblePairLecture(p)->getEnd() <=
-                                         idClassesDist1->getPossiblePairLecture(p1)->getEnd());
-                                else {
-                                    file << constraint(idClassesDist, idClassesDist1, p, p1);
+                                    }
 
 
                                 }
 
-
                             }
 
-                        }
 
+                        } else if (clu->getRange().at(y)->getType().compare("SameTime") == 0) {
+                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
 
-                    } else if (clu->getRange().at(y)->getType().compare("SameTime") == 0) {
-                        for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                            for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                    if (idClassesDist->getPossiblePairLecture(p)->getStart() <=
+                                        idClassesDist1->getPossiblePairLecture(p1)->getStart()
+                                        && idClassesDist1->getPossiblePairLecture(p1)->getEnd() <=
+                                           idClassesDist->getPossiblePairLecture(p)->getEnd()) { ;
+                                    } else if (idClassesDist1->getPossiblePairLecture(p1)->getStart() <=
+                                               idClassesDist->getPossiblePairLecture(p)->getStart()
+                                               && idClassesDist->getPossiblePairLecture(p)->getEnd() <=
+                                                  idClassesDist1->getPossiblePairLecture(p1)->getEnd()) { ;
+                                    } else {
+                                        file << constraint(idClassesDist, idClassesDist1, p, p1);
 
-                                if (idClassesDist->getPossiblePairLecture(p)->getStart() <=
-                                    idClassesDist1->getPossiblePairLecture(p1)->getStart()
-                                    && idClassesDist1->getPossiblePairLecture(p1)->getEnd() <=
-                                       idClassesDist->getPossiblePairLecture(p)->getEnd()) { ;
-                                } else if (idClassesDist1->getPossiblePairLecture(p1)->getStart() <=
-                                           idClassesDist->getPossiblePairLecture(p)->getStart()
-                                           && idClassesDist->getPossiblePairLecture(p)->getEnd() <=
-                                              idClassesDist1->getPossiblePairLecture(p1)->getEnd()) { ;
-                                } else {
-                                    file << constraint(idClassesDist, idClassesDist1, p, p1);
-
+                                    }
                                 }
+
+
+                            }
+                        } else if (clu->getRange().at(y)->getType().compare("SameStart") == 0) {
+                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                    if (idClassesDist1->getPossiblePairLecture(p1)->getStart() !=
+                                        idClassesDist->getPossiblePairLecture(p)->getStart())
+                                        file << constraint(idClassesDist, idClassesDist1, p, p1);
+                                }
+
                             }
 
 
                         }
-                    } else if (clu->getRange().at(y)->getType().compare("SameStart") == 0) {
-                        for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                            for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-                                if (idClassesDist1->getPossiblePairLecture(p1)->getStart() !=
-                                    idClassesDist->getPossiblePairLecture(p)->getStart())
-                                    file << constraint(idClassesDist, idClassesDist1, p, p1);
-                            }
-
-                        }
-
-
                     }
                 }
             }
 
 
             for (Room *r: clu->getRooms()) {
-                for (Time *time1: r->t) {
+                for (int timei=0; timei< r->t.size();++timei) {
+                    Time *time1 = r->t[timei];
                     for (int con = 0; con < time1->getClassesC().size(); ++con) {
-
-                        for (int cla = 0; cla < time1->getClassesS().size(); ++cla) {
-                            if (time1->getClassesC()[con] != time1->getClassesS()[cla]) {
-                                file << "+1 " << time1->getClassesC()[con] << " +1 " << time1->getClassesS()[cla]
+                        for (int cla = con+1; cla < time1->getClassesC().size(); ++cla) {
+                            if (time1->getClassesC()[con] != time1->getClassesC()[cla]) {
+                                file << "+1 " << time1->getClassesC()[con] << " +1 " << time1->getClassesC()[cla]
                                      << "    <=   1;" << std::endl;
 
                             }
@@ -373,6 +374,16 @@ int main(int argc, char **argv) {
                         }
 
                     }
+                    for (int timei1=0; timei1< r->t.size();++timei1) {
+                        Time *time2 = r->t[timei1];
+                        for (int con = 0; con < time1->getClassesC().size(); ++con) {
+                            for (int cla = con+1; cla < time2->getClassesC().size(); ++cla) {
+                                file << "+1 " << time1->getClassesC()[con] << " +1 " << time2->getClassesC()[cla]
+                                     << "    <=   1;" << std::endl;
+                            }
+                        }
+                    }
+
                 }
             }
         }
@@ -409,7 +420,7 @@ void readSAT() {
                                                          cla->getPossiblePair(i).first->getName(),
                                                          cla->getPossiblePair(i).second->getWeeks(),
                                                          cla->getPossiblePair(i).second->getDays());
-                                        std::cout << a << " " << cla->getId() << std::endl;
+                                        std::cout<<a<<" "<<cla->getId()<<std::endl;
                                         find = true;
                                         break;
                                     }
@@ -440,6 +451,10 @@ void readSAT() {
 }
 
 std::string constraint(Class *idClassesDist, Class *idClassesDist1, int p, int p1) {
+    /*std::cout<<"+1 " + idClassesDist->getKey(idClassesDist->getPossiblePairRoom(p),
+                                             idClassesDist->getPossiblePairLecture(p)) + " +1 "
+               + idClassesDist1->getKey(idClassesDist1->getPossiblePairRoom(p1),
+                                        idClassesDist1->getPossiblePairLecture(p1)) + "  <=  1;\n";*/
     return "+1 " + idClassesDist->getKey(idClassesDist->getPossiblePairRoom(p),
                                          idClassesDist->getPossiblePairLecture(p)) + " +1 "
            + idClassesDist1->getKey(idClassesDist1->getPossiblePairRoom(p1),
@@ -786,6 +801,7 @@ Instance *readInputXML(std::string filename) {
                             std::string oneEach = " ";
                             c->setOrderID(order);
                             c->setCourseID(atoi(id));
+                            std::cout<<idclass<<std::endl;
                             order++;
                             all.push_back(c);
                             int i = 0;
@@ -855,6 +871,7 @@ Instance *readInputXML(std::string filename) {
                                         for (std::map<Room *, int>::iterator j = roomsv.begin();
                                              j != roomsv.end(); ++j) {
                                             int roomID = j->first->getId();
+                                            std::cout<<roomID<<std::endl;
                                             std::string week = l->getWeeks();
                                             std::string day = l->getDays();
                                             int startTime = l->getStart();
@@ -902,6 +919,7 @@ Instance *readInputXML(std::string filename) {
                                                 max++;
 
                                                 oneEach += " +1 " + old;
+                                                std::cout<<j->second<<" r "<<j->first->getId()<<" v "<<old<<"  id "<<idclass<<std::endl;
 
                                                 if (penalty != 0)
                                                     costTime +=
@@ -919,24 +937,18 @@ Instance *readInputXML(std::string filename) {
                                                 if (roomTime) {
                                                     bool is = true;
                                                     for (int ti = 0; ti < j->first->t.size(); ++ti) {
-                                                        if (l->getDays().compare(j->first->t[ti]->getDay()) == 0 &&
-                                                            l->getWeeks().compare(j->first->t[ti]->getWeek()) == 0 &&
+                                                        if (j->first->t[ti]->checkWD(l, instance->getNweek(),
+                                                                                   instance->getNdays()) &&
                                                             l->getStart() == j->first->t[ti]->getStart() &&
                                                             l->getEnd() == j->first->t[ti]->getEnd()) {
-                                                            j->first->t[ti]->addS(old);
+                                                            j->first->t[ti]->addC(old, idclass);
                                                             is = false;
-                                                        } else if (j->first->t[ti]->check(l, instance->getNweek(),
-                                                                                          instance->getNdays())) {
-                                                            j->first->t[ti]->addC(old);
-                                                            is = false;
-
-
                                                         }
                                                     }
                                                     if (is) {
                                                         j->first->t.push_back(
                                                                 new Time(l->getStart(), l->getEnd(), l->getWeeks(),
-                                                                         l->getDays(), old));
+                                                                         l->getDays(), old,idclass));
                                                     }
                                                     /*
                                                     for (int i = 0; i < l->getLenght(); ++i) {

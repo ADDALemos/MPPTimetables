@@ -17,17 +17,18 @@ class Time {
     int end;
     std::string day;
     std::string week;
-    std::vector<std::string> classesS;
+    std::vector<int> classesCid;
+
+
 
     std::vector<std::string> classesC;
 public:
 
-    void addS(std::string c){
-        classesS.push_back(c);
-    }
 
-    void addC(std::string c){
+    void addC(std::string c,int idC){
         classesC.push_back(c);
+        classesCid.push_back(idC);
+
     }
 
     int getStart() const {
@@ -46,41 +47,50 @@ public:
         Time::end = end;
     }
 
-    const std::vector<std::string, std::allocator<std::string>> &getClassesS() const {
-        return classesS;
-    }
 
 
 
 
-    Time(int start, int end, const std::string &week, std::string &day, std::string clID) : start(start), end(end),week(week),day(day) {
-        classesS.push_back(clID);
+    Time(int start, int end, const std::string &week, std::string &day, std::string clID, int idC) : start(start), end(end),week(week),day(day) {
+        classesC.push_back(clID);
+        classesCid.push_back(idC);
     }
 
     const std::vector<std::string, std::allocator<std::string>> &getClassesC() const {
         return classesC;
     }
+    const std::vector<int> &getClassesCid() const {
+        return classesCid;
+    }
 
-
-    bool check(Lecture *p1, int nw, int nd) {
+    bool checkWD(Lecture *p1, int nw, int nd) {
         for (int j = 0; j < nw; ++j) {
             if (p1->getWeeks()[j] == week[j] &&
                 p1->getWeeks()[j] == '1') {
                 for (int d = 0; d < nd; ++d) {
                     if (p1->getDays()[d] == day[d] &&
                         p1->getDays()[d] == '1') {
-                        if (p1->getStart() >= start &&
-                            p1->getStart() <
-                            end) {
                             return true;
-                        } else if (start >= p1->getStart() &&
-                                   start < p1->getEnd()) {
-                            return true;
-                        }
                     }
                 }
             }
         }
+        return false;
+    }
+
+
+    bool check(Lecture *p1, int nw, int nd) {
+
+                        if (checkWD(p1,nw,nd) && p1->getStart() >= start &&
+                            p1->getStart() <
+                            end) {
+                            return true;
+                        } else if (checkWD(p1,nw,nd)  && start >= p1->getStart() &&
+                                   start < p1->getEnd()) {
+                            return true;
+                        }
+
+
         return false;
     }
 

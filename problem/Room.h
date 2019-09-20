@@ -82,7 +82,7 @@ public:
 
 
 
-    std::vector<Unavailability, std::allocator<Unavailability>> &getSlots()  {
+    const std::vector<Unavailability, std::allocator<Unavailability>> &getSlots() const {
         return slots;
     }
 
@@ -110,7 +110,7 @@ public:
     }
 
     inline bool operator<(const Room &rhs) const {
-        return id < rhs.id;
+        return this->getId() < rhs.getId();
     }
 
     Room(int i, std::string name, int i1, std::map<int, int> map,
