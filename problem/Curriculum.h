@@ -9,6 +9,7 @@
 #include <set>
 #include "Room.h"
 #include "Class.h"
+#include "ClusterbyRoom.h"
 #include "ConstraintShort.h"
 
 class Curriculum {

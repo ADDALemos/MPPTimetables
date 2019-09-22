@@ -233,7 +233,7 @@ void Perturbation::randomSlotClose(Instance *i, double factor) {
 void Perturbation::randomShiftChange(Instance *i, double factorCourse, double factorShift, int limit, bool increase) {
     unsigned int t = seedHandler();
     std::default_random_engine generator(t);
-    std::normal_distribution<int> distribution(1, i->getCourses().size() - 1);//numb of courses not classes
+    std::normal_distribution<float> distribution(1, i->getCourses().size() - 1);//numb of courses not classes
     int course = 0;
     for (int size = 0; size < floor(factorCourse * i->getCourses().size()); size++) {
         course = distribution(generator);
@@ -274,13 +274,13 @@ void Perturbation::randomShiftChange(Instance *i, double factorCourse, double fa
 void Perturbation::randomShiftChange(Instance *i, double factorCourse, double standard, double mean) {
     unsigned int t = seedHandler();
     std::default_random_engine generator(t);
-    std::normal_distribution<int> distribution(1, i->getSubparts().size() - 1);//numb of shifts not classes
+    std::normal_distribution<float> distribution(1, i->getSubparts().size() - 1);//numb of shifts not classes
     int subpart = 0;
     for (int size = 0; size < floor(factorCourse * i->getSubparts().size()); size++) {
         subpart = distribution(generator);
         unsigned int t = seedHandler();
         std::default_random_engine generatorShift(t);
-        std::normal_distribution<int> distributionShift(mean, standard);
+        std::normal_distribution<float> distributionShift(mean, standard);
         int amount = distributionShift(generatorShift);
         i->getSubpart(subpart)->changeShift(amount, i->getNumClasses());
         std::cout << "Shift: subpartID " << subpart << " number:" << amount << std::endl;
@@ -289,13 +289,13 @@ void Perturbation::randomShiftChange(Instance *i, double factorCourse, double st
 
 
 /**
- *TODO:ID
+ *
  */
 void Perturbation::addNewCurriculum(Instance *i, double lecture, double lenght, double student) {
     std::vector<Subpart *> vector;
     for (int j = 0; j < lecture; ++j) {
         std::vector<Class *> cl;
-        Class *c = new Class(i->getClasses().size() + 1, student, new Lecture(lenght), std::map<Room, int>(), 0,"UNUSED");
+        Class *c;// = new Class(i->getClasses().size() + 1, student, new Lecture(lenght), std::map<Room, int>(), 0);
         cl.push_back(c);
         std::ostringstream oss;
         oss << " " << (i->getClasses().size() + 1);

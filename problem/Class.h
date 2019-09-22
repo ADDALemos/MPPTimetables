@@ -4,19 +4,12 @@
 
 #ifndef TIMETABLER_CLASS_H
 #define TIMETABLER_CLASS_H
-#ifndef IL_STD
-#define IL_STD
-#endif
-#include <ilconcert/iloenv.h>
-#include <ilconcert/ilomodel.h>
-#include <ilcplex/ilocplex.h>
 #include <vector>
 #include <utility>
 #include <ostream>
 #include <iostream>
 #include "Lecture.h"
 #include "Room.h"
-#include "distribution.h"
 #include "Solution.h"
 #include <stdexcept>
 
@@ -27,8 +20,7 @@ class Class {
     int id = 1;
     int orderID; //easy handle for the arrays of gurobi
     std::vector<int> conv;//legal time to time slot
-    std::vector<distribution*> hard;
-    std::vector<distribution*> soft;
+
     int limit;//limit number of students
     Class *parent = nullptr;
     Solution *sol = new Solution(-1, "-1", "-1");
@@ -86,22 +78,6 @@ public:
             temp.insert(lectures[i]->getStart() - min);
         }
         return temp;
-    }
-
-    const std::vector<distribution *, std::allocator<distribution *>> &getHard() const {
-        return hard;
-    }
-
-    void setHard(std::vector<distribution *, std::allocator<distribution *>> &hard) {
-        Class::hard = hard;
-    }
-
-    const std::vector<distribution *, std::allocator<distribution *>> &getSoft() const {
-        return soft;
-    }
-
-    void setSoft(std::vector<distribution *> &soft) {
-        Class::soft = soft;
     }
 
     const std::vector<int, std::allocator<int>> &getConv() const {
@@ -320,7 +296,7 @@ public:
     inline bool isModified() { return modified; }
     Class(int id, int limit, const std::vector<Lecture *, std::allocator<Lecture *>> &lectures,
           std::map<Room*, int> possibleRooms, std::string subconfcour) : id(id), limit(limit), lectures(lectures), possibleRooms(possibleRooms),
-                                               parent(nullptr), subconfcour(subconfcour) {
+                                                                         parent(nullptr), subconfcour(subconfcour) {
     }
 
 
@@ -534,13 +510,7 @@ public:
         return sol;
     }
 
-    void addHard(distribution *pDistribution) {
-        hard.push_back(pDistribution);
-    }
 
-    void addSoft(distribution *pDistribution) {
-        soft.push_back(pDistribution);
-    }
 
     /**
      * Set Solution for ITC-2007

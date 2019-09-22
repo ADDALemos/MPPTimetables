@@ -14,8 +14,20 @@ class Student {
     int id;
     std::vector<Course *> course;
     std::vector<Class *> classes;
+    std::map<int, std::string> var;
 public:
     Student() {}
+
+    void init(){
+        for (Class *c: classes) {
+            var.insert(std::pair<int,std::string>(c->getId(),"stu_"+std::to_string(c->getId())+"_"+std::to_string(id)));
+        }
+
+    }
+
+    std::string varLimit(int classID){
+        return var[classID];
+    }
 
     const std::vector<Class *, std::allocator<Class *>> &getClasses() const {
         return classes;

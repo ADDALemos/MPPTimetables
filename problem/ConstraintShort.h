@@ -10,7 +10,7 @@
 
 #include <ostream>
 #include <set>
-#include "ClusterClassesbyRoom.h"
+#include "ClusterbyRoom.h"
 
 class ConstraintShort {
     std::string type;

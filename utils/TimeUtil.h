@@ -5,7 +5,7 @@
 #ifndef PROJECT_TIMEUTIL_H
 #define PROJECT_TIMEUTIL_H
 
-const bool quiet = false; //Print info
+const bool quiet = true; //Print info
 const clock_t myTimeStart = clock();
 
 double getTimeSpent() { return (double) (clock() - myTimeStart) / CLOCKS_PER_SEC; }

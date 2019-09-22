@@ -8,8 +8,6 @@
 
 #include <iostream>
 #include "../problem/Instance.h"
-#include "../problem/Constraint.h"
-#include "../solver/ILPExecuter.h"
 
 void printStudentsStats(Instance *instance){
     int v =0;int v1=0;
@@ -69,11 +67,7 @@ void printStats(Instance *instance) {
     std::cout << "Utilization: " << instance->utilization() << std::endl;
 }
 
-void printSolutionStats(ILPExecuter *runner) {
-    std::cout << "*****Solution Description*****" << std::endl;
-    std::cout << "Frequency: " << runner->frequency() << std::endl;
-    std::cout << "Utilization: " << runner->utilization() << std::endl;
-}
+
 
 
 void printCorrectedStats(Instance *instance) {
@@ -84,35 +78,8 @@ void printCorrectedStats(Instance *instance) {
     std::cout << "Utilization: " << instance->utilizationCorrected() << std::endl;
 }
 
-void printWeekStats(Instance *instance) {
-    std::cout << "Number of Classes " << instance->getClasses().size() << std::endl;
-    int value = 0;
-    for (int i = 0; i < instance->getNweek(); ++i) {
-        value += instance->getClassesWeek(i).size();
-        std::cout << "Number of Classes in " << i << " week " << instance->getClassesWeek(i).size() << std::endl;
-    }
-    std::cout << "Number of Classes by Week: " << ((double) value / instance->getNweek()) << std::endl;
-    int max = 0;
-    for (int j = 0; j < instance->getClasses().size(); ++j) {
-        if (instance->getClasses()[j]->getMaxWeek() > max)
-            max = instance->getClasses()[j]->getMaxWeek();
-    }
-    std::cout << "Max number of Week in a single class: " << (double) max / instance->getNweek() << std::endl;
-    std::ofstream myfile;
-    myfile.open("example1.csv");
-    myfile << "source, target" << std::endl;
-    for (int i = 0; i < 2; ++i) {
-        for (Class *c: instance->getClassesWeek(i))
-            for (Class *c1: instance->getClassesWeek(i))
-                if (c1->getId() != c->getId())
-                    myfile << c->getId() << "," << c1->getId() << std::endl;
-    }
-    myfile.close();
 
-
-}
-
-void constraints(Instance *instance) {
+/*void constraints(Instance *instance) {
     int hard = 0, soft = 0;
     std::map<std::string, int> map;
     map.insert(std::pair<std::string, int>("SameAttendees", 0));
@@ -185,6 +152,6 @@ void constraints(Instance *instance) {
     for (std::map<std::string, int>::iterator p = map.begin(); p != map.end(); ++p) {
         std::cout << p->first << " " << p->second << std::endl;
     }
-}
+}*/
 
 #endif //PROJECT_STATS_H

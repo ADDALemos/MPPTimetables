@@ -11,51 +11,73 @@
 #include <cmath>
 #include <set>
 #include "Course.h"
-#include "distribution.h"
 #include "Room.h"
 #include "Student.h"
-#include "ClassbyRoom.h"
+
 #include "ClusterStudents.h"
+#include "Curriculum.h"
 
 class Instance {
 private:
+    std::vector<Curriculum *> problem;
     std::vector<ClusterStudent> clusterStudent;
-    bool isCompact = true;
-    std::string method = "";
+    std::map<std::string, Course *> courses;
+    std::map<int, Room*> rooms;
+    std::map<int, Student> student;
+    std::vector<Class*> classes;
+    int timePen;
+    int roomPen;
+    int distributionPen;
+    std::string method = "Pseudo-Boolean";
     int ndays = -1;
-    double alfa = 0;
     int nweek;
     int slotsperday;
     std::string name;
     int totalNumberSteatedStudent = -1;
     int min = -1, max = -1;
     unsigned int nClasses = 0;
-    std::vector<Class *> classes;
-    std::vector<ClassbyRoom *> cluster;
-    std::map<int, std::vector<Class *>> classesWeek;
-public:
-    const std::vector<ClassbyRoom *> &getClassbyclusterRoom() const {
-        return cluster;
-    }
-
-    void setClassbyclusterRoom(std::vector<ClassbyRoom *> cluster) {
-        Instance::cluster = cluster;
-    }
-
-private:
-    std::map<int, std::set<int>> classesWeekID;
+    double alfa = 0;//slack anyone?
+    //MPP
     std::set<int> uva;
     std::set<int> incorrentAssignments;
-
-
-    std::map<std::string, Course *> courses;
-    std::vector<distribution *> dist;
-    std::map<int, Room*> rooms;
-    std::map<int, Student> student;
-    int timePen;
-    int roomPen;
-    int distributionPen;
+    //PB
+    std::string costTime = " ";
+    std::string costRoom = " ";
+    std::string oneEachG = " ";
 public:
+    const std::vector<Curriculum *, std::allocator<Curriculum *>> &getProblem() const {
+        return problem;
+    }
+
+    void setProblem(const std::vector<Curriculum *, std::allocator<Curriculum *>> &problem) {
+        Instance::problem = problem;
+    }
+    const std::string &getCostTime() const {
+        return costTime;
+    }
+
+    void setCostTime(const std::string &costTime) {
+        Instance::costTime += costTime;
+    }
+
+    const std::string &getCostRoom() const {
+        return costRoom;
+    }
+
+    void setCostRoom(const std::string &costRoom) {
+        Instance::costRoom += costRoom;
+    }
+
+    const std::string &getOneEachG() const {
+        return oneEachG;
+    }
+
+    void setOneEachG(const std::string &oneEachG) {
+        Instance::oneEachG += oneEachG;
+    }
+
+
+
     const std::string &getMethod() const {
         return method;
     }
@@ -64,13 +86,6 @@ public:
         Instance::method = method;
     }
 
-    bool isisCompact() const {
-        return isCompact;
-    }
-
-    void setCompact(bool compact) {
-        Instance::isCompact = compact;
-    }
 
     int getTotalNumberSteatedStudent() const {
         return totalNumberSteatedStudent;
@@ -95,13 +110,6 @@ public:
         Instance::courses = courses;
     }
 
-    const std::vector<distribution *> &getDist() const {
-        return dist;
-    }
-
-    void setDist(const std::vector<distribution *> &dist) {
-        Instance::dist = dist;
-    }
 
     std::map<int, Room*> &getRooms() {
         return rooms;
@@ -221,9 +229,7 @@ public:
 
     }
 
-    void addDistribution(distribution *pConstraint) {
-        dist.push_back(pConstraint);
-    }
+
 
     Course *getCourse(std::string courseID) {
         if (courses.find(courseID) != courses.end())
@@ -292,39 +298,11 @@ public:
 
     }
 
-    bool classesbyWeekComparison(int oldweek, int newweek) {
-        std::set<int> idOLD = classesWeekID[oldweek];
-        std::set<int> idNEW = classesWeekID[newweek];
-        if (idNEW.size() != idOLD.size())
-            return false;
-        for (std::set<int>::iterator it = idOLD.begin(); it != idOLD.end(); ++it) {
-            if (idNEW.find(*it) == idNEW.end())
-                return false;
-        }
-        return true;
-    }
 
-    std::vector<Class *> getClassesWeek(int w) {
-        if (w == -1)
-            return classes;
-        return classesWeek[w];
-    }
 
-    std::vector<Class *> computeClassesWeek(int w) {
-        std::vector<Class *> result;
-        for (std::map<std::string, Course *>::iterator i = courses.begin(); i != courses.end(); ++i) {
-            std::vector<Class *> temp = (*i).second->getClassesWeek(w);
-            result.insert(result.end(), temp.begin(), temp.end());
-        }
-        std::set<int> ids;
-        for (int j = 0; j < result.size(); ++j) {
-            ids.insert(result[j]->getId());
-        }
-        classesWeekID.insert(std::pair<int, std::set<int>>(w, ids));
-        classesWeek.insert(std::pair<int, std::vector<Class *>>(w, result));
-        return result;
 
-    }
+
+
 
     std::vector<Subpart *> getSubparts() {
         std::vector<Subpart *> result;
