@@ -40,14 +40,15 @@ namespace openwbo {
         // Constructor/destructor.
         //-------------------------------------------------------------------------
 
-        ParserXML(){
+        ParserXML(MaxSATFormula *maxsat_formula) : maxsat_formula(maxsat_formula){
 
         }
 
-        virtual ~ParserXML(){}
+        virtual ~ParserXML() {}
 
 
-        int parse(std::string fileName) {
+        void parse(std::string fileName) {
+            PBObjFunction *of = new PBObjFunction();
             xml_document<> doc;
             int orderID = 0;
             std::map<int, Class *> classMap;
@@ -55,12 +56,11 @@ namespace openwbo {
             std::map<int, std::set<ClusterbyRoom *> *> curMap;
 
             std::map<int, int> classID;
-            std::vector<ClusterbyRoom *> cluster;
 
 
             std::ifstream file(fileName);
             if (file.fail()) {
-                std::cerr << "File not found: "<<fileName << std::endl;
+                std::cerr << "File not found: " << fileName << std::endl;
                 std::cerr << "Method: readInputXML" << std::endl;
                 std::exit(11);
             }
@@ -172,24 +172,21 @@ namespace openwbo {
 
 
                                             if (roomsv.size() == 0) {
-                                                std::string old;
-                                                old = "x" + std::to_string(max);
-                                                max++;
+
 
                                                 c->setPossiblePair(
                                                         new Room(-1),
-                                                        l, old);
-                                                oneEach = " +1 " + old;
+                                                        l, max);
+                                                oneEach += " +1 " + std::to_string(max);
                                                 if (penalty != 0)
-                                                    instance->setCostTime(
-                                                            " +" + std::to_string(instance->getTimePen() * penalty) +
-                                                            " " + old);
+                                                    of->addProduct(mkLit(max), instance->getTimePen() * penalty);
+                                                max++;
+
 
                                             } else {
                                                 for (std::map<Room *, int>::iterator j = roomsv.begin();
                                                      j != roomsv.end(); ++j) {
-                                                    int roomID = j->first->getId();
-                                                    //std::cout<<roomID<<std::endl;
+
                                                     std::string week = l->getWeeks();
                                                     std::string day = l->getDays();
                                                     int startTime = l->getStart();
@@ -236,34 +233,28 @@ namespace openwbo {
 
                                                     }
                                                     if (!isNotAddableTime) {
-                                                        std::string old;
-                                                        old = "x" + std::to_string(max);
-                                                        max++;
 
-                                                        oneEach += " +1 " + old;
+
+                                                        oneEach += " +1 " + std::to_string(max);
 
                                                         if (penalty != 0)
-                                                            instance->setCostTime(
-                                                                    " +" +
-                                                                    std::to_string(instance->getTimePen() * penalty) +
-                                                                    " " + old);
+                                                            of->addProduct(mkLit(max), instance->getTimePen() * penalty);
 
                                                         if (j->second != 0)
-                                                            instance->setCostRoom(
-                                                                    " +" +
-                                                                    std::to_string(instance->getRoomPen() * j->second) +
-                                                                    " " + old);
+                                                            of->addProduct(mkLit(max), instance->getRoomPen() * penalty);
+                                                        max++;
+
 
                                                         c->setPossiblePair(
                                                                 j->first,
-                                                                l, old);
+                                                                l, max);
                                                         bool is = true;
                                                         for (int ti = 0; ti < j->first->t.size(); ++ti) {
                                                             if (j->first->t[ti]->checkWD(l, instance->getNweek(),
                                                                                          instance->getNdays()) &&
                                                                 l->getStart() == j->first->t[ti]->getStart() &&
                                                                 l->getEnd() == j->first->t[ti]->getEnd()) {
-                                                                j->first->t[ti]->addC(old, idclass);
+                                                                j->first->t[ti]->addC(max, idclass);
                                                                 is = false;
                                                             }
                                                         }
@@ -271,7 +262,7 @@ namespace openwbo {
                                                             j->first->t.push_back(
                                                                     new Time(l->getStart(), l->getEnd(),
                                                                              l->getWeeks(),
-                                                                             l->getDays(), old, idclass));
+                                                                             l->getDays(), max, idclass));
                                                         }
                                                     }
 
@@ -316,21 +307,28 @@ namespace openwbo {
                     mapCluster.insert(std::pair<Class *, ClusterbyRoom *>(all[0], cluster[0]));
                     for (int k = 1; k < all.size(); ++k) {
                         bool test = false;
+
                         for (int i = 0; i < cluster.size(); ++i) {
-
-                            for (Room *j:cluster[i]->getRooms()) {
-                                if (all[k]->getPossibleRoom(j) != -1) {
-                                    test = true;
-                                    cluster[i]->addClass(all[k]);
-                                    if (all[k]->getPossibleRooms().size() > 0) {
-                                        for (std::pair<Room *, int> it : all[k]->getPossibleRooms()) {
-                                            cluster[i]->addRoom(it.first);
+                            if (cluster[i]->getRooms().size() == 0 && all[k]->getPossibleRooms().size() == 0) {
+                                test = true;
+                                cluster[i]->addClass(all[k]);
+                                mapCluster.insert(std::pair<Class *, ClusterbyRoom *>(all[k], cluster[i]));
+                                continue;
+                            } else {
+                                for (Room *j:cluster[i]->getRooms()) {
+                                    if (all[k]->findRoom(j)) {
+                                        test = true;
+                                        cluster[i]->addClass(all[k]);
+                                        if (all[k]->getPossibleRooms().size() > 0) {
+                                            for (std::pair<Room *, int> it : all[k]->getPossibleRooms()) {
+                                                cluster[i]->addRoom(it.first);
+                                            }
                                         }
+                                        mapCluster.insert(std::pair<Class *, ClusterbyRoom *>(all[k], cluster[i]));
+                                        break;
                                     }
-                                    mapCluster.insert(std::pair<Class *, ClusterbyRoom *>(all[k], cluster[i]));
-                                    break;
-                                }
 
+                                }
                             }
                             if (test) {
                                 break;
@@ -339,12 +337,19 @@ namespace openwbo {
 
                         }
                         if (!test) {
-                            std::set<Room *> temp1;
-                            for (std::pair<Room *, int> it : all[k]->getPossibleRooms()) {
-                                temp1.insert(it.first);
+                            ClusterbyRoom *clu = nullptr;
+                            if(all[k]->getPossibleRooms().size()>0) {
+                                std::set<Room *> temp1;
+                                for (std::pair<Room *, int> it : all[k]->getPossibleRooms()) {
+                                    temp1.insert(it.first);
+                                }
+                                clu =new ClusterbyRoom(cluster.size(), temp1, all[k]);
+                            } else {
+                                clu = new ClusterbyRoom(cluster.size(), all[k]);
                             }
-                            cluster.push_back(new ClusterbyRoom(cluster.size(), temp, all[k]));
-                            mapCluster.insert(std::pair<Class *, ClusterbyRoom *>(all[k], cluster[cluster.size() - 1]));
+                            cluster.push_back(clu);
+
+                            mapCluster.insert(std::pair<Class *, ClusterbyRoom *>(all[k], clu));
                         }
 
                     }
@@ -358,17 +363,23 @@ namespace openwbo {
 
 
             }
+            file.close();
+            createCurriculum(curMap);
+            maxsat_formula->addObjFunction(of);
+
+
+
+        }
+
+        void createCurriculum(std::map<int, std::set<ClusterbyRoom *> *> &curMap) const {
             std::vector<Curriculum *> problem;
-
-
-
+            //printRoomCluster();
             for (auto it = curMap.begin(); it != curMap.end(); ++it) {
                 if (problem.size() == 0)
                     problem.push_back(new Curriculum(*it->second));
                 else {
                     bool test = false;
                     for (int i = 0; i < problem.size(); ++i) {
-
                         for (ClusterbyRoom *c:problem[i]->getPClass()) {
                             for (ClusterbyRoom *c1: *it->second) {
                                 for (Class *aClass: c->getClasses()) {
@@ -382,7 +393,19 @@ namespace openwbo {
                                         break;
 
                                 }
-                                if (test)
+                                if (!test) {
+                                    for (Room *aRoom:c->getRooms()) {
+                                        for (Room *aRoom1: c1->getRooms()) {
+                                            if (aRoom->getId() == aRoom1->getId()) {
+                                                test = true;
+                                                break;
+                                            }
+                                        }
+                                        if (test)
+                                            break;
+
+                                    }
+                                } else
                                     break;
                             }
                             if (test)
@@ -401,8 +424,6 @@ namespace openwbo {
 
             }
             instance->setProblem(problem);
-
-
         }
 
         void readStudents(const xml_node<> *n) const {
@@ -467,7 +488,6 @@ namespace openwbo {
             for (const xml_node<> *sub = n->first_node(); sub; sub = sub->next_sibling()) {
                 std::stringstream constSTR;
                 bool isReq = false;
-                std::vector<ConstraintShort *> *temp = new std::vector<ConstraintShort *>();
                 std::string type;
                 int penalty = -1;
                 std::vector<Class *> c1;
@@ -588,7 +608,6 @@ namespace openwbo {
         }
 
         void readDescription(const xml_node<> *pRoot) {
-            std::cout<<"here"<<std::endl;
             for (const xml_attribute<> *a = pRoot->first_attribute(); a; a = a->next_attribute()) {
                 if (strcmp(a->name(), "name") == 0)
                     instance = new Instance(a->value());
@@ -599,7 +618,20 @@ namespace openwbo {
                 else if (strcmp(a->name(), "nrWeeks") == 0)
                     instance->setNweek(atoi(a->value()));
             }
-            std::cout<<instance->getNdays()<<std::endl;
+        }
+
+        void printRoomCluster() const {
+            for (ClusterbyRoom *c1: cluster) {
+                std::cout << "New Room" << c1->getClusterID() << std::endl;
+                for (Class *aClass1: c1->getClasses()) {
+                    std::cout << aClass1->getId() << std::endl;
+                }
+                std::cout << "Room" << std::endl;
+                for (Room *aRoom: c1->getRooms()) {
+                    std::cout << aRoom->getId() << std::endl;
+                }
+            }
+
         }
 
         Instance *getInstance() const {
@@ -610,7 +642,9 @@ namespace openwbo {
     protected:
 
         Instance *instance;
+        MaxSATFormula *maxsat_formula;
         int max = 0;
+        std::vector<ClusterbyRoom *> cluster;
     };
 
 } // namespace openwbo

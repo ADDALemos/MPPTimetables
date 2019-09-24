@@ -34,15 +34,14 @@ private:
     int slotsperday;
     std::string name;
     int totalNumberSteatedStudent = -1;
-    int min = -1, max = -1;
+//    int min = -1, max = -1;
     unsigned int nClasses = 0;
     double alfa = 0;//slack anyone?
     //MPP
     std::set<int> uva;
     std::set<int> incorrentAssignments;
     //PB
-    std::string costTime = " ";
-    std::string costRoom = " ";
+
     std::string oneEachG = " ";
 public:
     const std::vector<Curriculum *, std::allocator<Curriculum *>> &getProblem() const {
@@ -51,21 +50,6 @@ public:
 
     void setProblem(const std::vector<Curriculum *, std::allocator<Curriculum *>> &problem) {
         Instance::problem = problem;
-    }
-    const std::string &getCostTime() const {
-        return costTime;
-    }
-
-    void setCostTime(const std::string &costTime) {
-        Instance::costTime += costTime;
-    }
-
-    const std::string &getCostRoom() const {
-        return costRoom;
-    }
-
-    void setCostRoom(const std::string &costRoom) {
-        Instance::costRoom += costRoom;
     }
 
     const std::string &getOneEachG() const {
@@ -163,8 +147,8 @@ public:
     }
 
     Instance(std::string name, int days, int slots, int min, int max) : ndays(days), nweek(1),
-                                                                        slotsperday(slots), name(name), min(min),
-                                                                        max(max) {
+                                                                        slotsperday(slots), name(name) {
+        //, min(min),max(max)
 
     }
 

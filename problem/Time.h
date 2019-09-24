@@ -21,11 +21,11 @@ class Time {
 
 
 
-    std::vector<std::string> classesC;
+    std::vector<int> classesC;
 public:
 
 
-    void addC(std::string c,int idC){
+    void addC(int c,int idC){
         classesC.push_back(c);
         classesCid.push_back(idC);
 
@@ -51,12 +51,12 @@ public:
 
 
 
-    Time(int start, int end, const std::string &week, std::string &day, std::string clID, int idC) : start(start), end(end),week(week),day(day) {
+    Time(int start, int end, const std::string &week, std::string &day, int clID, int idC) : start(start), end(end),day(day),week(week) {
         classesC.push_back(clID);
         classesCid.push_back(idC);
     }
 
-    const std::vector<std::string, std::allocator<std::string>> &getClassesC() const {
+    const std::vector<int> &getClassesC() const {
         return classesC;
     }
     const std::vector<int> &getClassesCid() const {

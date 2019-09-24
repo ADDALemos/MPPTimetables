@@ -87,7 +87,7 @@ using namespace openwbo;
 
 static MaxSAT *mxsolver;
 
-
+void printCurricular(Instance *instance);
 void createSmallerInstances(Instance*);
 
 static void SIGINT_exit(int signum) {
@@ -112,25 +112,21 @@ int main(int argc, char **argv) {
 
     if (!quiet)
         printRAM();
+    MaxSATFormula *maxsat_formula = new MaxSATFormula();
 
-    ParserXML *parserXML = new ParserXML();
-    parserXML->parse("/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/wbg-fal10.xml");
-    createSmallerInstances(parserXML->getInstance());
+    ParserXML *parserXML = new ParserXML(maxsat_formula);
+    parserXML->parse("/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/iku-fal17.xml");
+    printCurricular(parserXML->getInstance());
+    /*for (Class * c: parserXML->getInstance()->getClasses()) {
+        if(c->getPossiblePairSize()==1 && c->getPossibleRooms().size()==0)
+            std::cout<<"here "<<c->getId()<<std::endl;
+    }*/
+    //createSmallerInstances(parserXML->getInstance());
     std::exit(1);
 
 
 
   try {
-    NSPACE::setUsageHelp("c USAGE: %s [options] <input-file>\n\n");
-
-#if defined(__linux__)
-    fpu_control_t oldcw, newcw;
-    _FPU_GETCW(oldcw);
-    newcw = (oldcw & ~_FPU_EXTENDED) | _FPU_DOUBLE;
-    _FPU_SETCW(newcw);
-    printf(
-        "c WARNING: for repeatability, setting FPU to use double precision\n");
-#endif
 
     BoolOption printmodel("Open-WBO", "print-model", "Print model.\n", true);
 
@@ -160,7 +156,7 @@ int main(int argc, char **argv) {
                         "Search algorithm "
                         "(0=wbo,1=linear-su,2=msu3,3=part-msu3,4=oll,5=best,6="
                         "bmo,7=obv,8=mcs)\n",
-                        6, IntRange(0, 8));
+                        4, IntRange(0, 8));
 
     IntOption partition_strategy("PartMSU3", "partition-strategy",
                                  "Partition strategy (0=sequential, "
@@ -222,7 +218,7 @@ int main(int argc, char **argv) {
       "Incomplete","iterations","Limit on the number of iterations.\n", 100000,
       IntRange(0, INT32_MAX));
 
-    BoolOption local("Incomplete", "local", "Local limit on the number of conflicts.\n", false);
+    BoolOption local("Incomplete", "local", "Local limit on the number of conflicts.\n", false);//???
 
 	BoolOption polConservative("TorcOpenWbo", "conservative", "Apply conservative polarity heuristic?\n", true);
 	BoolOption conservativeUseAllVars("TorcOpenWbo", "conservative_use_all_vars", "Re-use the polarity of all the variables within the conservative approach (or, otherwise, only the initial once)?\n", true);	
@@ -231,7 +227,6 @@ int main(int argc, char **argv) {
 	BoolOption targetVarsBumpRelWeights("TorcOpenWbo", "target_vars_bump_rel_weights", "Bump the variable scores, where the bump value is relative to the weights?\n", true);	
 	IntOption targetVarsBumpMaxRandVal("TorcOpenWbo", "target_vars_bump_max_rand_val", "Maximal random bump factor\n", 552);	
 	
-    parseOptions(argc, argv, true);
 
     if ((int)num_tests) {
       if ((int)test_join) {
@@ -318,29 +313,19 @@ int main(int argc, char **argv) {
     signal(SIGXCPU, SIGINT_exit);
     signal(SIGTERM, SIGINT_exit);
 
-    if (argc == 1) {
-      printf("c Error: no filename.\n");
-      printf("s UNKNOWN\n");
-      exit(_ERROR_);
-    }
 
-    gzFile in = (argc == 1) ? gzdopen(0, "rb") : gzopen(argv[1], "rb");
-    if (in == NULL)
-      printf("c ERROR! Could not open file: %s\n",
-             argc == 1 ? "<stdin>" : argv[1]),
-          printf("s UNKNOWN\n"), exit(_ERROR_);
+
+
 
     MaxSATFormula *maxsat_formula = new MaxSATFormula();
 
     if ((int)formula == _FORMAT_MAXSAT_) {
-      parseMaxSATFormula(in, maxsat_formula);
       maxsat_formula->setFormat(_FORMAT_MAXSAT_);
     } else {
       ParserPB *parser_pb = new ParserPB();
       parser_pb->parsePBFormula(argv[1], maxsat_formula);
       maxsat_formula->setFormat(_FORMAT_PB_);
     }
-    gzclose(in);
 
     if ((int)test_rhs) {
       if ((int)test_rhs2) {
@@ -459,3 +444,20 @@ void createSmallerInstances(Instance *instance) {
     }
 
 }
+
+void printCurricular(Instance *instance) {
+    for (Curriculum *c: instance->getProblem()) {
+        std::cout << "New" << std::endl;
+        for (ClusterbyRoom *clus: c->getPClass()) {
+            for (Class *c: clus->getClasses()) {
+                std::cout << "C" << c->getId() << std::endl;
+            }
+
+            for (Room *c: clus->getRooms()) {
+                std::cout << "R" << c->getId() << std::endl;
+            }
+
+        }
+    }
+}
+

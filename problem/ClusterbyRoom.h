@@ -40,7 +40,11 @@ public:
     void addRoom(Room* r) { rooms.insert(r);
     }
 
-    ClusterbyRoom(int id, std::set<Room*> r,Class * c):rooms(r){ classes.insert(c);
+    ClusterbyRoom(int id, std::set<Room*> r,Class * c):id(id),rooms(r){ classes.insert(c);
+
+    }
+
+    ClusterbyRoom(int id,Class * c):id(id){ classes.insert(c);
 
     }
 

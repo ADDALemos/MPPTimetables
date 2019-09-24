@@ -152,17 +152,17 @@ public:
     }
 
     Class(int id, int limit, std::vector<Lecture *, std::allocator<Lecture *>> pLecture, std::map<Room*, int> map,
-          int order,std::string subconfcour) : id(id), limit(limit), orderID(order), subconfcour(subconfcour) {
+          int order,std::string subconfcour) :  subconfcour(subconfcour), id(id),  orderID(order),limit(limit) {
         lectures = pLecture;
         possibleRooms = map;
     }
     Class(int id, int limit,
-          int order,std::string subconfcour) : id(id), limit(limit), orderID(order), subconfcour(subconfcour) {
+          int order,std::string subconfcour) :  subconfcour(subconfcour), id(id),  orderID(order),limit(limit) {
 
     }
 
     Class(int id, int limit, Lecture *pLecture, std::map<Room*, int> map,
-          int order,std::string subconfcour) : id(id), limit(limit), orderID(order), subconfcour(subconfcour) {
+          int order,std::string subconfcour) : subconfcour(subconfcour), id(id),   orderID(order), limit(limit) {
         lectures.push_back(pLecture);
     }
 
@@ -176,7 +176,7 @@ public:
     }
 
 
-    Class(int id, int limit, int lenght, std::vector<int> student,std::string subconfcour) : id(id), limit(limit), student(student),subconfcour(subconfcour) {
+    Class(int id, int limit, int lenght, std::vector<int> student,std::string subconfcour) : subconfcour(subconfcour),id(id), limit(limit), student(student) {
         Lecture *l = new Lecture(lenght);
         lectures.push_back(l);
 
@@ -188,11 +188,11 @@ private:
 
     std::vector<std::pair<Room*, Lecture *>> possiblePair;
 
-    std::map<Room*,std::map<Lecture*,std::string>> value;
+    std::map<Room*,std::map<Lecture*,int>> value;
 
 public:
 
-    std::string getKey(Room*r, Lecture*l){
+    int getKey(Room*r, Lecture*l){
         return value[r][l];
     }
 
@@ -202,18 +202,18 @@ public:
 
     }
 
-    void setPossiblePair(Room *r, Lecture *l, std::string v){
+    void setPossiblePair(Room *r, Lecture *l, int v){
         possiblePair.push_back(std::pair<Room*,Lecture*>(r,l));
         if(value.find(r)!=value.end()){
             if(value[r].find(l)!=value[r].end()) {
                 value[r][l]=v;
             } else {
-                value[r].insert(std::pair<Lecture*,std::string>(l,v));
+                value[r].insert(std::pair<Lecture*,int>(l,v));
             }
         } else{
-            std::map<Lecture*,std::string> t;
-            t.insert(std::pair<Lecture*,std::string>(l,v));
-            value.insert(std::pair<Room*,std::map<Lecture*,std::string>>(r,t));
+            std::map<Lecture*,int> t;
+            t.insert(std::pair<Lecture*,int>(l,v));
+            value.insert(std::pair<Room*,std::map<Lecture*,int>>(r,t));
         }
     }
 
@@ -272,6 +272,10 @@ public:
         return -1;
     }
 
+    bool findRoom(Room* n) {
+        return possibleRooms.find(n)!= possibleRooms.end();
+    }
+
 
     int getPossibleRoomCost(Room* n) {
         for (std::map<Room*, int>::iterator it = possibleRooms.begin(); it != possibleRooms.end(); ++it) {
@@ -295,8 +299,8 @@ public:
 
     inline bool isModified() { return modified; }
     Class(int id, int limit, const std::vector<Lecture *, std::allocator<Lecture *>> &lectures,
-          std::map<Room*, int> possibleRooms, std::string subconfcour) : id(id), limit(limit), lectures(lectures), possibleRooms(possibleRooms),
-                                                                         parent(nullptr), subconfcour(subconfcour) {
+          std::map<Room*, int> possibleRooms, std::string subconfcour) :
+            subconfcour(subconfcour), id(id), limit(limit), parent(nullptr), lectures(lectures), possibleRooms(possibleRooms) {
     }
 
 

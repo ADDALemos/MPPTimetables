@@ -77,15 +77,14 @@ public:
         this->duration = duration;
     }
 
-    Solution(int start, int roomID, std::string room,std::string week, std::string day):start(start),roomID(roomID),
+    Solution(int start, int roomID, std::string room,std::string week, std::string day):roomID(roomID),start(start),
     room(room), week(week), days(day){
 
     }
 
     Solution(int lecture, int start, int roomID, std::string week, std::string day, int duration, int penT, int penR)
-            : duration(duration),
-              lecture(lecture),
-              start(start), roomID(roomID), week(week), days(day), penaltyTime(penT), penaltyRoom(penR) {
+            : lecture(lecture), duration(duration), roomID(roomID),
+              start(start),  week(week), days(day), penaltyTime(penT), penaltyRoom(penR) {
 
     }
 
@@ -98,7 +97,7 @@ public:
 
     }
 
-    Solution(int roomID, std::string room, char *day, int start):roomID(roomID),room(room),days(day),start(start) {
+    Solution(int roomID, std::string room, char *day, int start):roomID(roomID),start(start),room(room),days(day) {
 
     }
 };

@@ -115,7 +115,7 @@ public:
 
     Room(int i, std::string name, int i1, std::map<int, int> map,
          std::vector<Unavailability, std::allocator<Unavailability>> vector, std::string string)
-            : id(i), name(name), capacity(i1), travel(map), slots(vector), type(string) {
+            :  id(i), name(name),  type(string), capacity(i1), travel(map), slots(vector) {
 
     }
 
