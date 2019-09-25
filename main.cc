@@ -116,13 +116,16 @@ int main(int argc, char **argv) {
 
     ParserXML *parserXML = new ParserXML(maxsat_formula);
     parserXML->parse("/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/iku-fal17.xml");
-    printCurricular(parserXML->getInstance());
+    maxsat_formula->setFormat(_FORMAT_PB_);
+  MaxSAT *S = new OLL(0, 1);
+  S->loadFormula(maxsat_formula);
+  S->search();
+  std::exit(0);
     /*for (Class * c: parserXML->getInstance()->getClasses()) {
         if(c->getPossiblePairSize()==1 && c->getPossibleRooms().size()==0)
             std::cout<<"here "<<c->getId()<<std::endl;
     }*/
     //createSmallerInstances(parserXML->getInstance());
-    std::exit(1);
 
 
 

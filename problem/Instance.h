@@ -40,9 +40,7 @@ private:
     //MPP
     std::set<int> uva;
     std::set<int> incorrentAssignments;
-    //PB
 
-    std::string oneEachG = " ";
 public:
     const std::vector<Curriculum *, std::allocator<Curriculum *>> &getProblem() const {
         return problem;
@@ -52,13 +50,6 @@ public:
         Instance::problem = problem;
     }
 
-    const std::string &getOneEachG() const {
-        return oneEachG;
-    }
-
-    void setOneEachG(const std::string &oneEachG) {
-        Instance::oneEachG += oneEachG;
-    }
 
 
 

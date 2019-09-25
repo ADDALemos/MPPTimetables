@@ -114,11 +114,11 @@ namespace openwbo {
                                     }
                                     Class *c = new Class(idclass, limit, orderID,
                                                          idsub + "_" + itos(idConf) + "_" + id);
-                                    std::string oneEach = " ";
                                     c->setOrderID(order);
                                     c->setCourseID(atoi(id));
                                     order++;
                                     all.push_back(c);
+                                    PB *p = new PB();
                                     int i = 0;
                                     for (const xml_node<> *lec = cla->first_node(); lec; lec = lec->next_sibling()) {
                                         if (strcmp(lec->name(), "room") == 0) {
@@ -177,9 +177,10 @@ namespace openwbo {
                                                 c->setPossiblePair(
                                                         new Room(-1),
                                                         l, max);
-                                                oneEach += " +1 " + std::to_string(max);
+                                                p->addProduct(mkLit(getVariableID("x"+std::to_string(max))), 1);
+                                                //oneEach += " +1 " + std::to_string(max);
                                                 if (penalty != 0)
-                                                    of->addProduct(mkLit(max), instance->getTimePen() * penalty);
+                                                    of->addProduct(mkLit(getVariableID("x"+std::to_string(max))), instance->getTimePen() * penalty);
                                                 max++;
 
 
@@ -233,15 +234,14 @@ namespace openwbo {
 
                                                     }
                                                     if (!isNotAddableTime) {
+                                                        p->addProduct(mkLit(getVariableID("x"+std::to_string(max))), 1);
 
-
-                                                        oneEach += " +1 " + std::to_string(max);
 
                                                         if (penalty != 0)
-                                                            of->addProduct(mkLit(max), instance->getTimePen() * penalty);
+                                                            of->addProduct(mkLit(getVariableID("x"+std::to_string(max))), instance->getTimePen() * penalty);
 
                                                         if (j->second != 0)
-                                                            of->addProduct(mkLit(max), instance->getRoomPen() * penalty);
+                                                            of->addProduct(mkLit(getVariableID("x"+std::to_string(max))), instance->getRoomPen() * j->second);
                                                         max++;
 
 
@@ -283,8 +283,14 @@ namespace openwbo {
                                     if (parent != -1)
                                         c->setParent(classMap[classID[parent]]);
                                     clasv.push_back(c);
+                                    p->addRHS(1);
+                                    PB *p2 = new PB(p->_lits, p->_coeffs, p->_rhs, true);
+                                    maxsat_formula->addPBConstraint(p);
+                                    maxsat_formula->addPBConstraint(p2);
+                                    delete p;
+                                    delete p2;
 
-                                    instance->setOneEachG(oneEach + " = 1 ; \n");
+
 
                                 }
                                 Subpart *subpart = new Subpart(idsub, clasv);
@@ -365,7 +371,10 @@ namespace openwbo {
             }
             file.close();
             createCurriculum(curMap);
+
             maxsat_formula->addObjFunction(of);
+            delete of;
+
 
 
 
@@ -394,7 +403,7 @@ namespace openwbo {
 
                                 }
                                 if (!test) {
-                                    for (Room *aRoom:c->getRooms()) {
+                                    for (Room *aRoom:c->getRooms()) { //TODO:ADDclases
                                         for (Room *aRoom1: c1->getRooms()) {
                                             if (aRoom->getId() == aRoom1->getId()) {
                                                 test = true;
@@ -636,6 +645,21 @@ namespace openwbo {
 
         Instance *getInstance() const {
             return instance;
+        }
+
+
+        void constraint(){
+
+        }
+
+        int getVariableID(std::string varName) {
+            char *cstr = new char[varName.length() + 1];
+            strcpy(cstr, varName.c_str());
+            int id = maxsat_formula->varID(cstr);
+            if (id == var_Undef)
+                id = maxsat_formula->newVarName(cstr);
+            delete [] cstr;
+            return id;
         }
 
 
