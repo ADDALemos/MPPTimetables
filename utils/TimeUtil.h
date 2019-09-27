@@ -8,9 +8,9 @@
 const bool quiet = true; //Print info
 const clock_t myTimeStart = clock();
 
-double getTimeSpent() { return (double) (clock() - myTimeStart) / CLOCKS_PER_SEC; }
+inline double getTimeSpent() { return (double) (clock() - myTimeStart) / CLOCKS_PER_SEC; }
 
-void printTime() { std::cout << getTimeSpent() << std::endl; }
+inline void printTime() { std::cout << getTimeSpent() << std::endl; }
 
 
 #endif //PROJECT_TIMEUTIL_H

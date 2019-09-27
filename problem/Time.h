@@ -79,16 +79,25 @@ public:
     }
 
 
-    bool check(Lecture *p1, int nw, int nd) {
-
-                        if (checkWD(p1,nw,nd) && p1->getStart() >= start &&
+    bool check(Time *p1, int nw, int nd) {
+        for (int j = 0; j < nw; ++j) {
+            if (p1->getWeek()[j] == week[j] &&
+                p1->getWeek()[j] == '1') {
+                for (int d = 0; d < nd; ++d) {
+                    if (p1->getDay()[d] == day[d] &&
+                        p1->getDay()[d] == '1') {
+                        if (p1->getStart() >= start &&
                             p1->getStart() <
                             end) {
                             return true;
-                        } else if (checkWD(p1,nw,nd)  && start >= p1->getStart() &&
+                        } else if ( start >= p1->getStart() &&
                                    start < p1->getEnd()) {
                             return true;
                         }
+                    }
+                }
+            }
+        }
 
 
         return false;

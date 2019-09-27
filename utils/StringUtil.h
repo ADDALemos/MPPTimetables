@@ -7,7 +7,7 @@
 
 #include <string>
 
-int isFirst(std::string s1, std::string s2, int size) {
+inline int isFirst(std::string s1, std::string s2, int size) {
     for (int i = 0; i < size; ++i) {
         if (s1[i] == '0' && s2[i] == '1')
             return 1;
@@ -19,7 +19,7 @@ int isFirst(std::string s1, std::string s2, int size) {
     return 0;
 }
 
-bool stringcompare(std::string s1, std::string s2, int size, bool same) {
+inline bool stringcompare(std::string s1, std::string s2, int size, bool same) {
     for (int i = 0; i < size; ++i) {
         if (same && s2[i] != s1[i])
             return false;
@@ -30,7 +30,7 @@ bool stringcompare(std::string s1, std::string s2, int size, bool same) {
 
 }
 
-bool stringcontains(std::string s1, std::string s2, int size) {
+inline bool stringcontains(std::string s1, std::string s2, int size) {
     bool s2B = false, s1B = false;
     for (int i = 0; i < size; ++i) {
         if (s2[i] == '1' && s1[i] == '0')
@@ -42,11 +42,13 @@ bool stringcontains(std::string s1, std::string s2, int size) {
 
 }
 
-std::string itos(int i) {
+inline std::string itos(int i) {
     std::stringstream s;
     s << i;
     return s.str();
 }
+
+
 
 
 #endif //PROJECT_STRINGUTIL_H

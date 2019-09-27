@@ -40,7 +40,7 @@ namespace openwbo {
         // Constructor/destructor.
         //-------------------------------------------------------------------------
 
-        ParserXML(MaxSATFormula *maxsat_formula) : maxsat_formula(maxsat_formula){
+        ParserXML(MaxSATFormula *maxsat_formula) : maxsat_formula(maxsat_formula) {
 
         }
 
@@ -177,10 +177,12 @@ namespace openwbo {
                                                 c->setPossiblePair(
                                                         new Room(-1),
                                                         l, max);
-                                                p->addProduct(mkLit(getVariableID("x"+std::to_string(max))), 1);
+                                                p->addProduct(mkLit(getVariableID("x" + std::to_string(max))), 1);
+
                                                 //oneEach += " +1 " + std::to_string(max);
                                                 if (penalty != 0)
-                                                    of->addProduct(mkLit(getVariableID("x"+std::to_string(max))), instance->getTimePen() * penalty);
+                                                    of->addProduct(mkLit(getVariableID("x" + std::to_string(max))),
+                                                                   instance->getTimePen() * penalty);
                                                 max++;
 
 
@@ -234,20 +236,25 @@ namespace openwbo {
 
                                                     }
                                                     if (!isNotAddableTime) {
-                                                        p->addProduct(mkLit(getVariableID("x"+std::to_string(max))), 1);
+                                                        p->addProduct(mkLit(getVariableID("x" + std::to_string(max))),
+                                                                      1);
 
 
                                                         if (penalty != 0)
-                                                            of->addProduct(mkLit(getVariableID("x"+std::to_string(max))), instance->getTimePen() * penalty);
+                                                            of->addProduct(
+                                                                    mkLit(getVariableID("x" + std::to_string(max))),
+                                                                    instance->getTimePen() * penalty);
 
                                                         if (j->second != 0)
-                                                            of->addProduct(mkLit(getVariableID("x"+std::to_string(max))), instance->getRoomPen() * j->second);
-                                                        max++;
+                                                            of->addProduct(
+                                                                    mkLit(getVariableID("x" + std::to_string(max))),
+                                                                    instance->getRoomPen() * j->second);
 
 
                                                         c->setPossiblePair(
                                                                 j->first,
                                                                 l, max);
+
                                                         bool is = true;
                                                         for (int ti = 0; ti < j->first->t.size(); ++ti) {
                                                             if (j->first->t[ti]->checkWD(l, instance->getNweek(),
@@ -259,11 +266,14 @@ namespace openwbo {
                                                             }
                                                         }
                                                         if (is) {
+
                                                             j->first->t.push_back(
                                                                     new Time(l->getStart(), l->getEnd(),
                                                                              l->getWeeks(),
                                                                              l->getDays(), max, idclass));
                                                         }
+                                                        max++;
+
                                                     }
 
                                                 }
@@ -284,12 +294,13 @@ namespace openwbo {
                                         c->setParent(classMap[classID[parent]]);
                                     clasv.push_back(c);
                                     p->addRHS(1);
+
+
                                     PB *p2 = new PB(p->_lits, p->_coeffs, p->_rhs, true);
                                     maxsat_formula->addPBConstraint(p);
                                     maxsat_formula->addPBConstraint(p2);
                                     delete p;
                                     delete p2;
-
 
 
                                 }
@@ -344,12 +355,12 @@ namespace openwbo {
                         }
                         if (!test) {
                             ClusterbyRoom *clu = nullptr;
-                            if(all[k]->getPossibleRooms().size()>0) {
+                            if (all[k]->getPossibleRooms().size() > 0) {
                                 std::set<Room *> temp1;
                                 for (std::pair<Room *, int> it : all[k]->getPossibleRooms()) {
                                     temp1.insert(it.first);
                                 }
-                                clu =new ClusterbyRoom(cluster.size(), temp1, all[k]);
+                                clu = new ClusterbyRoom(cluster.size(), temp1, all[k]);
                             } else {
                                 clu = new ClusterbyRoom(cluster.size(), all[k]);
                             }
@@ -374,8 +385,6 @@ namespace openwbo {
 
             maxsat_formula->addObjFunction(of);
             delete of;
-
-
 
 
         }
@@ -646,11 +655,193 @@ namespace openwbo {
         Instance *getInstance() const {
             return instance;
         }
+//202 431
+
+        void genConstraint() {
+            for (Curriculum *c: instance->getProblem()) {
+                for (auto *clu: c->getPClass()) {
+                    Class *idClassesDist, *idClassesDist1;
+                    for (int y = 0; y < clu->getRange().size(); ++y) {
+                        for (int ci = 0; ci < clu->getRange().at(y)->getClasses().size(); ++ci) {
+                            for (int ci1 = ci + 1; ci1 < clu->getRange().at(y)->getClasses().size(); ++ci1) {
+
+                                idClassesDist = clu->getRange().at(y)->getClasses()[ci];
+                                idClassesDist1 = clu->getRange().at(y)->getClasses()[ci1];
+                                if (clu->getRange().at(y)->getType().compare("SameAttendees") == 0) {
+                                    for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                        for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                            int travel = 0;
+                                            if (idClassesDist->getPossiblePairRoom(p)->getId() ==
+                                                idClassesDist1->getPossiblePairRoom(p1)->getId())
+                                                continue;
+                                            if (idClassesDist->getPossiblePairRoom(p)->getId() != -1 &&
+                                                idClassesDist1->getPossiblePairRoom(p1)->getId() != -1) {
+                                                if (instance->getRoom(
+                                                        idClassesDist->getPossiblePairRoom(p)->getId())->getTravel(
+                                                        idClassesDist1->getPossiblePairRoom(p1)->getId()) > 0)
+                                                    travel = instance->getRoom(
+                                                            idClassesDist->getPossiblePairRoom(p)->getId())->getTravel(
+                                                            idClassesDist1->getPossiblePairRoom(p1)->getId());
+                                                else
+                                                    travel = instance->getRoom(
+                                                            idClassesDist1->getPossiblePairRoom(
+                                                                    p1)->getId())->getTravel(
+                                                            idClassesDist->getPossiblePairRoom(p)->getId());
+                                            }
+
+                                            if (idClassesDist->getPossiblePairLecture(p)->getEnd() + travel <=
+                                                idClassesDist1->getPossiblePairLecture(p1)->getStart()
+                                                || idClassesDist1->getPossiblePairLecture(p1)->getEnd() +
+                                                   travel <= idClassesDist->getPossiblePairLecture(p)->getStart()
+                                                || stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                                 idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                                 instance->getNweek(), false) ==
+                                                   1
+                                                || stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                                 idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                                 instance->getNdays(), false) ==
+                                                   1) { ;
+                                            } else {
+
+                                                constraint(idClassesDist, idClassesDist1, p, p1);
 
 
-        void constraint(){
+                                            }
+                                        }
+
+
+                                    }
+                                } else if (clu->getRange().at(y)->getType().compare("NotOverlap") == 0) {
+                                    for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                        for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                            if (stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                              idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                              instance->getNweek(), false) ==
+                                                1
+                                                || stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                                 idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                                 instance->getNdays(), false) ==
+                                                   1 || idClassesDist->getPossiblePairLecture(p)->getEnd() <=
+                                                        idClassesDist1->getPossiblePairLecture(p1)->getStart() ||
+                                                idClassesDist1->getPossiblePairLecture(p1)->getEnd() <=
+                                                idClassesDist->getPossiblePairLecture(p)->getStart()) { ;
+                                            } else {
+                                                constraint(idClassesDist, idClassesDist1, p, p1);
+
+
+                                            }
+                                        }
+
+
+                                    }
+
+
+                                } else if (clu->getRange().at(y)->getType().compare("SameTime") == 0) {
+                                    for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                        for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+
+                                            if (idClassesDist->getPossiblePairLecture(p)->getStart() <=
+                                                idClassesDist1->getPossiblePairLecture(p1)->getStart()
+                                                && idClassesDist1->getPossiblePairLecture(p1)->getEnd() <=
+                                                   idClassesDist->getPossiblePairLecture(p)->getEnd()) { ;
+                                            } else if (idClassesDist1->getPossiblePairLecture(p1)->getStart() <=
+                                                       idClassesDist->getPossiblePairLecture(p)->getStart()
+                                                       && idClassesDist->getPossiblePairLecture(p)->getEnd() <=
+                                                          idClassesDist1->getPossiblePairLecture(p1)->getEnd()) { ;
+                                            } else {
+                                                constraint(idClassesDist, idClassesDist1, p, p1);
+
+                                            }
+                                        }
+
+
+                                    }
+                                } else if (clu->getRange().at(y)->getType().compare("SameRoom") == 0) {
+                                    for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                        for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                            if (idClassesDist->getPossiblePairRoom(p)->getId() !=
+                                                idClassesDist1->getPossiblePairRoom(p1)->getId()) {
+                                                constraint(idClassesDist, idClassesDist1, p, p1);
+
+                                            }
+                                        }
+
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    for (Room *r: clu->getRooms()) {
+                        for (int timei = 0; timei < r->t.size(); ++timei) {
+                            Time *time1 = r->t[timei];
+                            for (int con = 0; con < time1->getClassesC().size(); ++con) {
+                                for (int cla = con + 1; cla < time1->getClassesC().size(); ++cla) {
+                                    if (time1->getClassesC()[con] != time1->getClassesC()[cla]) {
+                                        PB *pb = new PB();
+                                        pb->addProduct(
+                                                mkLit(getVariableID("x" + std::to_string(time1->getClassesC()[con]))),
+                                                1);
+                                        pb->addProduct(
+                                                mkLit(getVariableID("x" + std::to_string(time1->getClassesC()[cla]))),
+                                                1);
+                                        pb->_sign = true;
+                                        pb->addRHS(1);
+                                        //std::cout<<"x"+std::to_string(time1->getClassesC()[con])<<" "<<"x"+std::to_string(time1->getClassesC()[cla])<<std::endl;
+
+                                        maxsat_formula->addPBConstraint(pb);
+                                        delete pb;
+
+                                    }
+
+                                }
+
+                            }
+                            for (int timei1 = timei + 1; timei1 < r->t.size(); ++timei1) {
+                                Time *time2 = r->t[timei1];
+                                if (time1->check(time2, instance->getNweek(), instance->getNdays())) {
+                                    for (int con = 0; con < time1->getClassesC().size(); ++con) {
+                                        for (int cla = 0; cla < time2->getClassesC().size(); ++cla) {
+                                            PB *pb = new PB();
+                                            pb->addProduct(mkLit(getVariableID(
+                                                    "x" + std::to_string(time1->getClassesC()[con]))), 1);
+                                            pb->addProduct(mkLit(getVariableID(
+                                                    "x" + std::to_string(time2->getClassesC()[cla]))), 1);
+                                            pb->_sign = true;
+                                            pb->addRHS(1);
+
+
+                                            maxsat_formula->addPBConstraint(pb);
+                                            delete pb;
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+
+
+        void constraint(Class *idClassesDist, Class *idClassesDist1, int p, int p1) {
+            PB *pb = new PB();
+            pb->addProduct(mkLit(getVariableID(
+                    "x" + std::to_string(idClassesDist->getKey(idClassesDist->getPossiblePairRoom(p),
+                                                               idClassesDist->getPossiblePairLecture(p))))), 1);
+            pb->addProduct(mkLit(getVariableID(
+                    "x" + std::to_string(idClassesDist1->getKey(idClassesDist1->getPossiblePairRoom(p1),
+                                                                idClassesDist1->getPossiblePairLecture(p1))))), 1);
+            pb->_sign = true;
+            pb->addRHS(1);
+
+            maxsat_formula->addPBConstraint(pb);
+            delete pb;
 
         }
+
 
         int getVariableID(std::string varName) {
             char *cstr = new char[varName.length() + 1];
@@ -658,7 +849,7 @@ namespace openwbo {
             int id = maxsat_formula->varID(cstr);
             if (id == var_Undef)
                 id = maxsat_formula->newVarName(cstr);
-            delete [] cstr;
+            delete[] cstr;
             return id;
         }
 

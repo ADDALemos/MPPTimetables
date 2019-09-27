@@ -33,6 +33,7 @@
 #else
 #include "core/Solver.h"
 #endif
+#include "../problem/Instance.h"
 
 #include "../Encoder.h"
 #include "../MaxSAT.h"
@@ -45,20 +46,24 @@ namespace openwbo {
 class OLL : public MaxSAT {
 
 public:
-  OLL(int verb = _VERBOSITY_MINIMAL_, int enc = _CARD_TOTALIZER_) {
+    OLL(int verb = _VERBOSITY_MINIMAL_, int enc = _CARD_TOTALIZER_, Instance *instance1= nullptr) {
     solver = NULL;
     verbosity = verb;
     incremental_strategy = _INCREMENTAL_ITERATIVE_;
     encoding = enc;
     encoder.setCardEncoding(enc);
+        instance=instance1;
     min_weight = 1;
   }
   ~OLL() {
     if (solver != NULL)
       delete solver;
+      if(instance!= NULL)
+          delete instance;
   }
 
   void search();
+
 
   // Print solver configuration.
   void printConfiguration() {
@@ -70,7 +75,7 @@ public:
     printf("c |  Algorithm: %23s                                             "
            "                      |\n",
            "OLL");
-    print_Card_configuration(encoding);
+    print_Card_configuration(_CARD_TOTALIZER_);
     printf("c |                                                                "
            "                                       |\n");
   }
@@ -92,7 +97,7 @@ protected:
   // Controls the incremental strategy used by MSU3 algorithms.
   int incremental_strategy;
   // Controls the cardinality encoding used by MSU3 algorithms.
-  int encoding;
+  int encoding;//=_CARD_TOTALIZER_;
 
   // Literals to be used in the constraint that excludes models.
   vec<Lit> objFunction;

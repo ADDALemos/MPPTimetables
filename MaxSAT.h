@@ -45,6 +45,7 @@
 #include <utility>
 #include <vector>
 #include "MaxSATFormulaExtended.h"
+#include "problem/Instance.h"
 
 using NSPACE::vec;
 using NSPACE::Lit;
@@ -156,8 +157,15 @@ public:
   void setPrintModel(bool model) { print_model = model; }
   bool getPrintModel() { return print_model; }
 
+    void print();
+
+
+// Properties of the MaxSAT formula
+//
+vec<lbool> model;
 protected:
-  // Interface with the SAT solver
+
+    // Interface with the SAT solver
   //
   Solver *newSATSolver(); // Creates a SAT solver.
   // Solves the formula that is currently loaded in the SAT solver.
@@ -166,9 +174,7 @@ protected:
 
   void newSATVariable(Solver *S); // Creates a new variable in the SAT solver.
 
-  // Properties of the MaxSAT formula
-  //
-  vec<lbool> model; // Stores the best satisfying model.
+    // Stores the best satisfying model.
 
   // Statistics
   //
@@ -176,6 +182,8 @@ protected:
   int nbSymmetryClauses; // Number of symmetry clauses.
   uint64_t sumSizeCores; // Sum of the sizes of cores.
   int nbSatisfiable;     // Number of satisfiable calls.
+
+
 
   // Bound values
   //
@@ -190,8 +198,10 @@ protected:
   double initialTime; // Initial time.
   int verbosity;      // Controls the verbosity of the solver.
   bool print_model;   // Controls if the model is printed at the end.
+    Instance * instance;
 
-  // Different weights that corresponds to each function in the BMO algorithm.
+
+    // Different weights that corresponds to each function in the BMO algorithm.
   std::vector<uint64_t> orderWeights;
 
   // Utils for model management

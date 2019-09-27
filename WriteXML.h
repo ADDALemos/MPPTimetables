@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <codecvt>
 #include <sstream>
 #include <set>
 #include <list>
@@ -21,17 +22,17 @@
 
 #include "problem/Instance.h"
 #include "randomGenerator/Perturbation.h"
-#include "utils/Stats.h"
-#include "utils/TimeUtil.h"
+
 #include "problem/Time.h"
 #include "problem/Curriculum.h"
 #include "problem/ConstraintShort.h"
-#include "utils/StringUtil.h"
+#include "utils/TimeUtil.h"
 
 using namespace rapidxml;
 
 
-void writeXMLInput(Instance *instance, int version, Curriculum *cur) {
+
+static void writeXMLInput(Instance *instance, int version, Curriculum *cur) {
     std::map<int, int> courseM;
     xml_document<> doc;
     xml_node<> *decl = doc.allocate_node(node_declaration);
@@ -209,7 +210,8 @@ void writeXMLInput(Instance *instance, int version, Curriculum *cur) {
     doc.clear();
 }
 
-void writeXMLOutput(std::string filename, Instance *instance, double time) {
+static void writeXMLOutput(std::string filename, Instance *instance) {
+
     xml_document<> doc;
     xml_node<> *decl = doc.allocate_node(node_declaration);
     decl->append_attribute(doc.allocate_attribute("version", "1.0"));
@@ -218,11 +220,12 @@ void writeXMLOutput(std::string filename, Instance *instance, double time) {
 
     xml_node<> *root = doc.allocate_node(node_element, "solution");
     root->append_attribute(doc.allocate_attribute("name", instance->getName().c_str()));
-    root->append_attribute(doc.allocate_attribute("runtime", std::to_string(time).c_str()));
+    std::cout<<getTimeSpent()<<std::endl;
+    root->append_attribute(doc.allocate_attribute("runtime", "0"));
     root->append_attribute(
-            doc.allocate_attribute("cores", std::to_string(std::thread::hardware_concurrency()).c_str()));
+            doc.allocate_attribute("cores", "0"));//std::to_string(std::thread::hardware_concurrency()).c_str()));
     root->append_attribute(doc.allocate_attribute("technique", instance->getMethod().c_str()));
-    root->append_attribute(doc.allocate_attribute("author", "Alexandre Lemos, Pedro T. Monteiro, Inês Lynce"));
+    root->append_attribute(doc.allocate_attribute("author", "Alexandre Lemos, Pedro T. Monteiro, Ines Lynce"));
     root->append_attribute(doc.allocate_attribute("institution", "INESC-ID"));
     root->append_attribute(doc.allocate_attribute("country", "Portugal"));
     doc.append_node(root);
@@ -252,6 +255,8 @@ void writeXMLOutput(std::string filename, Instance *instance, double time) {
     }
 
     std::ofstream file_stored(filename);
+    file_stored.imbue(std::locale("en_US.UTF-8"));
+
     //print(std::cout, doc, 0);
     file_stored << doc;
 

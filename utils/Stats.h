@@ -9,7 +9,7 @@
 #include <iostream>
 #include "../problem/Instance.h"
 
-void printStudentsStats(Instance *instance){
+inline void printStudentsStats(Instance *instance){
     int v =0;int v1=0;
     for (std::map<int, Student>::iterator it = instance->getStudent().begin(); it != instance->getStudent().end(); ++it) {
         std::map<int, Student>::iterator it1 = it; it1++;
@@ -41,7 +41,7 @@ void printStudentsStats(Instance *instance){
 }
 
 
-void printProblemStats(Instance *instance) {
+inline void printProblemStats(Instance *instance) {
     std::cout << "*****Problem Description*****" << std::endl;
     std::cout << "Number of Days: " << instance->getNdays() << std::endl;
     std::cout << "Number of Slots: " << instance->getSlotsperday() << std::endl;
@@ -61,7 +61,7 @@ void printProblemStats(Instance *instance) {
 
 }
 
-void printStats(Instance *instance) {
+inline void printStats(Instance *instance) {
     std::cout << "*****Timetable Description*****" << std::endl;
     std::cout << "Frequency: " << instance->frequency() << std::endl;
     std::cout << "Utilization: " << instance->utilization() << std::endl;
@@ -70,7 +70,7 @@ void printStats(Instance *instance) {
 
 
 
-void printCorrectedStats(Instance *instance) {
+inline void printCorrectedStats(Instance *instance) {
     std::cout << "*****Timetable Description with Correction*****" << std::endl;
     std::cout << "Number of Slots: " << instance->actualSpace() << std::endl;
     std::cout << "Number of Days: " << instance->actualSpaceDay() << std::endl;
