@@ -26,6 +26,7 @@
  */
 
 #include "Alg_LinearSU.h"
+#include "../utils/TimeUtil.h"
 
 #define MAX_CLAUSES 3000000
 
@@ -91,7 +92,7 @@ void LinearSU::bmoSearch() {
         // If current weight is the same as the minimum weight, then we are in
         // the last lexicographical function.
         saveModel(solver->model);
-        printf("o %" PRId64 "\n", newCost + lbCost + off_set);
+        printf("o %" PRId64 " %f\n", newCost + lbCost + off_set, getTimeSpent());
         ubCost = newCost + lbCost;
       } else {
         if (verbosity > 0)
@@ -217,10 +218,10 @@ void LinearSU::normalSearch() {
       if (maxsat_formula->getFormat() == _FORMAT_PB_) {
         // optimization problem
         if (maxsat_formula->getObjFunction() != NULL) {
-          printf("o %" PRId64 "\n", newCost + off_set);
+          printf("o %" PRId64 " %f\n", newCost + off_set,getTimeSpent());
         }
       } else
-        printf("o %" PRId64 "\n", newCost + off_set); 
+        printf("o %" PRId64 " %f\n", newCost + off_set,getTimeSpent());
 
       if (newCost == 0) {
         // If there is a model with value 0 then it is an optimal model

@@ -27,6 +27,7 @@
 
 #include <iostream>
 #include "Alg_OLL.h"
+#include "../utils/TimeUtil.h"
 
 
 using namespace openwbo;
@@ -132,12 +133,12 @@ void OLL::unweighted() {
                 if (maxsat_formula->getObjFunction() != NULL) {
                     printf("o %"
                     PRId64
-                    "\n", newCost + off_set);
+                    " %f\n", newCost + off_set, getTimeSpent());
                 }
             } else
                 printf("o %"
             PRId64
-            "\n", newCost + off_set);
+            " %f\n", newCost + off_set, getTimeSpent());
 
             ubCost = newCost;
 
@@ -340,12 +341,12 @@ void OLL::weighted() {
                     if (maxsat_formula->getObjFunction() != NULL) {
                         printf("o %"
                         PRId64
-                        "\n", newCost + off_set);
+                        " %f\n", newCost + off_set,getTimeSpent());
                     }
                 } else
                     printf("o %"
                 PRId64
-                "\n", newCost + off_set);
+                " %f\n", newCost + off_set,getTimeSpent());
                 ubCost = newCost;
             }
 
