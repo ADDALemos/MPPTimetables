@@ -79,7 +79,7 @@ inline void printCorrectedStats(Instance *instance) {
 }
 
 
-/*void constraints(Instance *instance) {
+inline void printConstraintsStat(Instance *instance) {
     int hard = 0, soft = 0;
     std::map<std::string, int> map;
     map.insert(std::pair<std::string, int>("SameAttendees", 0));
@@ -102,56 +102,91 @@ inline void printCorrectedStats(Instance *instance) {
     map.insert(std::pair<std::string, int>("MaxBreaks", 0));
     map.insert(std::pair<std::string, int>("MaxBlock", 0));
 
+    for(auto i: instance->getDist()) {
+        for (int y = 0; y < i.second.size(); ++y) {
+            if (i.second[y]->getWeight() == -1)
+                hard++;
+            else {
+                soft++;
+                if (i.first.compare("SameAttendees") == 0) {
+                    map["SameAttendees"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                }
+                if (i.first.compare("NotOverlap") == 0) {
+                    map["NotOverlap"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                }
+                if (i.first.compare("Overlap") == 0) {
+                    map["Overlap"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                }
+                if (i.first.compare("SameTime") == 0) {
+                    map["SameTime"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                }
+                if (i.first.compare("DifferentTime") == 0) {
+                    map["DifferentTime"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                }
+                if (i.first.compare("SameWeeks") == 0) {
+                    map["SameWeeks"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                }
+                if (i.first.compare("DifferentWeeks") == 0) {
+                    map["DifferentWeeks"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                }
+                if (i.first.compare("SameDays") == 0) {
+                    map["SameDays"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                }
+                if (i.first.compare("DifferentDays") == 0) {
+                    map["DifferentDays"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                }
+                if (i.first.compare("Precedence") == 0) {
+                    map["Precedence"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                }
+                if (i.first.compare("SameRoom") == 0) {
+                    map["SameRoom"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                }
+                if (i.first.compare("DifferentRoom") == 0) {
+                    map["DifferentRoom"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                }
+                if (i.first.compare("SameStart") == 0) {
+                    map["SameStart"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                }
+                if (i.first.compare("MaxDays") == 0) {
+                    map["MaxDays"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                }
+                if (i.first.compare("MinGap") == 0) {
+                    map["MinGap"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                }
+                if (i.first.compare("WorkDay") == 0) {
+                    map["WorkDay"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                }
+                if (i.first.compare("MaxDayLoad") == 0) {
+                    map["MaxDayLoad"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                }
+                if (i.first.compare("MaxBreaks") == 0) {
+                    map["MaxBreaks"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                }
+                if (i.first.compare("MaxBlock") == 0) {
+                    map["MaxBlock"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                }
 
-    for (int i = 0; i < instance->getDist().size(); ++i) {
-        if (instance->getDist()[i]->getPenalty() == -1)
-            hard++;
-        else
-            soft++;
-        if (instance->getDist()[i]->getType()->getType() == SameAttendees) {
-            map["SameAttendees"]++;
-        } else if (instance->getDist()[i]->getType()->getType() == NotOverlap) {
-            map["NotOverlap"]++;
-        } else if (instance->getDist()[i]->getType()->getType() == Overlap) {
-            map["Overlap"]++;
-        } else if (instance->getDist()[i]->getType()->getType() == SameTime) {
-            map["SameTime"]++;
-        } else if (instance->getDist()[i]->getType()->getType() == DifferentTime) {
-            map["DifferentTime"]++;
-        } else if (instance->getDist()[i]->getType()->getType() == SameWeeks) {
-            map["SameWeeks"]++;
-        } else if (instance->getDist()[i]->getType()->getType() == DifferentWeeks) {
-            map["DifferentWeeks"]++;
-        } else if (instance->getDist()[i]->getType()->getType() == SameDays) {
-            map["SameDays"]++;
-        } else if (instance->getDist()[i]->getType()->getType() == DifferentDays) {
-            map["DifferentDays"]++;
-        } else if (instance->getDist()[i]->getType()->getType() == Precedence) {
-            map["Precedence"]++;
-        } else if (instance->getDist()[i]->getType()->getType() == SameRoom) {
-            map["SameRoom"]++;
-        } else if (instance->getDist()[i]->getType()->getType() == DifferentRoom) {
-            map["DifferentRoom"]++;
-        } else if (instance->getDist()[i]->getType()->getType() == SameStart) {
-            map["SameStart"]++;
-        } else if (instance->getDist()[i]->getType()->getType() == MaxDays) {
-            map["MaxDays"]++;
-        } else if (instance->getDist()[i]->getType()->getType() == MinGap) {
-            map["MinGap"]++;
-        } else if (instance->getDist()[i]->getType()->getType() == WorkDay) {
-            map["WorkDay"]++;
-        } else if (instance->getDist()[i]->getType()->getType() == MaxDayLoad) {
-            map["MaxDayLoad"]++;
-        } else if (instance->getDist()[i]->getType()->getType() == MaxBreaks) {
-            map["MaxBreaks"]++;
-        } else if (instance->getDist()[i]->getType()->getType() == MaxBlock) {
-            map["MaxBlock"]++;
+            }
+        }
+    }
+        std::cout<<hard<<" "<<soft<<std::endl;
+        for (std::map<std::string, int>::iterator p = map.begin(); p != map.end(); ++p) {
+            std::cout << p->first << " " << p->second << std::endl;
         }
 
+}
+
+
+inline void printDomainSize(Instance *instance){
+    int y=0,maxValue=0;
+    for (int i = 0; i < instance->getClasses().size(); ++i) {
+        if(instance->getClasses()[i]->getPossiblePairSize()>maxValue)
+            maxValue=instance->getClasses()[i]->getPossiblePairSize();
+        y+=instance->getClasses()[i]->getPossiblePairSize();
     }
-    for (std::map<std::string, int>::iterator p = map.begin(); p != map.end(); ++p) {
-        std::cout << p->first << " " << p->second << std::endl;
-    }
-}*/
+    std::cout<<(y/instance->getClasses().size())<<" "<<maxValue<<std::endl;
+
+    std::cout<<y<<" "<<instance->getClasses().size()<<std::endl;
+}
 
 #endif //PROJECT_STATS_H

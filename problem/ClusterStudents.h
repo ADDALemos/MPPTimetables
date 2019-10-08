@@ -12,9 +12,20 @@
 class ClusterStudent {
     int id;
     std::vector<Course *> course;
-    std::vector<Student > student;
+    std::set<Student > student;
+    std::map<int,std::string> classesID;
 
 public:
+    const std::string getClassesID(int i)  {
+        if(classesID.find(i)!=classesID.end())
+            return classesID[i];
+        return "Empty";
+    }
+
+    void setClassesID(int i, std::string name)  {
+        classesID.insert(std::pair<int,std::string>(i,name));
+    }
+
     int getId(){ return id;}
 
     int numberofCourses() { return course.size(); }
@@ -23,16 +34,16 @@ public:
 
     int numberofStudent() { return student.size(); }
 
-    std::vector<Student> getStudent() { return student; }
+    std::set<Student> getStudent() { return student; }
 
 
     void addStudent(Student s) {
-        student.push_back(s);
+        student.insert(s);
     }
 
 
     ClusterStudent(int id, std::vector<Course *> course, Student s) : id(id), course(course) {
-        student.push_back(s);
+        student.insert(s);
 
     }
 

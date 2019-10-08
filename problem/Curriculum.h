@@ -19,8 +19,8 @@ class Curriculum {
 
 
 public:
-    Curriculum(ClusterbyRoom *c) {pClass.insert(c); }
-    Curriculum(std::set<ClusterbyRoom*> pClass) :pClass(pClass) {}
+    Curriculum(ClusterbyRoom *c,int i):id(i) {pClass.insert(c); }
+    Curriculum(std::set<ClusterbyRoom*> pClass,int i):id(i),pClass(pClass) {}
 
 
 
@@ -42,7 +42,9 @@ public:
         return pClass;
     }
 
-
+    int getId() const {
+        return id;
+    }
 
 };
 

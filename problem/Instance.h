@@ -19,10 +19,14 @@
 
 class Instance {
 private:
+    std::map<std::string,std::vector<ConstraintShort*>> dist;
+    std::map<std::string,std::vector<ConstraintShort*>> soft;
     std::vector<Curriculum *> problem;
-    std::vector<ClusterStudent> clusterStudent;
+    std::vector<ClusterStudent*> clusterStudent;
     std::map<std::string, Course *> courses;
     std::map<int, Room*> rooms;
+
+private:
     std::map<int, Student> student;
     std::vector<Class*> classes;
     int timePen;
@@ -579,14 +583,31 @@ public:
         ndays = actualSpaceDay();
     }
 
-    void setStudentCluster(std::vector<ClusterStudent, std::allocator<ClusterStudent>> clusterStudent) {
+    void setStudentCluster(std::vector<ClusterStudent*, std::allocator<ClusterStudent*>> clusterStudent) {
         Instance::clusterStudent=clusterStudent;
     }
 
-    std::vector<ClusterStudent> getClusterStudent(){
+    std::vector<ClusterStudent*> getClusterStudent(){
         return clusterStudent;
     }
+    inline void setDist(
+            const std::map<std::string, std::vector<ConstraintShort *, std::allocator<ConstraintShort *>>> &dist) {
+        Instance::dist = dist;
+    }
+
+
+
+
+
+    inline std::map<std::string, std::vector<ConstraintShort *, std::allocator<ConstraintShort *>>> &getDist()  {
+        return dist;
+    }
+
 };
+
+
+
+
 
 
 #endif //TIMETABLER_INSTANCE_H
