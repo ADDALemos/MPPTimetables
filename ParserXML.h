@@ -179,6 +179,7 @@ namespace openwbo {
                                                         l, max);
                                                 p->addProduct(mkLit(getVariableID("x" + std::to_string(max))), 1);
 
+
                                                 //oneEach += " +1 " + std::to_string(max);
                                                 if (penalty != 0)
                                                     of->addProduct(mkLit(getVariableID("x" + std::to_string(max))),
@@ -238,6 +239,7 @@ namespace openwbo {
                                                     if (!isNotAddableTime) {
                                                         p->addProduct(mkLit(getVariableID("x" + std::to_string(max))),
                                                                       1);
+                                                        //std::cout<<idclass<<" "<<std::to_string(max)<<std::endl;
 
 
                                                         if (penalty != 0)
@@ -257,8 +259,8 @@ namespace openwbo {
 
                                                         bool is = true;
                                                         for (int ti = 0; ti < j->first->t.size(); ++ti) {
-                                                            if (j->first->t[ti]->checkWD(l, instance->getNweek(),
-                                                                                         instance->getNdays()) &&
+                                                            if (j->first->t[ti]->getWeek().compare(l->getWeeks())==0 &&
+                                                                    j->first->t[ti]->getDay().compare(l->getDays())==0 &&
                                                                 l->getStart() == j->first->t[ti]->getStart() &&
                                                                 l->getEnd() == j->first->t[ti]->getEnd()) {
                                                                 j->first->t[ti]->addC(max, idclass);
@@ -272,6 +274,8 @@ namespace openwbo {
                                                                              l->getWeeks(),
                                                                              l->getDays(), max, idclass));
                                                         }
+                                                        //std::cout<<idclass<<" "<<max<<std::endl;
+
                                                         max++;
 
                                                     }
@@ -392,9 +396,10 @@ namespace openwbo {
         void createCurriculum(std::map<int, std::set<ClusterbyRoom *> *> &curMap) const {
             std::vector<Curriculum *> problem;
             //printRoomCluster();
+            int count = 1;
             for (auto it = curMap.begin(); it != curMap.end(); ++it) {
                 if (problem.size() == 0)
-                    problem.push_back(new Curriculum(*it->second));
+                    problem.push_back(new Curriculum(*it->second, problem.size()));
                 else {
                     bool test = false;
                     for (int i = 0; i < problem.size(); ++i) {
@@ -404,17 +409,26 @@ namespace openwbo {
                                     for (Class *aClass1: c1->getClasses()) {
                                         if (aClass->getId() == aClass1->getId()) {
                                             test = true;
-                                            break;
+                                        } else if (test && aClass->getId() != aClass1->getId()) {
+                                            c->addClass(aClass1);
                                         }
                                     }
                                     if (test)
                                         break;
 
                                 }
-                                if (!test) {
-                                    for (Room *aRoom:c->getRooms()) { //TODO:ADDclases
+
+                            }
+                            if (!test) {
+                                for (ClusterbyRoom *c1: *it->second) {
+                                    for (Room *aRoom:c->getRooms()) {
                                         for (Room *aRoom1: c1->getRooms()) {
                                             if (aRoom->getId() == aRoom1->getId()) {
+                                                for (Class *aClass1: c1->getClasses()) {
+                                                    c->addClass(aClass1);
+                                                }
+
+
                                                 test = true;
                                                 break;
                                             }
@@ -423,10 +437,8 @@ namespace openwbo {
                                             break;
 
                                     }
-                                } else
-                                    break;
-                            }
-                            if (test)
+                                }
+                            } else
                                 break;
                         }
                         if (test)
@@ -437,9 +449,50 @@ namespace openwbo {
 
 
                     if (!test)
-                        problem.push_back(new Curriculum(*it->second));
+                        problem.push_back(new Curriculum(*it->second, problem.size()));
                 }
+                count++;
 
+            }
+            if (count < instance->getClasses().size()) {
+                for (ClusterbyRoom *c1: cluster) {
+                    bool t = false;
+                    for (Class *aClass1: c1->getClasses()) {
+                        if (curMap.find(aClass1->getId()) != curMap.end()) {
+                            t = true;
+                            break;
+                        }
+                    }
+                    if (t)
+                        continue;
+                    t = false;
+                    for (int i = 0; i < problem.size(); ++i) {
+                        for (ClusterbyRoom *c:problem[i]->getPClass()) {
+                            for (Room *aRoom:c->getRooms()) {
+                                for (Room *aRoom1: c1->getRooms()) {
+                                    if (aRoom->getId() == aRoom1->getId()) {
+                                        for (Class *aClass1: c1->getClasses()) {
+                                            c->addClass(aClass1);
+                                        }
+                                        t = true;
+                                        break;
+                                    }
+                                }
+                                if (t)
+                                    break;
+
+                            }
+                            if (t)
+                                break;
+                        }
+                        if (t)
+                            break;
+                    }
+                    if (!t)
+                        problem.push_back(new Curriculum(c1, problem.size()));
+
+
+                }
             }
             instance->setProblem(problem);
         }
@@ -447,7 +500,7 @@ namespace openwbo {
         void readStudents(const xml_node<> *n) const {
             std::map<int, Student> std;
             int idc = 0;
-            std::vector<ClusterStudent> clusterStudent;
+            std::vector<ClusterStudent*> clusterStudent;
             for (const xml_node<> *sub = n->first_node(); sub; sub = sub->next_sibling()) {
                 int studentID = -1;
                 for (const xml_attribute<> *a = sub->first_attribute(); a; a = a->next_attribute()) {
@@ -467,15 +520,15 @@ namespace openwbo {
 
                 bool temp = false;
                 if (clusterStudent.size() == 0)
-                    clusterStudent.push_back(ClusterStudent(idc++, c, s.second));
+                    clusterStudent.push_back(new ClusterStudent(idc++, c, s.second));
                 for (int i = 0; i < clusterStudent.size(); ++i) {
                     bool t = false;
-                    if (c.size() != clusterStudent[i].getCourses().size())
+                    if (c.size() != clusterStudent[i]->getCourses().size())
                         continue;
                     for (int c0 = 0; c0 < c.size(); ++c0) {
                         t = false;
-                        for (int c1 = 0; c1 < clusterStudent[i].getCourses().size(); ++c1) {
-                            if (clusterStudent[i].getCourses()[c1]->getName().compare(
+                        for (int c1 = 0; c1 < clusterStudent[i]->getCourses().size(); ++c1) {
+                            if (clusterStudent[i]->getCourses()[c1]->getName().compare(
                                     c[c0]->getName()) == 0) {
                                 t = true;
                                 break;
@@ -487,11 +540,11 @@ namespace openwbo {
                     }
                     if (t) {
                         temp = true;
-                        clusterStudent[i].addStudent(s.second);
+                        clusterStudent[i]->addStudent(s.second);
                     }
                 }
                 if (!temp)
-                    clusterStudent.push_back(ClusterStudent(idc++, c, s.second));
+                    clusterStudent.push_back(new ClusterStudent(idc++, c, s.second));
 
 
             }
@@ -503,6 +556,9 @@ namespace openwbo {
 
         void readConstraints(std::map<Class *, ClusterbyRoom *> mapCluster,
                              std::map<int, std::set<ClusterbyRoom *> *> &curMap, const xml_node<> *n) const {
+            std::map<std::string, std::vector<ConstraintShort *>> hard;
+            std::map<std::string, std::vector<ConstraintShort *>> soft;
+
             for (const xml_node<> *sub = n->first_node(); sub; sub = sub->next_sibling()) {
                 std::stringstream constSTR;
                 bool isReq = false;
@@ -547,15 +603,34 @@ namespace openwbo {
                                 idClassesDist->getId(), c));
                     }
                 }
-                if (isReq) {
-                    for (ClusterbyRoom *clusterbyRoom: *c) {
-                        clusterbyRoom->setRange(new ConstraintShort(type, penalty, c1, limit, limit1));
-                        break;
-                    }
-
+                //if (isReq) {
+                for (ClusterbyRoom *clusterbyRoom: *c) {
+                    clusterbyRoom->setRange(new ConstraintShort(type, penalty, c1, limit, limit1));
+                    break;
                 }
 
+                if (hard.find(type) != hard.end()) {
+                        hard[type].push_back(new ConstraintShort(type, penalty, c1, limit, limit1));
+                    } else {
+                        std::vector<ConstraintShort *> t;
+                        t.push_back(new ConstraintShort(type, penalty, c1, limit, limit1));
+                        hard.insert(std::pair<std::string, std::vector<ConstraintShort *>>(type, t));
+                    }
+
+                /*} else {
+                    if (soft.find(type) != soft.end()) {
+                        soft[type].push_back(new ConstraintShort(type, penalty, c1, limit, limit1));
+                    } else {
+                        std::vector<ConstraintShort *> t;
+                        t.push_back(new ConstraintShort(type, penalty, c1, limit, limit1));
+                        soft.insert(std::pair<std::string, std::vector<ConstraintShort *>>(type, t));
+                    }
+
+                }*/
+
             }
+            instance->setDist(hard);
+            //instance->setSoft(soft);
         }
 
         void readRoom(const xml_node<> *n) const {
@@ -655,127 +730,498 @@ namespace openwbo {
         Instance *getInstance() const {
             return instance;
         }
-//202 431
 
         void genConstraint() {
-            for (Curriculum *c: instance->getProblem()) {
-                for (auto *clu: c->getPClass()) {
+            //printRoomCluster();
+
+
+           if (instance->getDist().find("SameAttendees") != instance->getDist().end()) {
+                for (int y = 0; y < instance->getDist()["SameAttendees"].size(); ++y) {
                     Class *idClassesDist, *idClassesDist1;
-                    for (int y = 0; y < clu->getRange().size(); ++y) {
-                        for (int ci = 0; ci < clu->getRange().at(y)->getClasses().size(); ++ci) {
-                            for (int ci1 = ci + 1; ci1 < clu->getRange().at(y)->getClasses().size(); ++ci1) {
+                    for (int ci = 0;
+                         ci < instance->getDist()["SameAttendees"].at(y)->getClasses().size(); ++ci) {
+                        for (int ci1 = ci + 1;
+                             ci1 < instance->getDist()["SameAttendees"].at(y)->getClasses().size(); ++ci1) {
 
-                                idClassesDist = clu->getRange().at(y)->getClasses()[ci];
-                                idClassesDist1 = clu->getRange().at(y)->getClasses()[ci1];
-                                if (clu->getRange().at(y)->getType().compare("SameAttendees") == 0) {
-                                    for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                                        for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-                                            int travel = 0;
-                                            if (idClassesDist->getPossiblePairRoom(p)->getId() ==
-                                                idClassesDist1->getPossiblePairRoom(p1)->getId())
-                                                continue;
-                                            if (idClassesDist->getPossiblePairRoom(p)->getId() != -1 &&
-                                                idClassesDist1->getPossiblePairRoom(p1)->getId() != -1) {
-                                                if (instance->getRoom(
-                                                        idClassesDist->getPossiblePairRoom(p)->getId())->getTravel(
-                                                        idClassesDist1->getPossiblePairRoom(p1)->getId()) > 0)
-                                                    travel = instance->getRoom(
-                                                            idClassesDist->getPossiblePairRoom(p)->getId())->getTravel(
-                                                            idClassesDist1->getPossiblePairRoom(p1)->getId());
-                                                else
-                                                    travel = instance->getRoom(
-                                                            idClassesDist1->getPossiblePairRoom(
-                                                                    p1)->getId())->getTravel(
-                                                            idClassesDist->getPossiblePairRoom(p)->getId());
-                                            }
+                            idClassesDist = instance->getDist()["SameAttendees"].at(y)->getClasses()[ci];
+                            idClassesDist1 = instance->getDist()["SameAttendees"].at(y)->getClasses()[ci1];
+                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                    int travel = 0;
+                                    if (idClassesDist->getPossiblePairRoom(p)->getId() ==
+                                        idClassesDist1->getPossiblePairRoom(p1)->getId()&&idClassesDist1->getPossiblePairRoom(p1)->getId()!=-1)
+                                        continue;
+                                    if (idClassesDist->getPossiblePairRoom(p)->getId() != -1 &&
+                                        idClassesDist1->getPossiblePairRoom(p1)->getId() != -1) {
+                                        if (instance->getRoom(
+                                                idClassesDist->getPossiblePairRoom(p)->getId())->getTravel(
+                                                idClassesDist1->getPossiblePairRoom(p1)->getId()) > 0)
+                                            travel = instance->getRoom(
+                                                    idClassesDist->getPossiblePairRoom(p)->getId())->getTravel(
+                                                    idClassesDist1->getPossiblePairRoom(p1)->getId());
+                                        else
+                                            travel = instance->getRoom(
+                                                    idClassesDist1->getPossiblePairRoom(
+                                                            p1)->getId())->getTravel(
+                                                    idClassesDist->getPossiblePairRoom(p)->getId());
+                                    }
 
-                                            if (idClassesDist->getPossiblePairLecture(p)->getEnd() + travel <=
-                                                idClassesDist1->getPossiblePairLecture(p1)->getStart()
-                                                || idClassesDist1->getPossiblePairLecture(p1)->getEnd() +
-                                                   travel <= idClassesDist->getPossiblePairLecture(p)->getStart()
-                                                || stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
-                                                                 idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
-                                                                 instance->getNweek(), false) ==
-                                                   1
-                                                || stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
-                                                                 idClassesDist1->getPossiblePairLecture(p1)->getDays(),
-                                                                 instance->getNdays(), false) ==
-                                                   1) { ;
-                                            } else {
+                                    if (idClassesDist->getPossiblePairLecture(p)->getEnd() + travel <=
+                                        idClassesDist1->getPossiblePairLecture(p1)->getStart()
+                                        || idClassesDist1->getPossiblePairLecture(p1)->getEnd() +
+                                           travel <= idClassesDist->getPossiblePairLecture(p)->getStart()
+                                        || stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                         idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                         instance->getNweek(), false)
+                                        || stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                         idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                         instance->getNdays(), false) ) {
+                                        ;
+                                    } else {
+                                        int w=0;
+                                       if((w=instance->getDist()["SameAttendees"].at(y)->getWeight())==-1)
+                                            constraint(idClassesDist, idClassesDist1, p, p1);
+                                        else
+                                            constraintSoft(idClassesDist, idClassesDist1, p, p1,w); 
 
-                                                constraint(idClassesDist, idClassesDist1, p, p1);
+                                    }
+                                }
 
 
-                                            }
-                                        }
+                            }
+                        }
+                    }
+                }
+            }
+            if (instance->getDist().find("NotOverlap") != instance->getDist().end()) {
+                for (int y = 0; y < instance->getDist()["NotOverlap"].size(); ++y) {
+                    Class *idClassesDist, *idClassesDist1;
+                    for (int ci = 0;
+                         ci < instance->getDist()["NotOverlap"].at(y)->getClasses().size(); ++ci) {
+                        for (int ci1 = ci + 1;
+                             ci1 <
+                                     instance->getDist()["NotOverlap"].at(y)->getClasses().size(); ++ci1) {
+
+                            idClassesDist = instance->getDist()["NotOverlap"].at(y)->getClasses()[ci];
+                            idClassesDist1 = instance->getDist()["NotOverlap"].at(
+                                    y)->getClasses()[ci1];
+                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                    if (stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                      idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                      instance->getNweek(), false) ==
+                                        1
+                                        || stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                         idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                         instance->getNdays(), false) ==
+                                           1 || idClassesDist->getPossiblePairLecture(p)->getEnd() <=
+                                                idClassesDist1->getPossiblePairLecture(p1)->getStart() ||
+                                        idClassesDist1->getPossiblePairLecture(p1)->getEnd() <=
+                                        idClassesDist->getPossiblePairLecture(p)->getStart()) { ;
+                                    } else {
+                                        int w=0;
+                                        if((w=instance->getDist()["NotOverlap"].at(y)->getWeight())==-1)
+                                            constraint(idClassesDist, idClassesDist1, p, p1);
+                                        else
+                                            constraintSoft(idClassesDist, idClassesDist1, p, p1,w); 
 
 
                                     }
-                                } else if (clu->getRange().at(y)->getType().compare("NotOverlap") == 0) {
-                                    for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                                        for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-                                            if (stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
-                                                              idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
-                                                              instance->getNweek(), false) ==
-                                                1
-                                                || stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
-                                                                 idClassesDist1->getPossiblePairLecture(p1)->getDays(),
-                                                                 instance->getNdays(), false) ==
-                                                   1 || idClassesDist->getPossiblePairLecture(p)->getEnd() <=
-                                                        idClassesDist1->getPossiblePairLecture(p1)->getStart() ||
-                                                idClassesDist1->getPossiblePairLecture(p1)->getEnd() <=
-                                                idClassesDist->getPossiblePairLecture(p)->getStart()) { ;
-                                            } else {
+                                }
+
+
+                            }
+                        }
+                    }
+                }
+            }
+            if (instance->getDist().find("Overlap") != instance->getDist().end()) {
+                for (int y = 0; y < instance->getDist()["Overlap"].size(); ++y) {
+                    Class *idClassesDist, *idClassesDist1;
+                    for (int ci = 0;
+                         ci < instance->getDist()["Overlap"].at(y)->getClasses().size(); ++ci) {
+                        for (int ci1 = ci + 1;
+                             ci1 <
+                             instance->getDist()["Overlap"].at(y)->getClasses().size(); ++ci1) {
+
+                            idClassesDist = instance->getDist()["Overlap"].at(y)->getClasses()[ci];
+                            idClassesDist1 = instance->getDist()["Overlap"].at(
+                                    y)->getClasses()[ci1];
+                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                    if (stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                      idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                      instance->getNweek(), false) ==
+                                        1
+                                        || stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                         idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                         instance->getNdays(), false) ==
+                                           1 || idClassesDist->getPossiblePairLecture(p)->getEnd() <=
+                                                idClassesDist1->getPossiblePairLecture(p1)->getStart() ||
+                                        idClassesDist1->getPossiblePairLecture(p1)->getEnd() <=
+                                        idClassesDist->getPossiblePairLecture(p)->getStart()) {
+                                        int w=0;
+                                        if((w=instance->getDist()["Overlap"].at(y)->getWeight())==-1)
+                                            constraint(idClassesDist, idClassesDist1, p, p1);
+                                        else
+                                            constraintSoft(idClassesDist, idClassesDist1, p, p1,w);
+                                    }
+                                }
+
+
+                            }
+                        }
+                    }
+                }
+            }
+            if (instance->getDist().find("SameTime") != instance->getDist().end()) {
+                for (int y = 0; y < instance->getDist()["SameTime"].size(); ++y) {
+                    Class *idClassesDist, *idClassesDist1;
+                    for (int ci = 0;
+                         ci < instance->getDist()["SameTime"].at(y)->getClasses().size(); ++ci) {
+                        for (int ci1 = ci + 1;
+                             ci1 <
+                                     instance->getDist()["SameTime"].at(y)->getClasses().size(); ++ci1) {
+
+                            idClassesDist = instance->getDist()["SameTime"].at(y)->getClasses()[ci];
+                            idClassesDist1 = instance->getDist()["SameTime"].at(
+                                    y)->getClasses()[ci1];
+                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+
+                                    if (idClassesDist->getPossiblePairLecture(p)->getStart() <=
+                                        idClassesDist1->getPossiblePairLecture(p1)->getStart()
+                                        && idClassesDist1->getPossiblePairLecture(p1)->getEnd() <=
+                                           idClassesDist->getPossiblePairLecture(p)->getEnd()) { ;
+                                    } else if (idClassesDist1->getPossiblePairLecture(p1)->getStart() <=
+                                               idClassesDist->getPossiblePairLecture(p)->getStart()
+                                               && idClassesDist->getPossiblePairLecture(p)->getEnd() <=
+                                                  idClassesDist1->getPossiblePairLecture(p1)->getEnd()) { ;
+                                    } else {
+                                        int w=0;
+                                        if((w=instance->getDist()["SameTime"].at(y)->getWeight())==-1)
+                                            constraint(idClassesDist, idClassesDist1, p, p1);
+                                        else
+                                            constraintSoft(idClassesDist, idClassesDist1, p, p1,w); 
+
+                                    }
+                                }
+
+
+                            }
+                        }
+                    }
+                }
+            }
+            if (instance->getDist().find("SameRoom") != instance->getDist().end()) {
+                for (int y = 0; y < instance->getDist()["SameRoom"].size(); ++y) {
+                    Class *idClassesDist, *idClassesDist1;
+                    for (int ci = 0;
+                         ci < instance->getDist()["SameRoom"].at(y)->getClasses().size(); ++ci) {
+                        for (int ci1 = ci + 1;
+                             ci1 <
+                                     instance->getDist()["SameRoom"].at(y)->getClasses().size(); ++ci1) {
+
+                            idClassesDist = instance->getDist()["SameRoom"].at(y)->getClasses()[ci];
+                            idClassesDist1 = instance->getDist()["SameRoom"].at(
+                                    y)->getClasses()[ci1];
+                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                    if (idClassesDist->getPossiblePairRoom(p)->getId() !=
+                                        idClassesDist1->getPossiblePairRoom(p1)->getId()) {
+                                        int w=0;
+                                        if((w=instance->getDist()["SameRoom"].at(y)->getWeight())==-1)
+                                            constraint(idClassesDist, idClassesDist1, p, p1);
+                                        else
+                                            constraintSoft(idClassesDist, idClassesDist1, p, p1,w); 
+
+                                    }
+                                }
+
+
+                            }
+                        }
+                    }
+                }
+            }
+            if (instance->getDist().find("DifferentDays") != instance->getDist().end()) {
+                for (int y = 0; y < instance->getDist()["DifferentDays"].size(); ++y) {
+                    Class *idClassesDist, *idClassesDist1;
+                    for (int ci = 0;
+                         ci < instance->getDist()["DifferentDays"].at(y)->getClasses().size(); ++ci) {
+                        for (int ci1 = ci + 1;
+                             ci1 <
+                                     instance->getDist()["DifferentDays"].at(y)->getClasses().size(); ++ci1) {
+
+                            idClassesDist = instance->getDist()["DifferentDays"].at(y)->getClasses()[ci];
+                            idClassesDist1 = instance->getDist()["DifferentDays"].at(
+                                    y)->getClasses()[ci1];
+
+                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                    for (int d = 0; d < instance->getNdays(); ++d) {
+                                        if (idClassesDist->getPossiblePairLecture(p)->getDays()[d] ==
+                                            idClassesDist1->getPossiblePairLecture(p1)->getDays()[d] &&
+                                            idClassesDist->getPossiblePairLecture(p)->getDays()[d] == '1') {
+                                            int w=0;
+                                            if((w=instance->getDist()["DifferentDays"].at(y)->getWeight())==-1)
                                                 constraint(idClassesDist, idClassesDist1, p, p1);
+                                            else
+                                                constraintSoft(idClassesDist, idClassesDist1, p, p1,w); 
 
 
-                                            }
                                         }
-
 
                                     }
 
 
-                                } else if (clu->getRange().at(y)->getType().compare("SameTime") == 0) {
-                                    for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                                        for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (instance->getDist().find("MinGap") != instance->getDist().end()) {
+                for (int y = 0; y < instance->getDist()["MinGap"].size(); ++y) {
+                    Class *idClassesDist, *idClassesDist1;
+                    for (int ci = 0;
+                         ci < instance->getDist()["MinGap"].at(y)->getClasses().size(); ++ci) {
+                        for (int ci1 = ci + 1;
+                             ci1 <
+                                     instance->getDist()["MinGap"].at(y)->getClasses().size(); ++ci1) {
 
-                                            if (idClassesDist->getPossiblePairLecture(p)->getStart() <=
-                                                idClassesDist1->getPossiblePairLecture(p1)->getStart()
-                                                && idClassesDist1->getPossiblePairLecture(p1)->getEnd() <=
-                                                   idClassesDist->getPossiblePairLecture(p)->getEnd()) { ;
-                                            } else if (idClassesDist1->getPossiblePairLecture(p1)->getStart() <=
-                                                       idClassesDist->getPossiblePairLecture(p)->getStart()
-                                                       && idClassesDist->getPossiblePairLecture(p)->getEnd() <=
-                                                          idClassesDist1->getPossiblePairLecture(p1)->getEnd()) { ;
-                                            } else {
-                                                constraint(idClassesDist, idClassesDist1, p, p1);
+                            idClassesDist = instance->getDist()["MinGap"].at(y)->getClasses()[ci];
+                            idClassesDist1 = instance->getDist()["MinGap"].at(
+                                    y)->getClasses()[ci1];
+                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
 
-                                            }
-                                        }
-
-
-                                    }
-                                } else if (clu->getRange().at(y)->getType().compare("SameRoom") == 0) {
-                                    for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
-                                        for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-                                            if (idClassesDist->getPossiblePairRoom(p)->getId() !=
-                                                idClassesDist1->getPossiblePairRoom(p1)->getId()) {
-                                                constraint(idClassesDist, idClassesDist1, p, p1);
-
-                                            }
-                                        }
-
+                                    if (stringcompare(idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                      idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                      instance->getNweek(), false) == 1 ||
+                                        stringcompare(idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                      idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                      instance->getNdays(), false) == 1 ||
+                                        (idClassesDist1->getPossiblePairLecture(p1)->getEnd() +
+                                                instance->getDist()["MinGap"].at(y)->getParameter1()) <=
+                                        idClassesDist->getPossiblePairLecture(p)->getStart() ||
+                                        (idClassesDist->getPossiblePairLecture(p)->getEnd() +
+                                                instance->getDist()["MinGap"].at(y)->getParameter1()) <=
+                                        idClassesDist1->getPossiblePairLecture(p1)->getStart()) { ;
+                                    } else {
+                                        int w=0;
+                                        if((w=instance->getDist()["MinGap"].at(y)->getWeight())==-1)
+                                            constraint(idClassesDist, idClassesDist1, p, p1);
+                                        else
+                                            constraintSoft(idClassesDist, idClassesDist1, p, p1,w); 
 
                                     }
                                 }
                             }
                         }
                     }
+                }
+            }
+            if (instance->getDist().find("SameDays") != instance->getDist().end()) {
+                for (int y = 0; y < instance->getDist()["SameDays"].size(); ++y) {
+                    Class *idClassesDist, *idClassesDist1;
+                    for (int ci = 0;
+                         ci < instance->getDist()["SameDays"].at(y)->getClasses().size(); ++ci) {
+                        for (int ci1 = ci + 1;
+                             ci1 <
+                                     instance->getDist()["SameDays"].at(y)->getClasses().size(); ++ci1) {
+
+                            idClassesDist = instance->getDist()["SameDays"].at(y)->getClasses()[ci];
+                            idClassesDist1 = instance->getDist()["SameDays"].at(
+                                    y)->getClasses()[ci1];
+                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                    for (int d = 0; d < instance->getNdays(); ++d) {
+                                        if (stringcontains(idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                           idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                           instance->getNdays()) ==
+                                            1) { ;
+                                        } else {
+                                            int w=0;
+                                            if((w=instance->getDist()["SameDays"].at(y)->getWeight())==-1)
+                                                constraint(idClassesDist, idClassesDist1, p, p1);
+                                            else
+                                                constraintSoft(idClassesDist, idClassesDist1, p, p1,w); 
+
+
+                                        }
+
+                                    }
+
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (instance->getDist().find("SameStart") != instance->getDist().end()) {
+                for (int y = 0; y < instance->getDist()["SameStart"].size(); ++y) {
+                    Class *idClassesDist, *idClassesDist1;
+                    for (int ci = 0;
+                         ci < instance->getDist()["SameStart"].at(y)->getClasses().size(); ++ci) {
+                        for (int ci1 = ci + 1;
+                             ci1 <
+                                     instance->getDist()["SameStart"].at(y)->getClasses().size(); ++ci1) {
+
+                            idClassesDist = instance->getDist()["SameStart"].at(y)->getClasses()[ci];
+                            idClassesDist1 = instance->getDist()["SameStart"].at(
+                                    y)->getClasses()[ci1];
+                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                    if (idClassesDist1->getPossiblePairLecture(p1)->getStart() !=
+                                        idClassesDist->getPossiblePairLecture(p)->getStart()) {
+                                        int w = 0;
+                                        if ((w = instance->getDist()["SameStart"].at(y)->getWeight()) == -1)
+                                            constraint(idClassesDist, idClassesDist1, p, p1);
+                                        else
+                                            constraintSoft(idClassesDist, idClassesDist1, p, p1, w);
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }
+
+
+            }
+            if (instance->getDist().find("Precedence") != instance->getDist().end()) {
+                for (int y = 0; y < instance->getDist()["Precedence"].size(); ++y) {
+                    Class *idClassesDist, *idClassesDist1;
+                    for (int ci = 0;
+                         ci < instance->getDist()["Precedence"].at(y)->getClasses().size(); ++ci) {
+                        for (int ci1 = ci + 1;
+                             ci1 <
+                             instance->getDist()["Precedence"].at(y)->getClasses().size(); ++ci1) {
+
+                            idClassesDist = instance->getDist()["Precedence"].at(y)->getClasses()[ci];
+                            idClassesDist1 = instance->getDist()["Precedence"].at(
+                                    y)->getClasses()[ci1];
+
+                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                    if (isFirst(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                instance->getNweek()) == -1);
+                                    else if (isFirst(idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                     idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                     instance->getNdays()) ==
+                                             -1 && isFirst(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                           idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                           instance->getNweek()) == 0);
+                                    else if (isFirst(idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                     idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                     instance->getNdays()) ==
+                                             0 && isFirst(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                          idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                          instance->getNweek()) == 0 &&
+                                             idClassesDist->getPossiblePairLecture(p)->getEnd() <=
+                                             idClassesDist1->getPossiblePairLecture(p1)->getEnd());
+                                    else {
+                                        int w=0;
+                                        if((w=instance->getDist()["Precedence"].at(y)->getWeight())==-1)
+                                            constraint(idClassesDist, idClassesDist1, p, p1);
+                                        else
+                                            constraintSoft(idClassesDist, idClassesDist1, p, p1,w);
+
+
+                                    }
+
+
+                                }
+
+                            }
+                        }
+
+
+                    }
+                }
+            }
+            if (instance->getDist().find("WorkDay") != instance->getDist().end()) {
+                for (int y = 0; y < instance->getDist()["WorkDay"].size(); ++y) {
+                    Class *idClassesDist, *idClassesDist1;
+                    for (int ci = 0;
+                         ci < instance->getDist()["WorkDay"].at(y)->getClasses().size(); ++ci) {
+                        for (int ci1 = ci + 1;
+                             ci1 <
+                                     instance->getDist()["WorkDay"].at(y)->getClasses().size(); ++ci1) {
+
+                            idClassesDist = instance->getDist()["WorkDay"].at(y)->getClasses()[ci];
+                            idClassesDist1 = instance->getDist()["WorkDay"].at(
+                                    y)->getClasses()[ci1];
+                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                    if (stringcompare(idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                      idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                      instance->getNweek(),
+                                                      false) == 1 ||
+                                        stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                      idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                      instance->getNdays(),
+                                                      false) == 1) { ;
+                                    } else {
+                                        if (std::max(idClassesDist->getPossiblePairLecture(p)->getEnd(),
+                                                     idClassesDist1->getPossiblePairLecture(p1)->getEnd()) -
+                                            std::min(idClassesDist->getPossiblePairLecture(p)->getStart(),
+                                                     idClassesDist1->getPossiblePairLecture(p1)->getStart()) >
+                                                instance->getDist()["WorkDay"].at(y)->getParameter1()) {
+                                            int w=0;
+                                            if((w=instance->getDist()["WorkDay"].at(y)->getWeight())==-1)
+                                                constraint(idClassesDist, idClassesDist1, p, p1);
+                                            else
+                                                constraintSoft(idClassesDist, idClassesDist1, p, p1,w);
+                                        }
+                                    }
+
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (Curriculum *c: instance->getProblem()) {
+                for (auto *clu: c->getPClass()) {
 
                     for (Room *r: clu->getRooms()) {
                         for (int timei = 0; timei < r->t.size(); ++timei) {
                             Time *time1 = r->t[timei];
+                            for (int timei1 = timei+1; timei1 < r->t.size(); ++timei1) {
+                                Time *time2 = r->t[timei1];
+                                if (time1->check(time2, instance->getNweek(),
+                                                 instance->getNdays())) {
+                                    for (int con = 0; con < time1->getClassesC().size(); ++con) {
+                                        for (int cla = 0;
+                                             cla < time2->getClassesC().size(); ++cla) {
+                                            if (time1->getClassesC()[con] !=
+                                                time2->getClassesC()[cla]) {
+                                                PB *pb = new PB();
+                                                pb->addProduct(mkLit(getVariableID(
+                                                        "x" +
+                                                        std::to_string(time1->getClassesC()[con]))),
+                                                               1);
+                                                pb->addProduct(mkLit(getVariableID(
+                                                        "x" +
+                                                        std::to_string(time2->getClassesC()[cla]))),
+                                                               1);
+                                                pb->_sign = true;
+                                                pb->addRHS(1);
+
+                                                maxsat_formula->addPBConstraint(pb);
+                                                delete pb;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                             for (int con = 0; con < time1->getClassesC().size(); ++con) {
                                 for (int cla = con + 1; cla < time1->getClassesC().size(); ++cla) {
                                     if (time1->getClassesC()[con] != time1->getClassesC()[cla]) {
@@ -788,7 +1234,7 @@ namespace openwbo {
                                                 1);
                                         pb->_sign = true;
                                         pb->addRHS(1);
-                                        //std::cout<<"x"+std::to_string(time1->getClassesC()[con])<<" "<<"x"+std::to_string(time1->getClassesC()[cla])<<std::endl;
+
 
                                         maxsat_formula->addPBConstraint(pb);
                                         delete pb;
@@ -797,26 +1243,6 @@ namespace openwbo {
 
                                 }
 
-                            }
-                            for (int timei1 = timei + 1; timei1 < r->t.size(); ++timei1) {
-                                Time *time2 = r->t[timei1];
-                                if (time1->check(time2, instance->getNweek(), instance->getNdays())) {
-                                    for (int con = 0; con < time1->getClassesC().size(); ++con) {
-                                        for (int cla = 0; cla < time2->getClassesC().size(); ++cla) {
-                                            PB *pb = new PB();
-                                            pb->addProduct(mkLit(getVariableID(
-                                                    "x" + std::to_string(time1->getClassesC()[con]))), 1);
-                                            pb->addProduct(mkLit(getVariableID(
-                                                    "x" + std::to_string(time2->getClassesC()[cla]))), 1);
-                                            pb->_sign = true;
-                                            pb->addRHS(1);
-
-
-                                            maxsat_formula->addPBConstraint(pb);
-                                            delete pb;
-                                        }
-                                    }
-                                }
                             }
 
                         }
@@ -830,16 +1256,30 @@ namespace openwbo {
             PB *pb = new PB();
             pb->addProduct(mkLit(getVariableID(
                     "x" + std::to_string(idClassesDist->getKey(idClassesDist->getPossiblePairRoom(p),
-                                                               idClassesDist->getPossiblePairLecture(p))))), 1);
+                                                               idClassesDist->getPossiblePairLecture(p))))),
+                           1);
             pb->addProduct(mkLit(getVariableID(
                     "x" + std::to_string(idClassesDist1->getKey(idClassesDist1->getPossiblePairRoom(p1),
-                                                                idClassesDist1->getPossiblePairLecture(p1))))), 1);
+                                                                idClassesDist1->getPossiblePairLecture(
+                                                                        p1))))), 1);
             pb->_sign = true;
             pb->addRHS(1);
 
             maxsat_formula->addPBConstraint(pb);
             delete pb;
 
+        }
+
+        void constraintSoft(Class *idClassesDist, Class *idClassesDist1, int p, int p1, int pen) {
+            vec<Lit> l;
+            l.push(~mkLit(getVariableID(
+                    "x" + std::to_string(idClassesDist->getKey(idClassesDist->getPossiblePairRoom(p),
+                                                               idClassesDist->getPossiblePairLecture(p))))));
+            l.push(~mkLit(getVariableID(
+                    "x" + std::to_string(idClassesDist1->getKey(idClassesDist1->getPossiblePairRoom(p1),
+                                                                idClassesDist1->getPossiblePairLecture(
+                                                                        p1))))));
+            maxsat_formula->addSoftClause(instance->getDistributionPen()*pen, l);
         }
 
 
@@ -852,6 +1292,181 @@ namespace openwbo {
             delete[] cstr;
             return id;
         }
+
+
+        int genStudents(){
+            requiredClasses();
+            limit();
+            parentChild();
+            conflicts();
+        }
+
+        void requiredClasses() {
+            for (int s = 0; s < instance->getClusterStudent().size(); ++s) {
+                for (int c = 0; c < instance->getClusterStudent()[s]->getCourses().size(); ++c) {
+                    vec<Lit> l0;
+                    for (int conf = 0; conf < instance->getClusterStudent()[s]->getCourses()[c]->getNumConfig(); ++conf) {
+                        l0.push(mkLit(getVariableID(
+                                "conf" + std::to_string(s)+"_"+std::to_string(conf)+"_"+instance->getClusterStudent()[s]->getCourses()[c]->getName())));
+                        for (int part = 0; part < instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(conf).size(); ++part) {
+                            vec<Lit> l1;
+                            l1.push(~mkLit(getVariableID(
+                                    "conf" + std::to_string(s)+"_"+std::to_string(conf)+"_"+instance->getClusterStudent()[s]->getCourses()[c]->getName())));
+                            for (int cla = 0;
+                                 cla < instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(conf)[part]->getClasses().size(); ++cla) {
+                                for (int cla1 = cla+1;
+                                     cla1 < instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(conf)[part]->getClasses().size(); ++cla1) {
+                                    vec <Lit> l;
+                                    l.push(~mkLit(getVariableID(
+                                            "conf" + std::to_string(s) + "_" + std::to_string(conf) + "_" +
+                                            instance->getClusterStudent()[s]->getCourses()[c]->getName())));
+
+                                    l.push(~mkLit(getVariableID(
+                                            "stu" + std::to_string(s) + "_" + std::to_string(
+                                                    instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
+                                                            conf)[part]->getClasses()[cla]->getId()))));
+                                    l.push(~mkLit(getVariableID(
+                                            "stu" + std::to_string(s) + "_" + std::to_string(
+                                                    instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
+                                                            conf)[part]->getClasses()[cla1]->getId()))));
+                                    maxsat_formula->addHardClause(l);
+                                }
+                                l1.push(mkLit(getVariableID(
+                                        "stu" + std::to_string(s)+"_"+std::to_string(instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(conf)[part]->getClasses()[cla]->getId()))));
+                                instance->getClusterStudent()[s]->setClassesID(instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(conf)[part]->getClasses()[cla]->getId(),"stu" + std::to_string(s)+"_"+std::to_string(instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(conf)[part]->getClasses()[cla]->getId()));
+
+
+
+                            }
+                           maxsat_formula->addHardClause(l1);
+
+
+                        }
+                        //
+
+
+                    }
+                    maxsat_formula->addHardClause(l0);
+
+
+                }
+
+            }
+
+
+        }
+
+
+        void limit() {//TODO: limit on the gen
+            for (int cla = 0; cla < instance->getClasses().size(); ++cla) {
+                PB *pb = new PB();
+                bool t = false;
+                for (int i = 0; i < instance->getClusterStudent().size(); ++i) {
+                    if(instance->getClusterStudent()[i]->getClassesID(instance->getClasses()[cla]->getId()).compare("Empty")!=0) {
+                        t=true;
+                        //for(int vezes=0; vezes<instance->getClusterStudent()[i]->getStudent().size();++vezes)
+                            pb->addProduct(mkLit(getVariableID(
+                                    instance->getClusterStudent()[i]->getClassesID(instance->getClasses()[cla]->getId()))),
+                                           1);//instance->getClusterStudent()[i]->getStudent().size());
+                    }
+                }
+                if(t && instance->getClasses()[cla]->getLimit() < pb->_lits.size()) {
+                    pb->_sign = true;
+                    pb->addRHS(instance->getClasses()[cla]->getLimit());
+
+                    maxsat_formula->addPBConstraint(pb);
+                }
+                delete pb;
+
+
+            }
+        }
+
+
+        void parentChild() {
+            for (int i = 0; i < instance->getClusterStudent().size(); ++i) {
+                for (int c = 0; c < instance->getClasses().size(); ++c) {
+                    if (instance->getClasses()[c]->getParent() != nullptr) {
+                        vec<Lit> l;
+                        l.push(~mkLit(getVariableID(instance->getClusterStudent()[i]->getClassesID(instance->getClasses()[c]->getId()))));
+                        l.push(mkLit(getVariableID(instance->getClusterStudent()[i]->getClassesID(instance->getClasses()[c]->getParent()->getId()))));
+                       maxsat_formula->addHardClause(l);
+
+                    }
+
+                }
+            }
+
+        }
+
+
+
+        void conflicts() {
+            for (int i = 0; i < instance->getClusterStudent().size(); ++i) {
+                for (int c = 0; c < instance->getClasses().size(); ++c) {
+                    for (int c1 = c+1; c1 < instance->getClasses().size(); ++c1) {
+                        Class *class1 = instance->getClasses()[c];
+                        Class *class2 = instance->getClasses()[c1];
+                        //if (class1->getSubconfcour().compare(class2->getSubconfcour()) == 0)
+                        //    continue;
+                        for (int t = 0; t < class1->getPossiblePairSize(); ++t) {
+                            for (int t1 = 0; t1 < class2->getPossiblePairSize(); ++t1) {
+                                if (checkStu(class2->getPossiblePair(t1),
+                                             class1->getPossiblePair(t))) {
+                                    vec<Lit> l;
+                                    l.push(~mkLit(getVariableID(instance->getClusterStudent()[i]->getClassesID(class1->getId()))));
+                                    l.push(~mkLit(getVariableID(instance->getClusterStudent()[i]->getClassesID(class2->getId()))));
+                                    l.push(~mkLit(getVariableID("x" + std::to_string(class1->getKey(class1->getPossiblePair(t).first,
+                                                                                                         class1->getPossiblePair(t).second)))));
+                                    l.push(~mkLit(getVariableID("x" + std::to_string(class2->getKey(class2->getPossiblePair(t).first,
+                                                                                                   class2->getPossiblePair(t).second)))));
+                                  maxsat_formula->addSoftClause(instance->getStudentPen()*instance->getClusterStudent()[i]->getStudent().size(),l);
+
+                                }
+
+                            }
+                        }
+                    }
+                    }
+                }
+
+
+
+        }
+
+        bool checkStu(std::pair<Room*, Lecture *> p1, std::pair<Room*, Lecture *> p2) {
+            int travel = 0;
+            if (p1.first->getId() != -1 && p2.first->getId() != -1 && p1.first->getId() != p2.first->getId()) {
+                if (instance->getRoom(p1.first->getId())->getTravel(
+                        p2.first->getId()) > 0)
+                    travel = instance->getRoom(p1.first->getId())->getTravel(
+                            p2.first->getId());
+                else
+                    travel = instance->getRoom(
+                            p2.first->getId())->getTravel(
+                            p1.first->getId());
+            }
+            for (int j = 0; j < instance->getNweek(); ++j) {
+                if (p1.second->getWeeks()[j] == p2.second->getWeeks()[j] &&
+                    p1.second->getWeeks()[j] == '1') {
+                    for (int d = 0; d < instance->getNdays(); ++d) {
+                        if (p1.second->getDays()[d] == p2.second->getDays()[d] &&
+                            p1.second->getDays()[d] == '1') {
+                            if (p1.second->getStart() >= p2.second->getStart() &&
+                                p1.second->getStart() <
+                                p2.second->getEnd() + travel) {
+                                return true;
+                            } else if (p2.second->getStart() >= p1.second->getStart() &&
+                                       p2.second->getStart() < p1.second->getEnd() + travel) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
 
 
     protected:

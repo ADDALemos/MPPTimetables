@@ -41,20 +41,20 @@ static void writeXMLInput(Instance *instance, int version, Curriculum *cur) {
     doc.append_node(decl);
     //nrDays="7" slotsPerDay="288" nrWeeks="14"
     xml_node<> *root = doc.allocate_node(node_element, "problem");
-    root->append_attribute(doc.allocate_attribute("name", instance->getName().c_str()));
-    root->append_attribute(doc.allocate_attribute("nrDays", std::to_string(instance->getNdays()).c_str()));
-    root->append_attribute(doc.allocate_attribute("slotsPerDay", std::to_string(instance->getSlotsperday()).c_str()));
-    root->append_attribute(doc.allocate_attribute("nrWeeks", std::to_string(instance->getNweek()).c_str()));
+    root->append_attribute(doc.allocate_attribute("name", doc.allocate_string(instance->getName().c_str())));
+    root->append_attribute(doc.allocate_attribute("nrDays", doc.allocate_string(std::to_string(instance->getNdays()).c_str())));
+    root->append_attribute(doc.allocate_attribute("slotsPerDay", doc.allocate_string(std::to_string(instance->getSlotsperday()).c_str())));
+    root->append_attribute(doc.allocate_attribute("nrWeeks",doc.allocate_string( std::to_string(instance->getNweek()).c_str())));
 
     doc.append_node(root);
     xml_node<> *child;
     //<optimization time="1" room="1" distribution="30" student="0"/>
     child = doc.allocate_node(node_element, "optimization");
-    child->append_attribute(doc.allocate_attribute("time", std::to_string(instance->getTimePen()).c_str()));
-    child->append_attribute(doc.allocate_attribute("room", std::to_string(instance->getRoomPen()).c_str()));
+    child->append_attribute(doc.allocate_attribute("time", doc.allocate_string(std::to_string(instance->getTimePen()).c_str())));
+    child->append_attribute(doc.allocate_attribute("room", doc.allocate_string(std::to_string(instance->getRoomPen()).c_str())));
     child->append_attribute(
-            doc.allocate_attribute("distribution", std::to_string(instance->getDistributionPen()).c_str()));
-    child->append_attribute(doc.allocate_attribute("student", std::to_string(instance->getStudentPen()).c_str()));
+            doc.allocate_attribute("distribution", doc.allocate_string(std::to_string(instance->getDistributionPen()).c_str())));
+    child->append_attribute(doc.allocate_attribute("student", doc.allocate_string(std::to_string(instance->getStudentPen()).c_str())));
     root->append_node(child);
     child = doc.allocate_node(node_element, "rooms");
     xml_node<> *grandchild;
@@ -210,6 +210,7 @@ static void writeXMLInput(Instance *instance, int version, Curriculum *cur) {
     doc.clear();
 }
 
+
 static void writeXMLOutput(std::string filename, Instance *instance) {
 
     xml_document<> doc;
@@ -220,12 +221,11 @@ static void writeXMLOutput(std::string filename, Instance *instance) {
 
     xml_node<> *root = doc.allocate_node(node_element, "solution");
     root->append_attribute(doc.allocate_attribute("name", instance->getName().c_str()));
-    std::cout<<getTimeSpent()<<std::endl;
-    root->append_attribute(doc.allocate_attribute("runtime", "0"));
+    root->append_attribute(doc.allocate_attribute("runtime", doc.allocate_string(std::to_string((int)round(getTimeSpent())).c_str())));
     root->append_attribute(
-            doc.allocate_attribute("cores", "0"));//std::to_string(std::thread::hardware_concurrency()).c_str()));
+            doc.allocate_attribute("cores", doc.allocate_string(std::to_string(std::thread::hardware_concurrency()).c_str())));
     root->append_attribute(doc.allocate_attribute("technique", instance->getMethod().c_str()));
-    root->append_attribute(doc.allocate_attribute("author", "Alexandre Lemos, Pedro T. Monteiro, Ines Lynce"));
+    root->append_attribute(doc.allocate_attribute("author", doc.allocate_string("Alexandre Lemos, Pedro T. Monteiro, Inês Lynce")));
     root->append_attribute(doc.allocate_attribute("institution", "INESC-ID"));
     root->append_attribute(doc.allocate_attribute("country", "Portugal"));
     doc.append_node(root);

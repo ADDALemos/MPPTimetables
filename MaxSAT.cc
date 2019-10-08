@@ -119,7 +119,7 @@ lbool MaxSAT::searchSATSolver(Solver *S, bool pre) {
  // Utils for model management
  //
  ************************************************************************************************/
-
+int modelS=0;
 /*_________________________________________________________________________________________________
   |
   |  saveModel : (currentModel : vec<lbool>&)  ->  [void]
@@ -139,7 +139,7 @@ lbool MaxSAT::searchSATSolver(Solver *S, bool pre) {
 void MaxSAT::saveModel(vec <lbool> &currentModel) {
     assert(maxsat_formula->nInitialVars() != 0);
     assert(currentModel.size() != 0);
-
+    modelS++;
     model.clear();
 
     if (Torc::Instance()->GetConservativeAllVars()) {
@@ -152,6 +152,7 @@ void MaxSAT::saveModel(vec <lbool> &currentModel) {
         for (int i = 0; i < maxsat_formula->nInitialVars(); i++)
             model.push(currentModel[i]);
     }
+    print();
 
 
 
@@ -443,13 +444,11 @@ void MaxSAT::printAnswer(int type) {
     switch (type) {
         case _SATISFIABLE_:
             printf("s SATISFIABLE\n");
-            print();
             if (print_model)
                 printModel();
             break;
         case _OPTIMUM_:
             printf("s OPTIMUM FOUND\n");
-            print();
             if (print_model)
                 printModel();
             break;
@@ -631,29 +630,57 @@ void MaxSAT::BumpTargets(const vec <Lit> &objFunction, const vec <uint64_t> &coe
 }
 
 void MaxSAT::print() {
+    //setPrintSoft(("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/"+instance->getName()+"_"+std::to_string(modelS)+".soft").c_str());
+    //printUnsatisfiedSoftClauses();
+
+    /*for (Curriculum *c: instance->getProblem()) {
+        for (auto *clu: c->getPClass()) {
+            for (auto *cla: clu->getClasses()) {
+                for (int i = 0; i < cla->getPossiblePairSize(); ++i) {
+                    std::cout << "x" << cla->getKey(cla->getPossiblePair(i).first, cla->getPossiblePair(i).second)
+                              << " c" << cla->getId() << std::endl;
+                }
+            }
+        }
+    }*/
+
     printf("v ");
-    for (int i = 0; i < model.size(); i++) {
-        indexMap::const_iterator iter = maxsat_formula->getIndexToName().find(i);
+    for (int m = 0; m < model.size(); m++) {
+        indexMap::const_iterator iter = maxsat_formula->getIndexToName().find(m);
         if (iter != maxsat_formula->getIndexToName().end()) {
-            if (model[i] != l_False) {
+            if (model[m] != l_False) {
                 bool find = false;
-                for (Curriculum *c: instance->getProblem()) {
-                    for (auto *clu: c->getPClass()) {
-                        for (auto *cla: clu->getClasses()) {
-                            for (int i = 0; i < cla->getPossiblePairSize(); ++i) {
-                                if (("x" + std::to_string(
-                                        cla->getKey(cla->getPossiblePair(i).first, cla->getPossiblePair(i).second))) ==
-                                    iter->second) {
-                                    cla->setSolution(cla->getPossiblePair(i).second->getStart(),
-                                                     cla->getPossiblePair(i).first->getId(),
-                                                     cla->getPossiblePair(i).first->getName(),
-                                                     cla->getPossiblePair(i).second->getWeeks(),
-                                                     cla->getPossiblePair(i).second->getDays());
-                                    std::cout << iter->second << " " << cla->getId() << std::endl;
-                                    find = true;
-                                    break;
+                if(iter->second[0]=='s'){
+                    for (int s = 0; s < instance->getClusterStudent().size(); ++s) {
+                        for (int c = 0; c < instance->getClusterStudent()[s]->getCourses().size(); ++c) {
+                            for (int conf = 0;
+                                 conf < instance->getClusterStudent()[s]->getCourses()[c]->getNumConfig(); ++conf) {
+                                for (int part = 0; part < instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
+                                        conf).size(); ++part) {
+                                    for (int cla = 0;
+                                         cla < instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
+                                                 conf)[part]->getClasses().size(); ++cla) {
+                                        if (("stu" + std::to_string(s)+"_"+std::to_string(instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(conf)[part]->getClasses()[cla]->getId())).compare(
+                                                iter->second) == 0) {
+                                            Class *aClass = instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
+                                                    conf)[part]->getClasses()[cla];
+                                            for (Student stu: instance->getClusterStudent()[s]->getStudent()) {
+                                                aClass->addStudent(stu.getId());
+                                                stu.addClass(aClass);
+                                                std::cout<<stu.getId()<<" "<<aClass->getId()<<" "<<iter->second<<std::endl;
+
+                                            }
+                                            find = true;
+                                            break;
+                                        }
+
+                                    }
+                                    if (find)
+                                        break;
 
                                 }
+                                if (find)
+                                    break;
                             }
                             if (find)
                                 break;
@@ -661,15 +688,56 @@ void MaxSAT::print() {
                         if (find)
                             break;
                     }
-                    if (find)
-                        break;
+
+                } else if(iter->second[0]=='x') {
+                    for (Curriculum *c: instance->getProblem()) {
+                        for (auto *clu: c->getPClass()) {
+                            for (auto *cla: clu->getClasses()) {
+
+                                for (int i = 0; i < cla->getPossiblePairSize(); ++i) {
+                                    if (("x" + std::to_string(
+                                            cla->getKey(cla->getPossiblePair(i).first,
+                                                        cla->getPossiblePair(i).second))).compare(
+                                            iter->second) == 0) {
+                                        cla->setSolution(cla->getPossiblePair(i).second->getStart(),
+                                                         cla->getPossiblePair(i).first->getId(),
+                                                         cla->getPossiblePair(i).first->getName(),
+                                                         cla->getPossiblePair(i).second->getWeeks(),
+                                                         cla->getPossiblePair(i).second->getDays());
+                                        /*std::cout << "x" << cla->getKey(cla->getPossiblePair(i).first,
+                                                                        cla->getPossiblePair(i).second)
+                                                  << " " << cla->getId() << std::endl;*/
+                                        find = true;
+                                        break;
+
+                                    }
+                                }
+                                if (find)
+                                    break;
+                            }
+                            if (find)
+                                break;
+                        }
+                        if (find)
+                            break;
+                    }
+                    if (!find)
+                        printf("A %s\n ", iter->second.c_str());
+                } else{
+                    std::cout<<iter->second.c_str()<<std::endl;
                 }
-                //printf("%s ", iter->second.c_str());
+
             }
         }
     }
     //printf("\n");
-    writeXMLOutput("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/"+instance->getName()+".xml",instance);
+    writeXMLOutput("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/"+instance->getName()+"_"+std::to_string(modelS)+".xml",instance);
 }
+
+void MaxSAT::setInstance(Instance *instance) {
+    MaxSAT::instance = instance;
+}
+
+
 
 

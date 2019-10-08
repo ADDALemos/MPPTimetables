@@ -33,9 +33,14 @@
 #ifdef SIMP
 #include "simp/SimpSolver.h"
 #else
+
 #include "core/Solver.h"
+
 #endif
 
+#include <string>
+#include <sstream>
+#include <iostream>
 #include "MaxSATFormula.h"
 #include "MaxTypes.h"
 #include "utils/System.h"
@@ -57,172 +62,202 @@ using NSPACE::cpuTime;
 
 namespace openwbo {
 
-class MaxSAT {
+    class MaxSAT {
 
-public:
-  MaxSAT(MaxSATFormula *mx) {
-    maxsat_formula = mx;
+    public:
+        MaxSAT(MaxSATFormula *mx) {
+            maxsat_formula = mx;
 
-    // 'ubCost' will be set to the sum of the weights of soft clauses
-    //  during the parsing of the MaxSAT formula.
-    ubCost = 0;
-    lbCost = 0;
+            // 'ubCost' will be set to the sum of the weights of soft clauses
+            //  during the parsing of the MaxSAT formula.
+            ubCost = 0;
+            lbCost = 0;
 
-    off_set = 0;
+            off_set = 0;
 
-    // Statistics
-    nbSymmetryClauses = 0;
-    nbCores = 0;
-    nbSatisfiable = 0;
-    sumSizeCores = 0;
+            // Statistics
+            nbSymmetryClauses = 0;
+            nbCores = 0;
+            nbSatisfiable = 0;
+            sumSizeCores = 0;
 
-    print_model = false;
-  }
+            print_model = false;
+        }
 
-  MaxSAT() {
-    maxsat_formula = NULL;
+        MaxSAT() {
+            maxsat_formula = NULL;
 
-    // 'ubCost' will be set to the sum of the weights of soft clauses
-    //  during the parsing of the MaxSAT formula.
-    ubCost = 0;
-    lbCost = 0;
+            // 'ubCost' will be set to the sum of the weights of soft clauses
+            //  during the parsing of the MaxSAT formula.
+            ubCost = 0;
+            lbCost = 0;
 
-    off_set = 0;
+            off_set = 0;
 
-    // Statistics
-    nbSymmetryClauses = 0;
-    nbCores = 0;
-    nbSatisfiable = 0;
-    sumSizeCores = 0;
+            // Statistics
+            nbSymmetryClauses = 0;
+            nbCores = 0;
+            nbSatisfiable = 0;
+            sumSizeCores = 0;
 
-    print_model = false;
-  }
+            print_model = false;
+        }
 
-  virtual ~MaxSAT() {
-    if (maxsat_formula != NULL)
-      delete maxsat_formula;
-  }
+        virtual ~MaxSAT() {
+            if (maxsat_formula != NULL)
+                delete maxsat_formula;
+        }
 
-  void setInitialTime(double initial); // Set initial time.
+        void setInitialTime(double initial); // Set initial time.
 
-  // Print configuration of the MaxSAT solver.
-  // virtual void printConfiguration();
-  void printConfiguration();
+        // Print configuration of the MaxSAT solver.
+        // virtual void printConfiguration();
+        void printConfiguration();
 
-  // Encoding information.
-  void print_AMO_configuration(int encoding);
-  void print_PB_configuration(int encoding);
-  void print_Card_configuration(int encoding);
+        // Encoding information.
+        void print_AMO_configuration(int encoding);
 
-  // Incremental information.
-  void print_Incremental_configuration(int incremental);
+        void print_PB_configuration(int encoding);
 
-  virtual void search();      // MaxSAT search.
-  void printAnswer(int type); // Print the answer.
+        void print_Card_configuration(int encoding);
 
-  // Tests if a MaxSAT formula has a lexicographical optimization criterion.
-  bool isBMO(bool cache = true);
+        // Incremental information.
+        void print_Incremental_configuration(int incremental);
 
-  void loadFormula(MaxSATFormula *maxsat) {
-    maxsat_formula = maxsat;
-    maxsat_formula->setInitialVars(maxsat_formula->nVars());
+        virtual void search();      // MaxSAT search.
+        void printAnswer(int type); // Print the answer.
 
-    if (maxsat_formula->getObjFunction() != NULL) {
-      off_set = maxsat_formula->getObjFunction()->_const;
-      maxsat_formula->convertPBtoMaxSAT();
-    }
+        // Tests if a MaxSAT formula has a lexicographical optimization criterion.
+        bool isBMO(bool cache = true);
 
-    ubCost = maxsat_formula->getSumWeights();
-  }
+        void loadFormula(MaxSATFormula *maxsat) {
+            maxsat_formula = maxsat;
+            maxsat_formula->setInitialVars(maxsat_formula->nVars());
 
-  void blockModel(Solver *solver);
+            if (maxsat_formula->getObjFunction() != NULL) {
+                off_set = maxsat_formula->getObjFunction()->_const;
+                maxsat_formula->convertPBtoMaxSAT();
+            }
 
-  // Get bounds methods
-  uint64_t getUB();
-  std::pair<uint64_t, int> getLB();
+            ubCost = maxsat_formula->getSumWeights();
+        }
 
-  Soft &getSoftClause(int i) { return maxsat_formula->getSoftClause(i); }
-  Hard &getHardClause(int i) { return maxsat_formula->getHardClause(i); }
-  Lit getAssumptionLit(int soft) {
-    return maxsat_formula->getSoftClause(soft).assumption_var;
-  }
-  Lit getRelaxationLit(int soft, int i = 0) {
-    return maxsat_formula->getSoftClause(soft).relaxation_vars[i];
-  }
+        void blockModel(Solver *solver);
 
-  int64_t getOffSet() { return off_set; }
+        // Get bounds methods
+        uint64_t getUB();
 
-  MaxSATFormula *getMaxSATFormula() { return maxsat_formula; }
+        std::pair<uint64_t, int> getLB();
 
-  void setPrintModel(bool model) { print_model = model; }
-  bool getPrintModel() { return print_model; }
+        Soft &getSoftClause(int i) { return maxsat_formula->getSoftClause(i); }
 
-    void print();
+        Hard &getHardClause(int i) { return maxsat_formula->getHardClause(i); }
 
+        Lit getAssumptionLit(int soft) {
+            return maxsat_formula->getSoftClause(soft).assumption_var;
+        }
+
+        Lit getRelaxationLit(int soft, int i = 0) {
+            return maxsat_formula->getSoftClause(soft).relaxation_vars[i];
+        }
+
+        std::string printSoftClause(int id) {
+            assert (maxsat_formula->getFormat() == _FORMAT_MAXSAT_);
+            assert (id < maxsat_formula->nSoft());
+
+            std::stringstream ss;
+            ss << maxsat_formula->getSoftClause(id).weight << " ";
+
+            for (int j = 0; j < maxsat_formula->getSoftClause(id).clause.size(); j++) {
+                if (sign(maxsat_formula->getSoftClause(id).clause[j]))
+                    ss << "-";
+                ss << (var(maxsat_formula->getSoftClause(id).clause[j]) + 1) << " ";
+            }
+            ss << "0\n";
+            return ss.str();
+        }
+
+
+
+
+
+        int64_t getOffSet() { return off_set; }
+
+        MaxSATFormula *getMaxSATFormula() { return maxsat_formula; }
+
+        void setPrintModel(bool model) { print_model = model; }
+
+        bool getPrintModel() { return print_model; }
+
+        void print();
+
+        void setInstance(Instance *instance);
 
 // Properties of the MaxSAT formula
 //
-vec<lbool> model;
-protected:
+        vec <lbool> model;
+    protected:
 
-    // Interface with the SAT solver
-  //
-  Solver *newSATSolver(); // Creates a SAT solver.
-  // Solves the formula that is currently loaded in the SAT solver.
-  lbool searchSATSolver(Solver *S, vec<Lit> &assumptions, bool pre = false);
-  lbool searchSATSolver(Solver *S, bool pre = false);
+        // Interface with the SAT solver
+        //
+        Solver *newSATSolver(); // Creates a SAT solver.
+        // Solves the formula that is currently loaded in the SAT solver.
+        lbool searchSATSolver(Solver *S, vec <Lit> &assumptions, bool pre = false);
 
-  void newSATVariable(Solver *S); // Creates a new variable in the SAT solver.
+        lbool searchSATSolver(Solver *S, bool pre = false);
 
-    // Stores the best satisfying model.
+        void newSATVariable(Solver *S); // Creates a new variable in the SAT solver.
 
-  // Statistics
-  //
-  int nbCores;           // Number of cores.
-  int nbSymmetryClauses; // Number of symmetry clauses.
-  uint64_t sumSizeCores; // Sum of the sizes of cores.
-  int nbSatisfiable;     // Number of satisfiable calls.
+        // Stores the best satisfying model.
 
-
-
-  // Bound values
-  //
-  uint64_t ubCost; // Upper bound value.
-  uint64_t lbCost; // Lower bound value.
-  int64_t off_set; // Offset of the objective function for PB solving.
-
-  MaxSATFormula *maxsat_formula;
-
-  // Others
-  // int currentWeight;  // Initialized to the maximum weight of soft clauses.
-  double initialTime; // Initial time.
-  int verbosity;      // Controls the verbosity of the solver.
-  bool print_model;   // Controls if the model is printed at the end.
-    Instance * instance;
+        // Statistics
+        //
+        int nbCores;           // Number of cores.
+        int nbSymmetryClauses; // Number of symmetry clauses.
+        uint64_t sumSizeCores; // Sum of the sizes of cores.
+        int nbSatisfiable;     // Number of satisfiable calls.
 
 
-    // Different weights that corresponds to each function in the BMO algorithm.
-  std::vector<uint64_t> orderWeights;
 
-  // Utils for model management
-  //
-  void saveModel(vec<lbool> &currentModel); // Saves a Model.
-  // Compute the cost of a model.
-  uint64_t computeCostModel(vec<lbool> &currentModel,
-                            uint64_t weight = UINT64_MAX);
+        // Bound values
+        //
+        uint64_t ubCost; // Upper bound value.
+        uint64_t lbCost; // Lower bound value.
+        int64_t off_set; // Offset of the objective function for PB solving.
 
-  // Utils for printing
-  //
-  void printModel(); // Print the best satisfying model.
-  void printStats(); // Print search statistics.
+        MaxSATFormula *maxsat_formula;
 
-  // Greater than comparator.
-  bool static greaterThan(uint64_t i, uint64_t j) { return (i > j); }
-  
-  void printFormulaStats(Solver *S);
-  
-  void BumpTargets(const vec<Lit>& objFunction, const vec<uint64_t>& coeffs, Solver *solver);	
-};
+        // Others
+        // int currentWeight;  // Initialized to the maximum weight of soft clauses.
+        double initialTime; // Initial time.
+        int verbosity;      // Controls the verbosity of the solver.
+        bool print_model;   // Controls if the model is printed at the end.
+        Instance *instance;
+
+
+
+        // Different weights that corresponds to each function in the BMO algorithm.
+        std::vector<uint64_t> orderWeights;
+
+        // Utils for model management
+        //
+        void saveModel(vec <lbool> &currentModel); // Saves a Model.
+        // Compute the cost of a model.
+        uint64_t computeCostModel(vec <lbool> &currentModel,
+                                  uint64_t weight = UINT64_MAX);
+
+        // Utils for printing
+        //
+        void printModel(); // Print the best satisfying model.
+        void printStats(); // Print search statistics.
+
+        // Greater than comparator.
+        bool static greaterThan(uint64_t i, uint64_t j) { return (i > j); }
+
+        void printFormulaStats(Solver *S);
+
+        void BumpTargets(const vec <Lit> &objFunction, const vec <uint64_t> &coeffs, Solver *solver);
+    };
 } // namespace openwbo
 
 #endif

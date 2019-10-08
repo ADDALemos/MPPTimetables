@@ -85,6 +85,21 @@ public:
         return value;
     }
 
+    bool operator<(const Student &rhs) const {
+        return id < rhs.id;
+    }
+
+    bool operator==(const Student &rhs) const {
+        return id == rhs.id &&
+               course == rhs.course &&
+               classes == rhs.classes &&
+               var == rhs.var;
+    }
+
+    bool operator!=(const Student &rhs) const {
+        return !(rhs == *this);
+    }
+
 public:
     Student(int id, std::vector<Course *, std::allocator<Course *>> courses) : id(id), course(courses) {
 
