@@ -690,9 +690,7 @@ void MaxSAT::print() {
                     }
 
                 } else if(iter->second[0]=='x') {
-                    for (Curriculum *c: instance->getProblem()) {
-                        for (auto *clu: c->getPClass()) {
-                            for (auto *cla: clu->getClasses()) {
+                            for (auto *cla: instance->getClasses()) {
 
                                 for (int i = 0; i < cla->getPossiblePairSize(); ++i) {
                                     if (("x" + std::to_string(
@@ -715,12 +713,7 @@ void MaxSAT::print() {
                                 if (find)
                                     break;
                             }
-                            if (find)
-                                break;
-                        }
-                        if (find)
-                            break;
-                    }
+
                     if (!find)
                         printf("A %s\n ", iter->second.c_str());
                 } else{

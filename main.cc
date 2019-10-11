@@ -119,84 +119,25 @@ int main(int argc, char **argv) {
     if (!quiet)
         printRAM();
 
-                BoolOption symmetry("WBO", "symmetry", "Symmetry breaking.\n", true);
-
-                IntOption symmetry_lim(
-                        "WBO", "symmetry-limit",
-                        "Limit on the number of symmetry breaking clauses.\n", 500000,
-                        IntRange(0, INT32_MAX));
-
-                IntOption cluster_algorithm("Clustering", "ca",
-                                            "Clustering algorithm "
-                                                    "(0=none, 1=DivisiveMaxSeparate)",
-                                            1, IntRange(0, 1));
-                IntOption num_clusters("Clustering", "c", "Number of agglomerated clusters",
-                                       100000, IntRange(1, INT_MAX));
-
-                IntOption rounding_strategy(
-                        "Clustering", "rs",
-                        "Statistic used to select"
-                                " common weights in a cluster (0=Mean, 1=Median, 2=Min)",
-                        0, IntRange(0, 2));
-
-                IntOption num_conflicts(
-                        "Incomplete", "conflicts", "Limit on the number of conflicts.\n", 10000,
-                        IntRange(0, INT32_MAX));
-
-                IntOption num_iterations(
-                        "Incomplete", "iterations", "Limit on the number of iterations.\n", 100000,
-                        IntRange(0, INT32_MAX));
-
-                BoolOption local("Incomplete", "local", "Local limit on the number of conflicts.\n", true);//???
-
-                BoolOption polConservative("TorcOpenWbo", "conservative", "Apply conservative polarity heuristic?\n", true);
-                BoolOption conservativeUseAllVars("TorcOpenWbo", "conservative_use_all_vars",
-                                                  "Re-use the polarity of all the variables within the conservative approach (or, otherwise, only the initial once)?\n",
-                                                  true);
-                BoolOption polOptimistic("TorcOpenWbo", "optimistic", "Set target variables' polarity to the optimum?\n", true);
-                IntOption targetVarsBumpVal("TorcOpenWbo", "target_vars_bump_val",
-                                            "Bump factor of the activity of the targets at the beginning\n", 113);
-                BoolOption targetVarsBumpRelWeights("TorcOpenWbo", "target_vars_bump_rel_weights",
-                                                    "Bump the variable scores, where the bump value is relative to the weights?\n",
-                                                    true);
-                IntOption targetVarsBumpMaxRandVal("TorcOpenWbo", "target_vars_bump_max_rand_val",
-                                                   "Maximal random bump factor\n", 552);
-    Statistics rounding_statistic =
-            static_cast<Statistics>((int) rounding_strategy);
-
-
-
-
-
-
-
-    Torc::Instance()->SetPolConservative(polConservative);
-    Torc::Instance()->SetConservativeAllVars(conservativeUseAllVars);
-    Torc::Instance()->SetPolOptimistic(polOptimistic);
-    Torc::Instance()->SetTargetVarsBumpVal(targetVarsBumpVal);
-    Torc::Instance()->SetBumpRelWeights(targetVarsBumpRelWeights);
-    Torc::Instance()->SetTargetBumpMaxRandVal(targetVarsBumpMaxRandVal);
 
 
     MaxSATFormula *maxsat_formula = new MaxSATFormula();
 
     ParserXML *parserXML = new ParserXML(maxsat_formula);
-    parserXML->parse("/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/pu-cs-fal07.xml");
+    parserXML->parse("/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/wbg-fal10.xml");
 
-    /*createSmallerInstances(parserXML->getInstance());
-    for (Class * c: parserXML->getInstance()->getClasses()) {
-        if(c->getPossiblePairSize()==1 && c->getPossibleRooms().size()==0)
-            std::cout<<"here "<<c->getId()<<std::endl;
-    }
-    std::exit(0);*/
+    //createSmallerInstances(parserXML->getInstance());
     //printConstraintsStat(parserXML->getInstance());
     //printDomainSize(parserXML->getInstance());
     //printCurricular(parserXML->getInstance());
-    printClusterofStudents(parserXML->getInstance());
+    //printClusterofStudents(parserXML->getInstance());
     parserXML->genConstraint();
     parserXML->genStudents();
+    Statistics rounding_statistic =
+            static_cast<Statistics>((int) 1);
     maxsat_formula->setFormat(_FORMAT_PB_);
-    MaxSAT *S = new OLL(_VERBOSITY_MINIMAL_,_CARD_TOTALIZER_,parserXML->getInstance());//new LinearSU(_VERBOSITY_MINIMAL_, 1, _CARD_TOTALIZER_, 1);
+    MaxSAT *S = new LinearSU(_VERBOSITY_MINIMAL_, 1, _CARD_TOTALIZER_, 1);//new OLL(_VERBOSITY_MINIMAL_,_CARD_TOTALIZER_,parserXML->getInstance());//new OLLMod(_VERBOSITY_MINIMAL_, _CARD_TOTALIZER_, ClusterAlg::_DIVISIVE_,rounding_statistic, (int) (100000));//new LinearSUMod(_VERBOSITY_MINIMAL_,false,  _CARD_TOTALIZER_, 1,ClusterAlg::_DIVISIVE_, rounding_statistic,(int) (100000));//new BLS(_VERBOSITY_MINIMAL_, _CARD_TOTALIZER_, 100000, 100000, true);
+            //new MSU3(_VERBOSITY_MINIMAL_);//new LinearSU(_VERBOSITY_MINIMAL_, 1, _CARD_TOTALIZER_, 1);
     S->setInstance(parserXML->getInstance());
 
                                    //ew WBO(_VERBOSITY_MINIMAL_, 1, symmetry, symmetry_lim);//
@@ -219,6 +160,7 @@ int main(int argc, char **argv) {
            maxsat_formula->nPB());
     S->loadFormula(maxsat_formula);
     S->search();
+
     std::exit(0);
     /*for (Class * c: parserXML->getInstance()->getClasses()) {
         if(c->getPossiblePairSize()==1 && c->getPossibleRooms().size()==0)

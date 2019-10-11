@@ -12,6 +12,7 @@
 
 class Student {
     int id;
+    int minimo;
     std::vector<Course *> course;
     std::vector<Class *> classes;
     std::map<int, std::string> var;
@@ -101,7 +102,7 @@ public:
     }
 
 public:
-    Student(int id, std::vector<Course *, std::allocator<Course *>> courses) : id(id), course(courses) {
+    Student(int id, std::vector<Course *, std::allocator<Course *>> courses, int minimo) : id(id), course(courses), minimo(minimo) {
 
     }
 };

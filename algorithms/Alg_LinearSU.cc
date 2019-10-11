@@ -240,13 +240,13 @@ void LinearSU::normalSearch() {
         if (maxsat_formula->getProblemType() == _WEIGHTED_) {
           if (!encoder.hasPBEncoding()){
             // check if we can encode with GTE
-            encoder.setPBEncoding(_PB_GTE_);
-            int expected_clauses = encoder.predictPB(solver, objFunction, coeffs, newCost-1);
+            encoder.setPBEncoding(_PB_ADDER_);
+            /*int expected_clauses = encoder.predictPB(solver, objFunction, coeffs, newCost-1);
             printf("c GTE auxiliary #clauses = %d\n",expected_clauses);
             if (expected_clauses >= MAX_CLAUSES) {
               printf("c Warn: changing to Adder encoding.\n");
               encoder.setPBEncoding(_PB_ADDER_);
-            }
+            }*/
             encoder.encodePB(solver, objFunction, coeffs, newCost - 1);
           }
           else

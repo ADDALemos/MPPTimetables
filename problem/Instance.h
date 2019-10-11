@@ -208,8 +208,6 @@ public:
 
     }
 
-
-
     Course *getCourse(std::string courseID) {
         if (courses.find(courseID) != courses.end())
             return courses.at(courseID);

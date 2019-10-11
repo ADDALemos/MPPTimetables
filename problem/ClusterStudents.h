@@ -11,11 +11,13 @@
 
 class ClusterStudent {
     int id;
+    int minimo;
     std::vector<Course *> course;
     std::set<Student > student;
     std::map<int,std::string> classesID;
 
 public:
+    int getMin(){ return minimo;}
     const std::string getClassesID(int i)  {
         if(classesID.find(i)!=classesID.end())
             return classesID[i];
@@ -42,7 +44,8 @@ public:
     }
 
 
-    ClusterStudent(int id, std::vector<Course *> course, Student s) : id(id), course(course) {
+    ClusterStudent(int id, std::vector<Course *, std::allocator<Course *>> course, Student s, int minimo)
+            : id(id), course(course),minimo(minimo) {
         student.insert(s);
 
     }

@@ -13,6 +13,7 @@ class Course {
     std::string name;
     std::string teacherID;
     std::map<int, std::vector<Subpart *>> configuration;
+    int limit; //min limit of studnetsperclass
 
 public:
     const std::string &getName() const {
@@ -187,6 +188,12 @@ public:
         (configuration.begin()->second)[0]->getClass(lectureID)->setSolution(idRoom, room, day, slot);
 
     }
+
+
+    int getMinLimit(){
+        return limit;
+    }
+     void setMinLimit(int limit) { limit=limit;}
 
 };
 

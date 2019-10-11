@@ -274,7 +274,6 @@ namespace openwbo {
                                                                              l->getWeeks(),
                                                                              l->getDays(), max, idclass));
                                                         }
-                                                        //std::cout<<idclass<<" "<<max<<std::endl;
 
                                                         max++;
 
@@ -413,8 +412,18 @@ namespace openwbo {
                                             c->addClass(aClass1);
                                         }
                                     }
-                                    if (test)
+                                    if (test) {
+                                        for (Room *aRoom:c->getRooms()) {
+                                            for (Room *aRoom1: c1->getRooms()) {
+                                                if (aRoom->getId() != aRoom1->getId()) {
+                                                    c->addRoom(aRoom1);
+
+                                                }
+
+                                            }
+                                        }
                                         break;
+                                    }
 
                                 }
 
@@ -427,9 +436,17 @@ namespace openwbo {
                                                 for (Class *aClass1: c1->getClasses()) {
                                                     c->addClass(aClass1);
                                                 }
+                                                for (Room *aRoom2:c1->getRooms()) {
+                                                    if (aRoom2->getId() != aRoom->getId()) {
+                                                        c->addRoom(aRoom2);
+
+                                                    }
+
+                                                }
 
 
-                                                test = true;
+
+                                                    test = true;
                                                 break;
                                             }
                                         }
@@ -474,6 +491,14 @@ namespace openwbo {
                                         for (Class *aClass1: c1->getClasses()) {
                                             c->addClass(aClass1);
                                         }
+                                        for (Room *aRoom2:c1->getRooms()) {
+                                            if (aRoom2->getId() != aRoom->getId()) {
+                                                c->addRoom(aRoom2);
+                                                std::cout<<*aRoom2<<std::endl;
+
+                                            }
+
+                                        }
                                         t = true;
                                         break;
                                     }
@@ -507,23 +532,27 @@ namespace openwbo {
                     studentID = atoi(a->value());
                 }
                 std::vector<Course *> c;
+                int minimo=INT_MAX;
                 for (const xml_node<> *course = sub->first_node(); course; course = course->next_sibling()) {
                     std::string courseIDstd = "";
                     for (const xml_attribute<> *a = course->first_attribute(); a; a = a->next_attribute()) {
                         courseIDstd = a->value();
                     }
-                    c.push_back(instance->getCourse(courseIDstd));
+                    Course * course1=instance->getCourse(courseIDstd);
+                    if(course1->getMinLimit()<minimo)
+                        minimo=course1->getMinLimit();
+                    c.push_back(course1);
                 }
-                std::pair<int, Student> s = std::pair<int, Student>(studentID, Student(studentID, c));
+                std::pair<int, Student> s = std::pair<int, Student>(studentID, Student(studentID, c,minimo));
                 std.insert(s);
 
 
                 bool temp = false;
                 if (clusterStudent.size() == 0)
-                    clusterStudent.push_back(new ClusterStudent(idc++, c, s.second));
+                    clusterStudent.push_back(new ClusterStudent(idc++, c, s.second, minimo));
                 for (int i = 0; i < clusterStudent.size(); ++i) {
                     bool t = false;
-                    if (c.size() != clusterStudent[i]->getCourses().size())
+                    if (c.size() != clusterStudent[i]->getCourses().size() || clusterStudent[i]->getMin()>=clusterStudent[i]->getStudent().size()||clusterStudent[i]->getMin()!=minimo)
                         continue;
                     for (int c0 = 0; c0 < c.size(); ++c0) {
                         t = false;
@@ -544,7 +573,7 @@ namespace openwbo {
                     }
                 }
                 if (!temp)
-                    clusterStudent.push_back(new ClusterStudent(idc++, c, s.second));
+                    clusterStudent.push_back(new ClusterStudent(idc++, c, s.second, minimo));
 
 
             }
@@ -721,7 +750,7 @@ namespace openwbo {
                 }
                 std::cout << "Room" << std::endl;
                 for (Room *aRoom: c1->getRooms()) {
-                    std::cout << aRoom->getId() << std::endl;
+                    std::cout<<"R " << aRoom->getId() << std::endl;
                 }
             }
 
@@ -1187,10 +1216,10 @@ namespace openwbo {
                 }
             }
 
-            for (Curriculum *c: instance->getProblem()) {
-                for (auto *clu: c->getPClass()) {
 
-                    for (Room *r: clu->getRooms()) {
+
+                    for (std::pair<int,Room*> pairr: instance->getRooms()) {
+                        Room * r=pairr.second;
                         for (int timei = 0; timei < r->t.size(); ++timei) {
                             Time *time1 = r->t[timei];
                             for (int timei1 = timei+1; timei1 < r->t.size(); ++timei1) {
@@ -1247,8 +1276,7 @@ namespace openwbo {
 
                         }
                     }
-                }
-            }
+
         }
 
 
@@ -1364,10 +1392,12 @@ namespace openwbo {
                 for (int i = 0; i < instance->getClusterStudent().size(); ++i) {
                     if(instance->getClusterStudent()[i]->getClassesID(instance->getClasses()[cla]->getId()).compare("Empty")!=0) {
                         t=true;
-                        //for(int vezes=0; vezes<instance->getClusterStudent()[i]->getStudent().size();++vezes)
+                        for(Student s: instance->getClusterStudent()[i]->getStudent()) {
                             pb->addProduct(mkLit(getVariableID(
-                                    instance->getClusterStudent()[i]->getClassesID(instance->getClasses()[cla]->getId()))),
-                                           1);//instance->getClusterStudent()[i]->getStudent().size());
+                                    instance->getClusterStudent()[i]->getClassesID(
+                                            instance->getClasses()[cla]->getId()))),
+                                           1);
+                        }
                     }
                 }
                 if(t && instance->getClasses()[cla]->getLimit() < pb->_lits.size()) {
@@ -1377,7 +1407,6 @@ namespace openwbo {
                     maxsat_formula->addPBConstraint(pb);
                 }
                 delete pb;
-
 
             }
         }
@@ -1407,8 +1436,8 @@ namespace openwbo {
                     for (int c1 = c+1; c1 < instance->getClasses().size(); ++c1) {
                         Class *class1 = instance->getClasses()[c];
                         Class *class2 = instance->getClasses()[c1];
-                        //if (class1->getSubconfcour().compare(class2->getSubconfcour()) == 0)
-                        //    continue;
+                        if (class1->getSubconfcour().compare(class2->getSubconfcour()) == 0)
+                            continue;
                         for (int t = 0; t < class1->getPossiblePairSize(); ++t) {
                             for (int t1 = 0; t1 < class2->getPossiblePairSize(); ++t1) {
                                 if (checkStu(class2->getPossiblePair(t1),
