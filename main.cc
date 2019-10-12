@@ -49,7 +49,7 @@
 
 #endif
 
-#include "utils/HardwareStats.h"
+
 #include "WriteXML.h"
 #include "MaxSAT.h"
 
@@ -111,66 +111,18 @@ static void SIGINT_exit(int signum) {
 // Main:
 
 int main(int argc, char **argv) {
-    if (!quiet)
-        std::cout << "Starting Reading File: "
-                  << "/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/tg-fal17.xml" << std::endl;
-
-
-    if (!quiet)
-        printRAM();
-
-
-
-    MaxSATFormula *maxsat_formula = new MaxSATFormula();
-
-    ParserXML *parserXML = new ParserXML(maxsat_formula);
-    parserXML->parse("/Volumes/MAC/ClionProjects/timetabler/data/input/ITC-2019/wbg-fal10.xml");
-
-    //createSmallerInstances(parserXML->getInstance());
-    //printConstraintsStat(parserXML->getInstance());
-    //printDomainSize(parserXML->getInstance());
-    //printCurricular(parserXML->getInstance());
-    //printClusterofStudents(parserXML->getInstance());
-    parserXML->genConstraint();
-    parserXML->genStudents();
-    Statistics rounding_statistic =
-            static_cast<Statistics>((int) 1);
-    maxsat_formula->setFormat(_FORMAT_PB_);
-    MaxSAT *S = new LinearSU(_VERBOSITY_MINIMAL_, 1, _CARD_TOTALIZER_, 1);//new OLL(_VERBOSITY_MINIMAL_,_CARD_TOTALIZER_,parserXML->getInstance());//new OLLMod(_VERBOSITY_MINIMAL_, _CARD_TOTALIZER_, ClusterAlg::_DIVISIVE_,rounding_statistic, (int) (100000));//new LinearSUMod(_VERBOSITY_MINIMAL_,false,  _CARD_TOTALIZER_, 1,ClusterAlg::_DIVISIVE_, rounding_statistic,(int) (100000));//new BLS(_VERBOSITY_MINIMAL_, _CARD_TOTALIZER_, 100000, 100000, true);
-            //new MSU3(_VERBOSITY_MINIMAL_);//new LinearSU(_VERBOSITY_MINIMAL_, 1, _CARD_TOTALIZER_, 1);
-    S->setInstance(parserXML->getInstance());
-
-                                   //ew WBO(_VERBOSITY_MINIMAL_, 1, symmetry, symmetry_lim);//
-
-            //new OLL(_VERBOSITY_MINIMAL_,_CARD_TOTALIZER_,parserXML->getInstance());
-    printf("c |  Number of variables:  %12d                                    "
-                   "                               |\n",
-           maxsat_formula->nVars());
-    printf("c |  Number of hard clauses:    %7d                                "
-                   "                                   |\n",
-           maxsat_formula->nHard());
-    printf("c |  Number of soft clauses:    %7d                                "
-                   "                                   |\n",
-           maxsat_formula->nSoft());
-    printf("c |  Number of cardinality:     %7d                                "
-                   "                                   |\n",
-           maxsat_formula->nCard());
-    printf("c |  Number of PB :             %7d                                "
-                   "                                   |\n",
-           maxsat_formula->nPB());
-    S->loadFormula(maxsat_formula);
-    S->search();
-
-    std::exit(0);
-    /*for (Class * c: parserXML->getInstance()->getClasses()) {
-        if(c->getPossiblePairSize()==1 && c->getPossibleRooms().size()==0)
-            std::cout<<"here "<<c->getId()<<std::endl;
-    }*/
-    //createSmallerInstances(parserXML->getInstance());
-
 
 
     try {
+#if defined(__linux__)
+        fpu_control_t oldcw, newcw;
+        _FPU_GETCW(oldcw);
+        newcw = (oldcw & ~_FPU_EXTENDED) | _FPU_DOUBLE;
+        _FPU_SETCW(newcw);
+        printf(
+            "c WARNING: for repeatability, setting FPU to use double precision\n");
+#endif
+
 
         BoolOption printmodel("Open-WBO", "print-model", "Print model.\n", true);
 
@@ -200,7 +152,7 @@ int main(int argc, char **argv) {
                             "Search algorithm "
                                     "(0=wbo,1=linear-su,2=msu3,3=part-msu3,4=oll,5=best,6="
                                     "bmo,7=obv,8=mcs)\n",
-                            4, IntRange(0, 8));
+                            6, IntRange(0, 8));
 
         IntOption partition_strategy("PartMSU3", "partition-strategy",
                                      "Partition strategy (0=sequential, "
@@ -262,7 +214,7 @@ int main(int argc, char **argv) {
                 "Incomplete", "iterations", "Limit on the number of iterations.\n", 100000,
                 IntRange(0, INT32_MAX));
 
-        BoolOption local("Incomplete", "local", "Local limit on the number of conflicts.\n", false);//???
+        BoolOption local("Incomplete", "local", "Local limit on the number of conflicts.\n", false);
 
         BoolOption polConservative("TorcOpenWbo", "conservative", "Apply conservative polarity heuristic?\n", true);
         BoolOption conservativeUseAllVars("TorcOpenWbo", "conservative_use_all_vars",
@@ -277,6 +229,7 @@ int main(int argc, char **argv) {
         IntOption targetVarsBumpMaxRandVal("TorcOpenWbo", "target_vars_bump_max_rand_val",
                                            "Maximal random bump factor\n", 552);
 
+        parseOptions(argc, argv, true);
 
         if ((int) num_tests) {
             if ((int) test_join) {
@@ -347,7 +300,7 @@ int main(int argc, char **argv) {
                     S = new OLLMod(verbosity, cardinality, ClusterAlg::_DIVISIVE_,
                                    rounding_statistic, (int) (num_clusters));
                 } else {
-//                    S = new OLL(verbosity, cardinality);
+                    S = new OLL(verbosity, cardinality);
                 }
                 break;
 
@@ -359,30 +312,37 @@ int main(int argc, char **argv) {
                 printf("s UNKNOWN\n");
                 exit(_ERROR_);
         }
-
         signal(SIGXCPU, SIGINT_exit);
         signal(SIGTERM, SIGINT_exit);
-
-
+        //MaxSAT *S = new OLL(_VERBOSITY_MINIMAL_,_CARD_TOTALIZER_,parserXML->getInstance());//new OLLMod(_VERBOSITY_MINIMAL_, _CARD_TOTALIZER_, ClusterAlg::_DIVISIVE_,rounding_statistic, (int) (100000));//new LinearSUMod(_VERBOSITY_MINIMAL_,false,  _CARD_TOTALIZER_, 1,ClusterAlg::_DIVISIVE_, rounding_statistic,(int) (100000));//new BLS(_VERBOSITY_MINIMAL_, _CARD_TOTALIZER_, 100000, 100000, true);
+        //new MSU3(_VERBOSITY_MINIMAL_);//new LinearSU(_VERBOSITY_MINIMAL_, 1, _CARD_TOTALIZER_, 1);
+        //S = new OLL(verbosity, cardinality);
         MaxSATFormula *maxsat_formula = new MaxSATFormula();
+        maxsat_formula->setFormat(_FORMAT_PB_);
 
-        if ((int) formula == _FORMAT_MAXSAT_) {
-            maxsat_formula->setFormat(_FORMAT_MAXSAT_);
-        } else {
-            ParserPB *parser_pb = new ParserPB();
-            parser_pb->parsePBFormula(argv[1], maxsat_formula);
-            maxsat_formula->setFormat(_FORMAT_PB_);
-        }
+        ParserXML *parserXML = new ParserXML(maxsat_formula, strcmp(argv[1],"true")==0, strcmp(argv[2],"true")==0,strcmp(argv[3],"true")==0);
+        parserXML->parse(argv[4]);
 
-        if ((int) test_rhs) {
-            if ((int) test_rhs2) {
-                test_encoding(maxsat_formula, (uint64_t) test_rhs, (uint64_t) test_rhs2,
-                              (uint64_t) test_nsoft);
-            } else {
-                test_encoding(maxsat_formula, (uint64_t) test_rhs);
-            }
-            return 0;
-        }
+        //createSmallerInstances(parserXML->getInstance());
+        //printConstraintsStat(parserXML->getInstance());
+        //printDomainSize(parserXML->getInstance());
+        //printCurricular(parserXML->getInstance());
+        //printClusterofStudents(parserXML->getInstance());
+        parserXML->genConstraint();
+        parserXML->genStudents();
+        //parserXML->getInstance()->setDistributionPen(1);
+        //parserXML->getInstance()->setTimePen(1);
+
+        S->setInstance(parserXML->getInstance());
+
+
+        //S->setUB(9770);
+        //S->setLB(9770);
+
+        //ew WBO(_VERBOSITY_MINIMAL_, 1, symmetry, symmetry_lim);//
+
+        //new OLL(_VERBOSITY_MINIMAL_,_CARD_TOTALIZER_,parserXML->getInstance());
+
 
         printf("c |                                                                "
                        "                                       |\n");
@@ -433,47 +393,31 @@ int main(int argc, char **argv) {
                parsed_time - initial_time);
         printf("c |                                                                "
                        "                                       |\n");
-
-        if (algorithm == _ALGORITHM_BEST_) {
-            assert(S == NULL);
-
-            if (maxsat_formula->getProblemType() == _UNWEIGHTED_) {
-                // Unweighted
-                S = new PartMSU3(_VERBOSITY_MINIMAL_, _PART_BINARY_, RES_GRAPH,
-                                 cardinality);
-                S->loadFormula(maxsat_formula);
-
-                if (((PartMSU3 *) S)->chooseAlgorithm() == _ALGORITHM_MSU3_) {
-                    // FIXME: possible memory leak
-                    S = new MSU3(_VERBOSITY_MINIMAL_);
-                }
-
-            } else {
-                // Weighted
-//        S = new OLL(_VERBOSITY_MINIMAL_, cardinality, nullptr);
+        S->loadFormula(maxsat_formula);
+        if ((int) (cluster_algorithm) == 1) {
+            switch ((int) algorithm) {
+                case _ALGORITHM_LINEAR_SU_:
+                    static_cast<LinearSUMod *>(S)->initializeCluster();
+                    break;
+                case _ALGORITHM_OLL_:
+                    static_cast<OLLMod *>(S)->initializeCluster();
+                    break;
+                case _ALGORITHM_LSU_CLUSTER_:
+                    static_cast<LinearSUClustering *>(S)->initializeCluster();
+                    break;
             }
         }
+        S->search();
 
-        if (S->getMaxSATFormula() == NULL) {
-            S->loadFormula(maxsat_formula);
-            if ((int) (cluster_algorithm) == 1) {
-                switch ((int) algorithm) {
-                    case _ALGORITHM_LINEAR_SU_:
-                        static_cast<LinearSUMod *>(S)->initializeCluster();
-                        break;
-                    case _ALGORITHM_OLL_:
-                        static_cast<OLLMod *>(S)->initializeCluster();
-                        break;
-                    case _ALGORITHM_LSU_CLUSTER_:
-                        static_cast<LinearSUClustering *>(S)->initializeCluster();
-                        break;
-                }
-            }
-        }
-        S->setPrintModel(printmodel);
-        S->setInitialTime(initial_time);
-        mxsolver = S;
-        mxsolver->search();
+        /*for (Class * c: parserXML->getInstance()->getClasses()) {
+            if(c->getPossiblePairSize()==1 && c->getPossibleRooms().size()==0)
+                std::cout<<"here "<<c->getId()<<std::endl;
+        }*/
+        //createSmallerInstances(parserXML->getInstance());
+
+
+
+
 
     } catch (OutOfMemoryException &) {
         sleep(1);

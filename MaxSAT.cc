@@ -667,7 +667,7 @@ void MaxSAT::print() {
                                             for (Student stu: instance->getClusterStudent()[s]->getStudent()) {
                                                 aClass->addStudent(stu.getId());
                                                 stu.addClass(aClass);
-                                                std::cout<<stu.getId()<<" "<<aClass->getId()<<" "<<iter->second<<std::endl;
+                                                //std::cout<<stu.getId()<<" "<<aClass->getId()<<" "<<iter->second<<std::endl;
 
                                             }
                                             find = true;
@@ -717,7 +717,7 @@ void MaxSAT::print() {
                     if (!find)
                         printf("A %s\n ", iter->second.c_str());
                 } else{
-                    std::cout<<iter->second.c_str()<<std::endl;
+                    //std::cout<<iter->second.c_str()<<std::endl;
                 }
 
             }
@@ -729,6 +729,16 @@ void MaxSAT::print() {
 
 void MaxSAT::setInstance(Instance *instance) {
     MaxSAT::instance = instance;
+}
+
+void MaxSAT::setUB(int v) {
+    ubCost=v;
+
+}
+
+void MaxSAT::setLB(int v) {
+    lbCost=v;
+
 }
 
 

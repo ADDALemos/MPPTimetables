@@ -193,7 +193,7 @@ public:
     int getMinLimit(){
         return limit;
     }
-     void setMinLimit(int limit) { limit=limit;}
+     void setMinLimit(int limit1) { limit=limit1;}
 
 };
 

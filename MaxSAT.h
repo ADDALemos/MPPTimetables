@@ -196,6 +196,11 @@ namespace openwbo {
 // Properties of the MaxSAT formula
 //
         vec <lbool> model;
+
+        void setUB(int);
+        void setLB(int);
+
+
     protected:
 
         // Interface with the SAT solver
