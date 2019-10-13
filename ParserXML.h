@@ -53,11 +53,11 @@ namespace openwbo {
 
         void parse(std::string fileName) {
             PBObjFunction *of;
-            PB *pbopt;
+//            PB *pbopt;
             if(optAlloction)
                 of = new PBObjFunction();
-            else
-                pbopt = new PB();
+            /*else
+                pbopt = new PB();*/
 
             xml_document<> doc;
             int orderID = 0;
@@ -521,7 +521,6 @@ namespace openwbo {
                                         for (Room *aRoom2:c1->getRooms()) {
                                             if (aRoom2->getId() != aRoom->getId()) {
                                                 c->addRoom(aRoom2);
-                                                std::cout<<*aRoom2<<std::endl;
 
                                             }
 
@@ -1417,26 +1416,30 @@ namespace openwbo {
 
         void limit() {
             for (int cla = 0; cla < instance->getClasses().size(); ++cla) {
-                PB *pb = new PB();
-                bool t = false;
-                for (int i = 0; i < instance->getClusterStudent().size(); ++i) {
-                    if(instance->getClusterStudent()[i]->getClassesID(instance->getClasses()[cla]->getId()).compare("Empty")!=0) {
-                        t=true;
-                        for(Student s: instance->getClusterStudent()[i]->getStudent()) {
-                            pb->addProduct(mkLit(getVariableID(
-                                    instance->getClusterStudent()[i]->getClassesID(
-                                            instance->getClasses()[cla]->getId()))),
-                                           1);
+                if(instance->getClasses()[cla]->getLimit()!=0) {
+                    PB *pb = new PB();
+                    bool t = false;
+                    for (int i = 0; i < instance->getClusterStudent().size(); ++i) {
+                        if (instance->getClusterStudent()[i]->getClassesID(
+                                instance->getClasses()[cla]->getId()).compare("Empty") != 0) {
+                            t = true;
+                            //for (Student s: instance->getClusterStudent()[i]->getStudent()) {
+                                pb->addProduct(mkLit(getVariableID(
+                                        instance->getClusterStudent()[i]->getClassesID(
+                                                instance->getClasses()[cla]->getId()))),
+                                               1);
+                            //}
                         }
                     }
-                }
-                if(t && instance->getClasses()[cla]->getLimit() < pb->_lits.size()) {
-                    pb->_sign = true;
-                    pb->addRHS(instance->getClasses()[cla]->getLimit());
+                    if (t && instance->getClasses()[cla]->getLimit() <= pb->_lits.size() &&
+                        instance->getClasses()[cla]->getLimit() >= 1) {
+                        pb->_sign = true;
+                        pb->addRHS(instance->getClasses()[cla]->getLimit());
 
-                    maxsat_formula->addPBConstraint(pb);
+                        maxsat_formula->addPBConstraint(pb);
+                    }
+                    delete pb;
                 }
-                delete pb;
 
             }
         }

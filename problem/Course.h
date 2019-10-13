@@ -32,6 +32,15 @@ public:
         Course::configuration = configuratons;
     }
 
+    Course(){
+        limit=INT_MAX;
+        for (Class *c :getClasses()) {
+            if(c->getLimit()<limit)
+                limit=c->getLimit();
+
+        }
+    }
+
 
     Course(char *id, std::map<int, std::vector<Subpart *, std::allocator<Subpart *>>> config) : name(id),
                                                                                                 configuration(config) {
@@ -193,7 +202,6 @@ public:
     int getMinLimit(){
         return limit;
     }
-     void setMinLimit(int limit1) { limit=limit1;}
 
 };
 
