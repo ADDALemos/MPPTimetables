@@ -630,6 +630,7 @@ void MaxSAT::BumpTargets(const vec <Lit> &objFunction, const vec <uint64_t> &coe
 }
 
 void MaxSAT::print() {
+    std::cout<<"print"<<std::endl;
     //setPrintSoft(("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/"+instance->getName()+"_"+std::to_string(modelS)+".soft").c_str());
     //printUnsatisfiedSoftClauses();
 
@@ -724,7 +725,7 @@ void MaxSAT::print() {
         }
     }
     //printf("\n");
-    writeXMLOutput("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/"+instance->getName()+"_"+std::to_string(modelS)+".xml",instance);
+    writeXMLOutput("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/"+instance->getName()+"_"+std::to_string(modelS)+"_"+instance->getAlgo()+".xml",instance);
 }
 
 void MaxSAT::setInstance(Instance *instance) {

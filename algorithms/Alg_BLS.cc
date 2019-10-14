@@ -64,6 +64,7 @@ void BLS::saveModel(vec<lbool> &currentModel){
   }
   
   nbSatisfiable++;
+  print();
 }
 
 

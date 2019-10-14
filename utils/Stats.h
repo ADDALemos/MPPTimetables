@@ -189,4 +189,48 @@ inline void printDomainSize(Instance *instance){
     std::cout<<y<<" "<<instance->getClasses().size()<<std::endl;
 }
 
+inline static long GetBinCoeff(long N, long K)
+{
+    // This function gets the total number of unique combinations based upon N and K.
+    // N is the total number of items.
+    // K is the size of the group.
+    // Total number of unique combinations = N! / ( K! (N - K)! ).
+    // This function is less efficient, but is more likely to not overflow when N and K are large.
+    // Taken from:  http://blog.plover.com/math/choose.html
+    //
+    if (K > N) return 0;
+    long r = 1;
+    long d;
+    for (d = 1; d <= K; d++)
+    {
+        r *= N--;
+        r /= d;
+    }
+    return r;
+}
+
+
+inline  void worstCost(Instance *instance){
+    int cost=0;
+    for (std::pair<std::string, std::vector<ConstraintShort *>> c : instance->getDist()) {
+        for (ConstraintShort * con: c.second) {
+            if(con->getWeight()!=-1){
+                cost+=con->getWeight()*GetBinCoeff(con->getClasses().size(),2);
+
+            }
+
+        }
+
+    }
+    std::cout<<cost*instance->getDistributionPen()<<std::endl;
+    cost=0;
+    for(Class *c: instance->getClasses()){
+        cost+=c->worstCost().first*instance->getRoomPen()+c->worstCost().second*instance->getTimePen();
+
+    }
+    std::cout<<cost<<std::endl;
+}
+
+
+
 #endif //PROJECT_STATS_H

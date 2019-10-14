@@ -553,6 +553,20 @@ public:
         return subconfcour;
     }
 
+    std::pair<int,int> worstCost(){
+        int cost=0;
+        for (std::pair<Room*, int> t: possibleRooms) {
+            if(t.second>cost)
+                cost=t.second;
+        }
+        int time=0;
+        for (Lecture *t: lectures) {
+            if(t->getPenalty()>time)
+                time=t->getPenalty();
+        }
+        return std::make_pair(cost,time);
+    }
+
 };
 
 

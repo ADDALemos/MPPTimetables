@@ -16,6 +16,7 @@
 
 #include "ClusterStudents.h"
 #include "Curriculum.h"
+#include <string>
 
 class Instance {
 private:
@@ -601,6 +602,15 @@ public:
         return dist;
     }
 
+    std::string getAlgo() {
+        return algo;
+    }
+
+    void setAlgo(int algoN, char* c,char* s, char* constSoft){
+        algo=std::to_string(algoN)+c+s+constSoft;
+    }
+private:
+    std::string algo;
 };
 
 
