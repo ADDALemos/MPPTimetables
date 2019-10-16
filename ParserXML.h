@@ -558,15 +558,15 @@ namespace openwbo {
                     studentID = atoi(a->value());
                 }
                 std::vector<Course *> c;
-                int minimo=INT_MAX;
+                int minimo = INT_MAX;
                 for (const xml_node<> *course = sub->first_node(); course; course = course->next_sibling()) {
                     std::string courseIDstd = "";
                     for (const xml_attribute<> *a = course->first_attribute(); a; a = a->next_attribute()) {
                         courseIDstd = a->value();
                     }
-                    Course * course1=instance->getCourse(courseIDstd);
-                    if(course1->getMinLimit()<minimo)
-                        minimo=course1->getMinLimit();
+                    Course *course1 = instance->getCourse(courseIDstd);
+                    if (course1->getMinLimit() < minimo)
+                        minimo = course1->getMinLimit();
                     c.push_back(course1);
                 }
                 std::pair<int, Student> s = std::pair<int, Student>(studentID, Student(studentID, c));
@@ -576,32 +576,41 @@ namespace openwbo {
                 bool temp = false;
                 if (clusterStudent.size() == 0)
                     clusterStudent.push_back(new ClusterStudent(idc++, c, s.second, minimo));
-                for (int i = 0; i < clusterStudent.size(); ++i) {
-                    bool t = false;
-                    if (c.size() != clusterStudent[i]->getCourses().size() || clusterStudent[i]->getMin()>=clusterStudent[i]->getStudent().size()||clusterStudent[i]->getMin()!=minimo)
-                        continue;
-                    for (int c0 = 0; c0 < c.size(); ++c0) {
-                        t = false;
-                        for (int c1 = 0; c1 < clusterStudent[i]->getCourses().size(); ++c1) {
-                            if (clusterStudent[i]->getCourses()[c1]->getName().compare(
-                                    c[c0]->getName()) == 0) {
-                                t = true;
-                                break;
+                else {
+                    for (int i = 0; i < clusterStudent.size(); ++i) {
+                        bool t = false;
+                        /*std::cout<<clusterStudent[i]->getStudent().size()<<std::endl;
+                        std::cout<<clusterStudent[i]->getMin()<<std::endl;*/
+
+                        if (c.size() != clusterStudent[i]->getCourses().size() ||
+                                (clusterStudent[i]->getStudent().size()+1)>MDC(clusterStudent[i]->getMin(),clusterStudent[i]->getStudent().size()+1)
+                                ||(clusterStudent[i]->getStudent().size()+1)>MDC(minimo,clusterStudent[i]->getStudent().size()+1))
+                            continue;
+                        for (int c0 = 0; c0 < c.size(); ++c0) {
+                            t = false;
+                            for (int c1 = 0; c1 < clusterStudent[i]->getCourses().size(); ++c1) {
+                                if (clusterStudent[i]->getCourses()[c1]->getName().compare(
+                                        c[c0]->getName()) == 0) {
+                                    t = true;
+                                    break;
+                                }
                             }
+                            if (!t)
+                                break;
+
                         }
-                        if (!t)
-                            break;
+                        if (t) {
+                            temp = true;
+                            clusterStudent[i]->addStudent(s.second);
+                            if(clusterStudent[i]->getMin()>minimo)
+                                clusterStudent[i]->setMin(minimo);
+                        }
+                    }
+                    if (!temp)
+                        clusterStudent.push_back(new ClusterStudent(idc++, c, s.second, minimo));
 
-                    }
-                    if (t) {
-                        temp = true;
-                        clusterStudent[i]->addStudent(s.second);
-                    }
+
                 }
-                if (!temp)
-                    clusterStudent.push_back(new ClusterStudent(idc++, c, s.second, minimo));
-
-
             }
 
 
@@ -612,7 +621,6 @@ namespace openwbo {
         void readConstraints(std::map<Class *, ClusterbyRoom *> mapCluster,
                              std::map<int, std::set<ClusterbyRoom *> *> &curMap, const xml_node<> *n) const {
             std::map<std::string, std::vector<ConstraintShort *>> hard;
-            std::map<std::string, std::vector<ConstraintShort *>> soft;
 
             for (const xml_node<> *sub = n->first_node(); sub; sub = sub->next_sibling()) {
                 std::stringstream constSTR;
@@ -628,7 +636,6 @@ namespace openwbo {
                     } else if (strcmp(a->name(), "penalty") == 0) {
                         penalty = atoi(a->value());
                     } else if (strcmp(a->name(), "type") == 0) {
-
                         type = a->value();
                         long size;
                         std::string rest;
@@ -663,6 +670,7 @@ namespace openwbo {
                     clusterbyRoom->setRange(new ConstraintShort(type, penalty, c1, limit, limit1));
                     break;
                 }
+
 
                 if (hard.find(type) != hard.end()) {
                         hard[type].push_back(new ConstraintShort(type, penalty, c1, limit, limit1));
@@ -1113,6 +1121,41 @@ namespace openwbo {
                     }
                 }
             }
+            if (instance->getDist().find("SameWeeks") != instance->getDist().end()) {
+                for (int y = 0; y < instance->getDist()["SameWeeks"].size(); ++y) {
+                    Class *idClassesDist, *idClassesDist1;
+                    for (int ci = 0;
+                         ci < instance->getDist()["SameWeeks"].at(y)->getClasses().size(); ++ci) {
+                        for (int ci1 = ci + 1;
+                             ci1 <
+                             instance->getDist()["SameWeeks"].at(y)->getClasses().size(); ++ci1) {
+
+                            idClassesDist = instance->getDist()["SameWeeks"].at(y)->getClasses()[ci];
+                            idClassesDist1 = instance->getDist()["SameWeeks"].at(y)->getClasses()[ci1];
+                            for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
+                                    if (stringcontains(idClassesDist1->getPossiblePairLecture(p1)->getWeeks(),
+                                                       idClassesDist->getPossiblePairLecture(p)->getWeeks(),
+                                                       instance->getNweek()) ==
+                                        0) {
+                                        int w=0;
+                                        if((w=instance->getDist()["SameWeeks"].at(y)->getWeight())==-1)
+                                            constraint(idClassesDist, idClassesDist1, p, p1);
+                                        else
+                                            constraintSoft(idClassesDist, idClassesDist1, p, p1,w);
+
+
+                                    }
+
+                                }
+
+
+
+                            }
+                        }
+                    }
+                }
+            }
             if (instance->getDist().find("SameStart") != instance->getDist().end()) {
                 for (int y = 0; y < instance->getDist()["SameStart"].size(); ++y) {
                     Class *idClassesDist, *idClassesDist1;
@@ -1371,8 +1414,12 @@ namespace openwbo {
                                     "conf" + std::to_string(s)+"_"+std::to_string(conf)+"_"+instance->getClusterStudent()[s]->getCourses()[c]->getName())));
                             for (int cla = 0;
                                  cla < instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(conf)[part]->getClasses().size(); ++cla) {
+                                if(instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(conf)[part]->getClasses()[cla]->getLimit()==0)
+                                    continue;
                                 for (int cla1 = cla+1;
                                      cla1 < instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(conf)[part]->getClasses().size(); ++cla1) {
+                                    if(instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(conf)[part]->getClasses()[cla1]->getLimit()==0)
+                                        continue;
                                     vec <Lit> l;
                                     l.push(~mkLit(getVariableID(
                                             "conf" + std::to_string(s) + "_" + std::to_string(conf) + "_" +
@@ -1413,25 +1460,33 @@ namespace openwbo {
 
         }
 
+        int MDC(int a, int b) const{
+
+            if (b==0) return a;
+
+            return MDC(b,a%b);
+        }
 
         void limit() {
             for (int cla = 0; cla < instance->getClasses().size(); ++cla) {
                 if(instance->getClasses()[cla]->getLimit()!=0) {
                     PB *pb = new PB();
                     bool t = false;
+                    int stuNumb=0;
                     for (int i = 0; i < instance->getClusterStudent().size(); ++i) {
                         if (instance->getClusterStudent()[i]->getClassesID(
                                 instance->getClasses()[cla]->getId()).compare("Empty") != 0) {
                             t = true;
                             //for (Student s: instance->getClusterStudent()[i]->getStudent()) {
-                                pb->addProduct(mkLit(getVariableID(
+                           pb->addProduct(mkLit(getVariableID(
                                         instance->getClusterStudent()[i]->getClassesID(
                                                 instance->getClasses()[cla]->getId()))),
-                                               1);
+                                               instance->getClusterStudent()[i]->getStudent().size());
+                            stuNumb+=instance->getClusterStudent()[i]->getStudent().size();
                             //}
                         }
                     }
-                    if (t && instance->getClasses()[cla]->getLimit() <= pb->_lits.size() &&
+                    if (t && instance->getClasses()[cla]->getLimit() <= stuNumb &&
                         instance->getClasses()[cla]->getLimit() >= 1) {
                         pb->_sign = true;
                         pb->addRHS(instance->getClasses()[cla]->getLimit());
@@ -1448,11 +1503,15 @@ namespace openwbo {
         void parentChild() {
             for (int i = 0; i < instance->getClusterStudent().size(); ++i) {
                 for (int c = 0; c < instance->getClasses().size(); ++c) {
-                    if (instance->getClasses()[c]->getParent() != nullptr) {
-                        vec<Lit> l;
-                        l.push(~mkLit(getVariableID(instance->getClusterStudent()[i]->getClassesID(instance->getClasses()[c]->getId()))));
-                        l.push(mkLit(getVariableID(instance->getClusterStudent()[i]->getClassesID(instance->getClasses()[c]->getParent()->getId()))));
-                       maxsat_formula->addHardClause(l);
+                    if(instance->getClasses()[c]->getLimit()!=0){
+                        if (instance->getClasses()[c]->getParent() != nullptr) {
+                            vec <Lit> l;
+                            l.push(~mkLit(getVariableID(instance->getClusterStudent()[i]->getClassesID(
+                                    instance->getClasses()[c]->getId()))));
+                            l.push(mkLit(getVariableID(instance->getClusterStudent()[i]->getClassesID(
+                                    instance->getClasses()[c]->getParent()->getId()))));
+                            maxsat_formula->addHardClause(l);
+                        }
 
                     }
 
@@ -1466,10 +1525,14 @@ namespace openwbo {
         void conflicts() {
             for (int i = 0; i < instance->getClusterStudent().size(); ++i) {
                 for (int c = 0; c < instance->getClasses().size(); ++c) {
+                    if(instance->getClasses()[c]->getLimit()==0)
+                        continue;
                     for (int c1 = c+1; c1 < instance->getClasses().size(); ++c1) {
                         Class *class1 = instance->getClasses()[c];
                         Class *class2 = instance->getClasses()[c1];
                         if (class1->getSubconfcour().compare(class2->getSubconfcour()) == 0)
+                            continue;
+                        if(instance->getClasses()[c1]->getLimit()==0)
                             continue;
                         for (int t = 0; t < class1->getPossiblePairSize(); ++t) {
                             for (int t1 = 0; t1 < class2->getPossiblePairSize(); ++t1) {
@@ -1530,6 +1593,12 @@ namespace openwbo {
         }
 
 
+        void block(std::vector<Class*> cont){
+            for (Class * c :cont) {
+                
+            }
+
+        }
 
     protected:
 

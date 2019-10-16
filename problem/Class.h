@@ -158,7 +158,6 @@ public:
     }
     Class(int id, int limit,
           int order,std::string subconfcour) :  subconfcour(subconfcour), id(id),  orderID(order),limit(limit) {
-
     }
 
     Class(int id, int limit, Lecture *pLecture, std::map<Room*, int> map,
@@ -423,7 +422,7 @@ public:
     }
 
     int getLimit() const {
-        return (limit > 0 ? limit : 1);
+        return limit;
     }
 
     void setLimit(int limit) {

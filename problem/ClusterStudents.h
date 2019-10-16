@@ -18,6 +18,9 @@ class ClusterStudent {
 
 public:
     int getMin(){ return minimo;}
+
+    void setMin(int n){  minimo=n;}
+
     const std::string getClassesID(int i)  {
         if(classesID.find(i)!=classesID.end())
             return classesID[i];

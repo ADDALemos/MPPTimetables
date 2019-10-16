@@ -189,8 +189,7 @@ inline void printDomainSize(Instance *instance){
     std::cout<<y<<" "<<instance->getClasses().size()<<std::endl;
 }
 
-inline static long GetBinCoeff(long N, long K)
-{
+inline static long GetBinCoeff(long N, long K) {
     // This function gets the total number of unique combinations based upon N and K.
     // N is the total number of items.
     // K is the size of the group.

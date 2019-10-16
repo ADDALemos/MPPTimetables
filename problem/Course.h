@@ -32,18 +32,25 @@ public:
         Course::configuration = configuratons;
     }
 
-    Course(){
-        limit=INT_MAX;
+    void init() {
+        limit = INT_MAX;
         for (Class *c :getClasses()) {
-            if(c->getLimit()<limit)
-                limit=c->getLimit();
+            if (c->getLimit() < limit && c->getLimit() != 0)
+                limit = c->getLimit();
 
         }
     }
 
 
+    Course() {
+        init();
+    }
+
+
     Course(char *id, std::map<int, std::vector<Subpart *, std::allocator<Subpart *>>> config) : name(id),
                                                                                                 configuration(config) {
+        init();
+
 
     }
 
@@ -120,11 +127,13 @@ public:
     Course(char *id, char *teacherID, int numLect, int min_days, int student, char *doubleLec, int count) : name(id),
                                                                                                             teacherID(
                                                                                                                     teacherID) {
+        init();
+
         Subpart *p = new Subpart(std::to_string(count));
         std::vector<Class *> list;
         for (int i = 0; i < numLect; ++i) {
             Lecture *l = new Lecture(count, doubleLec);
-            Class *c = new Class(count, student, l, std::map<Room*, int>(), i,"UNUSED");
+            Class *c = new Class(count, student, l, std::map<Room *, int>(), i, "UNUSED");
             list.push_back(c);
             count++;
         }
@@ -199,7 +208,7 @@ public:
     }
 
 
-    int getMinLimit(){
+    int getMinLimit() {
         return limit;
     }
 
