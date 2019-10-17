@@ -187,11 +187,11 @@ private:
 
     std::vector<std::pair<Room*, Lecture *>> possiblePair;
 
-    std::map<Room*,std::map<Lecture*,int>> value;
+    std::map<Room*,std::map<Lecture*,std::string>> value;
 
 public:
 
-    int getKey(Room*r, Lecture*l){
+    std::string getKey(Room*r, Lecture*l){
         return value[r][l];
     }
 
@@ -201,19 +201,20 @@ public:
 
     }
 
-    void setPossiblePair(Room *r, Lecture *l, int v){
+    int setPossiblePair(Room *r, Lecture *l, std::string v){
         possiblePair.push_back(std::pair<Room*,Lecture*>(r,l));
         if(value.find(r)!=value.end()){
             if(value[r].find(l)!=value[r].end()) {
                 value[r][l]=v;
             } else {
-                value[r].insert(std::pair<Lecture*,int>(l,v));
+                value[r].insert(std::pair<Lecture*,std::string>(l,v+std::to_string(possiblePair.size()-1)));
             }
         } else{
-            std::map<Lecture*,int> t;
-            t.insert(std::pair<Lecture*,int>(l,v));
-            value.insert(std::pair<Room*,std::map<Lecture*,int>>(r,t));
+            std::map<Lecture*,std::string> t;
+            t.insert(std::pair<Lecture*,std::string>(l,v+std::to_string(possiblePair.size()-1)));
+            value.insert(std::pair<Room*,std::map<Lecture*,std::string>>(r,t));
         }
+        return possiblePair.size()-1;
     }
 
 

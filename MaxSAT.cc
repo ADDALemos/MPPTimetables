@@ -29,6 +29,7 @@
 #include "MaxSAT.h"
 #include "Torc.h"
 #include "WriteXML.h"
+#include "utils/StringUtil.h"
 
 using namespace openwbo;
 
@@ -119,7 +120,8 @@ lbool MaxSAT::searchSATSolver(Solver *S, bool pre) {
  // Utils for model management
  //
  ************************************************************************************************/
-int modelS=0;
+int modelS = 0;
+
 /*_________________________________________________________________________________________________
   |
   |  saveModel : (currentModel : vec<lbool>&)  ->  [void]
@@ -630,7 +632,7 @@ void MaxSAT::BumpTargets(const vec <Lit> &objFunction, const vec <uint64_t> &coe
 }
 
 void MaxSAT::print() {
-    std::cout<<"print"<<std::endl;
+    std::cout << "print" << std::endl;
     //setPrintSoft(("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/"+instance->getName()+"_"+std::to_string(modelS)+".soft").c_str());
     //printUnsatisfiedSoftClauses();
 
@@ -651,81 +653,44 @@ void MaxSAT::print() {
         if (iter != maxsat_formula->getIndexToName().end()) {
             if (model[m] != l_False) {
                 bool find = false;
-                if(iter->second[0]=='s'){
-                    for (int s = 0; s < instance->getClusterStudent().size(); ++s) {
-                        for (int c = 0; c < instance->getClusterStudent()[s]->getCourses().size(); ++c) {
-                            for (int conf = 0;
-                                 conf < instance->getClusterStudent()[s]->getCourses()[c]->getNumConfig(); ++conf) {
-                                for (int part = 0; part < instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
-                                        conf).size(); ++part) {
-                                    for (int cla = 0;
-                                         cla < instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
-                                                 conf)[part]->getClasses().size(); ++cla) {
-                                        if (("stu" + std::to_string(s)+"_"+std::to_string(instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(conf)[part]->getClasses()[cla]->getId())).compare(
-                                                iter->second) == 0) {
-                                            Class *aClass = instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
-                                                    conf)[part]->getClasses()[cla];
-                                            for (Student stu: instance->getClusterStudent()[s]->getStudent()) {
-                                                aClass->addStudent(stu.getId());
-                                                stu.addClass(aClass);
-                                                //std::cout<<stu.getId()<<" "<<aClass->getId()<<" "<<iter->second<<std::endl;
+                std::vector<std::string> token;
+                token = split(iter->second, "_");
+                if (token[0].compare("stu")==0) {
 
-                                            }
-                                            find = true;
-                                            break;
-                                        }
+                    Class *aClass = instance->getClassbyId(std::stoi(token[2]));
+                    for (Student stu: instance->getClusterStudent()[std::stoi(token[1])]->getStudent()) {
+                        aClass->addStudent(stu.getId());
+                        stu.addClass(aClass);
 
-                                    }
-                                    if (find)
-                                        break;
-
-                                }
-                                if (find)
-                                    break;
-                            }
-                            if (find)
-                                break;
-                        }
-                        if (find)
-                            break;
                     }
 
-                } else if(iter->second[0]=='x') {
-                            for (auto *cla: instance->getClasses()) {
 
-                                for (int i = 0; i < cla->getPossiblePairSize(); ++i) {
-                                    if (("x" + std::to_string(
-                                            cla->getKey(cla->getPossiblePair(i).first,
-                                                        cla->getPossiblePair(i).second))).compare(
-                                            iter->second) == 0) {
-                                        cla->setSolution(cla->getPossiblePair(i).second->getStart(),
-                                                         cla->getPossiblePair(i).first->getId(),
-                                                         cla->getPossiblePair(i).first->getName(),
-                                                         cla->getPossiblePair(i).second->getWeeks(),
-                                                         cla->getPossiblePair(i).second->getDays());
-                                        /*std::cout << "x" << cla->getKey(cla->getPossiblePair(i).first,
-                                                                        cla->getPossiblePair(i).second)
-                                                  << " " << cla->getId() << std::endl;*/
-                                        find = true;
-                                        break;
+                } else if (token[0].compare("x")==0) {
+                    //"x_" +std::to_string(order)+"_"+std::to_string(c->getPossiblePairSize()-1)
 
-                                    }
-                                }
-                                if (find)
-                                    break;
-                            }
 
-                    if (!find)
-                        printf("A %s\n ", iter->second.c_str());
-                } else{
+                    instance->getClasses()[std::stoi(token[1])]->setSolution(
+                            instance->getClasses()[std::stoi(token[1])]->getPossiblePair(
+                                    std::stoi(token[2])).second->getStart(),
+                            instance->getClasses()[std::stoi(token[1])]->getPossiblePair(
+                                    std::stoi(token[2])).first->getId(),
+                            instance->getClasses()[std::stoi(token[1])]->getPossiblePair(
+                                    std::stoi(token[2])).first->getName(),
+                            instance->getClasses()[std::stoi(token[1])]->getPossiblePair(
+                                    std::stoi(token[2])).second->getWeeks(),
+                            instance->getClasses()[std::stoi(token[1])]->getPossiblePair(
+                                    std::stoi(token[2])).second->getDays());
+
+
+                } else {
                     //std::cout<<iter->second.c_str()<<std::endl;
                 }
 
             }
         }
     }
-    //printf("\n");
-    writeXMLOutput("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/"+instance->getName()+"_"+std::to_string(modelS)+"_"+instance->getAlgo()+".xml",instance);
+    writeXMLOutput("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + "_" +
+                   std::to_string(modelS) + "_" + instance->getAlgo() + ".xml", instance);
 }
 
 void MaxSAT::setInstance(Instance *instance) {
@@ -733,12 +698,12 @@ void MaxSAT::setInstance(Instance *instance) {
 }
 
 void MaxSAT::setUB(int v) {
-    ubCost=v;
+    ubCost = v;
 
 }
 
 void MaxSAT::setLB(int v) {
-    lbCost=v;
+    lbCost = v;
 
 }
 

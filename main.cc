@@ -316,12 +316,18 @@ int main(int argc, char **argv) {
         signal(SIGTERM, SIGINT_exit);
         //MaxSAT *S = new OLL(_VERBOSITY_MINIMAL_,_CARD_TOTALIZER_,parserXML->getInstance());//new OLLMod(_VERBOSITY_MINIMAL_, _CARD_TOTALIZER_, ClusterAlg::_DIVISIVE_,rounding_statistic, (int) (100000));//new LinearSUMod(_VERBOSITY_MINIMAL_,false,  _CARD_TOTALIZER_, 1,ClusterAlg::_DIVISIVE_, rounding_statistic,(int) (100000));//new BLS(_VERBOSITY_MINIMAL_, _CARD_TOTALIZER_, 100000, 100000, true);
         //new MSU3(_VERBOSITY_MINIMAL_);//new LinearSU(_VERBOSITY_MINIMAL_, 1, _CARD_TOTALIZER_, 1);
-        //S = new OLL(verbosity, cardinality);
+        S = new OLL(verbosity, cardinality);
         MaxSATFormula *maxsat_formula = new MaxSATFormula();
         maxsat_formula->setFormat(_FORMAT_PB_);
 
         ParserXML *parserXML = new ParserXML(maxsat_formula, strcmp(argv[1],"true")==0, strcmp(argv[2],"true")==0,strcmp(argv[3],"true")==0);
         parserXML->parse(argv[4]);
+        parserXML->getInstance()->setAlgo((int) algorithm,argv[1],argv[2],argv[3]);
+        /*printProblemStats(parserXML->getInstance());
+        printStudentsStats(parserXML->getInstance());
+        printConstraintsStat(parserXML->getInstance());
+        std::exit(0);*/
+        //worstCost(parserXML->getInstance());
 
         //createSmallerInstances(parserXML->getInstance());
         //printConstraintsStat(parserXML->getInstance());
@@ -394,7 +400,7 @@ int main(int argc, char **argv) {
         printf("c |                                                                "
                        "                                       |\n");
         S->loadFormula(maxsat_formula);
-        if ((int) (cluster_algorithm) == 1) {
+        /*if ((int) (cluster_algorithm) == 1) {
             switch ((int) algorithm) {
                 case _ALGORITHM_LINEAR_SU_:
                     static_cast<LinearSUMod *>(S)->initializeCluster();
@@ -406,7 +412,7 @@ int main(int argc, char **argv) {
                     static_cast<LinearSUClustering *>(S)->initializeCluster();
                     break;
             }
-        }
+        }*/
         S->search();
 
         /*for (Class * c: parserXML->getInstance()->getClasses()) {
@@ -454,9 +460,9 @@ void printCurricular(Instance *instance) {
 
 void printClusterofStudents(Instance *instance) {
     for (int l = 0; l < instance->getClusterStudent().size(); ++l) {
-        std::cout << "NEW CLUSTER " << instance->getClusterStudent()[l]->getId() << std::endl;
+        std::cout << "NEW CLUSTER " << instance->getClusterStudent()[l]->getId() << " "<<instance->getClusterStudent()[l]->getStudent().size()<<std::endl;
         for (Student s: instance->getClusterStudent()[l]->getStudent()) {
-            std::cout << s.getId() << " C ";
+            std::cout <<"S "<< s.getId() << " C ";
             for (int j = 0; j < instance->getClusterStudent()[l]->getCourses().size(); ++j) {
                 std::cout << instance->getClusterStudent()[l]->getCourses()[j]->getName() << " ";
             }
