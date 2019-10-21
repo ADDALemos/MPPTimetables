@@ -655,35 +655,38 @@ void MaxSAT::print() {
                 bool find = false;
                 std::vector<std::string> token;
                 token = split(iter->second, "_");
-                if (token[0].compare("stu")==0) {
 
-                    Class *aClass = instance->getClassbyId(std::stoi(token[2]));
-                    for (Student stu: instance->getClusterStudent()[std::stoi(token[1])]->getStudent()) {
-                        aClass->addStudent(stu.getId());
-                        stu.addClass(aClass);
+                if(token.size()!=0) {
+                    if (token[0].compare("stu") == 0) {
 
+                        Class *aClass = instance->getClassbyId(std::stoi(token[2]));
+                        for (Student stu: instance->getClusterStudent()[std::stoi(token[1])]->getStudent()) {
+                            aClass->addStudent(stu.getId());
+                            stu.addClass(aClass);
+
+                        }
+
+
+                    } else if (token[0].compare("x") == 0) {
+                        //"x_" +std::to_string(order)+"_"+std::to_string(c->getPossiblePairSize()-1)
+
+
+                        instance->getClasses()[std::stoi(token[1])]->setSolution(
+                                instance->getClasses()[std::stoi(token[1])]->getPossiblePair(
+                                        std::stoi(token[2])).second->getStart(),
+                                instance->getClasses()[std::stoi(token[1])]->getPossiblePair(
+                                        std::stoi(token[2])).first->getId(),
+                                instance->getClasses()[std::stoi(token[1])]->getPossiblePair(
+                                        std::stoi(token[2])).first->getName(),
+                                instance->getClasses()[std::stoi(token[1])]->getPossiblePair(
+                                        std::stoi(token[2])).second->getWeeks(),
+                                instance->getClasses()[std::stoi(token[1])]->getPossiblePair(
+                                        std::stoi(token[2])).second->getDays());
+
+
+                    } else {
+                        //std::cout<<iter->second.c_str()<<std::endl;
                     }
-
-
-                } else if (token[0].compare("x")==0) {
-                    //"x_" +std::to_string(order)+"_"+std::to_string(c->getPossiblePairSize()-1)
-
-
-                    instance->getClasses()[std::stoi(token[1])]->setSolution(
-                            instance->getClasses()[std::stoi(token[1])]->getPossiblePair(
-                                    std::stoi(token[2])).second->getStart(),
-                            instance->getClasses()[std::stoi(token[1])]->getPossiblePair(
-                                    std::stoi(token[2])).first->getId(),
-                            instance->getClasses()[std::stoi(token[1])]->getPossiblePair(
-                                    std::stoi(token[2])).first->getName(),
-                            instance->getClasses()[std::stoi(token[1])]->getPossiblePair(
-                                    std::stoi(token[2])).second->getWeeks(),
-                            instance->getClasses()[std::stoi(token[1])]->getPossiblePair(
-                                    std::stoi(token[2])).second->getDays());
-
-
-                } else {
-                    //std::cout<<iter->second.c_str()<<std::endl;
                 }
 
             }

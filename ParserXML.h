@@ -31,20 +31,66 @@ using namespace rapidxml;
 
 
 namespace openwbo {
+    class Block {
+    public:
+        Block() {}
+
+        Block(const int &start, const int &end, std::vector<Block *, std::allocator<Block *>> vector,
+              std::vector<Block *, std::allocator<Block *>> vector1) : end(end), start(start) {
+            vars.insert(vars.end(), vector.begin(), vector.end());
+            vars.insert(vars.end(), vector1.begin(), vector1.end());
+
+        }
+
+        Block(const int &start, const int &end, Block *v) : end(end), start(start) {
+            add(v);
+        }
+
+        void add(Block *v) {
+            vars.push_back(v);
+        }
+
+        virtual std::string getName(){
+            return "erro";
+        }
+
+        int end;
+        std::vector<Block *> vars;
+        int start;
+    };
+
+
+    class Vars : public Block {
+    public:
+        Vars(std::string name, int start, int end) :  Block(start, end, this), varName(name) {
+
+        }
+
+        virtual std::string getName(){
+            return varName;
+        }
+
+        std::string varName;
+
+    };
 
 
     class ParserXML {
-        bool optAlloction=true;
-        bool optStud=true;
-        bool optSoft=true;
+        bool optAlloction = true;
+        bool optStud = true;
+        bool optSoft = true;
 
     public:
         //-------------------------------------------------------------------------
         // Constructor/destructor.
         //-------------------------------------------------------------------------
 
-        ParserXML(MaxSATFormula *maxsat_formula, bool optAlloction,bool optStud, bool optSoft) : optAlloction(optAlloction),
-        optStud(optStud),optSoft(optSoft),maxsat_formula(maxsat_formula) {
+        ParserXML(MaxSATFormula *maxsat_formula, bool optAlloction, bool optStud, bool optSoft) : optAlloction(
+                optAlloction),
+                                                                                                  optStud(optStud),
+                                                                                                  optSoft(optSoft),
+                                                                                                  maxsat_formula(
+                                                                                                          maxsat_formula) {
 
         }
 
@@ -54,7 +100,7 @@ namespace openwbo {
         void parse(std::string fileName) {
             PBObjFunction *of;
 //            PB *pbopt;
-            if(optAlloction)
+            if (optAlloction)
                 of = new PBObjFunction();
             /*else
                 pbopt = new PB();*/
@@ -123,12 +169,12 @@ namespace openwbo {
                                             parent = atoi(a->value());
                                     }
                                     Class *c = new Class(idclass, limit, orderID,
-                                                         idsub + "_" + itos(idConf) + "_" + id);
+                                                         itos(idConf) + "_" + id);
                                     c->setOrderID(order);
                                     c->setCourseID(atoi(id));
                                     order++;
                                     all.push_back(c);
-                                    order=all.size()-1;
+                                    order = all.size() - 1;
                                     PB *pb = new PB();
                                     int i = 0;
                                     for (const xml_node<> *lec = cla->first_node(); lec; lec = lec->next_sibling()) {
@@ -180,21 +226,26 @@ namespace openwbo {
                                             }
                                             Lecture *l = new Lecture(lenght, start, weeks, days, penalty);
                                             lecv.push_back(l);
+                                            int max = -1;
 
 
                                             if (roomsv.size() == 0) {
 
 
-                                                int max= c->setPossiblePair(
+                                                max = c->setPossiblePair(
                                                         new Room(-1),
-                                                        l, "x_" +std::to_string(order)+"_");
-                                                pb->addProduct(mkLit(getVariableID("x_" +std::to_string(order)+"_"+std::to_string(max))), 1);
+                                                        l, "x_" + std::to_string(order) + "_");
+                                                pb->addProduct(mkLit(getVariableID(
+                                                        "x_" + std::to_string(order) + "_" + std::to_string(max))), 1);
                                                 //std::cout<<c->getId()<<" x_" +std::to_string(order)+"_"+std::to_string(max)<<std::endl;
+
+
 
 
                                                 //oneEach += " +1 " + std::to_string(max);
                                                 if (penalty != 0 && optAlloction)
-                                                    of->addProduct(mkLit(getVariableID("x_" +std::to_string(order)+"_"+std::to_string(max))),
+                                                    of->addProduct(mkLit(getVariableID(
+                                                            "x_" + std::to_string(order) + "_" + std::to_string(max))),
                                                                    instance->getTimePen() * penalty);
                                                 /*else if (penalty != 0)
                                                     pbopt->addProduct(mkLit(getVariableID("x_" +std::to_string(order)+"_"+std::to_string(c->getPossiblePairSize()-1))),
@@ -252,30 +303,34 @@ namespace openwbo {
 
                                                     }
                                                     if (!isNotAddableTime) {
-                                                        int max =c->setPossiblePair(
+                                                        max = c->setPossiblePair(
                                                                 j->first,
-                                                                l, "x_" +std::to_string(order)+"_");
+                                                                l, "x_" + std::to_string(order) + "_");
                                                         //std::cout<<c->getId()<<" x_" +std::to_string(order)+"_"+std::to_string(max)<<std::endl;
 
                                                         pb->addProduct(mkLit(getVariableID(
-                                                                "x_" +std::to_string(order)+"_"+std::to_string(max)
+                                                                "x_" + std::to_string(order) + "_" + std::to_string(max)
                                                                        )),
-                                                                      1);
+                                                                       1);
                                                         //std::cout<<idclass<<" "<<std::to_string(max)<<std::endl;
 
 
-                                                        if (penalty != 0 &&optAlloction)
+                                                        if (penalty != 0 && optAlloction)
                                                             of->addProduct(
-                                                                    mkLit(getVariableID("x_" +std::to_string(order)+"_"+std::to_string(max))),
+                                                                    mkLit(getVariableID(
+                                                                            "x_" + std::to_string(order) + "_" +
+                                                                            std::to_string(max))),
                                                                     instance->getTimePen() * penalty);
                                                         /*else if(penalty != 0)
                                                             pbopt->addProduct(
                                                                     mkLit(getVariableID("x_" + std::to_string(max))),
                                                                     instance->getTimePen() * penalty);*/
 
-                                                        if (j->second != 0 &&optAlloction)
+                                                        if (j->second != 0 && optAlloction)
                                                             of->addProduct(
-                                                                    mkLit(getVariableID("x_" +std::to_string(order)+"_"+std::to_string(max))),
+                                                                    mkLit(getVariableID(
+                                                                            "x_" + std::to_string(order) + "_" +
+                                                                            std::to_string(max))),
                                                                     instance->getRoomPen() * j->second);
                                                         /*else if(j->second != 0)
                                                             pbopt->addProduct(
@@ -287,11 +342,14 @@ namespace openwbo {
 
                                                         bool is = true;
                                                         for (int ti = 0; ti < j->first->t.size(); ++ti) {
-                                                            if (j->first->t[ti]->getWeek().compare(l->getWeeks())==0 &&
-                                                                    j->first->t[ti]->getDay().compare(l->getDays())==0 &&
+                                                            if (j->first->t[ti]->getWeek().compare(l->getWeeks()) ==
+                                                                0 &&
+                                                                j->first->t[ti]->getDay().compare(l->getDays()) == 0 &&
                                                                 l->getStart() == j->first->t[ti]->getStart() &&
                                                                 l->getEnd() == j->first->t[ti]->getEnd()) {
-                                                                j->first->t[ti]->addC("x_" +std::to_string(order)+"_"+std::to_string(max), idclass);
+                                                                j->first->t[ti]->addC(
+                                                                        "x_" + std::to_string(order) + "_" +
+                                                                        std::to_string(max), idclass);
                                                                 is = false;
                                                             }
                                                         }
@@ -300,13 +358,62 @@ namespace openwbo {
                                                             j->first->t.push_back(
                                                                     new Time(l->getStart(), l->getEnd(),
                                                                              l->getWeeks(),
-                                                                             l->getDays(), "x_" +std::to_string(order)+"_"+std::to_string(max), idclass));
+                                                                             l->getDays(),
+                                                                             "x_" + std::to_string(order) + "_" +
+                                                                             std::to_string(max), idclass));
                                                         }
 
 
                                                     }
 
                                                 }
+                                            }
+                                            if (times.find(start) != times.end()) {
+                                                for (Time *time1: times[start]) {
+                                                    Time *ntime = new Time(l->getStart(), l->getEnd(),
+                                                                           l->getWeeks(),
+                                                                           l->getDays(),
+                                                                           "x_" + std::to_string(order) + "_" +
+                                                                           std::to_string(max), idclass, max);
+                                                    if (time1->check(ntime, instance->getNweek(),
+                                                                     instance->getNdays())) {
+                                                        int aClass0 = (c->getId() > time1->getClassesCid()[0]
+                                                                       ? time1->getClassesCid()[0] : c->getId());
+                                                        int aClass1 = (c->getId() < time1->getClassesCid()[0]
+                                                                       ? c->getId() : time1->getClassesCid()[0]);
+                                                        int v0 = (c->getId() > time1->getClassesCid()[0]
+                                                                  ? time1->getClassesMax()[0] : max);
+                                                        int v1 = (c->getId() < time1->getClassesCid()[0] ? max
+                                                                                                         : time1->getClassesMax()[0]);
+                                                        if (pairConf.find(std::to_string(aClass0) + "_" +
+                                                                          std::to_string(aClass1)) != pairConf.end())
+                                                            pairConf[std::to_string(aClass0) + "_" +
+                                                                     std::to_string(aClass1)].push_back(
+                                                                    std::pair<int, int>(v0, v1));
+                                                        else {
+                                                            std::vector<std::pair<int, int>> temp;
+                                                            temp.push_back(std::pair<int, int>(v0, v1));
+                                                            pairConf.insert(
+                                                                    std::pair<std::string, std::vector<std::pair<int, int>>>(
+                                                                            std::to_string(aClass0) + "_" +
+                                                                            std::to_string(aClass1), temp));
+
+                                                        }
+
+                                                        //        std::map<std::string,std::vector<std::pair<int, int>>> pairConf;
+
+                                                    }
+
+
+                                                }
+                                            } else {
+                                                std::vector<Time *> temp;
+                                                temp.push_back(new Time(l->getStart(), l->getEnd(),
+                                                                        l->getWeeks(),
+                                                                        l->getDays(),
+                                                                        "x_" + std::to_string(order) + "_" +
+                                                                        std::to_string(max), idclass, max));
+                                                times.insert(std::pair<int, std::vector<Time *>>(l->getStart(), temp));
                                             }
 
                                         }
@@ -412,7 +519,7 @@ namespace openwbo {
             }
             file.close();
             createCurriculum(curMap);
-            if(optAlloction) {
+            if (optAlloction) {
                 maxsat_formula->addObjFunction(of);
                 delete of;
             } /*else {
@@ -478,8 +585,7 @@ namespace openwbo {
                                                 }
 
 
-
-                                                    test = true;
+                                                test = true;
                                                 break;
                                             }
                                         }
@@ -554,10 +660,11 @@ namespace openwbo {
             instance->setProblem(problem);
         }
 
-        void readStudents(const xml_node<> *n) const {
+        void readStudents(const xml_node<> *n) {
             std::map<int, Student> std;
             int idc = 0;
-            std::vector<ClusterStudent*> clusterStudent;
+            bool stuSame = false;
+            std::vector<ClusterStudent *> clusterStudent;
             for (const xml_node<> *sub = n->first_node(); sub; sub = sub->next_sibling()) {
                 int studentID = -1;
                 for (const xml_attribute<> *a = sub->first_attribute(); a; a = a->next_attribute()) {
@@ -573,6 +680,17 @@ namespace openwbo {
                     Course *course1 = instance->getCourse(courseIDstd);
                     if (course1->getMinLimit() < minimo)
                         minimo = course1->getMinLimit();
+                    if (stuSame) {
+                        for (Course *course2:c) {
+                            if (pairCourse.find(course2->getName() + courseIDstd) == pairCourse.end() &&
+                                pairCourse.find(courseIDstd + course2->getName()) == pairCourse.end()) {
+                                pairCourse.insert(std::pair<std::string, std::pair<Course *, Course *>>(
+                                        course2->getName() + courseIDstd,
+                                        std::pair<Course *, Course *>(course2, course1)));
+                            }
+                        }
+                    }
+                    stuSame = true;
                     c.push_back(course1);
                 }
                 std::pair<int, Student> s = std::pair<int, Student>(studentID, Student(studentID, c));
@@ -589,8 +707,10 @@ namespace openwbo {
                         std::cout<<clusterStudent[i]->getMin()<<std::endl;*/
 
                         if (c.size() != clusterStudent[i]->getCourses().size() ||
-                                (clusterStudent[i]->getStudent().size()+1)>MDC(clusterStudent[i]->getMin(),clusterStudent[i]->getStudent().size()+1)
-                                ||(clusterStudent[i]->getStudent().size()+1)>MDC(minimo,clusterStudent[i]->getStudent().size()+1))
+                            (clusterStudent[i]->getStudent().size() + 1) >
+                            MDC(clusterStudent[i]->getMin(), clusterStudent[i]->getStudent().size() + 1)
+                            || (clusterStudent[i]->getStudent().size() + 1) >
+                               MDC(minimo, clusterStudent[i]->getStudent().size() + 1))
                             continue;
                         for (int c0 = 0; c0 < c.size(); ++c0) {
                             t = false;
@@ -608,7 +728,7 @@ namespace openwbo {
                         if (t) {
                             temp = true;
                             clusterStudent[i]->addStudent(s.second);
-                            if(clusterStudent[i]->getMin()>minimo)
+                            if (clusterStudent[i]->getMin() > minimo)
                                 clusterStudent[i]->setMin(minimo);
                         }
                     }
@@ -679,12 +799,12 @@ namespace openwbo {
 
 
                 if (hard.find(type) != hard.end()) {
-                        hard[type].push_back(new ConstraintShort(type, penalty, c1, limit, limit1));
-                    } else {
-                        std::vector<ConstraintShort *> t;
-                        t.push_back(new ConstraintShort(type, penalty, c1, limit, limit1));
-                        hard.insert(std::pair<std::string, std::vector<ConstraintShort *>>(type, t));
-                    }
+                    hard[type].push_back(new ConstraintShort(type, penalty, c1, limit, limit1));
+                } else {
+                    std::vector<ConstraintShort *> t;
+                    t.push_back(new ConstraintShort(type, penalty, c1, limit, limit1));
+                    hard.insert(std::pair<std::string, std::vector<ConstraintShort *>>(type, t));
+                }
 
                 /*} else {
                     if (soft.find(type) != soft.end()) {
@@ -790,7 +910,7 @@ namespace openwbo {
                 }
                 std::cout << "Room" << std::endl;
                 for (Room *aRoom: c1->getRooms()) {
-                    std::cout<<"R " << aRoom->getId() << std::endl;
+                    std::cout << "R " << aRoom->getId() << std::endl;
                 }
             }
 
@@ -802,9 +922,15 @@ namespace openwbo {
 
         void genConstraint() {
             //printRoomCluster();
-
-
-           if (instance->getDist().find("SameAttendees") != instance->getDist().end()) {
+            if (instance->getDist().find("MaxBlock") != instance->getDist().end()) {
+                for (int y = 0; y < instance->getDist()["MaxBlock"].size(); ++y) {
+                    block(instance->getDist()["MaxBlock"].at(y)->getClasses(),
+                          instance->getDist()["MaxBlock"].at(y)->getParameter1(),
+                          instance->getDist()["MaxBlock"].at(y)->getParameter2(),
+                          instance->getDist()["MaxBlock"].at(y)->getWeight());
+                }
+            }
+            if (instance->getDist().find("SameAttendees") != instance->getDist().end()) {
                 for (int y = 0; y < instance->getDist()["SameAttendees"].size(); ++y) {
                     Class *idClassesDist, *idClassesDist1;
                     for (int ci = 0;
@@ -818,7 +944,8 @@ namespace openwbo {
                                 for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
                                     int travel = 0;
                                     if (idClassesDist->getPossiblePairRoom(p)->getId() ==
-                                        idClassesDist1->getPossiblePairRoom(p1)->getId()&&idClassesDist1->getPossiblePairRoom(p1)->getId()!=-1)
+                                        idClassesDist1->getPossiblePairRoom(p1)->getId() &&
+                                        idClassesDist1->getPossiblePairRoom(p1)->getId() != -1)
                                         continue;
                                     if (idClassesDist->getPossiblePairRoom(p)->getId() != -1 &&
                                         idClassesDist1->getPossiblePairRoom(p1)->getId() != -1) {
@@ -844,14 +971,13 @@ namespace openwbo {
                                                          instance->getNweek(), false)
                                         || stringcompare(idClassesDist->getPossiblePairLecture(p)->getDays(),
                                                          idClassesDist1->getPossiblePairLecture(p1)->getDays(),
-                                                         instance->getNdays(), false) ) {
-                                        ;
+                                                         instance->getNdays(), false)) { ;
                                     } else {
-                                        int w=0;
-                                       if((w=instance->getDist()["SameAttendees"].at(y)->getWeight())==-1)
+                                        int w = 0;
+                                        if ((w = instance->getDist()["SameAttendees"].at(y)->getWeight()) == -1)
                                             constraint(idClassesDist, idClassesDist1, p, p1);
                                         else
-                                            constraintSoft(idClassesDist, idClassesDist1, p, p1,w);
+                                            constraintSoft(idClassesDist, idClassesDist1, p, p1, w);
 
                                     }
                                 }
@@ -869,7 +995,7 @@ namespace openwbo {
                          ci < instance->getDist()["NotOverlap"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
                              ci1 <
-                                     instance->getDist()["NotOverlap"].at(y)->getClasses().size(); ++ci1) {
+                             instance->getDist()["NotOverlap"].at(y)->getClasses().size(); ++ci1) {
 
                             idClassesDist = instance->getDist()["NotOverlap"].at(y)->getClasses()[ci];
                             idClassesDist1 = instance->getDist()["NotOverlap"].at(
@@ -888,11 +1014,11 @@ namespace openwbo {
                                         idClassesDist1->getPossiblePairLecture(p1)->getEnd() <=
                                         idClassesDist->getPossiblePairLecture(p)->getStart()) { ;
                                     } else {
-                                        int w=0;
-                                        if((w=instance->getDist()["NotOverlap"].at(y)->getWeight())==-1)
+                                        int w = 0;
+                                        if ((w = instance->getDist()["NotOverlap"].at(y)->getWeight()) == -1)
                                             constraint(idClassesDist, idClassesDist1, p, p1);
                                         else
-                                            constraintSoft(idClassesDist, idClassesDist1, p, p1,w); 
+                                            constraintSoft(idClassesDist, idClassesDist1, p, p1, w);
 
 
                                     }
@@ -929,11 +1055,11 @@ namespace openwbo {
                                                 idClassesDist1->getPossiblePairLecture(p1)->getStart() ||
                                         idClassesDist1->getPossiblePairLecture(p1)->getEnd() <=
                                         idClassesDist->getPossiblePairLecture(p)->getStart()) {
-                                        int w=0;
-                                        if((w=instance->getDist()["Overlap"].at(y)->getWeight())==-1)
+                                        int w = 0;
+                                        if ((w = instance->getDist()["Overlap"].at(y)->getWeight()) == -1)
                                             constraint(idClassesDist, idClassesDist1, p, p1);
                                         else
-                                            constraintSoft(idClassesDist, idClassesDist1, p, p1,w);
+                                            constraintSoft(idClassesDist, idClassesDist1, p, p1, w);
                                     }
                                 }
 
@@ -950,7 +1076,7 @@ namespace openwbo {
                          ci < instance->getDist()["SameTime"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
                              ci1 <
-                                     instance->getDist()["SameTime"].at(y)->getClasses().size(); ++ci1) {
+                             instance->getDist()["SameTime"].at(y)->getClasses().size(); ++ci1) {
 
                             idClassesDist = instance->getDist()["SameTime"].at(y)->getClasses()[ci];
                             idClassesDist1 = instance->getDist()["SameTime"].at(
@@ -967,11 +1093,11 @@ namespace openwbo {
                                                && idClassesDist->getPossiblePairLecture(p)->getEnd() <=
                                                   idClassesDist1->getPossiblePairLecture(p1)->getEnd()) { ;
                                     } else {
-                                        int w=0;
-                                        if((w=instance->getDist()["SameTime"].at(y)->getWeight())==-1)
+                                        int w = 0;
+                                        if ((w = instance->getDist()["SameTime"].at(y)->getWeight()) == -1)
                                             constraint(idClassesDist, idClassesDist1, p, p1);
                                         else
-                                            constraintSoft(idClassesDist, idClassesDist1, p, p1,w); 
+                                            constraintSoft(idClassesDist, idClassesDist1, p, p1, w);
 
                                     }
                                 }
@@ -989,7 +1115,7 @@ namespace openwbo {
                          ci < instance->getDist()["SameRoom"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
                              ci1 <
-                                     instance->getDist()["SameRoom"].at(y)->getClasses().size(); ++ci1) {
+                             instance->getDist()["SameRoom"].at(y)->getClasses().size(); ++ci1) {
 
                             idClassesDist = instance->getDist()["SameRoom"].at(y)->getClasses()[ci];
                             idClassesDist1 = instance->getDist()["SameRoom"].at(
@@ -998,11 +1124,11 @@ namespace openwbo {
                                 for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
                                     if (idClassesDist->getPossiblePairRoom(p)->getId() !=
                                         idClassesDist1->getPossiblePairRoom(p1)->getId()) {
-                                        int w=0;
-                                        if((w=instance->getDist()["SameRoom"].at(y)->getWeight())==-1)
+                                        int w = 0;
+                                        if ((w = instance->getDist()["SameRoom"].at(y)->getWeight()) == -1)
                                             constraint(idClassesDist, idClassesDist1, p, p1);
                                         else
-                                            constraintSoft(idClassesDist, idClassesDist1, p, p1,w); 
+                                            constraintSoft(idClassesDist, idClassesDist1, p, p1, w);
 
                                     }
                                 }
@@ -1020,7 +1146,7 @@ namespace openwbo {
                          ci < instance->getDist()["DifferentDays"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
                              ci1 <
-                                     instance->getDist()["DifferentDays"].at(y)->getClasses().size(); ++ci1) {
+                             instance->getDist()["DifferentDays"].at(y)->getClasses().size(); ++ci1) {
 
                             idClassesDist = instance->getDist()["DifferentDays"].at(y)->getClasses()[ci];
                             idClassesDist1 = instance->getDist()["DifferentDays"].at(
@@ -1032,11 +1158,11 @@ namespace openwbo {
                                         if (idClassesDist->getPossiblePairLecture(p)->getDays()[d] ==
                                             idClassesDist1->getPossiblePairLecture(p1)->getDays()[d] &&
                                             idClassesDist->getPossiblePairLecture(p)->getDays()[d] == '1') {
-                                            int w=0;
-                                            if((w=instance->getDist()["DifferentDays"].at(y)->getWeight())==-1)
+                                            int w = 0;
+                                            if ((w = instance->getDist()["DifferentDays"].at(y)->getWeight()) == -1)
                                                 constraint(idClassesDist, idClassesDist1, p, p1);
                                             else
-                                                constraintSoft(idClassesDist, idClassesDist1, p, p1,w);
+                                                constraintSoft(idClassesDist, idClassesDist1, p, p1, w);
                                             break;
 
 
@@ -1058,7 +1184,7 @@ namespace openwbo {
                          ci < instance->getDist()["MinGap"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
                              ci1 <
-                                     instance->getDist()["MinGap"].at(y)->getClasses().size(); ++ci1) {
+                             instance->getDist()["MinGap"].at(y)->getClasses().size(); ++ci1) {
 
                             idClassesDist = instance->getDist()["MinGap"].at(y)->getClasses()[ci];
                             idClassesDist1 = instance->getDist()["MinGap"].at(
@@ -1073,17 +1199,17 @@ namespace openwbo {
                                                       idClassesDist->getPossiblePairLecture(p)->getDays(),
                                                       instance->getNdays(), false) == 1 ||
                                         (idClassesDist1->getPossiblePairLecture(p1)->getEnd() +
-                                                instance->getDist()["MinGap"].at(y)->getParameter1()) <=
+                                         instance->getDist()["MinGap"].at(y)->getParameter1()) <=
                                         idClassesDist->getPossiblePairLecture(p)->getStart() ||
                                         (idClassesDist->getPossiblePairLecture(p)->getEnd() +
-                                                instance->getDist()["MinGap"].at(y)->getParameter1()) <=
+                                         instance->getDist()["MinGap"].at(y)->getParameter1()) <=
                                         idClassesDist1->getPossiblePairLecture(p1)->getStart()) { ;
                                     } else {
-                                        int w=0;
-                                        if((w=instance->getDist()["MinGap"].at(y)->getWeight())==-1)
+                                        int w = 0;
+                                        if ((w = instance->getDist()["MinGap"].at(y)->getWeight()) == -1)
                                             constraint(idClassesDist, idClassesDist1, p, p1);
                                         else
-                                            constraintSoft(idClassesDist, idClassesDist1, p, p1,w); 
+                                            constraintSoft(idClassesDist, idClassesDist1, p, p1, w);
 
                                     }
                                 }
@@ -1099,27 +1225,26 @@ namespace openwbo {
                          ci < instance->getDist()["SameDays"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
                              ci1 <
-                                     instance->getDist()["SameDays"].at(y)->getClasses().size(); ++ci1) {
+                             instance->getDist()["SameDays"].at(y)->getClasses().size(); ++ci1) {
 
                             idClassesDist = instance->getDist()["SameDays"].at(y)->getClasses()[ci];
                             idClassesDist1 = instance->getDist()["SameDays"].at(y)->getClasses()[ci1];
                             for (int p = 0; p < idClassesDist->getPossiblePairSize(); ++p) {
                                 for (int p1 = 0; p1 < idClassesDist1->getPossiblePairSize(); ++p1) {
-                                        if (stringcontains(idClassesDist1->getPossiblePairLecture(p1)->getDays(),
-                                                           idClassesDist->getPossiblePairLecture(p)->getDays(),
-                                                           instance->getNdays()) ==
-                                            0) {
-                                            int w=0;
-                                            if((w=instance->getDist()["SameDays"].at(y)->getWeight())==-1)
-                                                constraint(idClassesDist, idClassesDist1, p, p1);
-                                            else
-                                                constraintSoft(idClassesDist, idClassesDist1, p, p1,w);
+                                    if (stringcontains(idClassesDist1->getPossiblePairLecture(p1)->getDays(),
+                                                       idClassesDist->getPossiblePairLecture(p)->getDays(),
+                                                       instance->getNdays()) ==
+                                        0) {
+                                        int w = 0;
+                                        if ((w = instance->getDist()["SameDays"].at(y)->getWeight()) == -1)
+                                            constraint(idClassesDist, idClassesDist1, p, p1);
+                                        else
+                                            constraintSoft(idClassesDist, idClassesDist1, p, p1, w);
 
-
-                                        }
 
                                     }
 
+                                }
 
 
                             }
@@ -1144,17 +1269,16 @@ namespace openwbo {
                                                        idClassesDist->getPossiblePairLecture(p)->getWeeks(),
                                                        instance->getNweek()) ==
                                         0) {
-                                        int w=0;
-                                        if((w=instance->getDist()["SameWeeks"].at(y)->getWeight())==-1)
+                                        int w = 0;
+                                        if ((w = instance->getDist()["SameWeeks"].at(y)->getWeight()) == -1)
                                             constraint(idClassesDist, idClassesDist1, p, p1);
                                         else
-                                            constraintSoft(idClassesDist, idClassesDist1, p, p1,w);
+                                            constraintSoft(idClassesDist, idClassesDist1, p, p1, w);
 
 
                                     }
 
                                 }
-
 
 
                             }
@@ -1169,7 +1293,7 @@ namespace openwbo {
                          ci < instance->getDist()["SameStart"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
                              ci1 <
-                                     instance->getDist()["SameStart"].at(y)->getClasses().size(); ++ci1) {
+                             instance->getDist()["SameStart"].at(y)->getClasses().size(); ++ci1) {
 
                             idClassesDist = instance->getDist()["SameStart"].at(y)->getClasses()[ci];
                             idClassesDist1 = instance->getDist()["SameStart"].at(
@@ -1226,11 +1350,11 @@ namespace openwbo {
                                              idClassesDist->getPossiblePairLecture(p)->getEnd() <=
                                              idClassesDist1->getPossiblePairLecture(p1)->getEnd());
                                     else {
-                                        int w=0;
-                                        if((w=instance->getDist()["Precedence"].at(y)->getWeight())==-1)
+                                        int w = 0;
+                                        if ((w = instance->getDist()["Precedence"].at(y)->getWeight()) == -1)
                                             constraint(idClassesDist, idClassesDist1, p, p1);
                                         else
-                                            constraintSoft(idClassesDist, idClassesDist1, p, p1,w);
+                                            constraintSoft(idClassesDist, idClassesDist1, p, p1, w);
 
 
                                     }
@@ -1252,7 +1376,7 @@ namespace openwbo {
                          ci < instance->getDist()["WorkDay"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
                              ci1 <
-                                     instance->getDist()["WorkDay"].at(y)->getClasses().size(); ++ci1) {
+                             instance->getDist()["WorkDay"].at(y)->getClasses().size(); ++ci1) {
 
                             idClassesDist = instance->getDist()["WorkDay"].at(y)->getClasses()[ci];
                             idClassesDist1 = instance->getDist()["WorkDay"].at(
@@ -1272,12 +1396,12 @@ namespace openwbo {
                                                      idClassesDist1->getPossiblePairLecture(p1)->getEnd()) -
                                             std::min(idClassesDist->getPossiblePairLecture(p)->getStart(),
                                                      idClassesDist1->getPossiblePairLecture(p1)->getStart()) >
-                                                instance->getDist()["WorkDay"].at(y)->getParameter1()) {
-                                            int w=0;
-                                            if((w=instance->getDist()["WorkDay"].at(y)->getWeight())==-1)
+                                            instance->getDist()["WorkDay"].at(y)->getParameter1()) {
+                                            int w = 0;
+                                            if ((w = instance->getDist()["WorkDay"].at(y)->getWeight()) == -1)
                                                 constraint(idClassesDist, idClassesDist1, p, p1);
                                             else
-                                                constraintSoft(idClassesDist, idClassesDist1, p, p1,w);
+                                                constraintSoft(idClassesDist, idClassesDist1, p, p1, w);
                                         }
                                     }
 
@@ -1290,65 +1414,64 @@ namespace openwbo {
             }
 
 
-
-                    for (std::pair<int,Room*> pairr: instance->getRooms()) {
-                        Room * r=pairr.second;
-                        for (int timei = 0; timei < r->t.size(); ++timei) {
-                            Time *time1 = r->t[timei];
-                            for (int timei1 = timei+1; timei1 < r->t.size(); ++timei1) {
-                                Time *time2 = r->t[timei1];
-                                if (time1->check(time2, instance->getNweek(),
-                                                 instance->getNdays())) {
-                                    for (int con = 0; con < time1->getClassesC().size(); ++con) {
-                                        for (int cla = 0;
-                                             cla < time2->getClassesC().size(); ++cla) {
-                                            if (time1->getClassesC()[con] !=
-                                                time2->getClassesC()[cla]) {
-                                                PB *pb = new PB();
-                                                pb->addProduct(mkLit(getVariableID(
-
-                                                        time1->getClassesC()[con])),
-                                                               1);
-                                                pb->addProduct(mkLit(getVariableID(
-
-                                                       time2->getClassesC()[cla])),
-                                                               1);
-                                                pb->_sign = true;
-                                                pb->addRHS(1);
-
-                                                maxsat_formula->addPBConstraint(pb);
-                                                delete pb;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
+            for (std::pair<int, Room *> pairr: instance->getRooms()) {
+                Room *r = pairr.second;
+                for (int timei = 0; timei < r->t.size(); ++timei) {
+                    Time *time1 = r->t[timei];
+                    for (int timei1 = timei + 1; timei1 < r->t.size(); ++timei1) {
+                        Time *time2 = r->t[timei1];
+                        if (time1->check(time2, instance->getNweek(),
+                                         instance->getNdays())) {
                             for (int con = 0; con < time1->getClassesC().size(); ++con) {
-                                for (int cla = con + 1; cla < time1->getClassesC().size(); ++cla) {
-                                    if (time1->getClassesC()[con] != time1->getClassesC()[cla]) {
+                                for (int cla = 0;
+                                     cla < time2->getClassesC().size(); ++cla) {
+                                    if (time1->getClassesC()[con] !=
+                                        time2->getClassesC()[cla]) {
                                         PB *pb = new PB();
-                                        pb->addProduct(
-                                                mkLit(getVariableID(time1->getClassesC()[con])),
-                                                1);
-                                        pb->addProduct(
-                                                mkLit(getVariableID(time1->getClassesC()[cla])),
-                                                1);
+                                        pb->addProduct(mkLit(getVariableID(
+
+                                                time1->getClassesC()[con])),
+                                                       1);
+                                        pb->addProduct(mkLit(getVariableID(
+
+                                                time2->getClassesC()[cla])),
+                                                       1);
                                         pb->_sign = true;
                                         pb->addRHS(1);
 
-
                                         maxsat_formula->addPBConstraint(pb);
                                         delete pb;
-
                                     }
-
                                 }
+                            }
+                        }
+                    }
+
+                    for (int con = 0; con < time1->getClassesC().size(); ++con) {
+                        for (int cla = con + 1; cla < time1->getClassesC().size(); ++cla) {
+                            if (time1->getClassesC()[con] != time1->getClassesC()[cla]) {
+                                PB *pb = new PB();
+                                pb->addProduct(
+                                        mkLit(getVariableID(time1->getClassesC()[con])),
+                                        1);
+                                pb->addProduct(
+                                        mkLit(getVariableID(time1->getClassesC()[cla])),
+                                        1);
+                                pb->_sign = true;
+                                pb->addRHS(1);
+
+
+                                maxsat_formula->addPBConstraint(pb);
+                                delete pb;
 
                             }
 
                         }
+
                     }
+
+                }
+            }
 
         }
 
@@ -1368,17 +1491,17 @@ namespace openwbo {
         }
 
         void constraintSoft(Class *idClassesDist, Class *idClassesDist1, int p, int p1, int pen) {
-            if(optSoft) {
+            if (optSoft) {
                 vec <Lit> l;
                 l.push(~mkLit(getVariableID(
                         idClassesDist->getKey(idClassesDist->getPossiblePairRoom(p),
-                                                                   idClassesDist->getPossiblePairLecture(p)))));
+                                              idClassesDist->getPossiblePairLecture(p)))));
                 l.push(~mkLit(getVariableID(
                         idClassesDist1->getKey(idClassesDist1->getPossiblePairRoom(p1),
-                                                                    idClassesDist1->getPossiblePairLecture(
-                                                                            p1)))));
+                                               idClassesDist1->getPossiblePairLecture(
+                                                       p1)))));
 
-                maxsat_formula->addSoftClause(pen*instance->getDistributionPen(),l);
+                maxsat_formula->addSoftClause(pen * instance->getDistributionPen(), l);
             }
         }
 
@@ -1394,36 +1517,105 @@ namespace openwbo {
         }
 
 
-        int genStudents(){
+        void sameTime() {
+            for (std::pair<std::string, std::pair<Course *, Course *>> pair: pairCourse) {
+                for (Class *aClass:pair.second.first->getClasses()) {
+                    for (Class *aClass1:pair.second.second->getClasses()) {
+                        vec <Lit> literal;
+                        Class *bClass0 = (aClass->getId() > aClass1->getId() ? aClass1 : aClass);
+                        Class *bClass1 = (aClass->getId() < aClass1->getId() ? aClass : aClass1);
+
+                        if (pairConf.find(std::to_string(bClass0->getId()) + "_" + std::to_string(bClass1->getId())) !=
+                            pairConf.end()) {
+                            for (std::pair<int, int> conf: pairConf[std::to_string(bClass0->getId()) + "_" +
+                                                                    std::to_string(bClass1->getId())]) {
+                                vec <Lit> l;
+
+                                l.push(~mkLit(getVariableID(bClass0->getKey(bClass0->getPossiblePairRoom(conf.first),
+                                                                            bClass0->getPossiblePairLecture(
+                                                                                    conf.first)))));
+                                l.push(~mkLit(getVariableID("sameTimeperSlot_" + std::to_string(bClass0->getId()) + "_"
+                                                            + std::to_string(bClass1->getId()) + "_" +
+                                                            std::to_string(conf.first) + "-" +
+                                                            std::to_string(conf.second))));
+                                maxsat_formula->addHardClause(l);
+                                vec <Lit> l1;
+                                l1.push(~mkLit(getVariableID(bClass1->getKey(bClass1->getPossiblePairRoom(conf.second),
+                                                                             bClass1->getPossiblePairLecture(
+                                                                                     conf.second)))));
+                                l1.push(~mkLit(getVariableID("sameTimeperSlot_" + std::to_string(bClass0->getId()) + "_"
+                                                             + std::to_string(bClass1->getId()) + "_" +
+                                                             std::to_string(conf.first) + "-" +
+                                                             std::to_string(conf.second))));
+                                maxsat_formula->addHardClause(l1);
+                                literal.push(
+                                        mkLit(getVariableID("sameTimeperSlot_" + std::to_string(bClass0->getId()) + "_"
+                                                            + std::to_string(bClass1->getId()) + "_" +
+                                                            std::to_string(conf.first) + "-" +
+                                                            std::to_string(conf.second))));
+
+                            }
+
+                        }
+                        if (literal.size() > 0) {
+                            literal.push(~mkLit(getVariableID("sameTime" + std::to_string(bClass0->getId()) + "_"
+                                                              + std::to_string(bClass1->getId()))));
+                            maxsat_formula->addHardClause(literal);
+                        }
+                    }
+                }
+            }
+
+
+
+
+        }
+
+
+        void genStudents() {
             requiredClasses();
             limit();
             parentChild();
-            if(optStud) {
+            if (optStud) {
+                sameTime();
                 conflicts();
             }
         }
 
         void requiredClasses() {
             for (int s = 0; s < instance->getClusterStudent().size(); ++s) {
+                std::vector<std::vector<Class *>> classes;
                 for (int c = 0; c < instance->getClusterStudent()[s]->getCourses().size(); ++c) {
-                    vec<Lit> l0;
-                    for (int conf = 0; conf < instance->getClusterStudent()[s]->getCourses()[c]->getNumConfig(); ++conf) {
-                        l0.push(mkLit(getVariableID(
-                                "conf" + std::to_string(s)+"_"+std::to_string(conf)+"_"+instance->getClusterStudent()[s]->getCourses()[c]->getName())));
-                        for (int part = 0; part < instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(conf).size(); ++part) {
-                            vec<Lit> l1;
-                            l1.push(~mkLit(getVariableID(
-                                    "conf" + std::to_string(s)+"_"+std::to_string(conf)+"_"+instance->getClusterStudent()[s]->getCourses()[c]->getName())));
+                    vec <Lit> l0;
+                    for (int conf = 0;
+                         conf < instance->getClusterStudent()[s]->getCourses()[c]->getNumConfig(); ++conf) {
+                        if(instance->getClusterStudent()[s]->getCourses()[c]->getNumConfig()>1)
+                            l0.push(mkLit(getVariableID(
+                                "conf" + std::to_string(s) + "_" + std::to_string(conf) + "_" +
+                                instance->getClusterStudent()[s]->getCourses()[c]->getName())));
+                        std::vector<Class *> partV;
+                        for (int part = 0; part < instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
+                                conf).size(); ++part) {
+                            vec <Lit> l1;
+                            if(instance->getClusterStudent()[s]->getCourses()[c]->getNumConfig()>1)
+                                l1.push(~mkLit(getVariableID(
+                                    "conf" + std::to_string(s) + "_" + std::to_string(conf) + "_" +
+                                    instance->getClusterStudent()[s]->getCourses()[c]->getName())));
                             for (int cla = 0;
-                                 cla < instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(conf)[part]->getClasses().size(); ++cla) {
-                                if(instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(conf)[part]->getClasses()[cla]->getLimit()==0)
+                                 cla < instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
+                                         conf)[part]->getClasses().size(); ++cla) {
+                                if (instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
+                                        conf)[part]->getClasses()[cla]->getLimit() == 0)
                                     continue;
-                                for (int cla1 = cla+1;
-                                     cla1 < instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(conf)[part]->getClasses().size(); ++cla1) {
-                                    if(instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(conf)[part]->getClasses()[cla1]->getLimit()==0)
+                                for (int cla1 = cla + 1;
+                                     cla1 < instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
+                                             conf)[part]->getClasses().size(); ++cla1) {
+                                    if (instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
+                                            conf)[part]->getClasses()[cla1]->getLimit() == 0)
                                         continue;
                                     vec <Lit> l;
-                                    l.push(~mkLit(getVariableID(
+                                    if(instance->getClusterStudent()[s]->getCourses()[c]->getNumConfig()>1)
+                                        l.push(~mkLit(getVariableID(
                                             "conf" + std::to_string(s) + "_" + std::to_string(conf) + "_" +
                                             instance->getClusterStudent()[s]->getCourses()[c]->getName())));
 
@@ -1437,14 +1629,23 @@ namespace openwbo {
                                                             conf)[part]->getClasses()[cla1]->getId()))));
                                     maxsat_formula->addHardClause(l);
                                 }
+                                partV.push_back(instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
+                                        conf)[part]->getClasses()[cla]);
                                 l1.push(mkLit(getVariableID(
-                                        "stu_" + std::to_string(s)+"_"+std::to_string(instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(conf)[part]->getClasses()[cla]->getId()))));
-                                instance->getClusterStudent()[s]->setClassesID(instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(conf)[part]->getClasses()[cla]->getId(),"stu_" + std::to_string(s)+"_"+std::to_string(instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(conf)[part]->getClasses()[cla]->getId()));
-
+                                        "stu_" + std::to_string(s) + "_" + std::to_string(
+                                                instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
+                                                        conf)[part]->getClasses()[cla]->getId()))));
+                                instance->getClusterStudent()[s]->setClassesID(
+                                        instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
+                                                conf)[part]->getClasses()[cla]->getId(),
+                                        "stu_" + std::to_string(s) + "_" + std::to_string(
+                                                instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
+                                                        conf)[part]->getClasses()[cla]->getId()));
 
 
                             }
-                           maxsat_formula->addHardClause(l1);
+                            classes.push_back(partV);
+                            maxsat_formula->addHardClause(l1);
 
 
                         }
@@ -1452,39 +1653,40 @@ namespace openwbo {
 
 
                     }
-                    maxsat_formula->addHardClause(l0);
+                    if(instance->getClusterStudent()[s]->getCourses()[c]->getNumConfig()>1)
+                        maxsat_formula->addHardClause(l0);
 
 
                 }
-
+                instance->getClusterStudent()[s]->setClasses(classes);
             }
 
 
         }
 
-        int MDC(int a, int b) const{
+        int MDC(int a, int b) const {
 
-            if (b==0) return a;
+            if (b == 0) return a;
 
-            return MDC(b,a%b);
+            return MDC(b, a % b);
         }
 
         void limit() {
             for (int cla = 0; cla < instance->getClasses().size(); ++cla) {
-                if(instance->getClasses()[cla]->getLimit()!=0) {
+                if (instance->getClasses()[cla]->getLimit() != 0) {
                     PB *pb = new PB();
                     bool t = false;
-                    int stuNumb=0;
+                    int stuNumb = 0;
                     for (int i = 0; i < instance->getClusterStudent().size(); ++i) {
                         if (instance->getClusterStudent()[i]->getClassesID(
                                 instance->getClasses()[cla]->getId()).compare("Empty") != 0) {
                             t = true;
                             //for (Student s: instance->getClusterStudent()[i]->getStudent()) {
-                           pb->addProduct(mkLit(getVariableID(
-                                        instance->getClusterStudent()[i]->getClassesID(
-                                                instance->getClasses()[cla]->getId()))),
-                                               instance->getClusterStudent()[i]->getStudent().size());
-                            stuNumb+=instance->getClusterStudent()[i]->getStudent().size();
+                            pb->addProduct(mkLit(getVariableID(
+                                    instance->getClusterStudent()[i]->getClassesID(
+                                            instance->getClasses()[cla]->getId()))),
+                                           instance->getClusterStudent()[i]->getStudent().size());
+                            stuNumb += instance->getClusterStudent()[i]->getStudent().size();
                             //}
                         }
                     }
@@ -1505,7 +1707,7 @@ namespace openwbo {
         void parentChild() {
             for (int i = 0; i < instance->getClusterStudent().size(); ++i) {
                 for (int c = 0; c < instance->getClasses().size(); ++c) {
-                    if(instance->getClasses()[c]->getLimit()!=0){
+                    if (instance->getClasses()[c]->getLimit() != 0) {
                         if (instance->getClasses()[c]->getParent() != nullptr) {
                             vec <Lit> l;
                             l.push(~mkLit(getVariableID(instance->getClusterStudent()[i]->getClassesID(
@@ -1523,91 +1725,148 @@ namespace openwbo {
         }
 
 
-
         void conflicts() {
-            for (int i = 0; i < instance->getClusterStudent().size(); ++i) {
-                for (int c = 0; c < instance->getClasses().size(); ++c) {
-                    if(instance->getClasses()[c]->getLimit()==0)
-                        continue;
-                    for (int c1 = c+1; c1 < instance->getClasses().size(); ++c1) {
-                        Class *class1 = instance->getClasses()[c];
-                        Class *class2 = instance->getClasses()[c1];
-                        if (class1->getSubconfcour().compare(class2->getSubconfcour()) == 0)
-                            continue;
-                        if(instance->getClasses()[c1]->getLimit()==0)
-                            continue;
-                        for (int t = 0; t < class1->getPossiblePairSize(); ++t) {
-                            for (int t1 = 0; t1 < class2->getPossiblePairSize(); ++t1) {
-                                if (checkStu(class2->getPossiblePair(t1),
-                                             class1->getPossiblePair(t))) {
-                                    vec<Lit> l;
-                                    l.push(~mkLit(getVariableID(instance->getClusterStudent()[i]->getClassesID(class1->getId()))));
-                                    l.push(~mkLit(getVariableID(instance->getClusterStudent()[i]->getClassesID(class2->getId()))));
-                                    l.push(~mkLit(getVariableID(class1->getKey(class1->getPossiblePair(t).first,
-                                                                                                         class1->getPossiblePair(t).second))));
-                                    l.push(~mkLit(getVariableID(class2->getKey(class2->getPossiblePair(t).first,
-                                                                                                   class2->getPossiblePair(t).second))));
-                                  maxsat_formula->addSoftClause(instance->getStudentPen()*instance->getClusterStudent()[i]->getStudent().size(),l);
 
-                                }
+            for (int i = 0; i < 1; ++i) {
+                for (int it = 0; it < instance->getClusterStudent()[i]->getClasses().size(); ++it) {
+                    for (int it1 = it + 1; it1 < instance->getClusterStudent()[i]->getClasses().size(); ++it1) {
+                        for (int c = 0; c < instance->getClusterStudent()[i]->getClasses()[it].size(); ++c) {
+                            if (instance->getClusterStudent()[i]->getClasses()[it][c]->getLimit() == 0)
+                                continue;
+                            for (int c1 = 0; c1 < instance->getClusterStudent()[i]->getClasses()[it1].size(); ++c1) {
+
+
+                                if (instance->getClusterStudent()[i]->getClasses()[it1][c1]->getLimit() == 0)
+                                    continue;
+                                if (instance->getClusterStudent()[i]->getClasses()[it1][c1]->getSubconfcour().compare(
+                                        instance->getClusterStudent()[i]->getClasses()[it][c]->getSubconfcour()) == 0)
+                                    continue;
+                                int bClass0 = (instance->getClusterStudent()[i]->getClasses()[it1][c1]->getId() > instance->getClusterStudent()[i]->getClasses()[it][c]->getId() ? instance->getClusterStudent()[i]->getClasses()[it][c]->getId()
+                                                                                     : instance->getClusterStudent()[i]->getClasses()[it1][c1]->getId());
+                                int bClass1 = (instance->getClusterStudent()[i]->getClasses()[it1][c1]->getId() < instance->getClusterStudent()[i]->getClasses()[it][c]->getId() ? instance->getClusterStudent()[i]->getClasses()[it1][c1]->getId() : instance->getClusterStudent()[i]->getClasses()[it][c]->getId());
+
+                                vec <Lit> l;
+                                l.push(~mkLit(getVariableID(instance->getClusterStudent()[i]->getClassesID(
+                                        instance->getClusterStudent()[i]->getClasses()[it][c]->getId()))));
+                                l.push(~mkLit(getVariableID(instance->getClusterStudent()[i]->getClassesID(
+                                        instance->getClusterStudent()[i]->getClasses()[it1][c1]->getId()))));
+                                l.push(~mkLit(getVariableID("sameTime" + std::to_string(bClass0) + "_"
+                                                            + std::to_string(bClass1))));
+                                maxsat_formula->addSoftClause(instance->getStudentPen() *
+                                                              instance->getClusterStudent()[i]->getStudent().size(),
+                                                              l);
 
                             }
                         }
                     }
-                    }
+
+
                 }
+
+            }
 
 
 
         }
 
-        bool checkStu(std::pair<Room*, Lecture *> p1, std::pair<Room*, Lecture *> p2) {
-            int travel = 0;
-            if (p1.first->getId() != -1 && p2.first->getId() != -1 && p1.first->getId() != p2.first->getId()) {
-                if (instance->getRoom(p1.first->getId())->getTravel(
-                        p2.first->getId()) > 0)
-                    travel = instance->getRoom(p1.first->getId())->getTravel(
-                            p2.first->getId());
-                else
-                    travel = instance->getRoom(
-                            p2.first->getId())->getTravel(
-                            p1.first->getId());
+
+
+        void block(std::vector<Class *> cont, int R, int S, double weight) {
+            std::list<Block *> blocks = genPair(cont);
+            for (Block *b :blocks) {
+                Block * blocks1 = makeBlock(S, b);
+                if(blocks1->vars.size()>R){
+                    vec <Lit> l;
+                    for (Block *b1 :blocks1->vars) {
+                        std::cout<<b1->vars[0]->getName()<<std::endl;
+                        l.push(~mkLit(getVariableID((b1->vars[0]->getName()))));
+                    }
+                    if(weight==-1)
+                        maxsat_formula->addHardClause(l);
+                    else
+                        maxsat_formula->addSoftClause(blocks1->vars.size()-R,l);
+                }
+
             }
-            for (int j = 0; j < instance->getNweek(); ++j) {
-                if (p1.second->getWeeks()[j] == p2.second->getWeeks()[j] &&
-                    p1.second->getWeeks()[j] == '1') {
-                    for (int d = 0; d < instance->getNdays(); ++d) {
-                        if (p1.second->getDays()[d] == p2.second->getDays()[d] &&
-                            p1.second->getDays()[d] == '1') {
-                            if (p1.second->getStart() >= p2.second->getStart() &&
-                                p1.second->getStart() <
-                                p2.second->getEnd() + travel) {
-                                return true;
-                            } else if (p2.second->getStart() >= p1.second->getStart() &&
-                                       p2.second->getStart() < p1.second->getEnd() + travel) {
-                                return true;
-                            }
+
+        }
+
+        std::list<Block *> genPair(std::vector<Class *> cont) {
+            std::list<Block *> blocks;
+            for (Class *c :cont) {
+                if (blocks.size() != 0) {
+                    for (std::list<Block *>::iterator it = blocks.begin(); it != blocks.end(); ++it) {
+                        for (int i = 0; i < c->getPossiblePairSize(); ++i) {
+                            (*it)->add(new Vars(c->getKey(
+                                    c->getPossiblePair(
+                                            i).first,
+                                    c->getPossiblePair(
+                                            i).second), c->getPossiblePair(
+                                    i).second->getStart(), c->getPossiblePair(
+                                    i).second->getEnd()));
                         }
                     }
+
+                } else {
+                    for (int i = 0; i < c->getPossiblePairSize(); ++i) {
+                        blocks.push_back(new Vars(c->getKey(
+                                c->getPossiblePair(
+                                        i).first,
+                                c->getPossiblePair(
+                                        i).second), c->getPossiblePair(
+                                i).second->getStart(), c->getPossiblePair(
+                                i).second->getEnd()));
+                    }
                 }
+
+            }
+            return blocks;
+
+        }
+
+        Block * makeBlock(int S, Block * block) {
+            bool change = true;
+            while (change) {
+                change = false;
+                for (int i=0; i< block->vars.size();i++) {
+                    for (int y=i+1;y<block->vars.size();y++) {
+                        if (merge(block->vars[i],i, block->vars[y], y,S,block))
+                            change = true;
+
+                    }
+
+                }
+            }
+            return block;
+        }
+
+        bool merge(Block *b1, int b1i,Block *b2,int b2i, int S, Block* blocks) {
+            if ((b2->start - b1->end < S && b1->end < b2->start) ||
+                (b1->start - b2->end < S && b2->end < b1->start)) {
+                blocks->vars.erase(blocks->vars.begin()+b1i);
+                if(b1i<b2i)
+                    b2i--; //correct pointer
+                blocks->vars.erase(blocks->vars.begin()+b2i);
+                blocks->vars.push_back(
+                        new Block(std::min(b2->start, b1->start), std::max(b2->end, b1->end), b1->vars, b2->vars));
+                return true;
             }
             return false;
-        }
-
-
-        void block(std::vector<Class*> cont){
-            for (Class * c :cont) {
-                
-            }
-
         }
 
     protected:
 
         Instance *instance;
+
+        std::map<std::string, std::pair<Course *, Course *>> pairCourse;
+        std::map<std::string, std::vector<std::pair<int, int>>> pairConf;
+        std::map<int, std::vector<Time *>> times;
+
+
         MaxSATFormula *maxsat_formula;
         std::vector<ClusterbyRoom *> cluster;
     };
+
 
 } // namespace openwbo
 

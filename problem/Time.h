@@ -18,6 +18,7 @@ class Time {
     std::string day;
     std::string week;
     std::vector<int> classesCid;
+    std::vector<int> classesMax;
     std::vector<std::string > classesC;
 public:
 
@@ -44,7 +45,11 @@ public:
         Time::end = end;
     }
 
-
+    Time(int start, int end, const std::string &week, std::string &day, std::string clID, int idC, int max) : start(start), end(end),day(day),week(week) {
+        classesC.push_back(clID);
+        classesCid.push_back(idC);
+        classesMax.push_back(max);
+    }
 
 
 
@@ -58,6 +63,10 @@ public:
     }
     const std::vector<int> &getClassesCid() const {
         return classesCid;
+    }
+
+    const std::vector<int> &getClassesMax() const {
+        return classesMax;
     }
 
     bool checkWD(Lecture *p1, int nw, int nd) {

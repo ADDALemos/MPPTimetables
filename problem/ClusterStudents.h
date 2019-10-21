@@ -15,8 +15,17 @@ class ClusterStudent {
     std::vector<Course *> course;
     std::set<Student > student;
     std::map<int,std::string> classesID;
+    std::vector<std::vector<Class*>> classes;
 
 public:
+    std::vector<std::vector<Class*>> &getClasses()  {
+        return classes;
+    }
+
+    void setClasses(const std::vector<std::vector<Class*>> &classes) {
+        ClusterStudent::classes = classes;
+    }
+
     int getMin(){ return minimo;}
 
     void setMin(int n){  minimo=n;}
@@ -48,7 +57,7 @@ public:
 
 
     ClusterStudent(int id, std::vector<Course *, std::allocator<Course *>> course, Student s, int minimo)
-            : id(id), course(course),minimo(minimo) {
+            : id(id),minimo(minimo), course(course) {
         student.insert(s);
 
     }
