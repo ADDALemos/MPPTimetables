@@ -26,6 +26,7 @@
 #include "problem/Curriculum.h"
 #include "problem/ConstraintShort.h"
 #include "utils/StringUtil.h"
+#include "utils/HardwareStats.h"
 
 using namespace rapidxml;
 
@@ -347,9 +348,20 @@ namespace openwbo {
                                                                 j->first->t[ti]->getDay().compare(l->getDays()) == 0 &&
                                                                 l->getStart() == j->first->t[ti]->getStart() &&
                                                                 l->getEnd() == j->first->t[ti]->getEnd()) {
+                                                                for (std::string confT:  j->first->t[ti]->getClassesC()) {
+                                                                    vec <Lit> *l= new vec <Lit>();
+                                                                    l->push(~mkLit(getVariableID(
+                                                                            "x_" + std::to_string(order) + "_" +
+                                                                            std::to_string(max))));
+                                                                    l->push(~mkLit(getVariableID(confT)));
+
+                                                                    maxsat_formula->addHardClause(*l);
+                                                                    delete l;
+                                                                }
                                                                 j->first->t[ti]->addC(
                                                                         "x_" + std::to_string(order) + "_" +
                                                                         std::to_string(max), idclass);
+
                                                                 is = false;
                                                             }
                                                         }
@@ -921,6 +933,8 @@ namespace openwbo {
         }
 
         void genConstraint() {
+            //room();
+            Class *idClassesDist, *idClassesDist1;
             //printRoomCluster();
             if (instance->getDist().find("MaxBlock") != instance->getDist().end()) {
                 for (int y = 0; y < instance->getDist()["MaxBlock"].size(); ++y) {
@@ -932,7 +946,6 @@ namespace openwbo {
             }
             if (instance->getDist().find("SameAttendees") != instance->getDist().end()) {
                 for (int y = 0; y < instance->getDist()["SameAttendees"].size(); ++y) {
-                    Class *idClassesDist, *idClassesDist1;
                     for (int ci = 0;
                          ci < instance->getDist()["SameAttendees"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
@@ -990,7 +1003,6 @@ namespace openwbo {
             }
             if (instance->getDist().find("NotOverlap") != instance->getDist().end()) {
                 for (int y = 0; y < instance->getDist()["NotOverlap"].size(); ++y) {
-                    Class *idClassesDist, *idClassesDist1;
                     for (int ci = 0;
                          ci < instance->getDist()["NotOverlap"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
@@ -1032,7 +1044,6 @@ namespace openwbo {
             }
             if (instance->getDist().find("Overlap") != instance->getDist().end()) {
                 for (int y = 0; y < instance->getDist()["Overlap"].size(); ++y) {
-                    Class *idClassesDist, *idClassesDist1;
                     for (int ci = 0;
                          ci < instance->getDist()["Overlap"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
@@ -1071,7 +1082,6 @@ namespace openwbo {
             }
             if (instance->getDist().find("SameTime") != instance->getDist().end()) {
                 for (int y = 0; y < instance->getDist()["SameTime"].size(); ++y) {
-                    Class *idClassesDist, *idClassesDist1;
                     for (int ci = 0;
                          ci < instance->getDist()["SameTime"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
@@ -1110,7 +1120,6 @@ namespace openwbo {
             }
             if (instance->getDist().find("SameRoom") != instance->getDist().end()) {
                 for (int y = 0; y < instance->getDist()["SameRoom"].size(); ++y) {
-                    Class *idClassesDist, *idClassesDist1;
                     for (int ci = 0;
                          ci < instance->getDist()["SameRoom"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
@@ -1141,7 +1150,6 @@ namespace openwbo {
             }
             if (instance->getDist().find("DifferentDays") != instance->getDist().end()) {
                 for (int y = 0; y < instance->getDist()["DifferentDays"].size(); ++y) {
-                    Class *idClassesDist, *idClassesDist1;
                     for (int ci = 0;
                          ci < instance->getDist()["DifferentDays"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
@@ -1179,7 +1187,6 @@ namespace openwbo {
             }
             if (instance->getDist().find("MinGap") != instance->getDist().end()) {
                 for (int y = 0; y < instance->getDist()["MinGap"].size(); ++y) {
-                    Class *idClassesDist, *idClassesDist1;
                     for (int ci = 0;
                          ci < instance->getDist()["MinGap"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
@@ -1220,7 +1227,6 @@ namespace openwbo {
             }
             if (instance->getDist().find("SameDays") != instance->getDist().end()) {
                 for (int y = 0; y < instance->getDist()["SameDays"].size(); ++y) {
-                    Class *idClassesDist, *idClassesDist1;
                     for (int ci = 0;
                          ci < instance->getDist()["SameDays"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
@@ -1254,7 +1260,6 @@ namespace openwbo {
             }
             if (instance->getDist().find("SameWeeks") != instance->getDist().end()) {
                 for (int y = 0; y < instance->getDist()["SameWeeks"].size(); ++y) {
-                    Class *idClassesDist, *idClassesDist1;
                     for (int ci = 0;
                          ci < instance->getDist()["SameWeeks"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
@@ -1288,7 +1293,6 @@ namespace openwbo {
             }
             if (instance->getDist().find("SameStart") != instance->getDist().end()) {
                 for (int y = 0; y < instance->getDist()["SameStart"].size(); ++y) {
-                    Class *idClassesDist, *idClassesDist1;
                     for (int ci = 0;
                          ci < instance->getDist()["SameStart"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
@@ -1319,7 +1323,6 @@ namespace openwbo {
             }
             if (instance->getDist().find("Precedence") != instance->getDist().end()) {
                 for (int y = 0; y < instance->getDist()["Precedence"].size(); ++y) {
-                    Class *idClassesDist, *idClassesDist1;
                     for (int ci = 0;
                          ci < instance->getDist()["Precedence"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
@@ -1371,7 +1374,6 @@ namespace openwbo {
             }
             if (instance->getDist().find("WorkDay") != instance->getDist().end()) {
                 for (int y = 0; y < instance->getDist()["WorkDay"].size(); ++y) {
-                    Class *idClassesDist, *idClassesDist1;
                     for (int ci = 0;
                          ci < instance->getDist()["WorkDay"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
@@ -1414,79 +1416,21 @@ namespace openwbo {
             }
 
 
-            for (std::pair<int, Room *> pairr: instance->getRooms()) {
-                Room *r = pairr.second;
-                for (int timei = 0; timei < r->t.size(); ++timei) {
-                    Time *time1 = r->t[timei];
-                    for (int timei1 = timei + 1; timei1 < r->t.size(); ++timei1) {
-                        Time *time2 = r->t[timei1];
-                        if (time1->check(time2, instance->getNweek(),
-                                         instance->getNdays())) {
-                            for (int con = 0; con < time1->getClassesC().size(); ++con) {
-                                for (int cla = 0;
-                                     cla < time2->getClassesC().size(); ++cla) {
-                                    if (time1->getClassesC()[con] !=
-                                        time2->getClassesC()[cla]) {
-                                        PB *pb = new PB();
-                                        pb->addProduct(mkLit(getVariableID(
-
-                                                time1->getClassesC()[con])),
-                                                       1);
-                                        pb->addProduct(mkLit(getVariableID(
-
-                                                time2->getClassesC()[cla])),
-                                                       1);
-                                        pb->_sign = true;
-                                        pb->addRHS(1);
-
-                                        maxsat_formula->addPBConstraint(pb);
-                                        delete pb;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    for (int con = 0; con < time1->getClassesC().size(); ++con) {
-                        for (int cla = con + 1; cla < time1->getClassesC().size(); ++cla) {
-                            if (time1->getClassesC()[con] != time1->getClassesC()[cla]) {
-                                PB *pb = new PB();
-                                pb->addProduct(
-                                        mkLit(getVariableID(time1->getClassesC()[con])),
-                                        1);
-                                pb->addProduct(
-                                        mkLit(getVariableID(time1->getClassesC()[cla])),
-                                        1);
-                                pb->_sign = true;
-                                pb->addRHS(1);
-
-
-                                maxsat_formula->addPBConstraint(pb);
-                                delete pb;
-
-                            }
-
-                        }
-
-                    }
-
-                }
-            }
-
         }
-
+        
 
         void constraint(Class *idClassesDist, Class *idClassesDist1, int p, int p1) {
-            vec <Lit> l;
-            l.push(~mkLit(getVariableID(
+            vec <Lit> *l;
+            l->push(~mkLit(getVariableID(
                     idClassesDist->getKey(idClassesDist->getPossiblePairRoom(p),
                                           idClassesDist->getPossiblePairLecture(p)))));
-            l.push(~mkLit(getVariableID(
+            l->push(~mkLit(getVariableID(
                     idClassesDist1->getKey(idClassesDist1->getPossiblePairRoom(p1),
                                            idClassesDist1->getPossiblePairLecture(
                                                    p1)))));
 
-            maxsat_formula->addHardClause(l);
+            maxsat_formula->addHardClause(*l);
+            delete l;
 
         }
 
@@ -1776,6 +1720,7 @@ namespace openwbo {
             for (Block *b :blocks) {
                 Block * blocks1 = makeBlock(S, b);
                 if(blocks1->vars.size()>R){
+                    std::cout<<"Block"<<std::endl;
                     vec <Lit> l;
                     for (Block *b1 :blocks1->vars) {
                         std::cout<<b1->vars[0]->getName()<<std::endl;
