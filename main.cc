@@ -347,8 +347,8 @@ int main(int argc, char **argv) {
         //printClusterofStudents(parserXML->getInstance());
         parserXML->genConstraint();
         std::cout<<"Fin1"<<std::endl;
-        printCNF(maxsat_formula,parserXML->getInstance()->getName());
-        std::exit(0);
+        //printCNF(maxsat_formula,parserXML->getInstance()->getName());
+        //std::exit(0);
 
         //parserXML->genStudents();
         //parserXML->getInstance()->setDistributionPen(1);
@@ -489,24 +489,28 @@ void printClusterofStudents(Instance *instance) {
 }
 
 void printCNF(MaxSATFormula *f, std::string s) {
-    int w=f->nSoft()*1000;
+    int w=0;
+    for (int i = 0; i < f->nSoft(); i++){
+        w+=f->getSoftClause(i).weight;
+    }
+    w++;
     std::ofstream file_stored(s+".wcnf");
 
-    file_stored << "p wcnf "<<f->nVars()<<" "<<(f->nSoft()+f->nHard())<<std::endl;
+    file_stored << "p wcnf "<<f->nVars()<<" "<<(f->nSoft()+f->nHard())<<" "<<w<<std::endl;
     for (int i = 0; i < f->nHard(); i++){
         file_stored<<w<<" ";
         for (int l=0;l< f->getHardClause(i).clause.size();l++) {
-            file_stored << toInt(f->getHardClause(i).clause[l])<<" ";
+            file_stored << (sign(f->getHardClause(i).clause[l])?"":"-")<<toInt(f->getHardClause(i).clause[l])<<" ";
         }
-        file_stored<<std::endl;
+        file_stored<<"0"<<std::endl;
     }
 
     for (int i = 0; i < f->nSoft(); i++){
         file_stored<<f->getSoftClause(i).weight<<" ";
         for (int l=0;l< f->getSoftClause(i).clause.size();l++) {
-            file_stored << toInt(f->getSoftClause(i).clause[l])<<" ";
+            file_stored << (sign(f->getHardClause(i).clause[l])?"":"-")<<toInt(f->getSoftClause(i).clause[l])<<" ";
         }
-        file_stored<<std::endl;
+        file_stored<<"0"<<std::endl;
     }
 
     file_stored.close();

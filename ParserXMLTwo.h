@@ -978,20 +978,12 @@ namespace openwbo {
                                      cla < time2->getClassesC().size(); ++cla) {
                                     if (time1->getClassesC()[con] !=
                                         time2->getClassesC()[cla]) {
-                                        PB *pb = new PB();
-                                        pb->addProduct(mkLit(getVariableID(
+                                        vec <Lit> *l = new vec<Lit>();
+                                        l->push(~mkLit(getVariableID(time1->getClassesC()[con])));
+                                        l->push(~mkLit(getVariableID(time2->getClassesC()[cla])));
 
-                                                time1->getClassesC()[con])),
-                                                       1);
-                                        pb->addProduct(mkLit(getVariableID(
-
-                                                time2->getClassesC()[cla])),
-                                                       1);
-                                        pb->_sign = true;
-                                        pb->addRHS(1);
-
-                                        maxsat_formula->addPBConstraint(pb);
-                                        delete pb;
+                                        maxsat_formula->addHardClause(*l);
+                                        delete l;
                                     }
                                 }
                             }
@@ -1001,20 +993,12 @@ namespace openwbo {
                     for (int con = 0; con < time1->getClassesC().size(); ++con) {
                         for (int cla = con + 1; cla < time1->getClassesC().size(); ++cla) {
                             if (time1->getClassesC()[con] != time1->getClassesC()[cla]) {
-                                PB *pb = new PB();
-                                pb->addProduct(
-                                        mkLit(getVariableID(time1->getClassesC()[con])),
-                                        1);
-                                pb->addProduct(
-                                        mkLit(getVariableID(time1->getClassesC()[cla])),
-                                        1);
-                                pb->_sign = true;
-                                pb->addRHS(1);
+                                vec <Lit> *l = new vec<Lit>();
+                                l->push(~mkLit(getVariableID(time1->getClassesC()[con])));
+                                l->push(~mkLit(getVariableID(time1->getClassesC()[cla])));
 
-
-                                maxsat_formula->addPBConstraint(pb);
-                                delete pb;
-
+                                maxsat_formula->addHardClause(*l);
+                                delete l;
                             }
 
                         }
