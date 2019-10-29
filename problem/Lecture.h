@@ -10,6 +10,7 @@
 
 class Lecture {
     int cost;
+    int orderID=-1;
     std::string days;
     int start;
     int lenght;
@@ -96,6 +97,13 @@ class Lecture {
         if (strcmp(doubleLec, "yes") == 0)
             doubleL = true;
         lenght = 1;
+    }
+
+    int getOrderId() {
+        return orderID;
+    }
+    void setOrderID(int i){
+        orderID=i;
     }
 };
 

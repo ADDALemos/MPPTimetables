@@ -77,6 +77,11 @@ public:
         this->duration = duration;
     }
 
+    void updateSolution(int roomID, std::string room) {
+        this->room=room;
+        this->roomID=roomID;
+    }
+
     Solution(int start, int roomID, std::string room,std::string week, std::string day):roomID(roomID),start(start),
     room(room), week(week), days(day){
 

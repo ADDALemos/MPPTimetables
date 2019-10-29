@@ -253,11 +253,9 @@ public:
     }*/
 
     Room* getPossibleRoom(int n) {
-        int i = 0;
         for (std::map<Room*, int>::iterator it = possibleRooms.begin(); it != possibleRooms.end(); ++it) {
-            if (i == n)
+            if (it->second == n)
                 return it->first;
-            i++;
         }
         throw std::out_of_range("possibleRooms::at: key not found");
     }
@@ -503,6 +501,10 @@ public:
 
     void updateSolution(int time, std::string week, std::string day, int duration) {
         sol->updateSolution(time, week, day, duration);
+    }
+
+    void updateSolution(int roomID, std::string room) {
+        sol->updateSolution(roomID,room);
     }
 
     void setSolution(Solution* s) {

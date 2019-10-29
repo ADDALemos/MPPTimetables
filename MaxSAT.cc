@@ -652,7 +652,6 @@ void MaxSAT::print() {
         indexMap::const_iterator iter = maxsat_formula->getIndexToName().find(m);
         if (iter != maxsat_formula->getIndexToName().end()) {
             if (model[m] != l_False) {
-                bool find = false;
                 std::vector<std::string> token;
                 token = split(iter->second, "_");
 
@@ -684,7 +683,48 @@ void MaxSAT::print() {
                                         std::stoi(token[2])).second->getDays());
 
 
-                    } else {
+                    } else if (token[0].compare("y") == 0) {
+                        //"x_" +std::to_string(order)+"_"+std::to_string(c->getPossiblePairSize()-1)
+                        //assert(instance->getClasses()[std::stoi(token[1])]->getLectures()[
+                          //      std::stoi(token[2])]->getOrderId()==std::stoi(token[2]));
+
+
+                        instance->getClasses()[std::stoi(token[1])]->setSolution(
+                                instance->getClasses()[std::stoi(token[1])]->getLectures()[
+                                        std::stoi(token[2])]->getStart(),
+                                instance->getClasses()[std::stoi(token[1])]->getPossibleRoom(std::stoi(token[3]))->getId(),
+                                instance->getClasses()[std::stoi(token[1])]->getPossibleRoom(std::stoi(token[3]))->getName(),
+                                instance->getClasses()[std::stoi(token[1])]->getLectures()[
+                                        std::stoi(token[2])]->getWeeks(),
+                                instance->getClasses()[std::stoi(token[1])]->getLectures()[
+                                        std::stoi(token[2])]->getDays());
+
+
+
+                    } else if (token[0].compare("t") == 0) {
+                        //"t_" +std::to_string(order)+"_"+std::to_string(orderTime)
+                        if(instance->getClasses()[std::stoi(token[1])]->getPossibleRooms().size()==0)
+                            instance->getClasses()[std::stoi(token[1])]->updateSolution(
+                                instance->getClasses()[std::stoi(token[1])]->getLectures()[
+                                        std::stoi(token[2])]->getStart(),
+                                instance->getClasses()[std::stoi(token[1])]->getLectures()[
+                                        std::stoi(token[2])]->getWeeks(),
+                                instance->getClasses()[std::stoi(token[1])]->getLectures()[
+                                        std::stoi(token[2])]->getDays(),
+                                instance->getClasses()[std::stoi(token[1])]->getLectures()[
+                                        std::stoi(token[2])]->getLenght());
+
+
+                    } /*else if (token[0].compare("r") == 0) {
+                    //"r_" +std::to_string(order)+"_"+std::to_string(c->possibleRoom)
+
+
+                    instance->getClasses()[std::stoi(token[1])]->updateSolution(
+                            instance->getClasses()[std::stoi(token[1])]->getPossibleRoom(std::stoi(token[2]))->getId(),
+                            instance->getClasses()[std::stoi(token[1])]->getPossibleRoom(std::stoi(token[2]))->getName());
+
+
+                    }*/else {
                         //std::cout<<iter->second.c_str()<<std::endl;
                     }
                 }
@@ -694,6 +734,7 @@ void MaxSAT::print() {
     }
     writeXMLOutput("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + "_" +
                    std::to_string(modelS) + "_" + instance->getAlgo() + ".xml", instance);
+
 }
 
 void MaxSAT::setInstance(Instance *instance) {
