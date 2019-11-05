@@ -654,6 +654,7 @@ void MaxSAT::print() {
             if (model[m] != l_False) {
                 std::vector<std::string> token;
                 token = split(iter->second, "_");
+                std::cout<<iter->second<<std::endl;
 
                 if(token.size()!=0) {
                     if (token[0].compare("stu") == 0) {
@@ -734,6 +735,7 @@ void MaxSAT::print() {
     }
     writeXMLOutput("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + "_" +
                    std::to_string(modelS) + "_" + instance->getAlgo() + ".xml", instance);
+    std::exit(1);
 
 }
 

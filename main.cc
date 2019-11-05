@@ -327,8 +327,11 @@ int main(int argc, char **argv) {
         parserXML->parse(argv[4]);
 
         std::cout<<"Read End"<<std::endl;
-        parserXML->room();
+        printRAM();
+        parserXML->aux();
+        //parserXML->room();
         std::cout<<"room End"<<std::endl;
+        printRAM();
 
 
         //parserXML->sameTime();
@@ -347,9 +350,10 @@ int main(int argc, char **argv) {
         //printClusterofStudents(parserXML->getInstance());
         parserXML->genConstraint();
         std::cout<<"Fin1"<<std::endl;
+        printRAM();
         //printCNF(maxsat_formula,parserXML->getInstance()->getName());
         //std::exit(0);
-
+        //parserXML->sameTime();
         //parserXML->genStudents();
         //parserXML->getInstance()->setDistributionPen(1);
         //parserXML->getInstance()->setTimePen(1);

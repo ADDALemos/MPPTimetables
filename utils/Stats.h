@@ -70,13 +70,6 @@ inline void printStats(Instance *instance) {
 
 
 
-inline void printCorrectedStats(Instance *instance) {
-    std::cout << "*****Timetable Description with Correction*****" << std::endl;
-    std::cout << "Number of Slots: " << instance->actualSpace() << std::endl;
-    std::cout << "Number of Days: " << instance->actualSpaceDay() << std::endl;
-    std::cout << "Frequency: " << instance->frequencyCorrected() << std::endl;
-    std::cout << "Utilization: " << instance->utilizationCorrected() << std::endl;
-}
 
 
 inline void printConstraintsStat(Instance *instance) {

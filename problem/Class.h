@@ -4,6 +4,15 @@
 
 #ifndef TIMETABLER_CLASS_H
 #define TIMETABLER_CLASS_H
+#ifdef SIMP
+#include "simp/SimpSolver.h"
+#else
+#include "core/Solver.h"
+#endif
+
+#include <map>
+#include <string>
+
 #include <vector>
 #include <utility>
 #include <ostream>
@@ -13,6 +22,7 @@
 #include "Solution.h"
 #include <stdexcept>
 
+using NSPACE::Lit;
 
 class Class {
     bool modified = false;
@@ -29,7 +39,53 @@ class Class {
     int costG = 0;
     int courseID;
     std::string oneeach;
+    std::map<int,std::vector<Lit>> hour;
+    std::map<std::string,std::vector<Lit>> day;
+    std::map<std::string,std::vector<Lit>> week;
+    std::set<std::pair<int,int>> hours;
+    std::set<std::string> weeks;
+    std::set<std::string>  days;
+
+
 public:
+    const std::set<std::string> &getWeeks() const {
+        return weeks;
+    }
+
+    void setWeeks(const std::set<std::string> &weeks) {
+        Class::weeks = weeks;
+    }
+
+    const std::set<std::string> &getDays() const {
+        return days;
+    }
+
+    void setDays(const std::set<std::string> &days) {
+        Class::days = days;
+    }
+
+    std::map<int, std::vector < Lit>> &getHour()  {
+        return hour;
+    }
+
+    void setHour(const std::map<int, std::vector < Lit>> & hour){
+        Class::hour = hour;
+    }
+
+    void setDay(const std::map<std::string, std::vector < Lit>> & day){
+        Class::day = day;
+    }
+    std::map<std::string, std::vector < Lit>> & getWeek()  {
+        return week;
+    }
+
+    std::map<std::string, std::vector < Lit>> & getDay()  {
+        return day;
+    }
+
+    void setWeek(const std::map<std::string, std::vector < Lit>> & week){
+        Class::week = week;
+    }
     const std::string &getOneeach() const {
         return oneeach;
     }
@@ -83,9 +139,7 @@ public:
     const std::vector<int, std::allocator<int>> &getConv() const {
         return conv;
     }
-    bool isTaughtWeek(int w) {
-        return getWeeks()[w] == '1';
-    }
+
 
     int getOrderID() const {
         return orderID;
@@ -349,68 +403,13 @@ public:
         return min;
     }
 
-    int getMaxDays() const {
-        int max = 0;
-        for (int i = 0; i < lectures.size(); ++i) {
-            int j = 0;
-            for (char &c : lectures[i]->getDays()) {
-                if (c == '1' && j > max)
-                    max = j;
-                j++;
-            }
-        }
-        return max;
-    }
 
-    int getMinDays() const {
-        int min = getMaxDays();
-        for (int i = 0; i < lectures.size(); ++i) {
-            int j = 0;
-            for (char &c : lectures[i]->getDays()) {
-                if (c == '1' && j < min)
-                    min = j;
-                j++;
-            }
-        }
-        return min;
-    }
 
-    int getDay() {
-        throw "Legacy Mode";
-        int i = 0;
-        for (char &c : getDays()) {
-            i++;
-            if (c == '1')
-                return i;
 
-        }
-        return -1;
-    }
 
-    std::string getDays() {
-        throw "Legacy Mode";
-        return lectures[0]->getDays();
-    }
 
-    /*std::string getWeek() {
-        throw "Legacy Mode";
-        return lectures[0]->getWeeks();
-    }*/
 
-    std::string getWeeks() const {
-        std::string week = lectures[0]->getWeeks();
-        for (int i = 0; i < lectures.size(); ++i) {
-            int d = 0;
-            for (const char &c :  lectures[i]->getWeeks()) {
-                if (week[d] == '0' && c == '1') {
-                    week[d] = '1';
-                }
-                d++;
-            }
 
-        }
-        return week;
-    }
 
     int getId() {
         return id;
@@ -454,11 +453,7 @@ public:
         return possibleRooms[r];
     }
 
-    bool isActive(int w) {
-        if (w != -1)
-            return getWeeks()[w] == '1';
-        return true;
-    }
+
 
     void
     setPossibleRooms(const std::map<Room*, int> &possibleRooms) {
@@ -569,6 +564,14 @@ public:
         return std::make_pair(cost,time);
     }
 
+    void setHours(std::set<std::pair<int,int>> set) {
+        hours=set;
+
+    }
+
+    std::set<std::pair<int,int>> getHours() {
+        return hours;
+    }
 };
 
 

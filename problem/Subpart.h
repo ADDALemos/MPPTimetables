@@ -29,19 +29,6 @@ public:
         return classes;
     }
 
-    std::vector<Class *> getClassesWeek(int w) {
-        std::vector<Class *> classesWeek;
-        if (w != -1) {
-            for (int i = 0; i < classes.size(); ++i) {
-                if (classes[i]->isTaughtWeek(w))
-                    classesWeek.push_back(classes[i]);
-            }
-        } else {
-            return getClasses();
-        }
-
-        return classesWeek;
-    }
 
 
     void setClasses(const std::vector<Class *, std::allocator<Class *>> &classes) {

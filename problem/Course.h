@@ -67,18 +67,7 @@ public:
 
     }
 
-    std::vector<Class *> getClassesWeek(int w) {
-        std::vector<Class *> result;
-        for (std::map<int, std::vector<Subpart *>>::iterator i = configuration.begin();
-             i != configuration.end(); i++) {
-            for (int j = 0; j < (*i).second.size(); ++j) {
-                std::vector<Class *> temp = (*i).second[j]->getClassesWeek(w);
-                result.insert(result.end(), temp.begin(), temp.end());
-            }
-        }
-        return result;
 
-    }
 
     std::vector<Subpart *> getSubpart() {
         std::vector<Subpart *> result;

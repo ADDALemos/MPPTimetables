@@ -350,8 +350,8 @@ namespace openwbo {
                                                                 l->getEnd() == j->first->t[ti]->getEnd()) {
 
                                                                 j->first->t[ti]->addC(
-                                                                        "x_" + std::to_string(order) + "_" +
-                                                                        std::to_string(max), idclass);
+                                                                        std::pair<std::string,std::string>("x_" + std::to_string(order) + "_" +
+                                                                        std::to_string(max)," "), idclass);
 
                                                                 is = false;
                                                             }
@@ -362,8 +362,8 @@ namespace openwbo {
                                                                     new Time(l->getStart(), l->getEnd(),
                                                                              l->getWeeks(),
                                                                              l->getDays(),
-                                                                             "x_" + std::to_string(order) + "_" +
-                                                                             std::to_string(max), idclass));
+                                                                             std::pair<std::string,std::string>("x_" + std::to_string(order) + "_" +
+                                                                                                                std::to_string(max)," "), idclass));
                                                         }
 
 
@@ -376,8 +376,8 @@ namespace openwbo {
                                                     Time *ntime = new Time(l->getStart(), l->getEnd(),
                                                                            l->getWeeks(),
                                                                            l->getDays(),
-                                                                           "x_" + std::to_string(order) + "_" +
-                                                                           std::to_string(max), idclass, max);
+                                                                           std::pair<std::string,std::string>("x_" + std::to_string(order) + "_" +
+                                                                           std::to_string(max)," "), idclass, max);
                                                     if (time1->check(ntime, instance->getNweek(),
                                                                      instance->getNdays())) {
                                                         int aClass0 = (c->getId() > time1->getClassesCid()[0]
@@ -393,7 +393,7 @@ namespace openwbo {
                                                         l->push(~mkLit(getVariableID(c->getKey(c->getPossiblePairRoom(max),
                                                                                                c->getPossiblePairLecture(
                                                                                                        max)))));
-                                                        l->push(~mkLit(getVariableID(time1->getClassesC()[0])));
+                                                        l->push(~mkLit(getVariableID(time1->getClassesC()[0].first)));
 
                                                         maxsat_formula->addHardClause(*l);
                                                         delete l;
@@ -424,8 +424,8 @@ namespace openwbo {
                                                 temp.push_back(new Time(l->getStart(), l->getEnd(),
                                                                         l->getWeeks(),
                                                                         l->getDays(),
-                                                                        "x_" + std::to_string(order) + "_" +
-                                                                        std::to_string(max), idclass, max));
+                                                                        std::pair<std::string,std::string>("x_" + std::to_string(order) + "_" +
+                                                                        std::to_string(max),""), idclass, max));
                                                 times.insert(std::pair<int, std::vector<Time *>>(l->getStart(), temp));
                                             }
 

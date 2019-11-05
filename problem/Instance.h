@@ -321,15 +321,6 @@ public:
         }
     }
 
-    void updateStudentEnrollment(int classes, int change) {
-        for (std::map<std::string, Course *>::iterator it = courses.begin(); it != courses.end(); ++it) {
-            if (it->second->getClass(classes) != nullptr) {
-                it->second->getClass(classes)->updateStudentEnrollment(change);
-                break;
-            }
-        }
-
-    }
 
     int getNumRoom() {
         return rooms.size();
@@ -536,51 +527,10 @@ public:
         return maxTimeSlot() - minTimeSlot() + 1;
     }
 
-    int maxDay() {
-        int max = 0;
-        for (int i = 0; i < getClasses().size(); ++i) {
-            if (getClasses()[i]->getMaxDays() > max)
-                max = getClasses()[i]->getMaxDays();
-        }
-        return max;
-    }
-
-    int minDay() {
-        int min = maxDay();
-        for (int i = 0; i < getClasses().size(); ++i) {
-            if (getClasses()[i]->getMinDays() < min)
-                min = getClasses()[i]->getMinDays();
-        }
-        return min;
-    }
-
-    int actualSpaceDay() {
-        return maxDay() - minDay() + 1;
-    }
-
-    double frequencyCorrected() {
-        double used = 0, all = (actualSpaceDay() * actualSpace() * getNumRoom());
-        for (int k = 0; k < getClasses().size(); ++k) {
-            used += getClasses()[k]->getLenght();
-        }
-        return 100 * used / all;
-    }
 
 
-    double utilizationCorrected() {
-        double used = 0, all = (actualSpaceDay() * actualSpace() * getNumRoom() *
-                                getAvCapacity());
-        for (int k = 0; k < getClasses().size(); ++k) {
-            used += getClasses()[k]->getLenght() * getClasses()[k]->getLimit();
-        }
-        return 100 * used / all;
 
-    }
 
-    void compact() {
-        slotsperday = actualSpace();
-        ndays = actualSpaceDay();
-    }
 
     void setStudentCluster(std::vector<ClusterStudent*, std::allocator<ClusterStudent*>> clusterStudent) {
         Instance::clusterStudent=clusterStudent;
