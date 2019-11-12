@@ -200,6 +200,8 @@ namespace openwbo {
         void setUB(int);
         void setLB(int);
 
+        virtual Solver* getSolver() {};
+
 
     protected:
 

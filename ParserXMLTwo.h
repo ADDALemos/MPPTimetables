@@ -10,6 +10,7 @@
 #include <set>
 #include <list>
 #include <string>
+#include <thread>
 #include "problem/Lecture.h"
 #include "problem/Room.h"
 #include "problem/ClusterStudents.h"
@@ -213,14 +214,16 @@ namespace openwbo {
                                                           << std::endl;
                                                 std::exit(11);
                                             } else {
+
                                                 room->addProduct(mkLit(getVariableID(
-                                                        "r_" + std::to_string(orderID) + "_" + std::to_string(rIDO))),
+                                                        "r_" + std::to_string(orderID) + "_" + idRoom)),
                                                                  1);
                                                 if (penalty != 0 && optAlloction)
                                                     of->addProduct(mkLit(getVariableID(
                                                             "r_" + std::to_string(orderID) + "_" +
-                                                            std::to_string(rIDO))),
+                                                            idRoom)),
                                                                    instance->getRoomPen() * penalty);
+                                                instance->getRoom(std::stoi(idRoom))->c.push_back(orderID);
 
 
                                                 roomsv.insert(
@@ -451,17 +454,17 @@ namespace openwbo {
                                                     l1->push(~mkLit(getVariableID(
                                                             "y_" + std::to_string(orderID) + "_" +
                                                             std::to_string(max) + "_" +
-                                                            std::to_string(j->second))));
+                                                            std::to_string(j->first->getId()))));
                                                     l1->push(mkLit(getVariableID(
                                                             "r_" + std::to_string(orderID) + "_" +
-                                                            std::to_string(j->second))));
+                                                            std::to_string(j->first->getId()))));
                                                     maxsat_formula->addHardClause(*l1);
                                                     delete l1;
                                                     l1 = new vec<Lit>;
                                                     l1->push(~mkLit(getVariableID(
                                                             "y_" + std::to_string(orderID) + "_" +
                                                             std::to_string(max) + "_" +
-                                                            std::to_string(j->second))));
+                                                            std::to_string(j->first->getId()))));
                                                     l1->push(mkLit(getVariableID(
                                                             "t_" + std::to_string(orderID) + "_" +
                                                             std::to_string(max))));
@@ -471,13 +474,13 @@ namespace openwbo {
                                                     l1->push(mkLit(getVariableID(
                                                             "y_" + std::to_string(orderID) + "_" +
                                                             std::to_string(max) + "_" +
-                                                            std::to_string(j->second))));
+                                                            std::to_string(j->first->getId()))));
                                                     l1->push(~mkLit(getVariableID(
                                                             "t_" + std::to_string(orderID) + "_" +
                                                             std::to_string(max))));
                                                     l1->push(~mkLit(getVariableID(
                                                             "r_" + std::to_string(orderID) + "_" +
-                                                            std::to_string(j->second))));
+                                                            std::to_string(j->first->getId()))));
                                                     maxsat_formula->addHardClause(*l1);
 
                                                     delete l1;
@@ -488,12 +491,13 @@ namespace openwbo {
                                                         l1->push(~mkLit(getVariableID(
                                                                 "y_" + std::to_string(orderID) + "_" +
                                                                 std::to_string(max) + "_" +
-                                                                std::to_string(j->second))));
+                                                                std::to_string(j->first->getId()))));
 
 
                                                         maxsat_formula->addHardClause(*l1);
                                                         delete l1;
-                                                    } else {
+                                                    } /*else {
+
                                                         bool is = true;
                                                         for (int ti = 0; ti < j->first->t.size(); ++ti) {
                                                             if (j->first->t[ti]->getWeek().compare(l->getWeeks()) ==
@@ -502,9 +506,9 @@ namespace openwbo {
                                                                 l->getStart() == j->first->t[ti]->getStart() &&
                                                                 l->getEnd() == j->first->t[ti]->getEnd()) {
                                                                 j->first->t[ti]->addC(std::pair<std::string,std::string>(
-                                                                        "t_" + std::to_string(orderID) + "_" +
-                                                                        std::to_string(max),"r_" + std::to_string(orderID) + "_"+
-                                                                std::to_string(j->second)), idclass);
+                                                                        "y_" + std::to_string(orderID) + "_" +
+                                                                        std::to_string(max) + "_"+
+                                                                        std::to_string(j->second),""), idclass);
                                                                 is = false;
                                                             }
                                                         }
@@ -515,13 +519,13 @@ namespace openwbo {
                                                                              l->getWeeks(),
                                                                              l->getDays(),
                                                                              std::pair<std::string,std::string>(
-                                                                                     "t_" + std::to_string(orderID) + "_" +
-                                                                                     std::to_string(max),"r_" + std::to_string(orderID) + "_"+
-                                                            std::to_string(j->second)), idclass));
+                                                                                     "y_" + std::to_string(orderID) + "_" +
+                                                                                     std::to_string(max) + "_"+
+                                                            std::to_string(j->second)," "), idclass));
                                                         }
 
 
-                                                    }
+                                                    }*/
                                                 }
                                             }
 
@@ -838,9 +842,9 @@ namespace openwbo {
 
                         if (c.size() != clusterStudent[i]->getCourses().size() ||
                             (clusterStudent[i]->getStudent().size() + 1) >
-                            1//MDC(clusterStudent[i]->getMin(), clusterStudent[i]->getStudent().size() + 1)
+                            MDC(clusterStudent[i]->getMin(), clusterStudent[i]->getStudent().size() + 1)
                             || (clusterStudent[i]->getStudent().size() + 1) >
-                               1)//MDC(minimo, clusterStudent[i]->getStudent().size() + 1))
+                               MDC(minimo, clusterStudent[i]->getStudent().size() + 1))
                             continue;
                         for (int c0 = 0; c0 < c.size(); ++c0) {
                             t = false;
@@ -1081,40 +1085,167 @@ namespace openwbo {
         void room() {
             for (std::pair<int, Room *> pairr: instance->getRooms()) {
                 Room *r = pairr.second;
-                for (int timei = 0; timei < r->t.size(); ++timei) {
-                    Time *time1 = r->t[timei];
-                    for (int timei1 = timei + 1; timei1 < r->t.size(); ++timei1) {
-                        Time *time2 = r->t[timei1];
-                        if (time1->check(time2, instance->getNweek(),
-                                         instance->getNdays())) {
-                            for (int con = 0; con < time1->getClassesC().size(); ++con) {
-                                for (int cla = 0;
-                                     cla < time2->getClassesC().size(); ++cla) {
-                                    if (time1->getClassesC()[con] !=
-                                        time2->getClassesC()[cla]) {
-                                        vec <Lit> *l = new vec<Lit>();
-                                        l->push(~mkLit(getVariableID(time1->getClassesC()[con].first)));
-                                        l->push(~mkLit(getVariableID(time2->getClassesC()[cla].first)));
+                for (int classes = 0; classes < r->c.size(); ++classes) {
+                    for (int classes1 = classes+1; classes1 < r->c.size(); ++classes1) {
+                        Class * idClassesDist = instance->getClasses()[r->c[classes]];
+                        Class *idClassesDist1 = instance->getClasses()[r->c[classes1]];
+                        vec <Lit> *l1 = new vec<Lit>();
+                        vec <Lit> *l2 = new vec<Lit>();
+                        if(idClassesDist1->getId()>idClassesDist->getId()) {
+                            l1->push(~mkLit(getVariableID(
+                                    "sd_" + std::to_string(idClassesDist->getOrderID()) +
+                                    "_" + std::to_string(idClassesDist1->getOrderID()))));
+                            l2->push(~mkLit(getVariableID(
+                                    "sd_" + std::to_string(idClassesDist->getOrderID()) +
+                                    "_" + std::to_string(idClassesDist1->getOrderID()))));
+                        } else {
+                            l1->push(~mkLit(getVariableID(
+                                    "sd_" + std::to_string(idClassesDist1->getOrderID()) +
+                                    "_" + std::to_string(idClassesDist->getOrderID()))));
+                            l2->push(~mkLit(getVariableID(
+                                    "sd_" + std::to_string(idClassesDist1->getOrderID()) +
+                                    "_" + std::to_string(idClassesDist->getOrderID()))));
+                        }
+                        for (std::string day : idClassesDist->getDays()) {
+                            for (std::string day1 : idClassesDist1->getDays()) {
+                                if(!stringcompare(day, day1, instance->getNdays(), false)) {
 
+
+                                    l1->push(mkLit(getVariableID(
+                                            "d_" + std::to_string(idClassesDist->getOrderID()) +
+                                            "_" + day)));
+                                    l2->push(mkLit(getVariableID(
+                                            "d_" + std::to_string(idClassesDist1->getOrderID()) +
+                                            "_" + day1)));
+                                    vec <Lit> *l = new vec<Lit>();
+
+                                    if(idClassesDist1->getId()>idClassesDist->getId())
+                                        l->push(mkLit(getVariableID(
+                                                "sd_" + std::to_string(idClassesDist->getOrderID()) +
+                                                "_" + std::to_string(idClassesDist1->getOrderID()))));
+                                    else
+                                        l->push(mkLit(getVariableID(
+                                                "sd_" + std::to_string(idClassesDist1->getOrderID()) +
+                                                "_" + std::to_string(idClassesDist->getOrderID()))));
+                                    l->push(~mkLit(getVariableID(
+                                            "d_" + std::to_string(idClassesDist1->getOrderID()) +
+                                            "_" + day1)));
+                                    l->push(~mkLit(getVariableID(
+                                            "d_" + std::to_string(idClassesDist->getOrderID()) +
+                                            "_" + day)));
+                                    maxsat_formula->addHardClause(*l);
+                                    delete l;
+
+                                }
+
+                            }
+
+                        }
+                        if(l1->size()>0)
+                            maxsat_formula->addHardClause(*l1);
+                        delete l1;
+                        if(l2->size()>0)
+                            maxsat_formula->addHardClause(*l2);
+                        delete l2;
+                        l1 = new vec<Lit>();
+                        l2 = new vec<Lit>();
+                        if(idClassesDist1->getId()>idClassesDist->getId()) {
+                            l1->push(~mkLit(getVariableID(
+                                    "sw_" + std::to_string(idClassesDist->getOrderID()) +
+                                    "_" + std::to_string(idClassesDist1->getOrderID()))));
+                            l2->push(~mkLit(getVariableID(
+                                    "sw_" + std::to_string(idClassesDist->getOrderID()) +
+                                    "_" + std::to_string(idClassesDist1->getOrderID()))));
+                        } else {
+                            l1->push(~mkLit(getVariableID(
+                                    "sw_" + std::to_string(idClassesDist1->getOrderID()) +
+                                    "_" + std::to_string(idClassesDist->getOrderID()))));
+                            l2->push(~mkLit(getVariableID(
+                                    "sw_" + std::to_string(idClassesDist1->getOrderID()) +
+                                    "_" + std::to_string(idClassesDist->getOrderID()))));
+                        }
+                        for (std::string week : idClassesDist->getWeeks()) {
+                            for (std::string week1 : idClassesDist1->getWeeks()) {
+                                if(!stringcompare(week, week1, instance->getNweek(), false)) {
+                                    l1->push(mkLit(getVariableID(
+                                            "w_" + std::to_string(idClassesDist->getOrderID()) +
+                                            "_" + week)));
+                                    l2->push(mkLit(getVariableID(
+                                            "w_" + std::to_string(idClassesDist1->getOrderID()) +
+                                            "_" + week1)));
+
+                                    vec <Lit> *l = new vec<Lit>();
+                                    if(idClassesDist1->getId()>idClassesDist->getId())
+                                        l->push(mkLit(getVariableID(
+                                                "sw_" + std::to_string(idClassesDist->getOrderID()) +
+                                                "_" + std::to_string(idClassesDist1->getOrderID()))));
+                                    else
+                                        l->push(mkLit(getVariableID(
+                                                "sw_" + std::to_string(idClassesDist1->getOrderID()) +
+                                                "_" + std::to_string(idClassesDist->getOrderID()))));
+                                    l->push(~mkLit(getVariableID(
+                                            "w_" + std::to_string(idClassesDist1->getOrderID()) +
+                                            "_" + week1)));
+                                    l->push(~mkLit(getVariableID(
+                                            "w_" + std::to_string(idClassesDist->getOrderID()) +
+                                            "_" + week)));
+                                    maxsat_formula->addHardClause(*l);
+                                    delete l;
+
+                                }
+
+                            }
+
+                        }
+                        if(l1->size()>1)
+                            maxsat_formula->addHardClause(*l1);
+                        delete l1;
+                        if(l2->size()>1)
+                            maxsat_formula->addHardClause(*l2);
+                        delete l2;
+                        for (std::pair<int,int> time : idClassesDist->getHours()) {
+                            for (std::pair<int, int> time1 : idClassesDist1->getHours()) {
+                                if (time.second <= time1.first
+                                    || time1.second <= time.first
+                                        ) { ;
+                                } else {
+
+                                        vec <Lit> *l = new vec<Lit>();
+                                        l->push(~mkLit(getVariableID(
+                                                "h_" + std::to_string(idClassesDist->getOrderID()) + "_" +
+                                                std::to_string(time.first))));
+                                        l->push(~mkLit(getVariableID(
+                                                "h_" + std::to_string(idClassesDist1->getOrderID()) + "_" +
+                                                std::to_string(time1.first))));
+                                        if (idClassesDist1->getId() > idClassesDist->getId()) {
+                                            l->push(~mkLit(getVariableID(
+                                                    "sd_" + std::to_string(idClassesDist->getOrderID()) +
+                                                    "_" + std::to_string(idClassesDist1->getOrderID()))));
+                                            l->push(~mkLit(getVariableID(
+                                                    "sw_" + std::to_string(idClassesDist->getOrderID()) +
+                                                    "_" + std::to_string(idClassesDist1->getOrderID()))));
+                                        } else {
+                                            l->push(~mkLit(getVariableID(
+                                                    "sd_" + std::to_string(idClassesDist1->getOrderID()) +
+                                                    "_" + std::to_string(idClassesDist->getOrderID()))));
+                                            l->push(~mkLit(getVariableID(
+                                                    "sw_" + std::to_string(idClassesDist1->getOrderID()) +
+                                                    "_" + std::to_string(idClassesDist->getOrderID()))));
+                                        }
+                                    l->push(~mkLit(getVariableID(
+                                            "r_" + std::to_string(idClassesDist->getOrderID()) +
+                                            "_" + std::to_string(r->getId()))));
+                                    l->push(~mkLit(getVariableID(
+                                            "r_" + std::to_string(idClassesDist1->getOrderID()) +
+                                            "_" + std::to_string(r->getId()))));
                                         maxsat_formula->addHardClause(*l);
                                         delete l;
+
+
                                     }
-                                }
+
+
                             }
-                        }
-                    }
-
-                    for (int con = 0; con < time1->getClassesC().size(); ++con) {
-                        for (int cla = con + 1; cla < time1->getClassesC().size(); ++cla) {
-                            if (time1->getClassesC()[con] != time1->getClassesC()[cla]) {
-                                vec <Lit> *l = new vec<Lit>();
-                                l->push(~mkLit(getVariableID(time1->getClassesC()[con].first)));
-                                l->push(~mkLit(getVariableID(time1->getClassesC()[cla].first)));
-
-                                maxsat_formula->addHardClause(*l);
-                                delete l;
-                            }
-
                         }
 
                     }
@@ -1135,6 +1266,102 @@ namespace openwbo {
                           instance->getDist()["MaxBlock"].at(y)->getWeight());
                 }
             }
+            if(instance->getDist().find("MaxDayLoad") != instance->getDist().end()){
+                    for (int y = 0; y < instance->getDist()["MaxDayLoad"].size(); ++y) {
+                        if( instance->getDist()["MaxDayLoad"].at(y)->getWeight()==-1) {
+                            std::map<std::string, std::vector<std::string>> dayV;
+                        std::map<std::string, int> len;
+                        for (int ci = 0;
+                             ci < instance->getDist()["MaxDayLoad"].at(y)->getClasses().size(); ++ci) {
+                            idClassesDist = instance->getDist()["MaxDayLoad"].at(y)->getClasses()[ci];
+                            for (std::string d : idClassesDist->getDays()) {
+
+                                if (dayV.find(d) != dayV.end()) {
+                                    dayV[d].push_back("d_" + std::to_string(idClassesDist->getOrderID()) + "_" + d);
+                                    len[d] = idClassesDist->getLectures()[0]->getLenght();
+
+
+                                } else {
+                                    len.insert(std::pair<std::string, int>(d,
+                                                                           idClassesDist->getLectures()[0]->getLenght()));
+                                    std::vector<std::string> t;
+                                    t.push_back("d_" + std::to_string(idClassesDist->getOrderID()) + "_" + d);
+                                    dayV.insert(std::pair<std::string, std::vector<std::string> >(d, t));
+                                }
+                            }
+                        }
+                        for (std::pair<std::string, std::vector<std::string>> p: dayV) {
+                            PB *pb = new PB();
+                            for (std::string d: p.second) {
+                                pb->addProduct(mkLit(getVariableID(d)), len[p.first]);
+                            }
+                            pb->_sign = true;
+                            pb->_rhs = instance->getDist()["MaxDayLoad"].at(y)->getParameter1();
+                            maxsat_formula->addPBConstraint(pb);
+                            delete pb;
+
+                        }
+
+
+                    }
+                }
+            }
+
+            if(instance->getDist().find("MaxDays") != instance->getDist().end()){
+                for (int y = 0; y < instance->getDist()["MaxDays"].size(); ++y) {
+                    if (instance->getDist()["MaxDays"].at(y)->getWeight() == -1) {
+
+                        std::vector<std::pair<int,std::string>> temp[instance->getNdays()];
+                        PB *pb = new PB();
+                        for (int ci = 0;
+                             ci < instance->getDist()["MaxDays"].at(y)->getClasses().size(); ++ci) {
+                            idClassesDist = instance->getDist()["MaxDays"].at(y)->getClasses()[ci];
+                            for (std::string d : idClassesDist->getDays()) {
+                                int di = 0;
+                                for (char &c : d) {
+                                    if (c == '1') {
+                                        temp[di].push_back(std::pair<int,std::string>(idClassesDist->getOrderID(),d));
+                                        vec <Lit> *t = new vec<Lit>();
+                                        t->push(mkLit(
+                                                getVariableID("dm_" + std::to_string(y) + "_" + std::to_string(di))));
+                                        t->push(~mkLit(getVariableID(
+                                                "d_" + std::to_string(idClassesDist->getOrderID()) + "_" + d)));
+                                        maxsat_formula->addHardClause(*t);
+                                        delete t;
+                                    }
+                                    di++;
+                                }
+
+                            }
+
+                            for (int di = 0; di < instance->getNdays(); ++di) {
+                                pb->addProduct(
+                                        mkLit(getVariableID("dm_" + std::to_string(y) + "_" + std::to_string(di))),
+                                        1);
+                                vec <Lit> *t = new vec<Lit>();
+                                t->push(~mkLit(getVariableID("dm_" + std::to_string(y) + "_" + std::to_string(di))));
+                                for (std::pair<int,std::string> p1 : temp[di]) {
+                                    t->push(mkLit(
+                                            getVariableID(
+                                                    "d_" + std::to_string(p1.first) + "_" + p1.second)));
+                                }
+                                maxsat_formula->addHardClause(*t);
+                                delete t;
+
+                            }
+                        }
+
+                        pb->_sign = true;
+                        pb->_rhs = instance->getDist()["MaxDays"].at(y)->getParameter1();
+                        maxsat_formula->addPBConstraint(pb);
+                        delete pb;
+
+                    }
+                }
+
+            }
+
+
             if (instance->getDist().find("SameAttendees") != instance->getDist().end()) {
                 for (int y = 0; y < instance->getDist()["SameAttendees"].size(); ++y) {
                     for (int ci = 0;
@@ -1146,24 +1373,25 @@ namespace openwbo {
                             idClassesDist1 = instance->getDist()["SameAttendees"].at(y)->getClasses()[ci1];
                             vec <Lit> *l1 = new vec<Lit>();
                             vec <Lit> *l2 = new vec<Lit>();
-                            for (std::string day : idClassesDist->getDays()) {
-                                for (std::string day1 : idClassesDist1->getDays()) {
+                            if(idClassesDist1->getId()>idClassesDist->getId()) {
+                                l1->push(~mkLit(getVariableID(
+                                        "sd_" + std::to_string(idClassesDist->getOrderID()) +
+                                        "_" + std::to_string(idClassesDist1->getOrderID()))));
+                                l2->push(~mkLit(getVariableID(
+                                        "sd_" + std::to_string(idClassesDist->getOrderID()) +
+                                        "_" + std::to_string(idClassesDist1->getOrderID()))));
+                            } else {
+                                l1->push(~mkLit(getVariableID(
+                                        "sd_" + std::to_string(idClassesDist1->getOrderID()) +
+                                        "_" + std::to_string(idClassesDist->getOrderID()))));
+                                l2->push(~mkLit(getVariableID(
+                                        "sd_" + std::to_string(idClassesDist1->getOrderID()) +
+                                        "_" + std::to_string(idClassesDist->getOrderID()))));
+                            }
+                            for (string day : idClassesDist->getDays()) {
+                                for (string day1 : idClassesDist1->getDays()) {
                                     if(!stringcompare(day, day1, instance->getNdays(), false)) {
-                                        if(idClassesDist1->getId()>idClassesDist->getId()) {
-                                            l1->push(~mkLit(getVariableID(
-                                                    "sw_" + std::to_string(idClassesDist->getOrderID()) +
-                                                    "_" + std::to_string(idClassesDist1->getOrderID()))));
-                                            l2->push(~mkLit(getVariableID(
-                                                    "sw_" + std::to_string(idClassesDist->getOrderID()) +
-                                                    "_" + std::to_string(idClassesDist1->getOrderID()))));
-                                        } else {
-                                            l1->push(~mkLit(getVariableID(
-                                                    "sw_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                    "_" + std::to_string(idClassesDist->getOrderID()))));
-                                            l2->push(~mkLit(getVariableID(
-                                                    "sw_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                    "_" + std::to_string(idClassesDist->getOrderID()))));
-                                        }
+
 
                                         l1->push(mkLit(getVariableID(
                                                 "d_" + std::to_string(idClassesDist->getOrderID()) +
@@ -1203,25 +1431,24 @@ namespace openwbo {
                             delete l2;
                             l1 = new vec<Lit>();
                             l2 = new vec<Lit>();
-                            for (std::string week : idClassesDist->getWeeks()) {
-                                for (std::string week1 : idClassesDist1->getWeeks()) {
+                            if(idClassesDist1->getId()>idClassesDist->getId()) {
+                                l1->push(~mkLit(getVariableID(
+                                        "sw_" + std::to_string(idClassesDist->getOrderID()) +
+                                        "_" + std::to_string(idClassesDist1->getOrderID()))));
+                                l2->push(~mkLit(getVariableID(
+                                        "sw_" + std::to_string(idClassesDist->getOrderID()) +
+                                        "_" + std::to_string(idClassesDist1->getOrderID()))));
+                            } else {
+                                l1->push(~mkLit(getVariableID(
+                                        "sw_" + std::to_string(idClassesDist1->getOrderID()) +
+                                        "_" + std::to_string(idClassesDist->getOrderID()))));
+                                l2->push(~mkLit(getVariableID(
+                                        "sw_" + std::to_string(idClassesDist1->getOrderID()) +
+                                        "_" + std::to_string(idClassesDist->getOrderID()))));
+                            }
+                            for (string week : idClassesDist->getWeeks()) {
+                                for (string week1 : idClassesDist1->getWeeks()) {
                                     if(!stringcompare(week, week1, instance->getNweek(), false)) {
-                                        if(idClassesDist1->getId()>idClassesDist->getId()) {
-                                            l1->push(~mkLit(getVariableID(
-                                                    "sw_" + std::to_string(idClassesDist->getOrderID()) +
-                                                    "_" + std::to_string(idClassesDist1->getOrderID()))));
-                                            l2->push(~mkLit(getVariableID(
-                                                    "sw_" + std::to_string(idClassesDist->getOrderID()) +
-                                                    "_" + std::to_string(idClassesDist1->getOrderID()))));
-                                        } else {
-                                            l1->push(~mkLit(getVariableID(
-                                                    "sw_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                    "_" + std::to_string(idClassesDist->getOrderID()))));
-                                            l2->push(~mkLit(getVariableID(
-                                                    "sw_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                    "_" + std::to_string(idClassesDist->getOrderID()))));
-                                        }
-
                                         l1->push(mkLit(getVariableID(
                                                 "w_" + std::to_string(idClassesDist->getOrderID()) +
                                                 "_" + week)));
@@ -1250,223 +1477,140 @@ namespace openwbo {
                                     }
 
                                 }
-                                if(l1->size()>0)
-                                    maxsat_formula->addHardClause(*l1);
-                                delete l1;
-                                if(l2->size()>0)
-                                    maxsat_formula->addHardClause(*l2);
-                                delete l2;
 
                             }
-                            //TODO:No room case
+                            if(l1->size()>1)
+                                maxsat_formula->addHardClause(*l1);
+                            delete l1;
+                            if(l2->size()>1)
+                                maxsat_formula->addHardClause(*l2);
+                            delete l2;
+                            if(idClassesDist->getPossibleRooms().size()==0||
+                               idClassesDist1->getPossibleRooms().size()==0){
+                                for (std::pair<int,int> time : idClassesDist->getHours()) {
+                                    for (std::pair<int,int> time1 : idClassesDist1->getHours()) {
+                                        if (time.second  <= time1.first
+                                            || time1.second  <= time.first
+                                                ) { ;
+                                        } else {
 
-                            for (std::pair<Room *, int> pair1: idClassesDist->getPossibleRooms()) {
-                                for (std::pair<Room *, int> pair2: idClassesDist1->getPossibleRooms()) {
-                                    int travel = 0;
-                                    if (pair1.first->getId() ==
-                                        pair2.first->getId() &&
-                                        pair2.first->getId() != -1)
-                                        continue;
-                                    if (pair1.first->getId() != -1 &&
-                                        pair2.first->getId() != -1) {
-                                        if (instance->getRoom(
-                                                pair1.first->getId())->getTravel(
-                                                pair2.first->getId()) > 0)
-                                            travel = instance->getRoom(
-                                                    pair1.first->getId())->getTravel(
-                                                    pair2.first->getId());
-                                        else
-                                            travel = instance->getRoom(
-                                                    pair2.first->getId())->getTravel(
-                                                    pair1.first->getId());
+
+                                            vec <Lit> *l = new vec<Lit>();
+                                            l->push(~mkLit(getVariableID(
+                                                    "h_" + std::to_string(idClassesDist->getOrderID()) + "_" + std::to_string(time.first))));
+                                            l->push(~mkLit(getVariableID(
+                                                    "h_" + std::to_string(idClassesDist1->getOrderID()) + "_" + std::to_string(time1.first))));
+                                            if(idClassesDist1->getId()>idClassesDist->getId()) {
+                                                l->push(~mkLit(getVariableID(
+                                                        "sd_" + std::to_string(idClassesDist->getOrderID()) +
+                                                        "_" + std::to_string(idClassesDist1->getOrderID()))));
+                                                l->push(~mkLit(getVariableID(
+                                                        "sw_" + std::to_string(idClassesDist->getOrderID()) +
+                                                        "_" + std::to_string(idClassesDist1->getOrderID()))));
+                                            } else {
+                                                l->push(~mkLit(getVariableID(
+                                                        "sd_" + std::to_string(idClassesDist1->getOrderID()) +
+                                                        "_" + std::to_string(idClassesDist->getOrderID()))));
+                                                l->push(~mkLit(getVariableID(
+                                                        "sw_" + std::to_string(idClassesDist1->getOrderID()) +
+                                                        "_" + std::to_string(idClassesDist->getOrderID()))));
+                                            }
+                                            int w = 0;
+                                            if ((w = instance->getDist()["SameAttendees"].at(y)->getWeight()) ==
+                                                -1) {
+                                                maxsat_formula->addHardClause(*l);
+                                                delete l;
+                                            } else {
+                                                maxsat_formula->addSoftClause(w * instance->getDistributionPen(), *l);
+                                                delete l;
+                                            }
+                                        }
+
                                     }
 
-                                    for (std::pair<int,int> time : idClassesDist->getHours()) {
-                                        for (std::pair<int,int> time1 : idClassesDist1->getHours()) {
-                                            if (time.second +travel <= time1.first
-                                                || time1.second +travel <= time.first
-                                                ) { ;
-                                            } else {
-                                                int w = 0;
-                                                if ((w = instance->getDist()["SameAttendees"].at(y)->getWeight()) ==
-                                                    -1) {
-                                                    /*vec <Lit> *lr = new vec<Lit>();
-                                                    vec <Lit> *lr1 = new vec<Lit>();
-                                                    vec <Lit> *lr2 = new vec<Lit>();
-                                                    vec <Lit> *hr = new vec<Lit>();
-                                                    vec <Lit> *hr1 = new vec<Lit>();
-                                                    vec <Lit> *hr2 = new vec<Lit>();
-                                                    vec <Lit> *hr3 = new vec<Lit>();
+                                }
+                            } else {
 
-                                                    if(idClassesDist1->getId()>idClassesDist->getId()) {
-                                                        hr->push(mkLit(getVariableID(
-                                                                "hr_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(pair1.second) + "_" +
-                                                                std::to_string(pair2.second)+ "_" + std::to_string(time.first)+ "_" + std::to_string(time1.first))));
-                                                        hr->push(~mkLit(getVariableID(
-                                                                "rh_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(pair1.second) + "_" +
-                                                                std::to_string(pair2.second))));
+                                for (std::pair<Room *, int> pair1: idClassesDist->getPossibleRooms()) {
+                                    for (std::pair<Room *, int> pair2: idClassesDist1->getPossibleRooms()) {
+                                        int travel = 0;
+                                        if (pair1.first->getId() ==
+                                            pair2.first->getId() &&
+                                            pair2.first->getId() != -1)
+                                            continue;
+                                        if (pair1.first->getId() != -1 &&
+                                            pair2.first->getId() != -1) {
+                                            if (instance->getRoom(
+                                                    pair1.first->getId())->getTravel(
+                                                    pair2.first->getId()) > 0)
+                                                travel = instance->getRoom(
+                                                        pair1.first->getId())->getTravel(
+                                                        pair2.first->getId());
+                                            else
+                                                travel = instance->getRoom(
+                                                        pair2.first->getId())->getTravel(
+                                                        pair1.first->getId());
+                                        }
 
-                                                        hr1->push(~mkLit(getVariableID(
-                                                                "hr_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(pair1.second) + "_" +
-                                                                std::to_string(pair2.second)+ "_" + std::to_string(time.first)+ "_" + std::to_string(time1.first))));
-                                                        hr1->push(mkLit(getVariableID(
-                                                                "rh_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(pair1.second) + "_" +
-                                                                std::to_string(pair2.second))));
-                                                        hr2->push(~mkLit(getVariableID(
-                                                                "hr_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(pair1.second) + "_" +
-                                                                std::to_string(pair2.second)+ "_" + std::to_string(time.first)+ "_" + std::to_string(time1.first))));
-                                                        hr3->push(~mkLit(getVariableID(
-                                                                "hr_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(pair1.second) + "_" +
-                                                                std::to_string(pair2.second)+ "_" + std::to_string(time.first)+ "_" + std::to_string(time1.first))));
-                                                        lr->push(mkLit(getVariableID(
-                                                                "rh_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(pair1.second) + "_" +
-                                                                std::to_string(pair2.second))));
-                                                        lr1->push(~mkLit(getVariableID(
-                                                                "rh_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(pair1.second) + "_" +
-                                                                std::to_string(pair2.second))));
-                                                        lr2->push(~mkLit(getVariableID(
-                                                                "rh_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(pair1.second) + "_" +
-                                                                std::to_string(pair2.second))));
-                                                    } else {
-                                                        hr->push(mkLit(getVariableID(
-                                                                "hr_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(pair2.second) + "_" +
-                                                                std::to_string(pair1.second)+ "_" + std::to_string(time1.first)+ "_" + std::to_string(time.first))));
-                                                        hr->push(~mkLit(getVariableID(
-                                                                "rh_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(pair2.second) + "_" +
-                                                                std::to_string(pair1.second))));
-                                                        hr1->push(~mkLit(getVariableID(
-                                                                "hr_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(pair2.second) + "_" +
-                                                                std::to_string(pair1.second)+ "_" + std::to_string(time1.first)+ "_" + std::to_string(time.first))));
-                                                        hr1->push(mkLit(getVariableID(
-                                                                "rh_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(pair2.second) + "_" +
-                                                                std::to_string(pair1.second))));
-                                                        hr2->push(~mkLit(getVariableID(
-                                                                "hr_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(pair2.second) + "_" +
-                                                                std::to_string(pair1.second)+ "_" + std::to_string(time1.first)+ "_" + std::to_string(time.first))));
-                                                        hr3->push(~mkLit(getVariableID(
-                                                                "hr_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(pair2.second) + "_" +
-                                                                std::to_string(pair1.second)+ "_" + std::to_string(time1.first)+ "_" + std::to_string(time.first))));
+                                        for (std::pair<int, int> time : idClassesDist->getHours()) {
+                                            for (std::pair<int, int> time1 : idClassesDist1->getHours()) {
+                                                if (time.second + travel <= time1.first
+                                                    || time1.second + travel <= time.first
+                                                        ) { ;
+                                                } else {
 
-                                                        lr->push(mkLit(getVariableID(
-                                                                "rh_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(pair2.second) + "_" +
-                                                                std::to_string(pair1.second))));
-                                                        lr1->push(~mkLit(getVariableID(
-                                                                "rh_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(pair2.second) + "_" +
-                                                                std::to_string(pair1.second))));
-                                                        lr2->push(~mkLit(getVariableID(
-                                                                "rh_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(pair2.second) + "_" +
-                                                                std::to_string(pair1.second))));
 
-                                                    }
-                                                    maxsat_formula->addHardClause(*hr1);
-                                                    delete hr1;
-
-                                                    hr2->push(mkLit(getVariableID(
-                                                            "h_" + std::to_string(idClassesDist->getOrderID()) + "_" + std::to_string(time.first))));
-                                                    maxsat_formula->addHardClause(*hr2);
-                                                    delete hr2;
-                                                    hr3->push(mkLit(getVariableID(
-                                                            "h_" + std::to_string(idClassesDist->getOrderID()) + "_" + std::to_string(time1.first))));
-                                                    maxsat_formula->addHardClause(*hr3);
-                                                    delete hr3;
-                                                    hr->push(~mkLit(getVariableID(
-                                                            "h_" + std::to_string(idClassesDist->getOrderID()) + "_" + std::to_string(time1.first))));
-                                                    hr->push(~mkLit(getVariableID(
-                                                            "h_" + std::to_string(idClassesDist->getOrderID()) + "_" + std::to_string(time.first))));
-                                                    maxsat_formula->addHardClause(*hr);
-                                                    delete hr;
-                                                    lr1->push(mkLit(getVariableID(
-                                                            "r_" + std::to_string(idClassesDist->getOrderID()) + "_" + std::to_string(pair1.second))));
-                                                    maxsat_formula->addHardClause(*lr1);
-                                                    delete lr1;
-                                                    lr2->push(mkLit(getVariableID(
-                                                            "r_" + std::to_string(idClassesDist1->getOrderID()) + "_" + std::to_string(pair2.second))));
-                                                    maxsat_formula->addHardClause(*lr2);
-                                                    delete lr2;
-                                                    lr->push(~mkLit(getVariableID(
-                                                            "r_" + std::to_string(idClassesDist->getOrderID()) + "_" + std::to_string(pair1.second))));
-                                                    lr->push(~mkLit(getVariableID(
-                                                            "r_" + std::to_string(idClassesDist1->getOrderID()) + "_" + std::to_string(pair2.second))));
-                                                    maxsat_formula->addHardClause(*lr);
-                                                    delete lr;*/
-                                                    /*vec <Lit> *l = new vec<Lit>();
-                                                    if(idClassesDist1->getId()>idClassesDist->getId()) {
+                                                    vec <Lit> *l = new vec<Lit>();
+                                                    l->push(~mkLit(getVariableID(
+                                                            "r_" + std::to_string(idClassesDist->getOrderID()) +
+                                                            "_" + std::to_string(pair1.first->getId()))));
+                                                    l->push(~mkLit(getVariableID(
+                                                            "r_" + std::to_string(idClassesDist1->getOrderID()) +
+                                                            "_" + std::to_string(pair2.first->getId()))));
+                                                    l->push(~mkLit(getVariableID(
+                                                            "h_" + std::to_string(idClassesDist->getOrderID()) +
+                                                            "_" + std::to_string(time.first))));
+                                                    l->push(~mkLit(getVariableID(
+                                                            "h_" + std::to_string(idClassesDist1->getOrderID()) +
+                                                            "_" + std::to_string(time1.first))));
+                                                    if (idClassesDist1->getId() > idClassesDist->getId()) {
                                                         l->push(~mkLit(getVariableID(
-                                                                "hr_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(pair1.second) + "_" +
-                                                                std::to_string(pair2.second)+ "_" + std::to_string(time.first)+ "_" + std::to_string(time1.first))));
+                                                                "sd_" +
+                                                                std::to_string(idClassesDist->getOrderID()) +
+                                                                "_" +
+                                                                std::to_string(idClassesDist1->getOrderID()))));
                                                         l->push(~mkLit(getVariableID(
-                                                                "sd_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist1->getOrderID()))));
-                                                        l->push(~mkLit(getVariableID(
-                                                                "sw_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist1->getOrderID()))));
+                                                                "sw_" +
+                                                                std::to_string(idClassesDist->getOrderID()) +
+                                                                "_" +
+                                                                std::to_string(idClassesDist1->getOrderID()))));
                                                     } else {
                                                         l->push(~mkLit(getVariableID(
-                                                                "hr_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist->getOrderID()) +
-                                                                "_" + std::to_string(pair2.second) + "_" +
-                                                                std::to_string(pair1.second)+ "_" + std::to_string(time1.first)+ "_" + std::to_string(time.first))));
+                                                                "sd_" +
+                                                                std::to_string(idClassesDist1->getOrderID()) +
+                                                                "_" +
+                                                                std::to_string(idClassesDist->getOrderID()))));
                                                         l->push(~mkLit(getVariableID(
-                                                                "sd_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist->getOrderID()))));
-                                                        l->push(~mkLit(getVariableID(
-                                                                "sw_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist->getOrderID()))));
+                                                                "sw_" +
+                                                                std::to_string(idClassesDist1->getOrderID()) +
+                                                                "_" +
+                                                                std::to_string(idClassesDist->getOrderID()))));
                                                     }
-                                                    /*std::cout<< "sw_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                                "_" + std::to_string(idClassesDist->getOrderID())<<" "<<
-                                                             "sd_" + std::to_string(idClassesDist1->getOrderID()) +
-                                                             "_" + std::to_string(idClassesDist->getOrderID())<<" "<<
-                                                             "h_" + std::to_string(idClassesDist1->getOrderID()) + "_" + std::to_string(time1.first)<<" "<<
-                                                                                                                                                         "h_" + std::to_string(idClassesDist->getOrderID()) + "_" + std::to_string(time.first)<<std::endl;
+                                                    int w = 0;
+                                                    if ((w = instance->getDist()["SameAttendees"].at(y)->getWeight()) ==
+                                                        -1) {
+                                                        maxsat_formula->addHardClause(*l);
+                                                        delete l;
+                                                    } else {
 
-                                                    maxsat_formula->addHardClause(*l);
-                                                    delete l;*/
-
-
+                                                        maxsat_formula->addSoftClause(w * instance->getDistributionPen(), *l);
+                                                        delete l;
+                                                    }
                                                 }
+
                                             }
 
                                         }
-
                                     }
                                 }
                             }
@@ -1476,7 +1620,6 @@ namespace openwbo {
                     }
                 }
             }
-
             if (instance->getDist().find("NotOverlap") != instance->getDist().end()) {
                 for (int y = 0; y < instance->getDist()["NotOverlap"].size(); ++y) {
                     for (int ci = 0;
@@ -1518,6 +1661,7 @@ namespace openwbo {
                         }
                     }
                 }
+
             }
             if (instance->getDist().find("Overlap") != instance->getDist().end()) {
                 for (int y = 0; y < instance->getDist()["Overlap"].size(); ++y) {
@@ -1610,9 +1754,9 @@ namespace openwbo {
                                     if (r1.first->getId() != r2.first->getId()) {
                                         int w = 0;
                                         if ((w = instance->getDist()["SameRoom"].at(y)->getWeight()) == -1)
-                                            constraint(idClassesDist, idClassesDist1, r1.second, r2.second, true);
+                                            constraint(idClassesDist, idClassesDist1, r1.first->getId(), r2.first->getId(), true);
                                         else
-                                            constraintSoft(idClassesDist, idClassesDist1, r1.second, r2.second, w,true);
+                                            constraintSoft(idClassesDist, idClassesDist1, r1.first->getId(), r2.first->getId(), w,true);
 
                                     }
                                 }
@@ -1638,9 +1782,9 @@ namespace openwbo {
                                     if (r1.first->getId() == r2.first->getId()) {
                                         int w = 0;
                                         if ((w = instance->getDist()["DifferentRoom"].at(y)->getWeight()) == -1)
-                                            constraint(idClassesDist, idClassesDist1, r1.second, r2.second, true);
+                                            constraint(idClassesDist, idClassesDist1, r1.first->getId(), r2.first->getId(), true);
                                         else
-                                            constraintSoft(idClassesDist, idClassesDist1, r1.second, r2.second, w,true);
+                                            constraintSoft(idClassesDist, idClassesDist1, r1.first->getId(), r2.first->getId(), w,true);
 
                                     }
                                 }
@@ -1881,17 +2025,15 @@ namespace openwbo {
                                     else if (isFirst(idClassesDist->getLectures()[p]->getDays(),
                                                      idClassesDist1->getLectures()[p1]->getDays(),
                                                      instance->getNdays()) ==
-                                             -1 && isFirst(idClassesDist->getLectures()[p]->getWeeks(),
-                                                           idClassesDist1->getLectures()[p1]->getWeeks(),
-                                                           instance->getNweek()) == 0);
+                                             -1);
                                     else if (isFirst(idClassesDist->getLectures()[p]->getDays(),
                                                      idClassesDist1->getLectures()[p1]->getDays(),
-                                                     instance->getNdays()) ==
+                                                     instance->getNdays()) >=
                                              0 && isFirst(idClassesDist->getLectures()[p]->getWeeks(),
                                                           idClassesDist1->getLectures()[p1]->getWeeks(),
-                                                          instance->getNweek()) == 0 &&
+                                                          instance->getNweek()) >= 0 &&
                                              idClassesDist->getLectures()[p]->getEnd() <=
-                                             idClassesDist1->getLectures()[p1]->getEnd());
+                                             idClassesDist1->getLectures()[p1]->getStart());
                                     else {
                                         int w = 0;
                                         if ((w = instance->getDist()["Precedence"].at(y)->getWeight()) == -1)
@@ -1943,7 +2085,7 @@ namespace openwbo {
                                             if ((w = instance->getDist()["WorkDay"].at(y)->getWeight()) == -1)
                                                 constraint(idClassesDist, idClassesDist1, p, p1);
                                             else
-                                                constraintSoft(idClassesDist, idClassesDist1, p, p1, w, true);
+                                                constraintSoft(idClassesDist, idClassesDist1, p, p1, w);
                                         }
                                     }
 
@@ -1957,10 +2099,6 @@ namespace openwbo {
 
 
         }
-
-
-
-
 
 
         void constraint(Class *idClassesDist, Class *idClassesDist1, int p, int p1, bool isRoom = false) {
@@ -2278,7 +2416,7 @@ namespace openwbo {
         }
 
 
-        void check(std::vector<Class *> cont,int r, int s, double weight) {
+        bool check(std::vector<Class *> cont,int r, int s, double weight) {
             std::vector<int> start;
             std::vector<int> end;
             start.push_back((*queue->begin())->start);
@@ -2311,11 +2449,14 @@ namespace openwbo {
                                                 + std::to_string((*it)->time))));
 
                 }
-                if(weight==-1)
+                if(weight==-1) {
                     maxsat_formula->addHardClause(t);
+                    return true;
+                }
 
 
             }
+            return false;
         }
 
         void block(std::vector<Class *> cont, int R, int S, double weight) {
@@ -2330,12 +2471,14 @@ namespace openwbo {
                     classCount++;
                     currentClass++;
                     currentT=0;
-                    check(cont,R,S,weight);
+                    if(check(cont,R,S,weight))
+                        isSearch=false;
                 } else if(currentT<cont[currentClass-1]->getLectures().size()){
                     classCount=currentClass;
                     queue->back()->update(currentT,cont[classCount-1]->getLectures()[currentT]->getStart(),cont[classCount-1]->getLectures()[currentT]->getEnd());
                     currentT++;
-                    check(cont,R,S,weight);
+                    if(check(cont,R,S,weight))
+                        isSearch=false;
                 } else if(queue->size()>0){
                     currentT=queue->back()->time;
                     currentClass=queue->back()->cClass;

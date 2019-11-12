@@ -11,6 +11,7 @@
 #include <map>
 #include "Unavailability.h"
 #include "Time.h"
+#include "Class.h"
 
 class Room {
 private:
@@ -24,7 +25,7 @@ private:
 public:
     //std::map<int,std::vector<std::pair<int, int>>> t;
     std::vector<Time*> t;
-
+    std::vector<int> c;
 
     //Legacy
     bool isClosebyDay(int day) {

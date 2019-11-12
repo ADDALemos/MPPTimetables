@@ -105,6 +105,17 @@ class Lecture {
     void setOrderID(int i){
         orderID=i;
     }
+
+    int getNumbDays(){
+        int value = 0;
+        for (char &c : days) {
+            if (c == '1')
+                value++;
+
+        }
+        return value;
+
+    }
 };
 
 
