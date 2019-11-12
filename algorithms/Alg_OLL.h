@@ -80,6 +80,8 @@ public:
            "                                       |\n");
   }
 
+    Solver* getSolver(){ return solver;}
+
 protected:
   // Rebuild MaxSAT solver
   //

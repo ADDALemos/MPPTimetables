@@ -114,8 +114,10 @@ static void SIGINT_exit(int signum) {
 // Main:
 
 int main(int argc, char **argv) {
-
-
+    /*rlimit rl;
+    getrlimit(RLIMIT_RSS, &rl);
+    std::cout<<rl.rlim_max<<std::endl;
+    std::exit(1);*/
     try {
 #if defined(__linux__)
         fpu_control_t oldcw, newcw;
@@ -329,7 +331,7 @@ int main(int argc, char **argv) {
         std::cout<<"Read End"<<std::endl;
         printRAM();
         parserXML->aux();
-        //parserXML->room();
+        parserXML->room();
         std::cout<<"room End"<<std::endl;
         printRAM();
 
@@ -367,6 +369,7 @@ int main(int argc, char **argv) {
         //ew WBO(_VERBOSITY_MINIMAL_, 1, symmetry, symmetry_lim);//
 
         //new OLL(_VERBOSITY_MINIMAL_,_CARD_TOTALIZER_,parserXML->getInstance());
+        maxsat_formula->convertPBtoMaxSAT();
 
 
         printf("c |                                                                "
@@ -433,6 +436,14 @@ int main(int argc, char **argv) {
             }
         }*/
         S->search();
+        /*int count=1;
+        while(maxsat_formula->getObjFunction()==NULL) {
+            S->blockModel(S->getSolver());
+            S->search();
+            count++;
+
+        }
+        std::cout<<count<<std::endl;*/
 
         /*for (Class * c: parserXML->getInstance()->getClasses()) {
             if(c->getPossiblePairSize()==1 && c->getPossibleRooms().size()==0)
