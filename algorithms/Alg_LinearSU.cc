@@ -277,7 +277,7 @@ void LinearSU::normalSearch() {
 }
 
 // Public search method
-void LinearSU::search() {
+bool LinearSU::search() {
 
   if (maxsat_formula->getProblemType() == _WEIGHTED_)
     is_bmo = isBMO();
@@ -291,6 +291,7 @@ void LinearSU::search() {
       normalSearch();
   } else
     normalSearch();
+    return true;
 }
 
 /************************************************************************************************
@@ -344,14 +345,14 @@ Solver *LinearSU::rebuildSolver(uint64_t min_weight) {
     Encoder *enc = new Encoder(_INCREMENTAL_NONE_, _CARD_MTOTALIZER_,
                                _AMO_LADDER_, _PB_GTE_);
 
-    if (maxsat_formula->getCardinalityConstraint(i)->_rhs == 1) {
-      enc->encodeAMO(S, maxsat_formula->getCardinalityConstraint(i)->_lits);
-    } else {
 
-      enc->encodeCardinality(S,
-                             maxsat_formula->getCardinalityConstraint(i)->_lits,
-                             maxsat_formula->getCardinalityConstraint(i)->_rhs);
-    }
+      enc->encodeAMO(S, maxsat_formula->getCardinalityConstraint(i)->_lits);
+      /*else {
+
+       enc->encodeCardinality(S,
+                              maxsat_formula->getCardinalityConstraint(i)->_lits,
+                              maxsat_formula->getCardinalityConstraint(i)->_rhs);
+     }*/
 
     delete enc;
   }

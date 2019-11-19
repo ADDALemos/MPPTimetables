@@ -82,7 +82,7 @@ public:
 
   void initializeCluster();
 
-  void search(); // Linear search.
+    bool search(); // Linear search.
 
   // Print solver configuration.
   void printConfiguration(bool bmo, int ptype) {
@@ -112,8 +112,8 @@ protected:
 
   // Linear search algorithms.
   //
-  void normalSearch(); // Classic linear search algorithm.
-  void bmoSearch();    // Linear search algorithm with lexicographical order.
+  void normalSearch() throw(); // Classic linear search algorithm.
+    bool bmoSearch() throw();    // Linear search algorithm with lexicographical order.
 
   // Greater than comparator.
   bool static greaterThan(int i, int j) { return (i > j); }

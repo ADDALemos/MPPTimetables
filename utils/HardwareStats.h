@@ -5,12 +5,16 @@
 #ifndef PROJECT_HARDWARESTATS_H
 #define PROJECT_HARDWARESTATS_H
 
+#ifdef __APPLE__
 #include <mach/vm_statistics.h>
 #include <mach/mach_init.h>
 #include <mach/mach_host.h>
 #include <mach/task.h>
 
-void printRAM() {
+#endif
+
+inline void printRAM() {
+#ifdef __APPLE__
     vm_size_t page_size;
     mach_port_t mach_port;
     mach_msg_type_number_t count;
@@ -38,6 +42,7 @@ void printRAM() {
     }
     std::cout << "resident_size: " << t_info.resident_size << std::endl;
     std::cout << "virtual_size: " << t_info.virtual_size << std::endl;
+#endif
 
 }
 

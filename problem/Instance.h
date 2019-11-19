@@ -20,14 +20,13 @@
 
 class Instance {
 private:
+    int timeLimit;
     std::map<std::string,std::vector<ConstraintShort*>> dist;
     std::map<std::string,std::vector<ConstraintShort*>> soft;
     std::vector<Curriculum *> problem;
     std::vector<ClusterStudent*> clusterStudent;
     std::map<std::string, Course *> courses;
     std::map<int, Room*> rooms;
-
-private:
     std::map<int, Student> student;
     std::vector<Class*> classes;
     int timePen;
@@ -47,6 +46,14 @@ private:
     std::set<int> incorrentAssignments;
 
 public:
+    void setTime(int t) {
+        timeLimit = t;
+    }
+
+    double getTime() {
+        return timeLimit;
+    }
+    
     const std::vector<Curriculum *, std::allocator<Curriculum *>> &getProblem() const {
         return problem;
     }

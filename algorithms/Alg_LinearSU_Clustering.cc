@@ -195,8 +195,7 @@ uint64_t LinearSUClustering::computeOriginalCost(vec<lbool> &currentModel,
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void LinearSUClustering::bmoSearch(){
-
+bool LinearSUClustering::bmoSearch() throw() {
   assert(orderWeights.size() > 0);
   lbool res = l_True;
 
@@ -281,8 +280,9 @@ void LinearSUClustering::bmoSearch(){
         uint64_t newCost = computeCostModel(solver->model, orderWeights[current_function_id])/orderWeights[current_function_id];
         uint64_t originalCost = computeOriginalCost(solver->model);
   //printf("c objective function %d = o %" PRId64 " \n",current_function_id,newCost);
-        if(best_cost > originalCost) {			
-          saveModel(solver->model);
+        if(best_cost > originalCost) {
+            if (!saveModel(solver->model))
+                return false;
           solver->model.copyTo(best_model);
           best_cost = originalCost;
           printf("o %" PRId64 " \n", originalCost);                    
@@ -344,7 +344,8 @@ void LinearSUClustering::bmoSearch(){
   //printf("c o %" PRId64 " \n", originalCost);
   //printf("repair_cost = %llu\n",repair_cost);
         if(best_cost > originalCost) {
-          saveModel(solver->model);
+            if (!saveModel(solver->model))
+                return false;
           solver->model.copyTo(best_model);
           best_cost = originalCost;
           repair_cost = best_cost - 1;
@@ -574,10 +575,13 @@ void LinearSUClustering::bmoSearch(){
       }
     }
   }
+    return true;
+
 }
 
 // Public search method
-void LinearSUClustering::search() {
+bool LinearSUClustering::search() {
+
 
   MaxSATFormulaExtended *maxsat_formula_extended =
       static_cast<MaxSATFormulaExtended *>(maxsat_formula);
@@ -608,7 +612,10 @@ void LinearSUClustering::search() {
          originalWeights.size(), orderWeights.size());
 
   //printConfiguration(is_bmo, maxsat_formula->getProblemType());
-  bmoSearch();
+    if (!bmoSearch())
+        return false;
+    return true;
+
 }
 
 /************************************************************************************************

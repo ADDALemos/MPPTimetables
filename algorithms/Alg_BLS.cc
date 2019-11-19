@@ -53,7 +53,7 @@ using namespace openwbo;
   |    * 'nbSatisfiable' is increased by 1.
   |
   |________________________________________________________________________________________________@*/
-void BLS::saveModel(vec<lbool> &currentModel){
+void BLS::saveModel(vec <lbool> &currentModel) throw() {
   //assert (n_initial_vars != 0);
   assert (currentModel.size() != 0);
   
@@ -328,7 +328,7 @@ bool BLS::findNextMCS() {
 
 
 // Public search method
-void BLS::search() {
+bool BLS::search() {
 
   basicSearch(_maxMCS);
 
@@ -337,6 +337,7 @@ void BLS::search() {
   local_limit = false;
 
   LSU();
+    return true;
 }
 
 

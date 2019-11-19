@@ -77,9 +77,7 @@ namespace openwbo {
 
 
     class ParserXML {
-        bool optAlloction = true;
-        bool optStud = true;
-        bool optSoft = true;
+
 
     public:
         //-------------------------------------------------------------------------
@@ -371,8 +369,8 @@ namespace openwbo {
 
                                                 }
                                             }
-                                            if (times.find(start) != times.end()) {
-                                                for (Time *time1: times[start]) {
+                                            if (timesold.find(start) != timesold.end()) {
+                                                for (Time *time1: timesold[start]) {
                                                     Time *ntime = new Time(l->getStart(), l->getEnd(),
                                                                            l->getWeeks(),
                                                                            l->getDays(),
@@ -426,7 +424,8 @@ namespace openwbo {
                                                                         l->getDays(),
                                                                         std::pair<std::string,std::string>("x_" + std::to_string(order) + "_" +
                                                                         std::to_string(max),""), idclass, max));
-                                                times.insert(std::pair<int, std::vector<Time *>>(l->getStart(), temp));
+                                                timesold.insert(
+                                                        std::pair<int, std::vector<Time *>>(l->getStart(), temp));
                                             }
 
                                         }
@@ -1806,11 +1805,15 @@ namespace openwbo {
 
         std::map<std::string, std::pair<Course *, Course *>> pairCourse;
         std::map<std::string, std::vector<std::pair<int, int>>> pairConf;
-        std::map<int, std::vector<Time *>> times;
+        std::map<int, std::vector<Time *>> timesold;
 
 
         MaxSATFormula *maxsat_formula;
         std::vector<ClusterbyRoom *> cluster;
+        bool optAlloction = true;
+        bool optStud = true;
+        bool optSoft = true;
+
     };
 
 

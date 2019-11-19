@@ -3,10 +3,12 @@
  *
  * @section LICENSE
  *
- * MiniSat,  Copyright (c) 2003-2006, Niklas Een, Niklas Sorensson
+  * MiniSat,  Copyright (c) 2003-2006, Niklas Een, Niklas Sorensson
  *           Copyright (c) 2007-2010, Niklas Sorensson
  * Open-WBO, Copyright (c) 2013-2017, Ruben Martins, Vasco Manquinho, Ines Lynce
- *
+ * Open-WBO-Inc Copyright (c) 2018  Saurabh Joshi, Prateek Kumar, Ruben Martins, Sukrut Rao
+ * TT-Open-WBO-Inc Copyright (c) 2019 Alexander Nadel
+ * Timetabler Copyright (c) 2019 Alexandre Lemos, Pedro T Monteiro, Ines Lynce
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -51,7 +53,6 @@
 
 
 #include "MaxSAT.h"
-
 #include "MaxTypes.h"
 #include "ParserMaxSAT.h"
 #include "ParserPB.h"
@@ -97,6 +98,7 @@ void createSmallerInstances(Instance *);
 
 void printClusterofStudents(Instance *instance);
 
+
 static void SIGINT_exit(int signum) {
     mxsolver->printAnswer(_UNKNOWN_);
     exit(_UNKNOWN_);
@@ -105,19 +107,16 @@ static void SIGINT_exit(int signum) {
 #include "Test.h"
 #include "ParserXMLTwo.h"
 #include "WriteXML.h"
+#include "LocalSearch.h"
 
 
-
-// void test_encoding();
 
 //=================================================================================================
 // Main:
 
 int main(int argc, char **argv) {
-    /*rlimit rl;
-    getrlimit(RLIMIT_RSS, &rl);
-    std::cout<<rl.rlim_max<<std::endl;
-    std::exit(1);*/
+    double initial_time = cpuTime();
+
     try {
 #if defined(__linux__)
         fpu_control_t oldcw, newcw;
@@ -185,6 +184,9 @@ int main(int argc, char **argv) {
 
         IntOption formula("Open-WBO", "formula",
                           "Type of formula (0=WCNF, 1=OPB).\n", 0, IntRange(0, 1));
+        IntOption cpu_lim("Open-WBO", "cpu-lim",
+                          "Limit on CPU time allowed in seconds.\n", 0,
+                          IntRange(0, INT_MAX));
 
         IntOption weight(
                 "WBO", "weight-strategy",
@@ -210,6 +212,7 @@ int main(int argc, char **argv) {
                 "Statistic used to select"
                         " common weights in a cluster (0=Mean, 1=Median, 2=Min)",
                 0, IntRange(0, 2));
+
 
         IntOption num_conflicts(
                 "Incomplete", "conflicts", "Limit on the number of conflicts.\n", 10000,
@@ -257,7 +260,6 @@ int main(int argc, char **argv) {
         Torc::Instance()->SetBumpRelWeights(targetVarsBumpRelWeights);
         Torc::Instance()->SetTargetBumpMaxRandVal(targetVarsBumpMaxRandVal);
 
-        double initial_time = cpuTime();
         MaxSAT *S = NULL;
 
         Statistics rounding_statistic =
@@ -319,57 +321,30 @@ int main(int argc, char **argv) {
         }
         signal(SIGXCPU, SIGINT_exit);
         signal(SIGTERM, SIGINT_exit);
-        //MaxSAT *S = new OLL(_VERBOSITY_MINIMAL_,_CARD_TOTALIZER_,parserXML->getInstance());//new OLLMod(_VERBOSITY_MINIMAL_, _CARD_TOTALIZER_, ClusterAlg::_DIVISIVE_,rounding_statistic, (int) (100000));//new LinearSUMod(_VERBOSITY_MINIMAL_,false,  _CARD_TOTALIZER_, 1,ClusterAlg::_DIVISIVE_, rounding_statistic,(int) (100000));//new BLS(_VERBOSITY_MINIMAL_, _CARD_TOTALIZER_, 100000, 100000, true);
-        //new MSU3(_VERBOSITY_MINIMAL_);//new LinearSU(_VERBOSITY_MINIMAL_, 1, _CARD_TOTALIZER_, 1);
-        S = new OLL(verbosity, cardinality);
+
         MaxSATFormula *maxsat_formula = new MaxSATFormula();
         maxsat_formula->setFormat(_FORMAT_PB_);
 
-        ParserXMLTwo *parserXML = new ParserXMLTwo(maxsat_formula, strcmp(argv[1],"true")==0, strcmp(argv[2],"true")==0,strcmp(argv[3],"true")==0);
+        ParserXMLTwo *parserXML = new ParserXMLTwo(maxsat_formula, strcmp(argv[1], "true") == 0,
+                                                   strcmp(argv[2], "true") == 0, strcmp(argv[3], "true") == 0);
         parserXML->parse(argv[4]);
 
-        std::cout<<"Read End"<<std::endl;
-        printRAM();
         parserXML->aux();
         parserXML->room();
-        std::cout<<"room End"<<std::endl;
-        printRAM();
 
 
-        //parserXML->sameTime();
+        parserXML->getInstance()->setTime(cpu_lim);
 
-        parserXML->getInstance()->setAlgo((int) algorithm,argv[1],argv[2],argv[3]);
-        /*printProblemStats(parserXML->getInstance());
-        printStudentsStats(parserXML->getInstance());
-        printConstraintsStat(parserXML->getInstance());
-        std::exit(0);*/
-        //worstCost(parserXML->getInstance());
+        parserXML->getInstance()->setAlgo((int) algorithm, argv[1], argv[2], argv[3]);
 
-        //createSmallerInstances(parserXML->getInstance());
-        //printConstraintsStat(parserXML->getInstance());
-        //printDomainSize(parserXML->getInstance());
-        //printCurricular(parserXML->getInstance());
-        //printClusterofStudents(parserXML->getInstance());
         parserXML->genConstraint();
-        std::cout<<"Fin1"<<std::endl;
-        printRAM();
-        //printCNF(maxsat_formula,parserXML->getInstance()->getName());
-        //std::exit(0);
-        //parserXML->sameTime();
-        //parserXML->genStudents();
-        //parserXML->getInstance()->setDistributionPen(1);
-        //parserXML->getInstance()->setTimePen(1);
+        std::cout << "Fin1" << std::endl;
+
 
         S->setInstance(parserXML->getInstance());
 
 
-        //S->setUB(9770);
-        //S->setLB(9770);
 
-        //ew WBO(_VERBOSITY_MINIMAL_, 1, symmetry, symmetry_lim);//
-
-        //new OLL(_VERBOSITY_MINIMAL_,_CARD_TOTALIZER_,parserXML->getInstance());
-        maxsat_formula->convertPBtoMaxSAT();
 
 
         printf("c |                                                                "
@@ -422,7 +397,7 @@ int main(int argc, char **argv) {
         printf("c |                                                                "
                        "                                       |\n");
         S->loadFormula(maxsat_formula);
-        /*if ((int) (cluster_algorithm) == 1) {
+        if ((int) (cluster_algorithm) == 1) {
             switch ((int) algorithm) {
                 case _ALGORITHM_LINEAR_SU_:
                     static_cast<LinearSUMod *>(S)->initializeCluster();
@@ -434,22 +409,78 @@ int main(int argc, char **argv) {
                     static_cast<LinearSUClustering *>(S)->initializeCluster();
                     break;
             }
-        }*/
-        S->search();
-        /*int count=1;
-        while(maxsat_formula->getObjFunction()==NULL) {
-            S->blockModel(S->getSolver());
-            S->search();
-            count++;
-
         }
-        std::cout<<count<<std::endl;*/
+        std::cout << S->search() << std::endl;
 
-        /*for (Class * c: parserXML->getInstance()->getClasses()) {
-            if(c->getPossiblePairSize()==1 && c->getPossibleRooms().size()==0)
-                std::cout<<"here "<<c->getId()<<std::endl;
-        }*/
-        //createSmallerInstances(parserXML->getInstance());
+
+        maxsat_formula = new MaxSATFormula();
+        parserXML->genStudents(maxsat_formula);
+
+
+        S = new LinearSU(verbosity, bmo, cardinality, pb);
+        S->setInstance(parserXML->getInstance());
+        maxsat_formula->setFormat(_FORMAT_PB_);
+
+
+        S->loadFormula(maxsat_formula);
+
+        printf("c |                                                                "
+                       "                                       |\n");
+        printf("c ========================================[ Problem Statistics "
+                       "]===========================================\n");
+        printf("c |                                                                "
+                       "                                       |\n");
+
+        if (maxsat_formula->getFormat() == _FORMAT_MAXSAT_)
+            printf(
+                    "c |  Problem Format:  %17s                                         "
+                            "                          |\n",
+                    "MaxSAT");
+        else
+            printf(
+                    "c |  Problem Format:  %17s                                         "
+                            "                          |\n",
+                    "PB");
+
+        if (maxsat_formula->getProblemType() == _UNWEIGHTED_)
+            printf("c |  Problem Type:  %19s                                         "
+                           "                          |\n",
+                   "Unweighted");
+        else
+            printf("c |  Problem Type:  %19s                                         "
+                           "                          |\n",
+                   "Weighted");
+
+        printf("c |  Number of variables:  %12d                                    "
+                       "                               |\n",
+               maxsat_formula->nVars());
+        printf("c |  Number of hard clauses:    %7d                                "
+                       "                                   |\n",
+               maxsat_formula->nHard());
+        printf("c |  Number of soft clauses:    %7d                                "
+                       "                                   |\n",
+               maxsat_formula->nSoft());
+        printf("c |  Number of cardinality:     %7d                                "
+                       "                                   |\n",
+               maxsat_formula->nCard());
+        printf("c |  Number of PB :             %7d                                "
+                       "                                   |\n",
+               maxsat_formula->nPB());
+        parsed_time = cpuTime();
+
+        printf("c |  Parse time:           %12.2f s                                "
+                       "                                 |\n",
+               parsed_time - initial_time);
+        printf("c |                                                                "
+                       "                                       |\n");
+        std::cout << S->search() << std::endl;
+
+        LocalSearch *l = new LocalSearch(parserXML->getInstance());
+        l->LNS();
+
+
+
+
 
 
 
@@ -490,9 +521,10 @@ void printCurricular(Instance *instance) {
 
 void printClusterofStudents(Instance *instance) {
     for (int l = 0; l < instance->getClusterStudent().size(); ++l) {
-        std::cout << "NEW CLUSTER " << instance->getClusterStudent()[l]->getId() << " "<<instance->getClusterStudent()[l]->getStudent().size()<<std::endl;
+        std::cout << "NEW CLUSTER " << instance->getClusterStudent()[l]->getId() << " "
+                  << instance->getClusterStudent()[l]->getStudent().size() << std::endl;
         for (Student s: instance->getClusterStudent()[l]->getStudent()) {
-            std::cout <<"S "<< s.getId() << " C ";
+            std::cout << "S " << s.getId() << " C ";
             for (int j = 0; j < instance->getClusterStudent()[l]->getCourses().size(); ++j) {
                 std::cout << instance->getClusterStudent()[l]->getCourses()[j]->getName() << " ";
             }
@@ -504,33 +536,37 @@ void printClusterofStudents(Instance *instance) {
 }
 
 void printCNF(MaxSATFormula *f, std::string s) {
-    int w=0;
-    for (int i = 0; i < f->nSoft(); i++){
-        w+=f->getSoftClause(i).weight;
+    int w = 0;
+    for (int i = 0; i < f->nSoft(); i++) {
+        w += f->getSoftClause(i).weight;
     }
     w++;
-    std::ofstream file_stored(s+".wcnf");
+    std::ofstream file_stored(s + ".wcnf");
 
-    file_stored << "p wcnf "<<f->nVars()<<" "<<(f->nSoft()+f->nHard())<<" "<<w<<std::endl;
-    for (int i = 0; i < f->nHard(); i++){
-        file_stored<<w<<" ";
-        for (int l=0;l< f->getHardClause(i).clause.size();l++) {
-            file_stored << (sign(f->getHardClause(i).clause[l])?"":"-")<<toInt(f->getHardClause(i).clause[l])<<" ";
+    file_stored << "p wcnf " << f->nVars() << " " << (f->nSoft() + f->nHard()) << " " << w << std::endl;
+    for (int i = 0; i < f->nHard(); i++) {
+        file_stored << w << " ";
+        for (int l = 0; l < f->getHardClause(i).clause.size(); l++) {
+            file_stored << (sign(f->getHardClause(i).clause[l]) ? "" : "-") << toInt(f->getHardClause(i).clause[l])
+                        << " ";
         }
-        file_stored<<"0"<<std::endl;
+        file_stored << "0" << std::endl;
     }
 
-    for (int i = 0; i < f->nSoft(); i++){
-        file_stored<<f->getSoftClause(i).weight<<" ";
-        for (int l=0;l< f->getSoftClause(i).clause.size();l++) {
-            file_stored << (sign(f->getHardClause(i).clause[l])?"":"-")<<toInt(f->getSoftClause(i).clause[l])<<" ";
+    for (int i = 0; i < f->nSoft(); i++) {
+        file_stored << f->getSoftClause(i).weight << " ";
+        for (int l = 0; l < f->getSoftClause(i).clause.size(); l++) {
+            file_stored << (sign(f->getHardClause(i).clause[l]) ? "" : "-") << toInt(f->getSoftClause(i).clause[l])
+                        << " ";
         }
-        file_stored<<"0"<<std::endl;
+        file_stored << "0" << std::endl;
     }
 
     file_stored.close();
 
 }
+
+
 
 
 

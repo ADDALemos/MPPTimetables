@@ -156,6 +156,11 @@ Hard &MaxSATFormula::getHardClause(int pos) {
   return hard_clauses[pos];
 }
 
+void MaxSATFormula::addCardinalityConstraint(Card *p) {
+    cardinality_constraints.push(p);
+
+}
+
 void MaxSATFormula::addPBConstraint(PB *p) {
 
   // Add constraint to formula data structure.

@@ -65,7 +65,7 @@ public:
       delete solver;
   }
 
-  void search(); // WBO search.
+    bool search(); // WBO search.
 
 protected:
   // Rebuild MaxSAT solver

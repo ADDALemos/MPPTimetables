@@ -318,12 +318,14 @@ void OBV::normalSearch() {
 }
 
 // Public search method
-void OBV::search() {
+bool OBV::search() {
 
   assert (maxsat_formula->getProblemType() == _UNWEIGHTED_);
 
   printConfiguration();
   normalSearch();
+    return true;
+
 }
 
 /************************************************************************************************

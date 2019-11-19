@@ -30,6 +30,8 @@
 #include "Torc.h"
 #include "WriteXML.h"
 #include "utils/StringUtil.h"
+#include "ParserXMLTwo.h"
+#include "algorithms/Alg_OLL.h"
 
 using namespace openwbo;
 
@@ -39,7 +41,7 @@ using namespace openwbo;
  //
  ************************************************************************************************/
 
-void MaxSAT::search() {
+bool MaxSAT::search() {
     printf("Error: Invalid MaxSAT algoritm.\n");
     exit(_ERROR_);
 }
@@ -138,7 +140,8 @@ int modelS = 0;
   |    * 'model' is updated to the current model.
   |
   |________________________________________________________________________________________________@*/
-void MaxSAT::saveModel(vec <lbool> &currentModel) {
+bool MaxSAT::saveModel(vec <lbool> &currentModel) {
+
     assert(maxsat_formula->nInitialVars() != 0);
     assert(currentModel.size() != 0);
     modelS++;
@@ -154,7 +157,11 @@ void MaxSAT::saveModel(vec <lbool> &currentModel) {
         for (int i = 0; i < maxsat_formula->nInitialVars(); i++)
             model.push(currentModel[i]);
     }
+
     print();
+    if (cpuTime() > instance->getTime())
+        return false;
+    return true;
 
 
 
@@ -654,7 +661,7 @@ void MaxSAT::print() {
             if (model[m] != l_False) {
                 std::vector<std::string> token;
                 token = split(iter->second, "_");
-                std::cout<<iter->second<<std::endl;
+                //std::cout<<iter->second<<std::endl;
 
                 if(token.size()!=0) {
                     if (token[0].compare("stu") == 0) {
@@ -693,8 +700,8 @@ void MaxSAT::print() {
                         instance->getClasses()[std::stoi(token[1])]->setSolution(
                                 instance->getClasses()[std::stoi(token[1])]->getLectures()[
                                         std::stoi(token[2])]->getStart(),
-                                instance->getClasses()[std::stoi(token[1])]->getPossibleRoom(std::stoi(token[3]))->getId(),
-                                instance->getClasses()[std::stoi(token[1])]->getPossibleRoom(std::stoi(token[3]))->getName(),
+                                instance->getRoom(std::stoi(token[3]))->getId(),
+                                instance->getRoom(std::stoi(token[3]))->getName(),
                                 instance->getClasses()[std::stoi(token[1])]->getLectures()[
                                         std::stoi(token[2])]->getWeeks(),
                                 instance->getClasses()[std::stoi(token[1])]->getLectures()[
@@ -735,7 +742,7 @@ void MaxSAT::print() {
     }
     writeXMLOutput("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + "_" +
                    std::to_string(modelS) + "_" + instance->getAlgo() + ".xml", instance);
-    std::exit(1);
+
 
 }
 

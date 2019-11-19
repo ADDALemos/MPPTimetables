@@ -10,7 +10,6 @@
 #include <set>
 #include <list>
 #include <string>
-#include <thread>
 #include "problem/Lecture.h"
 #include "problem/Room.h"
 #include "problem/ClusterStudents.h"
@@ -28,6 +27,7 @@
 #include "problem/ConstraintShort.h"
 #include "utils/StringUtil.h"
 #include "utils/HardwareStats.h"
+#include "ParserXML.h"
 
 using namespace rapidxml;
 
@@ -86,27 +86,20 @@ namespace openwbo {
         void update(int ctime,int start, int end){ time=ctime; this->start=start; this->end=end;}
     };
 
-    class ParserXMLTwo {
-        bool optAlloction = true;
-        bool optStud = true;
-        bool optSoft = true;
+    class ParserXMLTwo : public ParserXML {
+
 
     public:
         //-------------------------------------------------------------------------
         // Constructor/destructor.
         //-------------------------------------------------------------------------
 
-        ParserXMLTwo(MaxSATFormula *maxsat_formula, bool optAlloction, bool optStud, bool optSoft) : optAlloction(
-                optAlloction),
-                                                                                                     optStud(optStud),
-                                                                                                     optSoft(optSoft),
-                                                                                                     maxsat_formula(
-                                                                                                             maxsat_formula) {
+        ParserXMLTwo(MaxSATFormula *maxsat_formula, bool optAlloction, bool optStud, bool optSoft) :
+                ParserXML(maxsat_formula, optAlloction, optStud, optSoft) {
 
         }
 
         virtual ~ParserXMLTwo() {}
-
 
         void parse(std::string fileName) {
             PBObjFunction *of;
@@ -666,6 +659,7 @@ namespace openwbo {
 
         }
 
+
         void createCurriculum(std::map<int, std::set<ClusterbyRoom *> *> &curMap) const {
             std::vector<Curriculum *> problem;
             //printRoomCluster();
@@ -804,6 +798,7 @@ namespace openwbo {
                 for (const xml_attribute<> *a = sub->first_attribute(); a; a = a->next_attribute()) {
                     studentID = atoi(a->value());
                 }
+
                 std::vector<Course *> c;
                 int minimo = INT_MAX;
                 for (const xml_node<> *course = sub->first_node(); course; course = course->next_sibling()) {
@@ -812,6 +807,7 @@ namespace openwbo {
                         courseIDstd = a->value();
                     }
                     Course *course1 = instance->getCourse(courseIDstd);
+                    course1->setNumbofstudents(course1->getNumbofstudents());
                     if (course1->getMinLimit() < minimo)
                         minimo = course1->getMinLimit();
                     if (stuSame) {
@@ -842,9 +838,7 @@ namespace openwbo {
 
                         if (c.size() != clusterStudent[i]->getCourses().size() ||
                             (clusterStudent[i]->getStudent().size() + 1) >
-                            MDC(clusterStudent[i]->getMin(), clusterStudent[i]->getStudent().size() + 1)
-                            || (clusterStudent[i]->getStudent().size() + 1) >
-                               MDC(minimo, clusterStudent[i]->getStudent().size() + 1))
+                            1)
                             continue;
                         for (int c0 = 0; c0 < c.size(); ++c0) {
                             t = false;
@@ -872,6 +866,41 @@ namespace openwbo {
 
                 }
             }
+            /*std::vector<ClusterStudent *> clusterStudent1;
+            for (ClusterStudent* cs:clusterStudent) {
+                int li=cs->getStudent().size();
+                bool change=false;
+                for (Course* c: cs->getCourses()) {
+                    if(li>MDC(c->getMinLimit(),c->getNumbofstudents())){
+                        li=MDC(c->getMinLimit(),c->getNumbofstudents());
+                        change=true;
+                    }
+
+                }
+                if(change){
+                    int i=0;
+                    ClusterStudent *csn= nullptr;
+                    for (Student s: cs->getStudent()) {
+                        if(i<li && i!=0){
+                            csn->addStudent(s);
+                            i++;
+                        } else{
+                            if(csn!= nullptr) {
+                                assert(csn->getCourses().size()==cs->getCourses().size());
+                                clusterStudent1.push_back(csn);
+                            }
+                            csn=new ClusterStudent(clusterStudent1.size(),cs->getCourses(),s,li);
+                        }
+                        
+                    }
+                    if(csn!= nullptr) {
+                        clusterStudent1.push_back(csn);
+                    }
+                } else {
+                    clusterStudent1.push_back(cs);
+                }
+                
+            }*/
 
 
             instance->setStudentCluster(clusterStudent);
@@ -1260,10 +1289,10 @@ namespace openwbo {
             //printRoomCluster();
             if (instance->getDist().find("MaxBlock") != instance->getDist().end()) {
                 for (int y = 0; y < instance->getDist()["MaxBlock"].size(); ++y) {
-                    block(instance->getDist()["MaxBlock"].at(y)->getClasses(),
+                    /*block(instance->getDist()["MaxBlock"].at(y)->getClasses(),
                           instance->getDist()["MaxBlock"].at(y)->getParameter1(),
                           instance->getDist()["MaxBlock"].at(y)->getParameter2(),
-                          instance->getDist()["MaxBlock"].at(y)->getWeight());
+                          instance->getDist()["MaxBlock"].at(y)->getWeight());*/
                 }
             }
             if(instance->getDist().find("MaxDayLoad") != instance->getDist().end()){
@@ -1292,13 +1321,18 @@ namespace openwbo {
                         }
                         for (std::pair<std::string, std::vector<std::string>> p: dayV) {
                             PB *pb = new PB();
+                            int s = 0;
                             for (std::string d: p.second) {
                                 pb->addProduct(mkLit(getVariableID(d)), len[p.first]);
+                                s++;
                             }
-                            pb->_sign = true;
-                            pb->_rhs = instance->getDist()["MaxDayLoad"].at(y)->getParameter1();
-                            maxsat_formula->addPBConstraint(pb);
-                            delete pb;
+                            if (s >= instance->getDist()["MaxDayLoad"].at(y)->getParameter1() &&
+                                instance->getDist()["MaxDayLoad"].at(y)->getParameter1() >= 1) {
+                                pb->_sign = true;
+                                pb->_rhs = instance->getDist()["MaxDayLoad"].at(y)->getParameter1();
+                                maxsat_formula->addPBConstraint(pb);
+                                delete pb;
+                            }
 
                         }
 
@@ -1320,7 +1354,7 @@ namespace openwbo {
                                 int di = 0;
                                 for (char &c : d) {
                                     if (c == '1') {
-                                        temp[di].push_back(std::pair<int,std::string>(idClassesDist->getOrderID(),d));
+                                        temp[di].push_back(std::pair<int, std::string>(idClassesDist->getOrderID(), d));
                                         vec <Lit> *t = new vec<Lit>();
                                         t->push(mkLit(
                                                 getVariableID("dm_" + std::to_string(y) + "_" + std::to_string(di))));
@@ -1333,6 +1367,7 @@ namespace openwbo {
                                 }
 
                             }
+                        }
 
                             for (int di = 0; di < instance->getNdays(); ++di) {
                                 pb->addProduct(
@@ -1349,12 +1384,17 @@ namespace openwbo {
                                 delete t;
 
                             }
+
+                        if (instance->getNdays() >= instance->getDist()["MaxDays"].at(y)->getParameter1() &&
+                            instance->getDist()["MaxDays"].at(y)->getParameter1() >= 1) {
+
+                            pb->_sign = true;
+                            pb->_rhs = instance->getDist()["MaxDays"].at(y)->getParameter1();
+                            maxsat_formula->addPBConstraint(pb);
+                            delete pb;
                         }
 
-                        pb->_sign = true;
-                        pb->_rhs = instance->getDist()["MaxDays"].at(y)->getParameter1();
-                        maxsat_formula->addPBConstraint(pb);
-                        delete pb;
+
 
                     }
                 }
@@ -1388,8 +1428,8 @@ namespace openwbo {
                                         "sd_" + std::to_string(idClassesDist1->getOrderID()) +
                                         "_" + std::to_string(idClassesDist->getOrderID()))));
                             }
-                            for (string day : idClassesDist->getDays()) {
-                                for (string day1 : idClassesDist1->getDays()) {
+                            for (std::string day : idClassesDist->getDays()) {
+                                for (std::string day1 : idClassesDist1->getDays()) {
                                     if(!stringcompare(day, day1, instance->getNdays(), false)) {
 
 
@@ -1446,8 +1486,8 @@ namespace openwbo {
                                         "sw_" + std::to_string(idClassesDist1->getOrderID()) +
                                         "_" + std::to_string(idClassesDist->getOrderID()))));
                             }
-                            for (string week : idClassesDist->getWeeks()) {
-                                for (string week1 : idClassesDist1->getWeeks()) {
+                            for (std::string week : idClassesDist->getWeeks()) {
+                                for (std::string week1 : idClassesDist1->getWeeks()) {
                                     if(!stringcompare(week, week1, instance->getNweek(), false)) {
                                         l1->push(mkLit(getVariableID(
                                                 "w_" + std::to_string(idClassesDist->getOrderID()) +
@@ -1689,6 +1729,48 @@ namespace openwbo {
                                         idClassesDist->getLectures()[p]->getStart()) {
                                         int w = 0;
                                         if ((w = instance->getDist()["Overlap"].at(y)->getWeight()) == -1)
+                                            constraint(idClassesDist, idClassesDist1, p, p1);
+                                        else
+                                            constraintSoft(idClassesDist, idClassesDist1, p, p1, w);
+                                    }
+                                }
+
+
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (instance->getDist().find("DifferentTime") != instance->getDist().end()) {
+                for (int y = 0; y < instance->getDist()["DifferentTime"].size(); ++y) {
+                    for (int ci = 0;
+                         ci < instance->getDist()["DifferentTime"].at(y)->getClasses().size(); ++ci) {
+                        for (int ci1 = ci + 1;
+                             ci1 <
+                             instance->getDist()["DifferentTime"].at(y)->getClasses().size(); ++ci1) {
+
+                            idClassesDist = instance->getDist()["DifferentTime"].at(y)->getClasses()[ci];
+                            idClassesDist1 = instance->getDist()["DifferentTime"].at(
+                                    y)->getClasses()[ci1];
+                            for (int p = 0; p < idClassesDist->getLectures().size(); ++p) {
+                                for (int p1 = 0; p1 < idClassesDist1->getLectures().size(); ++p1) {
+
+                                    if (idClassesDist->getLectures()[p]->getStart() <=
+                                        idClassesDist1->getLectures()[p1]->getStart()
+                                        && idClassesDist1->getLectures()[p1]->getEnd() <=
+                                           idClassesDist->getLectures()[p]->getEnd()) {
+                                        int w = 0;
+                                        if ((w = instance->getDist()["DifferentTime"].at(y)->getWeight()) == -1)
+                                            constraint(idClassesDist, idClassesDist1, p, p1);
+                                        else
+                                            constraintSoft(idClassesDist, idClassesDist1, p, p1, w);
+                                    } else if (idClassesDist1->getLectures()[p1]->getStart() <=
+                                               idClassesDist->getLectures()[p]->getStart()
+                                               && idClassesDist->getLectures()[p]->getEnd() <=
+                                                  idClassesDist1->getLectures()[p1]->getEnd()) {
+                                        int w = 0;
+                                        if ((w = instance->getDist()["DifferentTime"].at(y)->getWeight()) == -1)
                                             constraint(idClassesDist, idClassesDist1, p, p1);
                                         else
                                             constraintSoft(idClassesDist, idClassesDist1, p, p1, w);
@@ -2010,8 +2092,7 @@ namespace openwbo {
                     for (int ci = 0;
                          ci < instance->getDist()["Precedence"].at(y)->getClasses().size(); ++ci) {
                         for (int ci1 = ci + 1;
-                             ci1 <
-                             instance->getDist()["Precedence"].at(y)->getClasses().size(); ++ci1) {
+                             ci1 < instance->getDist()["Precedence"].at(y)->getClasses().size(); ++ci1) {
 
                             idClassesDist = instance->getDist()["Precedence"].at(y)->getClasses()[ci];
                             idClassesDist1 = instance->getDist()["Precedence"].at(
@@ -2021,27 +2102,27 @@ namespace openwbo {
                                 for (int p1 = 0; p1 < idClassesDist1->getLectures().size(); ++p1) {
                                     if (isFirst(idClassesDist->getLectures()[p]->getWeeks(),
                                                 idClassesDist1->getLectures()[p1]->getWeeks(),
-                                                instance->getNweek()) == -1);
-                                    else if (isFirst(idClassesDist->getLectures()[p]->getDays(),
-                                                     idClassesDist1->getLectures()[p1]->getDays(),
-                                                     instance->getNdays()) ==
-                                             -1);
-                                    else if (isFirst(idClassesDist->getLectures()[p]->getDays(),
-                                                     idClassesDist1->getLectures()[p1]->getDays(),
-                                                     instance->getNdays()) >=
-                                             0 && isFirst(idClassesDist->getLectures()[p]->getWeeks(),
-                                                          idClassesDist1->getLectures()[p1]->getWeeks(),
-                                                          instance->getNweek()) >= 0 &&
-                                             idClassesDist->getLectures()[p]->getEnd() <=
-                                             idClassesDist1->getLectures()[p1]->getStart());
-                                    else {
+                                                instance->getNweek()) == -1 ||
+                                        (isFirst(idClassesDist->getLectures()[p]->getWeeks(),
+                                                 idClassesDist1->getLectures()[p1]->getWeeks(),
+                                                 instance->getNweek()) == 0 &&
+                                         isFirst(idClassesDist->getLectures()[p]->getDays(),
+                                                 idClassesDist1->getLectures()[p1]->getDays(),
+                                                 instance->getNdays()) ==
+                                         -1) || (isFirst(idClassesDist->getLectures()[p]->getWeeks(),
+                                                         idClassesDist1->getLectures()[p1]->getWeeks(),
+                                                         instance->getNweek()) == 0 &&
+                                                 isFirst(idClassesDist->getLectures()[p]->getDays(),
+                                                         idClassesDist1->getLectures()[p1]->getDays(),
+                                                         instance->getNdays()) == 0 &&
+                                                 idClassesDist->getLectures()[p]->getEnd() <=
+                                                 idClassesDist1->getLectures()[p1]->getStart())) { ;
+                                    } else {
                                         int w = 0;
                                         if ((w = instance->getDist()["Precedence"].at(y)->getWeight()) == -1)
                                             constraint(idClassesDist, idClassesDist1, p, p1);
                                         else
                                             constraintSoft(idClassesDist, idClassesDist1, p, p1, w);
-
-
                                     }
 
 
@@ -2049,9 +2130,10 @@ namespace openwbo {
 
                             }
                         }
-
-
                     }
+
+
+
                 }
             }
             if (instance->getDist().find("WorkDay") != instance->getDist().end()) {
@@ -2215,7 +2297,8 @@ namespace openwbo {
         }*/
 
 
-        void genStudents() {
+       void genStudents(MaxSATFormula *mf) {
+           maxsat_formula = mf;
             requiredClasses();
             limit();
             parentChild();
@@ -2557,23 +2640,16 @@ namespace openwbo {
 
     protected:
 
-        Instance *instance;
-
-        std::map<std::string, std::pair<Course *, Course *>> pairCourse; //student conflicts
-        std::map<std::string, std::vector<Conflict *>> pair;//Confid class1 + id class2 -> same Attence and student conflict part 2
-        std::vector<Conflict *> roomC;;//room conf
         int currentClass=0;
         int currentT=0;
         int classCount=0;
-        list<State *, allocator<State *>> *queue;
+        std::list<State *> *queue;
 
 
 
         std::map<int, std::vector<std::pair<Class *, Lecture *>>> times;//time class Lecture
 
 
-        MaxSATFormula *maxsat_formula;
-        std::vector<ClusterbyRoom *> cluster;
     };
 
 

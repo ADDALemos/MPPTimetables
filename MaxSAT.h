@@ -51,6 +51,7 @@
 #include <vector>
 #include "MaxSATFormulaExtended.h"
 #include "problem/Instance.h"
+#include "ParserXMLTwo.h"
 
 using NSPACE::vec;
 using NSPACE::Lit;
@@ -124,7 +125,7 @@ namespace openwbo {
         // Incremental information.
         void print_Incremental_configuration(int incremental);
 
-        virtual void search();      // MaxSAT search.
+        virtual bool search();      // MaxSAT search.
         void printAnswer(int type); // Print the answer.
 
         // Tests if a MaxSAT formula has a lexicographical optimization criterion.
@@ -248,7 +249,7 @@ namespace openwbo {
 
         // Utils for model management
         //
-        void saveModel(vec <lbool> &currentModel); // Saves a Model.
+        bool saveModel(vec <lbool> &currentModel); // Saves a Model.
         // Compute the cost of a model.
         uint64_t computeCostModel(vec <lbool> &currentModel,
                                   uint64_t weight = UINT64_MAX);

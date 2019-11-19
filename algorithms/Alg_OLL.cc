@@ -774,7 +774,7 @@ void OLL::weighted() {
     }
 }
 
-void OLL::search() {
+bool OLL::search() {
 
     if (encoding != _CARD_TOTALIZER_) {
         printf("Error: Currently algorithm MSU3 with iterative encoding only "
@@ -790,6 +790,8 @@ void OLL::search() {
         weighted();
     } else
         unweighted();
+    return true;
+
 }
 
 /************************************************************************************************

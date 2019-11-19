@@ -68,8 +68,8 @@ namespace openwbo {
       if (solver != NULL)
         delete solver;
     }
-    
-    void search();                                      // BLS search.
+
+      bool search();                                      // BLS search.
     void printAnswer(int type);                         // Print the answer.
     
         
@@ -93,7 +93,7 @@ namespace openwbo {
     
     // Utils for model management
     //
-    void saveModel(vec<lbool> &currentModel);             // Saves a Model.
+    void saveModel(vec <lbool> &currentModel) throw();             // Saves a Model.
     void saveSmallestModel(vec<lbool> &currentModel);     // Saves the smallest model found until now.
     
     // init methods

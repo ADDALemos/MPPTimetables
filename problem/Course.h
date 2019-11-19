@@ -14,8 +14,17 @@ class Course {
     std::string teacherID;
     std::map<int, std::vector<Subpart *>> configuration;
     int limit; //min limit of studnetsperclass
+    int numbofstudents;
 
 public:
+    int getNumbofstudents() const {
+        return numbofstudents;
+    }
+
+    void setNumbofstudents(int numbofstudents) {
+        Course::numbofstudents = numbofstudents;
+    }
+
     const std::string &getName() const {
         return name;
     }

@@ -1,75 +1,63 @@
 # How to run the project
 
-`./timetabler OriginalProblem.xml OriginalSolution.xml DisruptionsProfile.p Distance_Metric[Hamming|Weighted|GAP] Model[Boolean|Integer|Mixed|GRASP|LNS] [model_parameters] [-c] [-w]`
+`./timetabler true true true OriginalProblem.xml [options]`
 
-This will generate a valid solution in the output folder. The results is encoded using [ITC-2019 XML format](https://www.itc2019.org/home).
+The first three arguments correspond to the optimization criteria (allocation, student conflicts and distribution constraints). This will generate a valid solution in the output folder. The results is encoded using [ITC-2019 XML format](https://www.itc2019.org/home).
 
-# Arguments of the program
+This program is based on [TT-Open-WBO-INC]. The following options are available:
 
-## OriginalProblem
+## Global Options
+### Formula type (0=MaxSAT, 1=PB)
+```-formula      = <int32>  [   0 ..    1] (default: 0)```
 
-The data instance of the problem encoded using [ITC-2019 XML format](https://www.itc2019.org/home). It is possible to use the XML encoding of [ITC-2007](http://www.cs.qub.ac.uk/itc2007/) as well.
+### Print model
+```-print-model, -no-print-model (default on)```
 
-## OriginalSolution
+### Write unsatisfied soft clauses to file
+```-print-unsat-soft = <output-file>```
 
-The solution for the data instance encoded using [ITC-2019 XML format](https://www.itc2019.org/home). It is possible to use the XML encoding of [ITC-2007](http://www.cs.qub.ac.uk/itc2007/) as well.
+### Verbosity level (0=minimal, 1=more)
+```-verbosity    = <int32>  [   0 ..    1] (default: 1)```
 
-## Disruptions Profiles
+### Search algorithm (0=wbo,1=linear-su,2=msu3,3=part-msu3,4=oll,5=best)
+```-algorithm    = <int32>  [   0 ..    1] (default: 5)```
 
-The file with the rules to randomly generate the disruptions.
- 
-### Format
-The format is separated into four types of disruptions due to their common characteristics. 
+### BMO search 
+```-bmo,-no-bmo (default on)```
 
-* `Disruptions_type[Overlap|Preference_Room|Invalid_Room|Preference_Time|Invalid_Time|Remove_Room|Invalid_Assignment] %percentage_of_occurrences`
-* `Remove_Room_Day %percentage_of_closed_down_rooms %percentage_of_days` 
-* `Disruptions_type[Modify_Enrolments|Modify_N_Lectures] %percentage_of_occurrences distribution_mean distribution_standard_deviation`
-* `Disruptions_type #Lectures Average_Length Average_Enrollments`
+### Pseudo-Boolean encodings (0=SWC,1=GTE, 2=Adder)
+```-pb           = <int32>  [   0 ..    1] (default: 1)```
 
-## Distance_Metric
+### At-most-one encodings (0=ladder)
+```-amo          = <int32>  [   0 ..    0] (default: 0)```
 
-There are three distance metrics available:
- - Hamming Distance
- - Weighted Hamming Distance (the number of students affected by the change)
- - GAP: reducing the number of GAPs in students timetable.
- 
-## Model
+### Cardinality encodings (0=cardinality networks, 1=totalizer, 2=modulo totalizer)
+```-cardinality  = <int32>  [   0 ..    2] (default: 1)```
 
-There are three LP models that require Gurobi and two local search methods.
+       
+## WBO Options (algorithm=0, unsatisfiability-based algorithm)
+### Weight strategy (0=none, 1=weight-based, 2=diversity-based)
+```-weight-strategy = <int32>  [   0 ..    2] (default: 2)```
 
-The three LP models are:
-  - Boolean Model - two Boolean variables
-  - Integer Model - one integer variable
-  - Mixed Model - one integer and one Boolean variable
-  
- The two local search methods:
-  - GRASP
-  - LNS
-  
-  ## Model Parameters
-  
-  The **Mixed** model requires an additional parameter to specify the type of approach. The problem can be solved by:
-  - 1: splitting into two problems
-  - 0: solve the complete problem
-  
-  **GRASP** method require two additional parameters;
-   - The number of iterations
-   - The size of the Restricted Candidate List
-   
-   ## Symmetry Cuts
-   
-   To activate symmetry cuts run with the flag -c.
-   
-   ## Warm Start
-   
-   To activate the warm start procedure run with the flag -w.
+### Symmetry breaking
+```-symmetry, -no-symmetry (default on)```
+
+### Limit on the number of symmetry breaking clauses
+```-symmetry-limit = <int32>  [   0 .. imax] (default: 500000)```
+
+## PartMSU3 OPTIONS (algorithm=3, partition-based algorithm)
+### Graph type (0=vig, 1=cvig, 2=res)
+```-graph-type   = <int32>  [   0 ..    2] (default: 2)```
+
+### Partition strategy (0=sequential, 1=sequential-sorted, 2=binary)
+```-partition-strategy = <int32>  [   0 ..    2] (default: 2)```
+
     
-   # Dependencies
+# Dependencies
    
-   [Gurobi](http://www.gurobi.com/index) solver and c++ compiler.
+   [TT-Open-WBO-INC](https://drive.google.com/file/d/140d8jDHZHo5d7WuoNpLqZXmHasgYkH38/view) solver and c++ compiler.
    
-    
-   # Data Sets
+    # Data Sets
    
    ## IST
    
@@ -89,4 +77,8 @@ The three LP models are:
    
   # Results
   
-  The folder `papers/EPIA2019/plots/` contains the gunplot scripts to generated the figures presented EPIA 2019 paper.
+  The folder `papers/` contains the related papers.
+  
+  ## Journal of Scheduling and other approaches
+  
+  For an integer programming approach see Journal of Scheduling release. Note that, integer programming approach is not based on open source software.

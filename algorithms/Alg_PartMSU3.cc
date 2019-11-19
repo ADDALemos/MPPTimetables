@@ -921,7 +921,7 @@ void PartMSU3::PartMSU3_binary() {
   }
 }
 
-void PartMSU3::search() {
+bool PartMSU3::search() {
   if (maxsat_formula->getProblemType() == _WEIGHTED_) {
     printf("Error: Currently algorithm MSU3 does not support weighted MaxSAT "
            "instances.\n");
@@ -957,6 +957,8 @@ void PartMSU3::search() {
     printf("s UNKNOWN\n");
     exit(_ERROR_);
   }
+    return true;
+
 }
 
 /************************************************************************************************

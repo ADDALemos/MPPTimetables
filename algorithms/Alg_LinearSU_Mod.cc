@@ -446,7 +446,7 @@ void LinearSUMod::normalSearch() {
 }
 
 // Public search method
-void LinearSUMod::search() {
+bool LinearSUMod::search() {
 
   MaxSATFormulaExtended *maxsat_formula_extended =
       static_cast<MaxSATFormulaExtended *>(maxsat_formula);
@@ -465,6 +465,8 @@ void LinearSUMod::search() {
   // } else
   //   normalSearch();
   normalSearch();
+    return true;
+
 }
 
 /************************************************************************************************

@@ -58,7 +58,7 @@ public:
       delete solver;
   }
 
-  void search(); // MSU3 search.
+    bool search(); // MSU3 search.
 
   // Print solver configuration.
   void printConfiguration() {

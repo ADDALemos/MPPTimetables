@@ -971,7 +971,7 @@ void WBO::normalSearch() {
 }
 
 // Public search method
-void WBO::search() {
+bool WBO::search() {
   //  nbInitialVariables = maxsat_formula->nVars();
 
   // If the maximum weight of the soft clauses is 1 then the problem is
@@ -992,6 +992,8 @@ void WBO::search() {
   else if (weightStrategy == _WEIGHT_NORMAL_ ||
            weightStrategy == _WEIGHT_DIVERSIFY_)
     weightSearch();
+    return true;
+
 }
 
 /************************************************************************************************
