@@ -19,7 +19,7 @@
 #include "problem/ClusterbyRoom.h"
 
 #include "problem/Instance.h"
-#include "randomGenerator/Perturbation.h"
+#include "Perturbation.h"
 #include "utils/Stats.h"
 #include "utils/TimeUtil.h"
 #include "problem/Time.h"

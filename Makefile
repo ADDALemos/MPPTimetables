@@ -15,9 +15,9 @@ SOLVERNAME = "Glucose4.1"
 SOLVERDIR  = glucose4.1
 NSPACE     = Glucose
 # THE REMAINING OF THE MAKEFILE SHOULD BE LEFT UNCHANGED
-EXEC       = timetabler1
+EXEC       = timetabler
 DEPDIR     = mtl utils core 
-DEPDIR     +=  ../../encodings ../../algorithms ../../graph ../../classifier ../../clusterings ../../problem   ../../randomGenerator ../../rapidXMLParser ../../utils
+DEPDIR     +=  ../../encodings ../../algorithms ../../graph ../../classifier ../../clusterings ../../problem   ../../rapidXMLParser ../../utils
 MROOT      = $(PWD)/solvers/$(SOLVERDIR)
 LFLAGS     += -lgmpxx -lgmp
 CFLAGS     = -O3 -Wall -Wno-parentheses -std=c++11 -DNSPACE=$(NSPACE) -DSOLVERNAME=$(SOLVERNAME) -DVERSION=$(VERSION)

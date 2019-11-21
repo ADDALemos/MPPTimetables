@@ -444,6 +444,10 @@ void MaxSAT::printStats() {
 
 // Prints the corresponding answer.
 void MaxSAT::printAnswer(int type) {
+    print();
+    printf("c  Best solution:          %12"
+    PRIu64
+    "\n", ubCost);
     if (verbosity > 0)
         printStats();
 
@@ -740,7 +744,7 @@ void MaxSAT::print() {
             }
         }
     }
-    writeXMLOutput("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/" + instance->getName() + "_" +
+    writeXMLOutput("/Users/alexandrelemos/MPPTimetables/data/output/ITC-2019/" + instance->getName() + "_" +
                    std::to_string(modelS) + "_" + instance->getAlgo() + ".xml", instance);
 
 

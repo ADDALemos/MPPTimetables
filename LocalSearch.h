@@ -16,6 +16,17 @@ static const int sizeWindow = 2;
 #include <chrono>
 #include <ostream>
 #include <algorithm>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <cstring>
+#include <map>
+#include <chrono>
+#include <set>
+#include <random>
+#include <sstream>
+#include<limits.h>
 
 extern void printTime();
 extern double getTimeSpent();

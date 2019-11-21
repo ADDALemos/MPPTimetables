@@ -51,7 +51,7 @@
 
 #endif
 
-
+#include "Perturbation.h"
 #include "MaxSAT.h"
 #include "MaxTypes.h"
 #include "ParserMaxSAT.h"
@@ -70,6 +70,7 @@
 #include "algorithms/Alg_WBO.h"
 #include "algorithms/Alg_OBV.h"
 #include "algorithms/Alg_BLS.h"
+
 
 #define VER1_(x) #x
 #define VER_(x) VER1_(x)
@@ -97,6 +98,11 @@ void printCurricular(Instance *instance);
 void createSmallerInstances(Instance *);
 
 void printClusterofStudents(Instance *instance);
+
+void readPerturbations(std::string filename, Instance *instance);
+
+void readOutputXML(std::string filename, Instance *instance);
+
 
 
 static void SIGINT_exit(int signum) {
@@ -324,9 +330,11 @@ int main(int argc, char **argv) {
 
         MaxSATFormula *maxsat_formula = new MaxSATFormula();
         maxsat_formula->setFormat(_FORMAT_PB_);
+        ParserXMLTwo *parserXML = new ParserXMLTwo(maxsat_formula, false,
+                                                   false, false);
 
-        ParserXMLTwo *parserXML = new ParserXMLTwo(maxsat_formula, strcmp(argv[1], "true") == 0,
-                                                   strcmp(argv[2], "true") == 0, strcmp(argv[3], "true") == 0);
+        /*ParserXMLTwo *parserXML = new ParserXMLTwo(maxsat_formula, strcmp(argv[1], "true") == 0,
+                                                   strcmp(argv[2], "true") == 0, strcmp(argv[3], "true") == 0);*/
         parserXML->parse(argv[4]);
 
         parserXML->aux();
@@ -338,7 +346,15 @@ int main(int argc, char **argv) {
         parserXML->getInstance()->setAlgo((int) algorithm, argv[1], argv[2], argv[3]);
 
         parserXML->genConstraint();
-        std::cout << "Fin1" << std::endl;
+
+        /*Perturbation *p =new Perturbation();
+        //p->randomSlotClose(parserXML->getInstance(), 21);
+        //parserXML->una();
+        p->randomCloseRoom(parserXML->getInstance(),5);
+        parserXML->closeroom();
+
+        readOutputXML("data/output/ITC-2019/solution-"+parserXML->getInstance()->getName()+".xml", parserXML->getInstance());
+        parserXML->distanceToSolutionLectures();*/
 
 
         S->setInstance(parserXML->getInstance());
@@ -494,6 +510,7 @@ int main(int argc, char **argv) {
     }
 }
 
+
 void createSmallerInstances(Instance *instance) {
     int i = 0;
     for (Curriculum *c: instance->getProblem()) {
@@ -565,6 +582,103 @@ void printCNF(MaxSATFormula *f, std::string s) {
     file_stored.close();
 
 }
+
+void readPerturbations(std::string filename, Instance *instance) {
+    std::ifstream file(filename);
+    if (file.fail()) {
+        std::cerr << "File not found: " + filename << std::endl;
+        std::cerr << "Method: readPerturbations" << std::endl;
+        std::exit(11);
+    }
+    std::string perturbation;
+    Perturbation *p = new Perturbation();
+    double percentage, mean, std;
+    while (file >> perturbation >> percentage) {
+        percentage = percentage / 100;
+        if (strcmp(perturbation.c_str(), "Invalid_Time") == 0) {
+            p->randomSlotClose(instance, percentage);
+        } else if (strcmp(perturbation.c_str(), "Preference_Room") == 0) {
+            p->randomRoom(instance, percentage, true);
+        } else if (strcmp(perturbation.c_str(), "Invalid_Room") == 0) {
+            p->randomCloseRoom(instance, percentage);
+        } else if (strcmp(perturbation.c_str(), "Overlap") == 0) {
+            p->randomOverlap(instance, percentage);
+        } else if (strcmp(perturbation.c_str(), "Modify_Enrolments") == 0) {
+            file >> mean >> std;
+            p->randomEnrolmentChanges(instance, mean, std, percentage);
+        } else if (strcmp(perturbation.c_str(), "Modify_N_Lectures") == 0) {
+            file >> mean >> std;
+            p->randomShiftChange(instance, percentage, mean, std);
+            instance->setNumClasses();
+        } else if (strcmp(perturbation.c_str(), "Curriculum") == 0) {
+            file >> mean >> std;
+            p->addNewCurriculum(instance, percentage, mean, std);
+        }
+
+
+    }
+}
+
+
+void readOutputXML(std::string filename, Instance *instance) {
+    xml_document<> doc;
+    std::ifstream file(filename);
+    if (file.fail()) {
+        std::cerr << "File not found: " + filename << std::endl;
+        std::cerr << "Method: readOutputXML" << std::endl;
+        std::exit(11);
+    }
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    file.close();
+    std::__1::string content(buffer.str());
+    doc.parse<0>(&content[0]);
+    xml_node<> *pRoot = doc.first_node();
+    for (const xml_attribute<> *a = pRoot->first_attribute(); a; a = a->next_attribute()) {
+        if (strcmp(a->name(), "name") == 0 && strcmp(a->value(), instance->getName().c_str()) != 0) {
+            std::cerr << "Instance and Solution do not match" << std::endl;
+        }
+    }
+    int total = 0;
+    for (const xml_node<> *n = pRoot->first_node(); n; n = n->next_sibling()) {
+        std::string weeks = " ", days = " ", room = " ";
+        int id = -1, start = -1;
+        for (const xml_attribute<> *a = n->first_attribute(); a; a = a->next_attribute()) {
+            if (strcmp(a->name(), "id") == 0) {
+                id = atoi(a->value());
+            } else if (strcmp(a->name(), "start") == 0) {
+                start = atoi(a->value());
+            } else if (strcmp(a->name(), "room") == 0) {
+                room = a->value();
+            } else if (strcmp(a->name(), "weeks") == 0) {
+                weeks = a->value();
+            } else if (strcmp(a->name(), "days") == 0) {
+                days = a->value();
+            }
+        }
+        Class *s = instance->getClassbyId(id);
+        if (std::strcmp(room.c_str(), " ") != 0) {
+            s->setSolution(start, atoi(room.c_str()), room, weeks, days);
+        } else
+            s->setSolution(start, weeks, days);
+
+        std::vector<int> student;
+        for (const xml_node<> *stu = n->first_node(); stu; stu = stu->next_sibling()) {
+            for (const xml_attribute<> *a = stu->first_attribute(); a; a = a->next_attribute()) {
+                student.push_back(atoi(a->value()));
+                instance->getStudent(atoi(a->value())).addClass(s);
+            }
+        }
+
+        s->addStudents(student);
+        total += s->getSteatedStudents();
+    }
+    instance->setTotalNumberSteatedStudent(total);
+    instance->findOverlapConstraints();
+
+
+}
+
 
 
 

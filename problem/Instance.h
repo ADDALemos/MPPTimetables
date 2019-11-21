@@ -42,7 +42,7 @@ private:
     unsigned int nClasses = 0;
     double alfa = 0;//slack anyone?
     //MPP
-    std::set<int> uva;
+    std::map<int, std::set<int>> uva;
     std::set<int> incorrentAssignments;
 
 public:
@@ -61,8 +61,6 @@ public:
     void setProblem(const std::vector<Curriculum *, std::allocator<Curriculum *>> &problem) {
         Instance::problem = problem;
     }
-
-
 
 
     const std::string &getMethod() const {
@@ -152,6 +150,10 @@ public:
     Instance(std::string name, int days, int slots, int min, int max) : ndays(days), nweek(1),
                                                                         slotsperday(slots), name(name) {
         //, min(min),max(max)
+
+    }
+
+    void updateStudentEnrollment(int i1, int i2) {
 
     }
 
@@ -356,12 +358,23 @@ public:
         return rooms.at(roomID)->isClosebyDay(day);
     }
 
-    bool isTimeUnavailable(int slot) {
-        return uva.find(slot) != uva.end();
+    bool isTimeUnavailable(int classID, int slot) {
+        if (uva.find(classID) != uva.end())
+            return uva[classID].find(slot) != uva[classID].end();
     }
 
-    void setTimeUnavailable(int time) {
-        uva.insert(time);
+    void setTimeUnavailable(int classID, int time) {
+        if (uva.find(classID) != uva.end())
+            uva[classID].insert(time);
+        else {
+            std::set<int> t;
+            t.insert(time);
+            uva.insert(std::pair<int, std::set<int>>(classID, t));
+        }
+    }
+
+    std::map<int, std::set<int>> getTimeUnavailable() {
+        return uva;
     }
 
     void incorrectAssignment(int classID) {

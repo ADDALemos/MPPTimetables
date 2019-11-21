@@ -19,7 +19,7 @@
 #include "problem/ClusterbyRoom.h"
 
 #include "problem/Instance.h"
-#include "randomGenerator/Perturbation.h"
+#include "Perturbation.h"
 #include "utils/Stats.h"
 #include "utils/TimeUtil.h"
 #include "problem/Time.h"
@@ -102,6 +102,7 @@ namespace openwbo {
         virtual ~ParserXMLTwo() {}
 
         void parse(std::string fileName) {
+
             PBObjFunction *of;
 //            PB *pbopt;
             if (optAlloction)
@@ -2636,6 +2637,129 @@ namespace openwbo {
                 return true;
             }
             return false;
+        }
+
+        void una() {
+            for (std::pair<int, std::set<int>> una :instance->getTimeUnavailable()) {
+                for (int tuna: una.second) {
+                    vec <Lit> l;
+                    l.push(~mkLit(getVariableID(
+                            "h_" + std::to_string(una.first) + "_" +
+                            std::to_string(instance->getClasses()[una.first]->getLectures()[tuna]->getStart()))));
+                    maxsat_formula->addHardClause(l);
+
+                }
+
+            }
+        }
+
+
+        void slackStudent() {
+            for (int l = 0; l <
+                            instance->getNumClasses(); l++) {
+                int j = 0;
+                for (std::map<int, Room *>::const_iterator it = instance->getRooms().begin();
+                     it != instance->getRooms().end(); it++) {
+                    if (instance->getClasses()[l]->containsRoom(instance->getRoom(j + 1))) {
+                        PB *p = new PB();
+                        p->_sign = true;
+                        p->addProduct(
+                                mkLit(getVariableID("r_" + std::to_string(instance->getClasses()[l]->getOrderID()) +
+                                                    "_" + std::to_string(it->first))), it->second->getCapacity());
+                        p->addRHS(instance->getClasses()[l]->getLimit() -
+                                  instance->getClasses()[l]->getLimit() * instance->getAlfa());
+                        maxsat_formula->addPBConstraint(p);
+                        delete p;
+
+                    }
+
+
+                    j++;
+                }
+            }
+        }
+
+        /***
+   * The current distance of the solution with the old solution
+   * The distantes is base on the weighted Hamming distance
+   */
+
+
+        void distanceToSolutionLectures() {
+            PBObjFunction *of = new PBObjFunction();
+
+            for (int j = 0; j < instance->getNumClasses(); ++j) {
+                for (int lec = 0; lec < instance->getClasses()[j]->getLectures().size(); ++lec) {
+                    if (instance->getClasses()[j]->getLectures()[lec]->getStart() !=
+                        instance->getClasses()[j]->getSolStart())
+                        of->addProduct(mkLit(getVariableID(
+                                "h_" + std::to_string(instance->getClasses()[j]->getOrderID()) + "_" +
+                                std::to_string(instance->getClasses()[j]->getLectures()[lec]->getStart()))),
+                                       1);
+                    if (stringcompare(instance->getClasses()[j]->getLectures()[lec]->getWeeks(),
+                                      instance->getClasses()[j]->getSolWeek(), instance->getNweek(), true) == 0)
+                        of->addProduct(mkLit(getVariableID(
+                                "w_" + std::to_string(instance->getClasses()[j]->getOrderID()) + "_" +
+                                instance->getClasses()[j]->getLectures()[lec]->getWeeks())),
+                                       1);
+                    if (stringcompare(instance->getClasses()[j]->getLectures()[lec]->getDays(),
+                                      instance->getClasses()[j]->getSolDays(), instance->getNdays(), true) == 0)
+                        of->addProduct(mkLit(getVariableID(
+                                "d_" + std::to_string(instance->getClasses()[j]->getOrderID()) + "_" +
+                                instance->getClasses()[j]->getLectures()[lec]->getDays())),
+                                       1);
+
+
+                }
+                for (std::pair<Room *, int> pair1: instance->getClasses()[j]->getPossibleRooms()) {
+                    if (instance->getClasses()[j]->getSolRoom() != pair1.first->getId())
+                        of->addProduct(mkLit(getVariableID(
+                                "r_" + std::to_string(instance->getClasses()[j]->getOrderID()) + "_" +
+                                std::to_string(pair1.first->getId()))),
+                                       1);
+
+                }
+
+            }
+
+            maxsat_formula->addObjFunction(of);
+
+
+        }
+
+        void closeroom() {
+            std::cout << "b1" << std::endl;
+
+            for (std::pair<int, Room *> p: instance->getRooms()) {
+                std::cout << "b2" << std::endl;
+
+                if (instance->isRoomBlocked(p.first)) {
+                    unsigned int t = std::chrono::steady_clock::now().time_since_epoch().count();
+                    std::default_random_engine generator(t);
+                    std::uniform_int_distribution<int> distribution(0, p.second->c.size() - 1);
+                    int i = 0;
+                    int v = distribution(generator);
+                    std::cout << "b3" << std::endl;
+
+                    for (int id: p.second->c) {
+                        std::cout << "b4" << std::endl;
+
+                        if (i == v) {
+                            std::cout << "a" << std::endl;
+                            vec <Lit> l;
+                            l.push(~mkLit(getVariableID(
+                                    "r_" + std::to_string(id) + "_" +
+                                    std::to_string(p.second->getId()))));
+                            maxsat_formula->addHardClause(l);
+                            break;
+                        }
+                        i++;
+                    }
+
+                }
+            }
+
+
         }
 
     protected:
