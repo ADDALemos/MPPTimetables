@@ -1,3 +1,9 @@
 [submodule "papers/ITC-2019"]
 	path = papers/ITC-2019
 	url = https://git.overleaf.com/5dcc41602b89230001b79700
+[submodule "papers/CPAIOR/5dd443f84e92470001760120"]
+	path = papers/CPAIOR/5dd443f84e92470001760120
+	url = https://git.overleaf.com/5dd443f84e92470001760120
+[submodule "papers/5dd443f84e92470001760120"]
+	path = papers/5dd443f84e92470001760120
+	url = https://git.overleaf.com/5dd443f84e92470001760120
