@@ -1,3 +1,5 @@
+# How to compile the project
+`make`
 # How to run the project
 
 `./timetabler true true true OriginalProblem.xml [options]`
