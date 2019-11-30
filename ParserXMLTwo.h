@@ -104,11 +104,9 @@ namespace openwbo {
         void parse(std::string fileName) {
 
             PBObjFunction *of;
-//            PB *pbopt;
             if (optAlloction)
                 of = new PBObjFunction();
-            /*else
-                pbopt = new PB();*/
+
 
             xml_document<> doc;
             int orderID = 0;
@@ -309,76 +307,7 @@ namespace openwbo {
                                             Lecture *l = new Lecture(lenght, start, weeks, days, penalty);
                                             lecv.push_back(l);
                                             l->setOrderID(max);
-                                            //std::map<std::string, std::vector<std::pair<int, int>>> pairConfid class1 + id class2, Lecture ID class 1 Lecture ID Class2
-                                            //std::map<int, std::vector<std::pair<Class *, Lecture*>>> timesstart class Lecture
-                                            /*for (int i = 0; i < lenght; ++i) {
-                                                if (times.find(start + i) != times.end()) {
-                                                    for (int j = 0; j < times[start + i].size(); ++j) {
-                                                        int travel = 0;
-                                                        int rID1=-1; int rID2=-1;
-                                                        if(roomsv.size()>0&&times[start + i][j].first->getPossibleRooms().size()>0){
-                                                        for (std::map<Room *, int>::iterator iterator = roomsv.begin();
-                                                             iterator != roomsv.end(); ++iterator) {
-                                                            rID1=iterator->second;
-                                                            for (std::pair<Room *, int> iterator1 : times[start + i][j].first->getPossibleRooms()) {
-                                                                rID2=iterator1.second;
-                                                                if (instance->getRoom(
-                                                                        iterator->first->getId())->getTravel(
-                                                                        iterator1.first->getId()) > 0)
-                                                                    travel = instance->getRoom(
-                                                                            iterator->first->getId())->getTravel(
-                                                                            iterator1.first->getId());
-                                                                else
-                                                                    travel = instance->getRoom(
-                                                                            iterator1.first->getId())->getTravel(
-                                                                            iterator->first->getId());
-                                                                if (l->getEnd() + travel <=
-                                                                    times[start + i][j].second->getStart()
-                                                                    ||  times[start + i][j].second->getEnd() +
-                                                                        travel <= start
-                                                                    || stringcompare(weeks,
-                                                                                     times[start + i][j].second->getWeeks(),
-                                                                                     instance->getNweek(), false)
-                                                                    || stringcompare(days,
-                                                                                     times[start + i][j].second->getDays(),
-                                                                                     instance->getNdays(), false)) { ;
-                                                                } else {
-                                                                    roomC.push_back(new Conflict(max, times[start + i][j].second->getOrderId(),rID1,rID2));
 
-                                                                }
-                                                            }
-                                                        }
-                                                        } else {
-                                                            if (l->getEnd() <=
-                                                                times[start + i][j].second->getStart()
-                                                                ||  times[start + i][j].second->getEnd() <= start
-                                                                || stringcompare(weeks,
-                                                                                 times[start + i][j].second->getWeeks(),
-                                                                                 instance->getNweek(), false)
-                                                                || stringcompare(days,
-                                                                                 times[start + i][j].second->getDays(),
-                                                                                 instance->getNdays(), false)) { ;
-                                                            } else {
-                                                                roomC.push_back(new Conflict(max, times[start + i][j].second->getOrderId(),-1,-1));
-
-                                                            }
-                                                        }
-
-
-
-
-                                                    }
-                                                    times[start + i].push_back(std::pair<Class *, Lecture *>(c, l));
-
-                                                } else {
-                                                    std::vector<std::pair<Class *, Lecture *>> t;
-                                                    t.push_back(std::pair<Class *, Lecture *>(c, l));
-                                                    times.insert(
-                                                            std::pair<int, std::vector<std::pair<Class *, Lecture *>>>(
-                                                                    start + i, t));
-                                                }
-
-                                            }*/
 
 
                                             time->addProduct(mkLit(getVariableID(
@@ -388,7 +317,6 @@ namespace openwbo {
 
 
 
-                                            //oneEach += " +1 " + std::to_string(max);
                                             if (penalty != 0 && optAlloction)
                                                 of->addProduct(mkLit(getVariableID(
                                                         "t_" + std::to_string(orderID) + "_" + std::to_string(max))),
@@ -478,7 +406,6 @@ namespace openwbo {
                                                     maxsat_formula->addHardClause(*l1);
 
                                                     delete l1;
-                                                    //std::cout<<*l<<" "<<std::to_string(j->first->getId())<<std::endl;
 
                                                     if (isNotAddableTime) {
                                                         vec <Lit> *l1 = new vec<Lit>;
@@ -490,36 +417,7 @@ namespace openwbo {
 
                                                         maxsat_formula->addHardClause(*l1);
                                                         delete l1;
-                                                    } /*else {
-
-                                                        bool is = true;
-                                                        for (int ti = 0; ti < j->first->t.size(); ++ti) {
-                                                            if (j->first->t[ti]->getWeek().compare(l->getWeeks()) ==
-                                                                0 &&
-                                                                j->first->t[ti]->getDay().compare(l->getDays()) == 0 &&
-                                                                l->getStart() == j->first->t[ti]->getStart() &&
-                                                                l->getEnd() == j->first->t[ti]->getEnd()) {
-                                                                j->first->t[ti]->addC(std::pair<std::string,std::string>(
-                                                                        "y_" + std::to_string(orderID) + "_" +
-                                                                        std::to_string(max) + "_"+
-                                                                        std::to_string(j->second),""), idclass);
-                                                                is = false;
-                                                            }
-                                                        }
-                                                        if (is) {
-
-                                                            j->first->t.push_back(
-                                                                    new Time(l->getStart(), l->getEnd(),
-                                                                             l->getWeeks(),
-                                                                             l->getDays(),
-                                                                             std::pair<std::string,std::string>(
-                                                                                     "y_" + std::to_string(orderID) + "_" +
-                                                                                     std::to_string(max) + "_"+
-                                                            std::to_string(j->second)," "), idclass));
-                                                        }
-
-
-                                                    }*/
+                                                    }
                                                 }
                                             }
 
@@ -650,12 +548,7 @@ namespace openwbo {
             if (optAlloction) {
                 maxsat_formula->addObjFunction(of);
                 delete of;
-            } /*else {
-                pbopt->_sign=true;
-                pbopt->_rhs=3290;
-                maxsat_formula->addPBConstraint(pbopt);
-
-            }*/
+            }
 
 
         }
@@ -834,12 +727,9 @@ namespace openwbo {
                 else {
                     for (int i = 0; i < clusterStudent.size(); ++i) {
                         bool t = false;
-                        /*std::cout<<clusterStudent[i]->getStudent().size()<<std::endl;
-                        std::cout<<clusterStudent[i]->getMin()<<std::endl;*/
 
-                        if (c.size() != clusterStudent[i]->getCourses().size() ||
-                            (clusterStudent[i]->getStudent().size() + 1) >
-                            1)
+
+                        if (c.size() != clusterStudent[i]->getCourses().size())
                             continue;
                         for (int c0 = 0; c0 < c.size(); ++c0) {
                             t = false;
@@ -867,7 +757,7 @@ namespace openwbo {
 
                 }
             }
-            /*std::vector<ClusterStudent *> clusterStudent1;
+            std::vector < ClusterStudent * > clusterStudent1;
             for (ClusterStudent* cs:clusterStudent) {
                 int li=cs->getStudent().size();
                 bool change=false;
@@ -900,8 +790,8 @@ namespace openwbo {
                 } else {
                     clusterStudent1.push_back(cs);
                 }
-                
-            }*/
+
+            }
 
 
             instance->setStudentCluster(clusterStudent);
@@ -955,11 +845,7 @@ namespace openwbo {
                                 idClassesDist->getId(), c));
                     }
                 }
-                //if (isReq) {
-                /*for (ClusterbyRoom *clusterbyRoom: *c) {
-                    clusterbyRoom->setRange(new ConstraintShort(type, penalty, c1, limit, limit1));
-                    break;
-                }*/
+
 
 
                 if (hard.find(type) != hard.end()) {
@@ -970,20 +856,9 @@ namespace openwbo {
                     hard.insert(std::pair<std::string, std::vector<ConstraintShort *>>(type, t));
                 }
 
-                /*} else {
-                    if (soft.find(type) != soft.end()) {
-                        soft[type].push_back(new ConstraintShort(type, penalty, c1, limit, limit1));
-                    } else {
-                        std::vector<ConstraintShort *> t;
-                        t.push_back(new ConstraintShort(type, penalty, c1, limit, limit1));
-                        soft.insert(std::pair<std::string, std::vector<ConstraintShort *>>(type, t));
-                    }
-
-                }*/
 
             }
             instance->setDist(hard);
-            //instance->setSoft(soft);
         }
 
         void readRoom(const xml_node<> *n) const {
@@ -1290,10 +1165,10 @@ namespace openwbo {
             //printRoomCluster();
             if (instance->getDist().find("MaxBlock") != instance->getDist().end()) {
                 for (int y = 0; y < instance->getDist()["MaxBlock"].size(); ++y) {
-                    /*block(instance->getDist()["MaxBlock"].at(y)->getClasses(),
+                    block(instance->getDist()["MaxBlock"].at(y)->getClasses(),
                           instance->getDist()["MaxBlock"].at(y)->getParameter1(),
                           instance->getDist()["MaxBlock"].at(y)->getParameter2(),
-                          instance->getDist()["MaxBlock"].at(y)->getWeight());*/
+                          instance->getDist()["MaxBlock"].at(y)->getWeight());
                 }
             }
             if(instance->getDist().find("MaxDayLoad") != instance->getDist().end()){
@@ -2245,7 +2120,7 @@ namespace openwbo {
         }
 
 
-       /* void sameTime() {
+        void sameTime() {
             for (std::pair<std::string, std::pair<Course *, Course *>> pair: pairCourse) {
                 for (Class *aClass:pair.second.first->getClasses()) {
                     for (Class *aClass1:pair.second.second->getClasses()) {
@@ -2295,7 +2170,7 @@ namespace openwbo {
             }
 
 
-        }*/
+        }
 
 
        void genStudents(MaxSATFormula *mf) {
@@ -2375,7 +2250,6 @@ namespace openwbo {
 
 
                         }
-                        //
 
 
                     }
@@ -2407,13 +2281,11 @@ namespace openwbo {
                         if (instance->getClusterStudent()[i]->getClassesID(
                                 instance->getClasses()[cla]->getId()).compare("Empty") != 0) {
                             t = true;
-                            //for (Student s: instance->getClusterStudent()[i]->getStudent()) {
                             pb->addProduct(mkLit(getVariableID(
                                     instance->getClusterStudent()[i]->getClassesID(
                                             instance->getClasses()[cla]->getId()))),
                                            instance->getClusterStudent()[i]->getStudent().size());
                             stuNumb += instance->getClusterStudent()[i]->getStudent().size();
-                            //}
                         }
                     }
                     if (t && instance->getClasses()[cla]->getLimit() <= stuNumb &&

@@ -8,37 +8,60 @@
 
 #include <iostream>
 #include "../problem/Instance.h"
+#include "../MaxSATFormula.h"
 
-inline void printStudentsStats(Instance *instance){
+
+inline void printMaxSATStats(Instance *instance, openwbo::MaxSATFormula *f) {
+    std::cout << f->nVars() << " " << f->nCard() << " " << f->nHard() << " " << f->nSoft() << std::endl;
+
+}
+
+inline double getStudentsStats(Instance *instance) {
     int v =0;int v1=0;
     for (std::map<int, Student>::iterator it = instance->getStudent().begin(); it != instance->getStudent().end(); ++it) {
         std::map<int, Student>::iterator it1 = it; it1++;
         for (; it1 != instance->getStudent().end(); ++it1) {
             if(it->second.getId()!=it1->second.getId()){
-            bool t=false;
-            for (int c= 0; c < it->second.getCourse().size(); c++) {
-                for (int c1= 0; c1 < it1->second.getCourse().size(); c1++) {
-                    if(it->second.getCourse()[c]->getName().compare(it1->second.getCourse()[c1]->getName())!=0){
-                        t=true;
-                        break;
+                bool t = false;
+                for (int c = 0; c < it->second.getCourse().size(); c++) {
+                    for (int c1 = 0; c1 < it1->second.getCourse().size(); c1++) {
+                        if (it->second.getCourse()[c]->getName().compare(it1->second.getCourse()[c1]->getName()) != 0) {
+                            t = true;
+                            break;
+                        }
                     }
-                }
-                if(t)
-                    break;
+                    if (t)
+                        break;
 
-            }
-            if(!t) {
-                v++;
-                std::cout<<it->second.getId()<<" "<<it1->second.getId()<<std::endl;
-            }
+                }
+                if (!t) {
+                    v++;
+                    //std::cout<<it->second.getId()<<" "<<it1->second.getId()<<std::endl;
+                }
                 v1++;
 
             }
         }
     }
-    std::cout<<v<<std::endl;
-    std::cout<<(float)v/instance->getStudent().size()<<std::endl;
+    //std::cout<<v<<std::endl;
+    return (float) v / instance->getStudent().size();
 }
+
+
+inline void printStatforTable(Instance *instance) {
+    //|Co|	|C|	|R|	AVG. |R_c|	AVG. |P_c|	|S|	AVG. |S_c|	Hard	Soft	MaxBreak	MaxBlock
+    std::cout << instance->getCourses().size() << " " <<
+              instance->getClasses().size() << " " <<
+              instance->getRooms().size() << " " <<
+              instance->roomPerClass() << " " <<
+              instance->timePerClass() << " " <<
+              instance->getStudent().size() << " " <<
+              getStudentsStats(instance) << " ";
+
+}
+
+
+
 
 
 inline void printProblemStats(Instance *instance) {
@@ -101,71 +124,72 @@ inline void printConstraintsStat(Instance *instance) {
                 hard++;
             else {
                 soft++;
+            }
                 if (i.first.compare("SameAttendees") == 0) {
                     map["SameAttendees"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
                 }
                 if (i.first.compare("NotOverlap") == 0) {
-                    map["NotOverlap"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                    map["NotOverlap"]++;//std::cout<<i.second[y]->getClasses().size()<<std::endl;;
                 }
                 if (i.first.compare("Overlap") == 0) {
-                    map["Overlap"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                    map["Overlap"]++;//std::cout<<i.second[y]->getClasses().size()<<std::endl;;
                 }
                 if (i.first.compare("SameTime") == 0) {
-                    map["SameTime"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                    map["SameTime"]++;//std::cout<<i.second[y]->getClasses().size()<<std::endl;;
                 }
                 if (i.first.compare("DifferentTime") == 0) {
-                    map["DifferentTime"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                    map["DifferentTime"]++;//std::cout<<i.second[y]->getClasses().size()<<std::endl;;
                 }
                 if (i.first.compare("SameWeeks") == 0) {
-                    map["SameWeeks"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                    map["SameWeeks"]++;//std::cout<<i.second[y]->getClasses().size()<<std::endl;;
                 }
                 if (i.first.compare("DifferentWeeks") == 0) {
-                    map["DifferentWeeks"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                    map["DifferentWeeks"]++;//std::cout<<i.second[y]->getClasses().size()<<std::endl;;
                 }
                 if (i.first.compare("SameDays") == 0) {
-                    map["SameDays"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                    map["SameDays"]++;//std::cout<<i.second[y]->getClasses().size()<<std::endl;;
                 }
                 if (i.first.compare("DifferentDays") == 0) {
-                    map["DifferentDays"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                    map["DifferentDays"]++;//std::cout<<i.second[y]->getClasses().size()<<std::endl;;
                 }
                 if (i.first.compare("Precedence") == 0) {
-                    map["Precedence"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                    map["Precedence"]++;//std::cout<<i.second[y]->getClasses().size()<<std::endl;;
                 }
                 if (i.first.compare("SameRoom") == 0) {
-                    map["SameRoom"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                    map["SameRoom"]++;//std::cout<<i.second[y]->getClasses().size()<<std::endl;;
                 }
                 if (i.first.compare("DifferentRoom") == 0) {
-                    map["DifferentRoom"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                    map["DifferentRoom"]++;//std::cout<<i.second[y]->getClasses().size()<<std::endl;;
                 }
                 if (i.first.compare("SameStart") == 0) {
-                    map["SameStart"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                    map["SameStart"]++;//std::cout<<i.second[y]->getClasses().size()<<std::endl;;
                 }
                 if (i.first.compare("MaxDays") == 0) {
-                    map["MaxDays"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                    map["MaxDays"]++;//std::cout<<i.second[y]->getClasses().size()<<std::endl;;
                 }
                 if (i.first.compare("MinGap") == 0) {
-                    map["MinGap"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                    map["MinGap"]++;//std::cout<<i.second[y]->getClasses().size()<<std::endl;;
                 }
                 if (i.first.compare("WorkDay") == 0) {
-                    map["WorkDay"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                    map["WorkDay"]++;//std::cout<<i.second[y]->getClasses().size()<<std::endl;;
                 }
                 if (i.first.compare("MaxDayLoad") == 0) {
-                    map["MaxDayLoad"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                    map["MaxDayLoad"]++;//std::cout<<i.second[y]->getClasses().size()<<std::endl;;
                 }
                 if (i.first.compare("MaxBreaks") == 0) {
-                    map["MaxBreaks"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                    map["MaxBreaks"]++;//std::cout<<i.second[y]->getClasses().size()<<std::endl;;
                 }
                 if (i.first.compare("MaxBlock") == 0) {
-                    map["MaxBlock"] ++;std::cout<<i.second[y]->getClasses().size()<<std::endl;;
+                    map["MaxBlock"]++;//std::cout<<i.second[y]->getClasses().size()<<std::endl;;
                 }
 
-            }
+
         }
     }
-        std::cout<<hard<<" "<<soft<<std::endl;
-        for (std::map<std::string, int>::iterator p = map.begin(); p != map.end(); ++p) {
-            std::cout << p->first << " " << p->second << std::endl;
-        }
+    std::cout << hard << " " << soft << " " << map["MaxBreaks"] << " " << map["MaxBlock"] << std::endl;
+    /*for (std::map<std::string, int>::iterator p = map.begin(); p != map.end(); ++p) {
+        std::cout << p->first << " " << p->second << std::endl;
+    }*/
 
 }
 

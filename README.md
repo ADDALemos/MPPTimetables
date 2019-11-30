@@ -1,12 +1,32 @@
 # How to compile the project
+
 `make`
+
 # How to run the project
 
-`./timetabler true true true OriginalProblem.xml [options]`
+`./timetabler data/input/ITC-2019/OriginalProblem.xml -formula=1 -verbosity=0 -algorithm=6 -pb=0 [options]`
 
-The first three arguments correspond to the optimization criteria (allocation, student conflicts and distribution constraints). This will generate a valid solution in the output folder. The results is encoded using [ITC-2019 XML format](https://www.itc2019.org/home).
+This will generate a valid solution in the output folder. The results is encoded using [ITC-2019 XML format](https://www.itc2019.org/home).
+Note that, to solve Minimal Perturbation Problem one needs to have a solution for the original problem in the folder  `data/output/ITC-2019/solution-OriginalProblem.xml`.
+
 
 This program is based on [TT-Open-WBO-INC]. The following options are available:
+
+## Timetabler Options
+### Optimization Criterion: allocation
+```-opt-allocation      (default: on)```
+### Optimization Criterion: distribution constraints
+```-opt-cons      (default: on)```
+### Optimization Criterion: student conflicts
+```-opt-stu      (default: on)```
+### Minimal Perturbation Problem: invalid time flag
+```invalid-time      (default: on)```
+### Minimal Perturbation Problem: invalid time probability
+```invalid-time-p = <int32>  [   0 ..    100]     (default: 21%)```
+### Minimal Perturbation Problem: invalid room flag
+```invalid-room    (default: on)```
+### Minimal Perturbation Problem: invalid room probability
+```invalid-room-p = <int32>  [   0 ..    100]     (default: 25%)```
 
 ## Global Options
 ### Formula type (0=MaxSAT, 1=PB)
@@ -59,7 +79,7 @@ This program is based on [TT-Open-WBO-INC]. The following options are available:
    
    [TT-Open-WBO-INC](https://drive.google.com/file/d/140d8jDHZHo5d7WuoNpLqZXmHasgYkH38/view) solver and c++ compiler.
    
-    # Data Sets
+  # Data Sets
    
    ## IST
    
@@ -79,7 +99,7 @@ This program is based on [TT-Open-WBO-INC]. The following options are available:
    
   # Results
   
-  The folder `papers/` contains the related papers.
+  This solver has been placed among the five finalists of ITC-2019. The folder `papers/` contains the related papers.
   
   ## Journal of Scheduling and other approaches
   

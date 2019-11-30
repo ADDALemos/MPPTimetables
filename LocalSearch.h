@@ -154,9 +154,7 @@ protected:
     }
 
     LocalSearch(int MAX_ITERATIONS, double rcl, Instance *instance, int seconds) : MAX_ITERATIONS(
-            MAX_ITERATIONS),
-                                                                                   instance(instance),
-                                                                                   time(seconds) {
+            MAX_ITERATIONS), time(seconds), instance(instance) {
         instance->setMethod("LocalSearch");
         init();
         totalNassigment = 0;
@@ -208,7 +206,6 @@ protected:
 
     void greedyStu() {
         if (instance->getStudent().size() > 0) {
-            int totalAss = 0;
             int maxStu = INT_MAX;
             for (std::map<int, Student>::const_iterator it = instance->getStudent().begin();
                  it != instance->getStudent().end(); ++it) {
@@ -246,7 +243,6 @@ protected:
 
     int checkUpdate(int maxCost, int id, int time, const std::pair<Room *, int> &room) {
         int roomID = room.first->getId();
-        int costR = room.second;
         int costT = isAllocable(id,
                                 instance->getClasses()[id]->getLectures()[time]->getWeeks(),
                                 instance->getClasses()[id]->getLectures()[time]->getDays(),
@@ -350,8 +346,6 @@ protected:
 
     void Local() {
 
-        int cost = 0;
-        int old = 0;
         bool bigmove = true;
         std::cout << "LNS: " << getTimeSpent() << std::endl;
         while (bigmove) {
@@ -497,7 +491,7 @@ protected:
 
 
     double cost(int lectureID, int roomID, int day, int timeS) {
-
+        return 0;
 
     }
 
@@ -628,6 +622,7 @@ protected:
         }
         if (c->getLimit() < limit)
             return INT_MAX;
+        return 0;
 
     }
 
@@ -682,7 +677,6 @@ protected:
     }
 
     void stuAlloc() {
-        int totalAss = 0;
         for (std::map<int, Student>::iterator it = instance->getStudent().begin();
              it != instance->getStudent().end(); ++it) {
 

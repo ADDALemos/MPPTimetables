@@ -14,7 +14,6 @@ static const int NUMBER_OF_COURSES = 4;
 
 class Perturbation {
     std::ofstream seedFile;
-    int id = INT_MAX;
 
 
 public:

@@ -361,6 +361,7 @@ public:
     bool isTimeUnavailable(int classID, int slot) {
         if (uva.find(classID) != uva.end())
             return uva[classID].find(slot) != uva[classID].end();
+        return false;
     }
 
     void setTimeUnavailable(int classID, int time) {

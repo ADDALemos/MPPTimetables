@@ -99,7 +99,6 @@ void createSmallerInstances(Instance *);
 
 void printClusterofStudents(Instance *instance);
 
-void readPerturbations(std::string filename, Instance *instance);
 
 void readOutputXML(std::string filename, Instance *instance);
 
@@ -240,8 +239,31 @@ int main(int argc, char **argv) {
         BoolOption targetVarsBumpRelWeights("TorcOpenWbo", "target_vars_bump_rel_weights",
                                             "Bump the variable scores, where the bump value is relative to the weights?\n",
                                             true);
+
         IntOption targetVarsBumpMaxRandVal("TorcOpenWbo", "target_vars_bump_max_rand_val",
                                            "Maximal random bump factor\n", 552);
+        BoolOption optC1("Timetabler", "opt-allocation",
+                         "Optimality for Allocation?\n",
+                         true);
+        BoolOption optC2("Timetabler", "opt-stu",
+                         "Optimality for Student?\n",
+                         true);
+        BoolOption optC3("Timetabler", "opt-cons",
+                         "Optimality for Constraint?\n",
+                         true);
+
+        BoolOption dRoom("Timetabler", "invalid-room",
+                         "Disruption type invalid room?\n",
+                         false);
+        BoolOption dTime("Timetabler", "invalid-time",
+                         "Disruption type invalid time?\n",
+                         false);
+        IntOption dRoomp("Timetabler", "invalid-room-p",
+                         "Probability for disruption type invalid room?\n",
+                         25);
+        IntOption dTimep("Timetabler", "invalid-time-p",
+                         "Probability for disruption type invalid time?\n",
+                         21);
 
         parseOptions(argc, argv, true);
 
@@ -330,12 +352,11 @@ int main(int argc, char **argv) {
 
         MaxSATFormula *maxsat_formula = new MaxSATFormula();
         maxsat_formula->setFormat(_FORMAT_PB_);
-        ParserXMLTwo *parserXML = new ParserXMLTwo(maxsat_formula, false,
-                                                   false, false);
+        ParserXMLTwo *parserXML = new ParserXMLTwo(maxsat_formula, optC1,
+                                                   optC2, optC3);
 
-        /*ParserXMLTwo *parserXML = new ParserXMLTwo(maxsat_formula, strcmp(argv[1], "true") == 0,
-                                                   strcmp(argv[2], "true") == 0, strcmp(argv[3], "true") == 0);*/
         parserXML->parse(argv[4]);
+
 
         parserXML->aux();
         parserXML->room();
@@ -346,21 +367,26 @@ int main(int argc, char **argv) {
         parserXML->getInstance()->setAlgo((int) algorithm, argv[1], argv[2], argv[3]);
 
         parserXML->genConstraint();
+        if (dRoom) {
+            Perturbation *p = new Perturbation();
+            p->randomCloseRoom(parserXML->getInstance(), dRoomp);
+            parserXML->closeroom();
+        }
+        if (dTime) {
+            Perturbation *p = new Perturbation();
+            p->randomSlotClose(parserXML->getInstance(), dTime);
+            parserXML->una();
 
-        /*Perturbation *p =new Perturbation();
-        //p->randomSlotClose(parserXML->getInstance(), 21);
-        //parserXML->una();
-        p->randomCloseRoom(parserXML->getInstance(),5);
-        parserXML->closeroom();
+        }
+        if (dRoom || dTime) {
+            readOutputXML("data/output/ITC-2019/solution-" + parserXML->getInstance()->getName() + ".xml",
+                          parserXML->getInstance());
+            parserXML->distanceToSolutionLectures();
+        }
 
-        readOutputXML("data/output/ITC-2019/solution-"+parserXML->getInstance()->getName()+".xml", parserXML->getInstance());
-        parserXML->distanceToSolutionLectures();*/
 
 
         S->setInstance(parserXML->getInstance());
-
-
-
 
 
         printf("c |                                                                "
@@ -412,6 +438,7 @@ int main(int argc, char **argv) {
                parsed_time - initial_time);
         printf("c |                                                                "
                        "                                       |\n");
+
         S->loadFormula(maxsat_formula);
         if ((int) (cluster_algorithm) == 1) {
             switch ((int) algorithm) {
@@ -431,6 +458,7 @@ int main(int argc, char **argv) {
 
         maxsat_formula = new MaxSATFormula();
         parserXML->genStudents(maxsat_formula);
+        parserXML->sameTime();
 
 
         S = new LinearSU(verbosity, bmo, cardinality, pb);
@@ -583,41 +611,6 @@ void printCNF(MaxSATFormula *f, std::string s) {
 
 }
 
-void readPerturbations(std::string filename, Instance *instance) {
-    std::ifstream file(filename);
-    if (file.fail()) {
-        std::cerr << "File not found: " + filename << std::endl;
-        std::cerr << "Method: readPerturbations" << std::endl;
-        std::exit(11);
-    }
-    std::string perturbation;
-    Perturbation *p = new Perturbation();
-    double percentage, mean, std;
-    while (file >> perturbation >> percentage) {
-        percentage = percentage / 100;
-        if (strcmp(perturbation.c_str(), "Invalid_Time") == 0) {
-            p->randomSlotClose(instance, percentage);
-        } else if (strcmp(perturbation.c_str(), "Preference_Room") == 0) {
-            p->randomRoom(instance, percentage, true);
-        } else if (strcmp(perturbation.c_str(), "Invalid_Room") == 0) {
-            p->randomCloseRoom(instance, percentage);
-        } else if (strcmp(perturbation.c_str(), "Overlap") == 0) {
-            p->randomOverlap(instance, percentage);
-        } else if (strcmp(perturbation.c_str(), "Modify_Enrolments") == 0) {
-            file >> mean >> std;
-            p->randomEnrolmentChanges(instance, mean, std, percentage);
-        } else if (strcmp(perturbation.c_str(), "Modify_N_Lectures") == 0) {
-            file >> mean >> std;
-            p->randomShiftChange(instance, percentage, mean, std);
-            instance->setNumClasses();
-        } else if (strcmp(perturbation.c_str(), "Curriculum") == 0) {
-            file >> mean >> std;
-            p->addNewCurriculum(instance, percentage, mean, std);
-        }
-
-
-    }
-}
 
 
 void readOutputXML(std::string filename, Instance *instance) {
