@@ -201,6 +201,16 @@ public:
 
   indexMap &getIndexToName() { return _indexToName; }
 
+    double avgClauseSize(){
+        int l=0;
+        for (int i = 0; i < nSoft(); i++) {
+            l+=soft_clauses[i].clause.size();
+        }
+        for (int i = 0; i < nHard(); i++)
+            l+=hard_clauses[i].clause.size();
+        return l/(nHard()+nSoft());
+    }
+
 protected:
   // MaxSAT database
   //
@@ -234,6 +244,8 @@ protected:
   // Format
   //
   int format;
+
+
 };
 
 } // namespace openwbo

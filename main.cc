@@ -355,7 +355,7 @@ int main(int argc, char **argv) {
         ParserXMLTwo *parserXML = new ParserXMLTwo(maxsat_formula, optC1,
                                                    optC2, optC3);
 
-        parserXML->parse(argv[4]);
+        parserXML->parse(argv[1]);
 
 
         parserXML->aux();
@@ -364,7 +364,9 @@ int main(int argc, char **argv) {
 
         parserXML->getInstance()->setTime(cpu_lim);
 
-        parserXML->getInstance()->setAlgo((int) algorithm, argv[1], argv[2], argv[3]);
+
+        parserXML->getInstance()->setAlgo((int) algorithm, optC1? "true" : "false",
+                                          optC2? "true" : "false", optC3?"true" : "false");
 
         parserXML->genConstraint();
         if (dRoom) {
@@ -431,6 +433,9 @@ int main(int argc, char **argv) {
         printf("c |  Number of PB :             %7d                                "
                        "                                   |\n",
                maxsat_formula->nPB());
+        printf("c |  Avg CLause size :             %7f                                "
+                       "                                   |\n",
+               maxsat_formula->avgClauseSize());
         double parsed_time = cpuTime();
 
         printf("c |  Parse time:           %12.2f s                                "
@@ -454,73 +459,75 @@ int main(int argc, char **argv) {
             }
         }
         std::cout << S->search() << std::endl;
+        if(parserXML->getInstance()->getStudent().size()) {
 
 
-        maxsat_formula = new MaxSATFormula();
-        parserXML->genStudents(maxsat_formula);
-        parserXML->sameTime();
+            maxsat_formula = new MaxSATFormula();
+            parserXML->genStudents(maxsat_formula);
+            parserXML->sameTime();
 
 
-        S = new LinearSU(verbosity, bmo, cardinality, pb);
-        S->setInstance(parserXML->getInstance());
-        maxsat_formula->setFormat(_FORMAT_PB_);
+            S = new LinearSU(verbosity, bmo, cardinality, pb);
+            S->setInstance(parserXML->getInstance());
+            maxsat_formula->setFormat(_FORMAT_PB_);
 
 
-        S->loadFormula(maxsat_formula);
+            S->loadFormula(maxsat_formula);
 
-        printf("c |                                                                "
-                       "                                       |\n");
-        printf("c ========================================[ Problem Statistics "
-                       "]===========================================\n");
-        printf("c |                                                                "
-                       "                                       |\n");
+            printf("c |                                                                "
+                           "                                       |\n");
+            printf("c ========================================[ Problem Statistics "
+                           "]===========================================\n");
+            printf("c |                                                                "
+                           "                                       |\n");
 
-        if (maxsat_formula->getFormat() == _FORMAT_MAXSAT_)
-            printf(
-                    "c |  Problem Format:  %17s                                         "
-                            "                          |\n",
-                    "MaxSAT");
-        else
-            printf(
-                    "c |  Problem Format:  %17s                                         "
-                            "                          |\n",
-                    "PB");
+            if (maxsat_formula->getFormat() == _FORMAT_MAXSAT_)
+                printf(
+                        "c |  Problem Format:  %17s                                         "
+                                "                          |\n",
+                        "MaxSAT");
+            else
+                printf(
+                        "c |  Problem Format:  %17s                                         "
+                                "                          |\n",
+                        "PB");
 
-        if (maxsat_formula->getProblemType() == _UNWEIGHTED_)
-            printf("c |  Problem Type:  %19s                                         "
-                           "                          |\n",
-                   "Unweighted");
-        else
-            printf("c |  Problem Type:  %19s                                         "
-                           "                          |\n",
-                   "Weighted");
+            if (maxsat_formula->getProblemType() == _UNWEIGHTED_)
+                printf("c |  Problem Type:  %19s                                         "
+                               "                          |\n",
+                       "Unweighted");
+            else
+                printf("c |  Problem Type:  %19s                                         "
+                               "                          |\n",
+                       "Weighted");
 
-        printf("c |  Number of variables:  %12d                                    "
-                       "                               |\n",
-               maxsat_formula->nVars());
-        printf("c |  Number of hard clauses:    %7d                                "
-                       "                                   |\n",
-               maxsat_formula->nHard());
-        printf("c |  Number of soft clauses:    %7d                                "
-                       "                                   |\n",
-               maxsat_formula->nSoft());
-        printf("c |  Number of cardinality:     %7d                                "
-                       "                                   |\n",
-               maxsat_formula->nCard());
-        printf("c |  Number of PB :             %7d                                "
-                       "                                   |\n",
-               maxsat_formula->nPB());
-        parsed_time = cpuTime();
+            printf("c |  Number of variables:  %12d                                    "
+                           "                               |\n",
+                   maxsat_formula->nVars());
+            printf("c |  Number of hard clauses:    %7d                                "
+                           "                                   |\n",
+                   maxsat_formula->nHard());
+            printf("c |  Number of soft clauses:    %7d                                "
+                           "                                   |\n",
+                   maxsat_formula->nSoft());
+            printf("c |  Number of cardinality:     %7d                                "
+                           "                                   |\n",
+                   maxsat_formula->nCard());
+            printf("c |  Number of PB :             %7d                                "
+                           "                                   |\n",
+                   maxsat_formula->nPB());
+            parsed_time = cpuTime();
 
-        printf("c |  Parse time:           %12.2f s                                "
-                       "                                 |\n",
-               parsed_time - initial_time);
-        printf("c |                                                                "
-                       "                                       |\n");
-        std::cout << S->search() << std::endl;
+            printf("c |  Parse time:           %12.2f s                                "
+                           "                                 |\n",
+                   parsed_time - initial_time);
+            printf("c |                                                                "
+                           "                                       |\n");
+            std::cout << S->search() << std::endl;
 
-        LocalSearch *l = new LocalSearch(parserXML->getInstance());
-        l->LNS();
+            LocalSearch *l = new LocalSearch(parserXML->getInstance());
+            l->LNS();
+        }
 
 
 

@@ -577,7 +577,7 @@ public:
         return algo;
     }
 
-    void setAlgo(int algoN, char* c,char* s, char* constSoft){
+    void setAlgo(int algoN, const char* c,const char* s, const char* constSoft){
         algo=std::to_string(algoN)+c+s+constSoft;
     }
 private:
