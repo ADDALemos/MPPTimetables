@@ -191,7 +191,7 @@ int main(int argc, char **argv) {
         IntOption formula("Open-WBO", "formula",
                           "Type of formula (0=WCNF, 1=OPB).\n", 0, IntRange(0, 1));
         IntOption cpu_lim("Open-WBO", "cpu-lim",
-                          "Limit on CPU time allowed in seconds.\n", 6000,
+                          "Limit on CPU time allowed in seconds.\n", 0,
                           IntRange(0, INT_MAX));
 
         IntOption weight(
