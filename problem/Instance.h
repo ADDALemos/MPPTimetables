@@ -20,7 +20,7 @@
 
 class Instance {
 private:
-    int timeLimit;
+    int timeLimit=-1;
     std::map<std::string,std::vector<ConstraintShort*>> dist;
     std::map<std::string,std::vector<ConstraintShort*>> soft;
     std::vector<Curriculum *> problem;

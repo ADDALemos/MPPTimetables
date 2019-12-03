@@ -159,8 +159,9 @@ int main(int argc, char **argv) {
 
         IntOption algorithm("Open-WBO", "algorithm",
                             "Search algorithm "
-                                    "(0=wbo,1=linear-su,2=msu3,3=part-msu3,4=oll,5=best,6="
-                                    "bmo,7=obv,8=mcs)\n",
+                                    "(_ALGORITHM_WBO_ = 0,_ALGORITHM_LINEAR_SU_,_ALGORITHM_MSU3_,"
+                "_ALGORITHM_PART_MSU3_,_ALGORITHM_OLL_,_ALGORITHM_BEST_,_ALGORITHM_LSU_CLUSTER_,"
+                "_ALGORITHM_LSU_MRSBEAVER_,_ALGORITHM_LSU_MCS_\n",
                             6, IntRange(0, 8));
 
         IntOption partition_strategy("PartMSU3", "partition-strategy",
@@ -190,7 +191,7 @@ int main(int argc, char **argv) {
         IntOption formula("Open-WBO", "formula",
                           "Type of formula (0=WCNF, 1=OPB).\n", 0, IntRange(0, 1));
         IntOption cpu_lim("Open-WBO", "cpu-lim",
-                          "Limit on CPU time allowed in seconds.\n", 0,
+                          "Limit on CPU time allowed in seconds.\n", 6000,
                           IntRange(0, INT_MAX));
 
         IntOption weight(
@@ -362,7 +363,7 @@ int main(int argc, char **argv) {
         parserXML->room();
 
 
-        parserXML->getInstance()->setTime(cpu_lim);
+        if (cpu_lim != 0) parserXML->getInstance()->setTime(cpu_lim);
 
 
         parserXML->getInstance()->setAlgo((int) algorithm, optC1? "true" : "false",
@@ -458,7 +459,10 @@ int main(int argc, char **argv) {
                     break;
             }
         }
+
+
         std::cout << S->search() << std::endl;
+
         if(parserXML->getInstance()->getStudent().size()) {
 
 

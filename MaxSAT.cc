@@ -159,7 +159,10 @@ bool MaxSAT::saveModel(vec <lbool> &currentModel) {
     }
 
     print();
-    if (cpuTime() > instance->getTime())
+    printf("c  Best solution:          %12"
+    PRIu64
+    "\n", ubCost);
+    if (cpuTime() > instance->getTime() && instance->getTime()!=-1)
         return false;
     return true;
 
