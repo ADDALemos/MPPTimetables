@@ -245,13 +245,13 @@ int main(int argc, char **argv) {
                                            "Maximal random bump factor\n", 552);
         BoolOption optC1("Timetabler", "opt-allocation",
                          "Optimality for Allocation?\n",
-                         true);
+                         false);
         BoolOption optC2("Timetabler", "opt-stu",
                          "Optimality for Student?\n",
-                         true);
+                         false);
         BoolOption optC3("Timetabler", "opt-cons",
                          "Optimality for Constraint?\n",
-                         true);
+                         false);
 
         BoolOption dRoom("Timetabler", "invalid-room",
                          "Disruption type invalid room?\n",

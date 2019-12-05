@@ -4,7 +4,7 @@
 
 # How to run the project
 
-`./timetabler data/input/ITC-2019/OriginalProblem.xml -formula=1 -verbosity=0 -algorithm=6 -pb=0 [options]`
+`./timetabler data/input/ITC-2019/OriginalProblem.xml -formula=1 -verbosity=0 -algorithm=6 -pb=0 -opt-allocation -opt-stu -opt-cons [options]`
 
 This will generate a valid solution in the output folder. The results is encoded using [ITC-2019 XML format](https://www.itc2019.org/home).
 Note that, to solve Minimal Perturbation Problem one needs to have a solution for the original problem in the folder  `data/output/ITC-2019/solution-OriginalProblem.xml`.
@@ -14,11 +14,11 @@ This program is based on [TT-Open-WBO-INC]. The following options are available:
 
 ## Timetabler Options
 ### Optimization Criterion: allocation
-```-opt-allocation      (default: on)```
+```-opt-allocation      (default: off)```
 ### Optimization Criterion: distribution constraints
-```-opt-cons      (default: on)```
+```-opt-cons      (default: off)```
 ### Optimization Criterion: student conflicts
-```-opt-stu      (default: on)```
+```-opt-stu      (default: off)```
 ### Minimal Perturbation Problem: invalid time flag
 ```invalid-time      (default: on)```
 ### Minimal Perturbation Problem: invalid time probability
