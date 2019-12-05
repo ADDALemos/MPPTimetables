@@ -46,6 +46,11 @@ bool MaxSAT::search() {
     exit(_ERROR_);
 }
 
+void MaxSAT::resetCost() {
+    printf("Error: Invalid MaxSAT algoritm for MPP.\n");
+    exit(_ERROR_);
+}
+
 void MaxSAT::setInitialTime(double initial) {
     initialTime = initial;
 } // Sets the initial time.
@@ -158,10 +163,7 @@ bool MaxSAT::saveModel(vec <lbool> &currentModel) {
             model.push(currentModel[i]);
     }
 
-    print();
-    printf("c  Best solution:          %12"
-    PRIu64
-    "\n", ubCost);
+    printAnswer(_SATISFIABLE_);
     if (cpuTime() > instance->getTime() && instance->getTime()!=-1)
         return false;
     return true;
@@ -747,7 +749,7 @@ void MaxSAT::print() {
             }
         }
     }
-    writeXMLOutput("/Users/alexandrelemos/MPPTimetables/data/output/ITC-2019/" + instance->getName() + "_" +
+    writeXMLOutput("data/output/ITC-2019/" + instance->getName() + "_" +
                    std::to_string(modelS) + "_" + instance->getAlgo() + ".xml", instance);
 
 
@@ -766,6 +768,8 @@ void MaxSAT::setLB(int v) {
     lbCost = v;
 
 }
+
+
 
 
 

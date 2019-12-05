@@ -91,6 +91,16 @@ using namespace openwbo;
 
 static MaxSAT *mxsolver;
 
+int getVariableID(std::string varName, MaxSATFormula* maxsat_formula) {
+    char *cstr = new char[varName.length() + 1];
+    strcpy(cstr, varName.c_str());
+    int id = maxsat_formula->varID(cstr);
+    if (id == var_Undef)
+        id = maxsat_formula->newVarName(cstr);
+    delete[] cstr;
+    return id;
+}
+
 void printCNF(MaxSATFormula *f, std::string s);
 
 void printCurricular(Instance *instance);
@@ -113,6 +123,7 @@ static void SIGINT_exit(int signum) {
 #include "ParserXMLTwo.h"
 #include "WriteXML.h"
 #include "LocalSearch.h"
+#include "algorithms/Alg_LinearSU_Clustering_Resolve.h"
 
 
 
@@ -162,7 +173,7 @@ int main(int argc, char **argv) {
                                     "(_ALGORITHM_WBO_ = 0,_ALGORITHM_LINEAR_SU_,_ALGORITHM_MSU3_,"
                 "_ALGORITHM_PART_MSU3_,_ALGORITHM_OLL_,_ALGORITHM_BEST_,_ALGORITHM_LSU_CLUSTER_,"
                 "_ALGORITHM_LSU_MRSBEAVER_,_ALGORITHM_LSU_MCS_\n",
-                            6, IntRange(0, 8));
+                            6, IntRange(0, 9));
 
         IntOption partition_strategy("PartMSU3", "partition-strategy",
                                      "Partition strategy (0=sequential, "
@@ -322,6 +333,11 @@ int main(int argc, char **argv) {
                                            ClusterAlg::_DIVISIVE_, rounding_statistic,
                                            (int) (num_clusters));
                 break;
+            case _ALGORITHM_LSU_CLUSTER_Resolve:
+                S = new LinearSUClusteringResolve(verbosity, bmo, cardinality, pb,
+                                           ClusterAlg::_DIVISIVE_, rounding_statistic,
+                                           (int) (num_clusters));
+                break;
 
             case _ALGORITHM_LSU_MRSBEAVER_:
                 S = new OBV(verbosity, cardinality, num_conflicts, num_iterations, local);
@@ -457,12 +473,43 @@ int main(int argc, char **argv) {
                 case _ALGORITHM_LSU_CLUSTER_:
                     static_cast<LinearSUClustering *>(S)->initializeCluster();
                     break;
+                case _ALGORITHM_LSU_CLUSTER_Resolve:
+                    static_cast<LinearSUClustering *>(S)->initializeCluster();
+                    break;
             }
         }
 
 
         std::cout << S->search() << std::endl;
+        vec<Lit> l;
+        l.push(~mkLit(getVariableID(
+                "r_" + std::to_string(0) + "_" +
+                std::to_string(3),maxsat_formula)));
+        maxsat_formula->addHardClause(l);
+        vec<Lit> l2;
+        l2.push(~mkLit(getVariableID(
+                "r_" + std::to_string(5) + "_" +
+                std::to_string(3),maxsat_formula)));
+        maxsat_formula->addHardClause(l2);
+        vec<Lit> l1;
+        l1.push(~mkLit(getVariableID(
+                "r_" + std::to_string(0) + "_" +
+                std::to_string(7),maxsat_formula)));
+        maxsat_formula->addHardClause(l1);
+        S->resetCost();
+        parserXML->getInstance()->setTime(cpuTime()+cpu_lim*10);
+        parserXML->getInstance()->setAlgo((int) algorithm, optC1? "true" : "false",
+                                          optC2? "true" : "false", optC3?"true.Dis" : "false.Dis");
+        parserXML->distanceToSolutionLectures();
 
+
+
+
+        std::cout << S->search() << std::endl;
+
+
+
+        std::exit(1);
         if(parserXML->getInstance()->getStudent().size()) {
 
 

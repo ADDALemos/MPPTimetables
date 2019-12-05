@@ -201,7 +201,9 @@ namespace openwbo {
         void setUB(int);
         void setLB(int);
 
-        virtual Solver *getSolver() { throw "Not implemented"; };
+        virtual Solver *getSolver() { throw "Not implemented"; }
+        virtual void resetCost();
+
 
 
     protected:
@@ -265,6 +267,8 @@ namespace openwbo {
         void printFormulaStats(Solver *S);
 
         void BumpTargets(const vec <Lit> &objFunction, const vec <uint64_t> &coeffs, Solver *solver);
+
+
     };
 } // namespace openwbo
 
