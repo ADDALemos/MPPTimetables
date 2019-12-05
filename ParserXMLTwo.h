@@ -479,60 +479,7 @@ namespace openwbo {
 
                     }
                     instance->setClasses(all);
-                    /*std::set<Room *> temp;
-                    for (std::pair<Room *, int> t: all[0]->getPossibleRooms()) {
-                        temp.insert(t.first);
-                    }
-                    cluster.push_back(new ClusterbyRoom(0, temp, all[0]));
-                    mapCluster.insert(std::pair<Class *, ClusterbyRoom *>(all[0], cluster[0]));
-                    for (int k = 1; k < all.size(); ++k) {
-                        bool test = false;
-
-                        for (int i = 0; i < cluster.size(); ++i) {
-                            if (cluster[i]->getRooms().size() == 0 && all[k]->getPossibleRooms().size() == 0) {
-                                test = true;
-                                cluster[i]->addClass(all[k]);
-                                mapCluster.insert(std::pair<Class *, ClusterbyRoom *>(all[k], cluster[i]));
-                                continue;
-                            } else {
-                                for (Room *j:cluster[i]->getRooms()) {
-                                    if (all[k]->findRoom(j)) {
-                                        test = true;
-                                        cluster[i]->addClass(all[k]);
-                                        if (all[k]->getPossibleRooms().size() > 0) {
-                                            for (std::pair<Room *, int> it : all[k]->getPossibleRooms()) {
-                                                cluster[i]->addRoom(it.first);
-                                            }
-                                        }
-                                        mapCluster.insert(std::pair<Class *, ClusterbyRoom *>(all[k], cluster[i]));
-                                        break;
-                                    }
-
-                                }
-                            }
-                            if (test) {
-                                break;
-                            }
-
-
-                        }
-                        if (!test) {
-                            ClusterbyRoom *clu = nullptr;
-                            if (all[k]->getPossibleRooms().size() > 0) {
-                                std::set<Room *> temp1;
-                                for (std::pair<Room *, int> it : all[k]->getPossibleRooms()) {
-                                    temp1.insert(it.first);
-                                }
-                                clu = new ClusterbyRoom(cluster.size(), temp1, all[k]);
-                            } else {
-                                clu = new ClusterbyRoom(cluster.size(), all[k]);
-                            }
-                            cluster.push_back(clu);
-
-                            mapCluster.insert(std::pair<Class *, ClusterbyRoom *>(all[k], clu));
-                        }
-
-                    }*/
+                   
 
 
                 } else if (strcmp(n->name(), "distributions") == 0) {
@@ -544,7 +491,6 @@ namespace openwbo {
 
             }
             file.close();
-            //createCurriculum(curMap);
             if (optAlloction) {
                 maxsat_formula->addObjFunction(of);
                 delete of;
@@ -959,6 +905,7 @@ namespace openwbo {
             return instance;
         }
 
+        /*Same day time and week aux variables*/
         void aux() {
             for (Class *c : instance->getClasses()) {
                 for(std::pair<int,std::vector<Lit>> t: c->getHour()){
@@ -986,6 +933,8 @@ namespace openwbo {
             }
 
         }
+        
+        /*Room conflicts*/
 
         void room() {
             for (std::pair<int, Room *> pairr: instance->getRooms()) {
@@ -1159,6 +1108,7 @@ namespace openwbo {
             }
 
         }
+        /*Distribution contraints*/
 
         void genConstraint() {
             Class *idClassesDist, *idClassesDist1;
@@ -2058,17 +2008,17 @@ namespace openwbo {
 
         }
 
-
+        /* Hard constraints*/
         void constraint(Class *idClassesDist, Class *idClassesDist1, int p, int p1, bool isRoom = false) {
             std::string vname = "t_";
             std::string vpart, vpart1;
 
 
-            if (isRoom) {
+            if (isRoom) {//Constraint over the rooms 
                 vname = "r_";
                 vpart = std::to_string(p);
                 vpart1 = std::to_string(p1);
-            } else {
+            } else {// Contraint over time
                 vpart = std::to_string(idClassesDist->getLectures()[p]->getOrderId());
                 vpart1 = std::to_string(idClassesDist1->getLectures()[p1]->getOrderId());
             }
@@ -2082,6 +2032,8 @@ namespace openwbo {
             delete l;
 
         }
+        
+        /*Add soft cnstraints*/
 
         void constraintSoft(Class *idClassesDist, Class *idClassesDist1, int p, int p1, int pen, bool isRoom = 0) {
             if (optSoft) {
@@ -2108,7 +2060,7 @@ namespace openwbo {
             }
         }
 
-
+        /* get variable from the solver*/
         int getVariableID(std::string varName) {
             char *cstr = new char[varName.length() + 1];
             strcpy(cstr, varName.c_str());
@@ -2118,6 +2070,8 @@ namespace openwbo {
             delete[] cstr;
             return id;
         }
+        
+        /*Aux var for students conflicts*/
 
 
         void sameTime() {
@@ -2171,6 +2125,8 @@ namespace openwbo {
 
 
         }
+        
+        /*Studnet sectionning */
 
 
        void genStudents(MaxSATFormula *mf) {
@@ -2321,7 +2277,7 @@ namespace openwbo {
             }
 
         }
-
+        /* Studnet Conflicts*/
 
         void conflicts() {
 
@@ -2370,6 +2326,8 @@ namespace openwbo {
 
 
         }
+        
+        /*Block generation */
 
 
         bool check(std::vector<Class *> cont,int r, int s, double weight) {
@@ -2510,6 +2468,8 @@ namespace openwbo {
             }
             return false;
         }
+        
+        /*MPP method: invalid time disruption*/
 
         void una() {
             for (std::pair<int, std::set<int>> una :instance->getTimeUnavailable()) {
@@ -2524,6 +2484,8 @@ namespace openwbo {
 
             }
         }
+        
+        /* Optinal method: slack on class room capacity*/
 
 
         void slackStudent() {
