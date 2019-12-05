@@ -32,6 +32,8 @@ using namespace rapidxml;
 
 
 namespace openwbo {
+    
+    /* Auxiliar classes to deal with block creation*/
     class Block {
     public:
         Block() {}
@@ -98,12 +100,9 @@ namespace openwbo {
 
         void parse(std::string fileName) {
             PBObjFunction *of;
-//            PB *pbopt;
             if (optAlloction)
                 of = new PBObjFunction();
-            /*else
-                pbopt = new PB();*/
-
+          
             xml_document<> doc;
             int orderID = 0;
             std::map<int, Class *> classMap;
@@ -236,20 +235,15 @@ namespace openwbo {
                                                         l, "x_" + std::to_string(order) + "_");
                                                 pb->addProduct(mkLit(getVariableID(
                                                         "x_" + std::to_string(order) + "_" + std::to_string(max))), 1);
-                                                //std::cout<<c->getId()<<" x_" +std::to_string(order)+"_"+std::to_string(max)<<std::endl;
 
 
 
 
-                                                //oneEach += " +1 " + std::to_string(max);
                                                 if (penalty != 0 && optAlloction)
                                                     of->addProduct(mkLit(getVariableID(
                                                             "x_" + std::to_string(order) + "_" + std::to_string(max))),
                                                                    instance->getTimePen() * penalty);
-                                                /*else if (penalty != 0)
-                                                    pbopt->addProduct(mkLit(getVariableID("x_" +std::to_string(order)+"_"+std::to_string(c->getPossiblePairSize()-1))),
-                                                                      instance->getTimePen() * penalty);*/
-
+                                                
 
 
                                             } else {
@@ -305,13 +299,11 @@ namespace openwbo {
                                                         max = c->setPossiblePair(
                                                                 j->first,
                                                                 l, "x_" + std::to_string(order) + "_");
-                                                        //std::cout<<c->getId()<<" x_" +std::to_string(order)+"_"+std::to_string(max)<<std::endl;
 
                                                         pb->addProduct(mkLit(getVariableID(
                                                                 "x_" + std::to_string(order) + "_" + std::to_string(max)
                                                                        )),
                                                                        1);
-                                                        //std::cout<<idclass<<" "<<std::to_string(max)<<std::endl;
 
 
                                                         if (penalty != 0 && optAlloction)
@@ -320,10 +312,7 @@ namespace openwbo {
                                                                             "x_" + std::to_string(order) + "_" +
                                                                             std::to_string(max))),
                                                                     instance->getTimePen() * penalty);
-                                                        /*else if(penalty != 0)
-                                                            pbopt->addProduct(
-                                                                    mkLit(getVariableID("x_" + std::to_string(max))),
-                                                                    instance->getTimePen() * penalty);*/
+                                                        
 
                                                         if (j->second != 0 && optAlloction)
                                                             of->addProduct(
@@ -331,12 +320,7 @@ namespace openwbo {
                                                                             "x_" + std::to_string(order) + "_" +
                                                                             std::to_string(max))),
                                                                     instance->getRoomPen() * j->second);
-                                                        /*else if(j->second != 0)
-                                                            pbopt->addProduct(
-                                                                    mkLit(getVariableID("x" + std::to_string(max))),
-                                                                    instance->getRoomPen() * j->second);*/
-
-
+                                                        
 
 
                                                         bool is = true;
@@ -418,7 +402,6 @@ namespace openwbo {
 
                                                         }
 
-                                                        //        std::map<std::string,std::vector<std::pair<int, int>>> pairConf;
 
                                                     }
 
@@ -543,12 +526,7 @@ namespace openwbo {
             if (optAlloction) {
                 maxsat_formula->addObjFunction(of);
                 delete of;
-            } /*else {
-                pbopt->_sign=true;
-                pbopt->_rhs=3290;
-                maxsat_formula->addPBConstraint(pbopt);
-
-            }*/
+            } 
 
 
         }
@@ -724,8 +702,7 @@ namespace openwbo {
                 else {
                     for (int i = 0; i < clusterStudent.size(); ++i) {
                         bool t = false;
-                        /*std::cout<<clusterStudent[i]->getStudent().size()<<std::endl;
-                        std::cout<<clusterStudent[i]->getMin()<<std::endl;*/
+                       
 
                         if (c.size() != clusterStudent[i]->getCourses().size() ||
                             (clusterStudent[i]->getStudent().size() + 1) >
@@ -812,7 +789,6 @@ namespace openwbo {
                                 idClassesDist->getId(), c));
                     }
                 }
-                //if (isReq) {
                 for (ClusterbyRoom *clusterbyRoom: *c) {
                     clusterbyRoom->setRange(new ConstraintShort(type, penalty, c1, limit, limit1));
                     break;
@@ -827,20 +803,9 @@ namespace openwbo {
                     hard.insert(std::pair<std::string, std::vector<ConstraintShort *>>(type, t));
                 }
 
-                /*} else {
-                    if (soft.find(type) != soft.end()) {
-                        soft[type].push_back(new ConstraintShort(type, penalty, c1, limit, limit1));
-                    } else {
-                        std::vector<ConstraintShort *> t;
-                        t.push_back(new ConstraintShort(type, penalty, c1, limit, limit1));
-                        soft.insert(std::pair<std::string, std::vector<ConstraintShort *>>(type, t));
-                    }
-
-                }*/
-
+       
             }
             instance->setDist(hard);
-            //instance->setSoft(soft);
         }
 
         void readRoom(const xml_node<> *n) const {
