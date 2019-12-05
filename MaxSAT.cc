@@ -747,7 +747,7 @@ void MaxSAT::print() {
             }
         }
     }
-    writeXMLOutput("/Users/alexandrelemos/MPPTimetables/data/output/ITC-2019/" + instance->getName() + "_" +
+    writeXMLOutput("data/output/ITC-2019/" + instance->getName() + "_" +
                    std::to_string(modelS) + "_" + instance->getAlgo() + ".xml", instance);
 
 
