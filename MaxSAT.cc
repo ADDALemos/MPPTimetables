@@ -647,19 +647,7 @@ void MaxSAT::BumpTargets(const vec <Lit> &objFunction, const vec <uint64_t> &coe
 
 void MaxSAT::print() {
     std::cout << "print" << std::endl;
-    //setPrintSoft(("/Volumes/MAC/ClionProjects/timetabler/data/output/ITC-2019/"+instance->getName()+"_"+std::to_string(modelS)+".soft").c_str());
-    //printUnsatisfiedSoftClauses();
-
-    /*for (Curriculum *c: instance->getProblem()) {
-        for (auto *clu: c->getPClass()) {
-            for (auto *cla: clu->getClasses()) {
-                for (int i = 0; i < cla->getPossiblePairSize(); ++i) {
-                    std::cout << "x" << cla->getKey(cla->getPossiblePair(i).first, cla->getPossiblePair(i).second)
-                              << " c" << cla->getId() << std::endl;
-                }
-            }
-        }
-    }*/
+    
 
     printf("v ");
     for (int m = 0; m < model.size(); m++) {
@@ -700,9 +688,7 @@ void MaxSAT::print() {
 
                     } else if (token[0].compare("y") == 0) {
                         //"x_" +std::to_string(order)+"_"+std::to_string(c->getPossiblePairSize()-1)
-                        //assert(instance->getClasses()[std::stoi(token[1])]->getLectures()[
-                          //      std::stoi(token[2])]->getOrderId()==std::stoi(token[2]));
-
+                        
 
                         instance->getClasses()[std::stoi(token[1])]->setSolution(
                                 instance->getClasses()[std::stoi(token[1])]->getLectures()[
@@ -730,24 +716,13 @@ void MaxSAT::print() {
                                         std::stoi(token[2])]->getLenght());
 
 
-                    } /*else if (token[0].compare("r") == 0) {
-                    //"r_" +std::to_string(order)+"_"+std::to_string(c->possibleRoom)
-
-
-                    instance->getClasses()[std::stoi(token[1])]->updateSolution(
-                            instance->getClasses()[std::stoi(token[1])]->getPossibleRoom(std::stoi(token[2]))->getId(),
-                            instance->getClasses()[std::stoi(token[1])]->getPossibleRoom(std::stoi(token[2]))->getName());
-
-
-                    }*/else {
-                        //std::cout<<iter->second.c_str()<<std::endl;
-                    }
+                    } 
                 }
 
             }
         }
     }
-    writeXMLOutput("/Users/alexandrelemos/MPPTimetables/data/output/ITC-2019/" + instance->getName() + "_" +
+    writeXMLOutput("data/output/ITC-2019/" + instance->getName() + "_" +
                    std::to_string(modelS) + "_" + instance->getAlgo() + ".xml", instance);
 
 
