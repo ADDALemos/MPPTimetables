@@ -2060,16 +2060,7 @@ namespace openwbo {
             }
         }
 
-        /* get variable from the solver*/
-        int getVariableID(std::string varName) {
-            char *cstr = new char[varName.length() + 1];
-            strcpy(cstr, varName.c_str());
-            int id = maxsat_formula->varID(cstr);
-            if (id == var_Undef)
-                id = maxsat_formula->newVarName(cstr);
-            delete[] cstr;
-            return id;
-        }
+
         
         /*Aux var for students conflicts*/
 

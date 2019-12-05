@@ -1422,7 +1422,8 @@ namespace openwbo {
             }
         }
 
-
+        // Get the variable identifier corresponding to a given name. If the
+        // variable does not exist, a new identifier is created.
         int getVariableID(std::string varName) {
             char *cstr = new char[varName.length() + 1];
             strcpy(cstr, varName.c_str());
