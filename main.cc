@@ -400,7 +400,7 @@ int main(int argc, char **argv) {
         if (dRoom || dTime) {
             readOutputXML("data/output/ITC-2019/solution-" + parserXML->getInstance()->getName() + ".xml",
                           parserXML->getInstance());
-            parserXML->distanceToSolutionLectures();
+            parserXML->distanceToSolutionLectures(true);
         }
 
 
@@ -496,11 +496,36 @@ int main(int argc, char **argv) {
                 "r_" + std::to_string(0) + "_" +
                 std::to_string(7),maxsat_formula)));
         maxsat_formula->addHardClause(l1);
-        S->resetCost();
         parserXML->getInstance()->setTime(cpuTime()+cpu_lim*10);
         parserXML->getInstance()->setAlgo((int) algorithm, optC1? "true" : "false",
                                           optC2? "true" : "false", optC3?"true.Dis" : "false.Dis");
-        parserXML->distanceToSolutionLectures();
+        maxsat_formula->deleteSoftClauses();
+        parserXML->distanceToSolutionLectures(false,1);//maxsat_formula->initialSumWeights());
+        /*MaxSAT* S1 = new LinearSUClusteringResolve(verbosity, bmo, cardinality, pb,
+                                          ClusterAlg::_DIVISIVE_, rounding_statistic,
+                                          (int) (num_clusters));
+        S1->loadFormula(maxsat_formula);
+        S1->setInstance(parserXML->getInstance());*/
+        S->resetCost();
+
+
+        if ((int) (cluster_algorithm) == 1) {
+            switch ((int) algorithm) {
+                case _ALGORITHM_LINEAR_SU_:
+                    static_cast<LinearSUMod *>(S)->initializeCluster();
+                    break;
+                case _ALGORITHM_OLL_:
+                    static_cast<OLLMod *>(S)->initializeCluster();
+                    break;
+                case _ALGORITHM_LSU_CLUSTER_:
+                    static_cast<LinearSUClustering *>(S)->initializeCluster();
+                    break;
+                case _ALGORITHM_LSU_CLUSTER_Resolve:
+                    static_cast<LinearSUClustering *>(S)->initializeCluster();
+                    break;
+            }
+        }
+
 
 
 

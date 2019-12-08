@@ -2510,44 +2510,90 @@ namespace openwbo {
    */
 
 
-        void distanceToSolutionLectures() {
-            PBObjFunction *of = new PBObjFunction();
+        void distanceToSolutionLectures(bool pb, double w=1) {
+            PBObjFunction *of;
+            if(pb)
+                of = new PBObjFunction();
 
             for (int j = 0; j < instance->getNumClasses(); ++j) {
                 for (int lec = 0; lec < instance->getClasses()[j]->getLectures().size(); ++lec) {
                     if (instance->getClasses()[j]->getLectures()[lec]->getStart() !=
-                        instance->getClasses()[j]->getSolStart())
-                        of->addProduct(mkLit(getVariableID(
+                        instance->getClasses()[j]->getSolStart()){
+                        if(pb)
+                            of->addProduct(mkLit(getVariableID(
                                 "h_" + std::to_string(instance->getClasses()[j]->getOrderID()) + "_" +
                                 std::to_string(instance->getClasses()[j]->getLectures()[lec]->getStart()))),
-                                       1);
+                                       w);
+                        else {
+                            vec<Lit> l;
+                            l.push( mkLit(getVariableID(
+                                         "h_" + std::to_string(instance->getClasses()[j]->getOrderID()) + "_" +
+                                         std::to_string(instance->getClasses()[j]->getLectures()[lec]->getStart()))));
+                            maxsat_formula->addSoftClause(w,l);
+                        }
+
+                    }
                     if (stringcompare(instance->getClasses()[j]->getLectures()[lec]->getWeeks(),
-                                      instance->getClasses()[j]->getSolWeek(), instance->getNweek(), true) == 0)
-                        of->addProduct(mkLit(getVariableID(
-                                "w_" + std::to_string(instance->getClasses()[j]->getOrderID()) + "_" +
-                                instance->getClasses()[j]->getLectures()[lec]->getWeeks())),
-                                       1);
+                                      instance->getClasses()[j]->getSolWeek(), instance->getNweek(), true) == 0) {
+                        if(pb)
+                            of->addProduct(mkLit(getVariableID(
+                                    "w_" + std::to_string(instance->getClasses()[j]->getOrderID()) + "_" +
+                                    instance->getClasses()[j]->getLectures()[lec]->getWeeks())),
+                                           w);
+                        else {
+                            vec<Lit> l;
+                            l.push( mkLit(getVariableID(
+                                    "w_" + std::to_string(instance->getClasses()[j]->getOrderID()) + "_" +
+                                    instance->getClasses()[j]->getLectures()[lec]->getWeeks())));
+                            maxsat_formula->addSoftClause(w,l);
+                        }
+
+                    }
                     if (stringcompare(instance->getClasses()[j]->getLectures()[lec]->getDays(),
-                                      instance->getClasses()[j]->getSolDays(), instance->getNdays(), true) == 0)
-                        of->addProduct(mkLit(getVariableID(
+                                      instance->getClasses()[j]->getSolDays(), instance->getNdays(), true) == 0){
+                        if(pb)
+                            of->addProduct(mkLit(getVariableID(
                                 "d_" + std::to_string(instance->getClasses()[j]->getOrderID()) + "_" +
                                 instance->getClasses()[j]->getLectures()[lec]->getDays())),
-                                       1);
+                                       w);
+                        else {
+                            vec<Lit> l;
+                            l.push( mkLit(getVariableID(
+                                    "w_" + std::to_string(instance->getClasses()[j]->getOrderID()) + "_" +
+                                    instance->getClasses()[j]->getLectures()[lec]->getWeeks())));
+                            maxsat_formula->addSoftClause(w,l);
+                        }
+
+                    }
+
 
 
                 }
                 for (std::pair<Room *, int> pair1: instance->getClasses()[j]->getPossibleRooms()) {
-                    if (instance->getClasses()[j]->getSolRoom() != pair1.first->getId())
-                        of->addProduct(mkLit(getVariableID(
+                    if (instance->getClasses()[j]->getSolRoom() != pair1.first->getId()) {
+                        if(pb)
+                            of->addProduct(mkLit(getVariableID(
                                 "r_" + std::to_string(instance->getClasses()[j]->getOrderID()) + "_" +
                                 std::to_string(pair1.first->getId()))),
-                                       1);
+                                       w);
+                        else {
+                            vec<Lit> l;
+                            l.push( mkLit(getVariableID(
+                                    "r_" + std::to_string(instance->getClasses()[j]->getOrderID()) + "_" +
+                                    std::to_string(pair1.first->getId()))));
+                            maxsat_formula->addSoftClause(w,l);
+                        }
+
+
+                    }
 
                 }
 
             }
+            if(pb)
+                maxsat_formula->addObjFunction(of);
 
-            maxsat_formula->addObjFunction(of);
+
 
 
         }

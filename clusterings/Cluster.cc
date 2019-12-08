@@ -28,6 +28,8 @@
 #include "Cluster.h"
 
 #include <cstdio>
+#include <iostream>
+
 
 using namespace openwbo;
 

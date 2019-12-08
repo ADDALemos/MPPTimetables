@@ -133,6 +133,15 @@ void MaxSATFormula::updateSumWeights(uint64_t weight) {
     sum_soft_weight += weight;
 }
 
+uint64_t MaxSATFormula::initialSumWeights() {
+  uint64_t v=0;
+  for (int i = 0; i < nSoft(); ++i) {
+    v += soft_clauses[i].weight;
+  }
+  return v;
+
+}
+
 // The initial 'currentWeight' corresponds to the maximum weight of the soft
 // clauses.
 void MaxSATFormula::setMaximumWeight(uint64_t weight) {

@@ -113,11 +113,7 @@ public:
   }
 
   ~MaxSATFormula() {
-    for (int i = 0; i < nSoft(); i++) {
-      soft_clauses[i].clause.clear();
-      soft_clauses[i].relaxation_vars.clear();
-    }
-    soft_clauses.clear();
+    deleteSoftClauses();
 
     for (int i = 0; i < nHard(); i++)
       hard_clauses[i].clause.clear();
@@ -210,6 +206,17 @@ public:
             l+=hard_clauses[i].clause.size();
         return l/(nHard()+nSoft());
     }
+
+    void deleteSoftClauses(){
+      for (int i = 0; i < nSoft(); i++) {
+        soft_clauses[i].clause.clear();
+        soft_clauses[i].relaxation_vars.clear();
+      }
+      soft_clauses.clear();
+        n_soft=0;
+
+    }
+    uint64_t initialSumWeights();
 
 protected:
   // MaxSAT database
