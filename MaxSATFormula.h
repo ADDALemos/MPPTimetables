@@ -213,8 +213,12 @@ public:
         soft_clauses[i].relaxation_vars.clear();
       }
       soft_clauses.clear();
-        n_soft=0;
 
+
+    }
+
+    void restartSoft(){
+        n_soft=0;
     }
     uint64_t initialSumWeights();
 

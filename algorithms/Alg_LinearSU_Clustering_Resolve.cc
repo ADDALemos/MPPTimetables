@@ -198,13 +198,15 @@ uint64_t LinearSUClusteringResolve::computeOriginalCost(vec <lbool> &currentMode
 bool LinearSUClusteringResolve::bmoSearch() throw() {
     assert(orderWeights.size() > 0);
     lbool res = l_True;
-    objFunction.clear();
-    complete = true;
-    all_weights = false;
+
 
 
     initRelaxation();
-    solver = rebuildSolver();
+    if (solver == NULL ||  !Torc::Instance()->GetReuseSolver())
+        solver = rebuildSolver();
+    //else
+    //    clean();
+
 
     if (Torc::Instance()->GetPolOptimistic()) {
         if (Torc::Instance()->TargetIsVarTarget().size() == 0) {
@@ -598,6 +600,9 @@ bool LinearSUClusteringResolve::bmoSearch() throw() {
 
 // Public search method
 bool LinearSUClusteringResolve::search() {
+    objFunction.clear();
+    complete = true;
+    all_weights = false;
 
 
     MaxSATFormulaExtended *maxsat_formula_extended =
@@ -634,6 +639,25 @@ bool LinearSUClusteringResolve::search() {
     return true;
 
 }
+
+/*void LinearSUClusteringResolve::clean(){
+    std::cout<<"here"<<std::endl;
+    vec <Lit> clause;
+    for (int i = 0; i < maxsat_formula->nSoft(); i++) {
+        if (maxsat_formula->getSoftClause(i).weight < min_weight)
+            continue;
+
+        clause.clear();
+        maxsat_formula->getSoftClause(i).clause.copyTo(clause);
+
+        for (int j = 0; j < maxsat_formula->getSoftClause(i).relaxation_vars.size();
+             j++) {
+            clause.push(maxsat_formula->getSoftClause(i).relaxation_vars[j]);
+        }
+
+        //S->Clause(clause);
+    }
+}*/
 
 /************************************************************************************************
  //

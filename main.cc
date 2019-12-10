@@ -91,7 +91,7 @@ using namespace openwbo;
 
 static MaxSAT *mxsolver;
 
-int getVariableID(std::string varName, MaxSATFormula* maxsat_formula) {
+int getVariableID(std::string varName, MaxSATFormula *maxsat_formula) {
     char *cstr = new char[varName.length() + 1];
     strcpy(cstr, varName.c_str());
     int id = maxsat_formula->varID(cstr);
@@ -111,7 +111,6 @@ void printClusterofStudents(Instance *instance);
 
 
 void readOutputXML(std::string filename, Instance *instance);
-
 
 
 static void SIGINT_exit(int signum) {
@@ -171,8 +170,8 @@ int main(int argc, char **argv) {
         IntOption algorithm("Open-WBO", "algorithm",
                             "Search algorithm "
                                     "(_ALGORITHM_WBO_ = 0,_ALGORITHM_LINEAR_SU_,_ALGORITHM_MSU3_,"
-                "_ALGORITHM_PART_MSU3_,_ALGORITHM_OLL_,_ALGORITHM_BEST_,_ALGORITHM_LSU_CLUSTER_,"
-                "_ALGORITHM_LSU_MRSBEAVER_,_ALGORITHM_LSU_MCS_\n",
+                                    "_ALGORITHM_PART_MSU3_,_ALGORITHM_OLL_,_ALGORITHM_BEST_,_ALGORITHM_LSU_CLUSTER_,"
+                                    "_ALGORITHM_LSU_MRSBEAVER_,_ALGORITHM_LSU_MCS_\n",
                             6, IntRange(0, 9));
 
         IntOption partition_strategy("PartMSU3", "partition-strategy",
@@ -276,6 +275,12 @@ int main(int argc, char **argv) {
         IntOption dTimep("Timetabler", "invalid-time-p",
                          "Probability for disruption type invalid time?\n",
                          21);
+        BoolOption reuse("Timetabler", "reuse-solver",
+                         "Reuse solver for MPP?\n",
+                         false);
+        BoolOption optMPP("Timetabler", "multi-opt",
+                          "Multi-criteria optimization MPP?\n",
+                          false);
 
         parseOptions(argc, argv, true);
 
@@ -292,7 +297,7 @@ int main(int argc, char **argv) {
 
             return 0;
         }
-
+        Torc::Instance()->SetReuseSolver(reuse);
         Torc::Instance()->SetPolConservative(polConservative);
         Torc::Instance()->SetConservativeAllVars(conservativeUseAllVars);
         Torc::Instance()->SetPolOptimistic(polOptimistic);
@@ -335,8 +340,8 @@ int main(int argc, char **argv) {
                 break;
             case _ALGORITHM_LSU_CLUSTER_Resolve:
                 S = new LinearSUClusteringResolve(verbosity, bmo, cardinality, pb,
-                                           ClusterAlg::_DIVISIVE_, rounding_statistic,
-                                           (int) (num_clusters));
+                                                  ClusterAlg::_DIVISIVE_, rounding_statistic,
+                                                  (int) (num_clusters));
                 break;
 
             case _ALGORITHM_LSU_MRSBEAVER_:
@@ -382,8 +387,8 @@ int main(int argc, char **argv) {
         if (cpu_lim != 0) parserXML->getInstance()->setTime(cpu_lim);
 
 
-        parserXML->getInstance()->setAlgo((int) algorithm, optC1? "true" : "false",
-                                          optC2? "true" : "false", optC3?"true" : "false");
+        parserXML->getInstance()->setAlgo((int) algorithm, optC1 ? "true" : "false",
+                                          optC2 ? "true" : "false", optC3 ? "true" : "false");
 
         parserXML->genConstraint();
         if (dRoom) {
@@ -402,7 +407,6 @@ int main(int argc, char **argv) {
                           parserXML->getInstance());
             parserXML->distanceToSolutionLectures(true);
         }
-
 
 
         S->setInstance(parserXML->getInstance());
@@ -481,26 +485,32 @@ int main(int argc, char **argv) {
 
 
         std::cout << S->search() << std::endl;
-        vec<Lit> l;
+        vec <Lit> l;
         l.push(~mkLit(getVariableID(
                 "r_" + std::to_string(0) + "_" +
-                std::to_string(3),maxsat_formula)));
+                std::to_string(3), maxsat_formula)));
         maxsat_formula->addHardClause(l);
-        vec<Lit> l2;
+        vec <Lit> l2;
         l2.push(~mkLit(getVariableID(
                 "r_" + std::to_string(5) + "_" +
-                std::to_string(3),maxsat_formula)));
+                std::to_string(3), maxsat_formula)));
         maxsat_formula->addHardClause(l2);
-        vec<Lit> l1;
+        vec <Lit> l1;
         l1.push(~mkLit(getVariableID(
                 "r_" + std::to_string(0) + "_" +
-                std::to_string(7),maxsat_formula)));
+                std::to_string(7), maxsat_formula)));
         maxsat_formula->addHardClause(l1);
-        parserXML->getInstance()->setTime(cpuTime()+cpu_lim*10);
-        parserXML->getInstance()->setAlgo((int) algorithm, optC1? "true" : "false",
-                                          optC2? "true" : "false", optC3?"true.Dis" : "false.Dis");
-        maxsat_formula->deleteSoftClauses();
-        parserXML->distanceToSolutionLectures(false,1);//maxsat_formula->initialSumWeights());
+        parserXML->getInstance()->setTime(cpuTime() + cpu_lim * 10);
+        std::string temp = (optMPP ? (reuse ? std::string("multi_reuse") : std::string("multi_normal"))
+                                      : (reuse ? std::string("single_reuse") : std::string("single_normal")) );
+
+        parserXML->getInstance()->setAlgo((int) algorithm, optC1 ? "true" : "false",
+                                          optC2 ? "true" : "false", (optC3 ? std::string("true.Dis_") + temp :
+                                                                    "false.Dis_" + temp).c_str());
+        if (!optMPP)
+            maxsat_formula->deleteSoftClauses();
+        maxsat_formula->restartSoft();
+        parserXML->distanceToSolutionLectures(false,optMPP ? maxsat_formula->initialSumWeights() : 1);
         /*MaxSAT* S1 = new LinearSUClusteringResolve(verbosity, bmo, cardinality, pb,
                                           ClusterAlg::_DIVISIVE_, rounding_statistic,
                                           (int) (num_clusters));
@@ -527,15 +537,11 @@ int main(int argc, char **argv) {
         }
 
 
-
-
-
         std::cout << S->search() << std::endl;
 
 
-
         std::exit(1);
-        if(parserXML->getInstance()->getStudent().size()) {
+        if (parserXML->getInstance()->getStudent().size()) {
 
 
             maxsat_formula = new MaxSATFormula();
@@ -604,13 +610,6 @@ int main(int argc, char **argv) {
             LocalSearch *l = new LocalSearch(parserXML->getInstance());
             l->LNS();
         }
-
-
-
-
-
-
-
 
 
     } catch (OutOfMemoryException &) {
@@ -693,7 +692,6 @@ void printCNF(MaxSATFormula *f, std::string s) {
     file_stored.close();
 
 }
-
 
 
 void readOutputXML(std::string filename, Instance *instance) {
