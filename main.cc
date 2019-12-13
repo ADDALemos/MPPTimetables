@@ -91,15 +91,22 @@ using namespace openwbo;
 
 static MaxSAT *mxsolver;
 
+//Print Solver stats
+void printSolverStats(MaxSATFormula*maxsat_formula,double initial_time);
+
+//Print encoding in CNF format
 void printCNF(MaxSATFormula *f, std::string s);
 
+//Print curricular Groups
 void printCurricular(Instance *instance);
 
+//Create divided instances
 void createSmallerInstances(Instance *);
 
+//Print composition of the clusters of students
 void printClusterofStudents(Instance *instance);
 
-
+//Read ITC-2019 output file for MPP problems
 void readOutputXML(std::string filename, Instance *instance);
 
 
@@ -392,60 +399,10 @@ int main(int argc, char **argv) {
         S->setInstance(parserXML->getInstance());
 
 
-        printf("c |                                                                "
-                       "                                       |\n");
-        printf("c ========================================[ Problem Statistics "
-                       "]===========================================\n");
-        printf("c |                                                                "
-                       "                                       |\n");
-
-        if (maxsat_formula->getFormat() == _FORMAT_MAXSAT_)
-            printf(
-                    "c |  Problem Format:  %17s                                         "
-                            "                          |\n",
-                    "MaxSAT");
-        else
-            printf(
-                    "c |  Problem Format:  %17s                                         "
-                            "                          |\n",
-                    "PB");
-
-        if (maxsat_formula->getProblemType() == _UNWEIGHTED_)
-            printf("c |  Problem Type:  %19s                                         "
-                           "                          |\n",
-                   "Unweighted");
-        else
-            printf("c |  Problem Type:  %19s                                         "
-                           "                          |\n",
-                   "Weighted");
-
-        printf("c |  Number of variables:  %12d                                    "
-                       "                               |\n",
-               maxsat_formula->nVars());
-        printf("c |  Number of hard clauses:    %7d                                "
-                       "                                   |\n",
-               maxsat_formula->nHard());
-        printf("c |  Number of soft clauses:    %7d                                "
-                       "                                   |\n",
-               maxsat_formula->nSoft());
-        printf("c |  Number of cardinality:     %7d                                "
-                       "                                   |\n",
-               maxsat_formula->nCard());
-        printf("c |  Number of PB :             %7d                                "
-                       "                                   |\n",
-               maxsat_formula->nPB());
-        printf("c |  Avg CLause size :             %7f                                "
-                       "                                   |\n",
-               maxsat_formula->avgClauseSize());
-        double parsed_time = cpuTime();
-
-        printf("c |  Parse time:           %12.2f s                                "
-                       "                                 |\n",
-               parsed_time - initial_time);
-        printf("c |                                                                "
-                       "                                       |\n");
-
         S->loadFormula(maxsat_formula);
+        printSolverStats(maxsat_formula,initial_time);
+
+     
         if ((int) (cluster_algorithm) == 1) {
             switch ((int) algorithm) {
                 case _ALGORITHM_LINEAR_SU_:
@@ -478,55 +435,9 @@ int main(int argc, char **argv) {
 
             S->loadFormula(maxsat_formula);
 
-            printf("c |                                                                "
-                           "                                       |\n");
-            printf("c ========================================[ Problem Statistics "
-                           "]===========================================\n");
-            printf("c |                                                                "
-                           "                                       |\n");
+            printSolverStats(maxsat_formula,
+                            );
 
-            if (maxsat_formula->getFormat() == _FORMAT_MAXSAT_)
-                printf(
-                        "c |  Problem Format:  %17s                                         "
-                                "                          |\n",
-                        "MaxSAT");
-            else
-                printf(
-                        "c |  Problem Format:  %17s                                         "
-                                "                          |\n",
-                        "PB");
-
-            if (maxsat_formula->getProblemType() == _UNWEIGHTED_)
-                printf("c |  Problem Type:  %19s                                         "
-                               "                          |\n",
-                       "Unweighted");
-            else
-                printf("c |  Problem Type:  %19s                                         "
-                               "                          |\n",
-                       "Weighted");
-
-            printf("c |  Number of variables:  %12d                                    "
-                           "                               |\n",
-                   maxsat_formula->nVars());
-            printf("c |  Number of hard clauses:    %7d                                "
-                           "                                   |\n",
-                   maxsat_formula->nHard());
-            printf("c |  Number of soft clauses:    %7d                                "
-                           "                                   |\n",
-                   maxsat_formula->nSoft());
-            printf("c |  Number of cardinality:     %7d                                "
-                           "                                   |\n",
-                   maxsat_formula->nCard());
-            printf("c |  Number of PB :             %7d                                "
-                           "                                   |\n",
-                   maxsat_formula->nPB());
-            parsed_time = cpuTime();
-
-            printf("c |  Parse time:           %12.2f s                                "
-                           "                                 |\n",
-                   parsed_time - initial_time);
-            printf("c |                                                                "
-                           "                                       |\n");
             std::cout << S->search() << std::endl;
 
             LocalSearch *l = new LocalSearch(parserXML->getInstance());
@@ -684,6 +595,61 @@ void readOutputXML(std::string filename, Instance *instance) {
 }
 
 
+void printSolverStats(MaxSATFormula*maxsat_formula,double initial_time){
+    printf("c |                                                                "
+                   "                                       |\n");
+    printf("c ========================================[ Problem Statistics "
+                   "]===========================================\n");
+    printf("c |                                                                "
+                   "                                       |\n");
+
+    if (maxsat_formula->getFormat() == _FORMAT_MAXSAT_)
+        printf(
+                "c |  Problem Format:  %17s                                         "
+                        "                          |\n",
+                "MaxSAT");
+    else
+        printf(
+                "c |  Problem Format:  %17s                                         "
+                        "                          |\n",
+                "PB");
+
+    if (maxsat_formula->getProblemType() == _UNWEIGHTED_)
+        printf("c |  Problem Type:  %19s                                         "
+                       "                          |\n",
+               "Unweighted");
+    else
+        printf("c |  Problem Type:  %19s                                         "
+                       "                          |\n",
+               "Weighted");
+
+    printf("c |  Number of variables:  %12d                                    "
+                   "                               |\n",
+           maxsat_formula->nVars());
+    printf("c |  Number of hard clauses:    %7d                                "
+                   "                                   |\n",
+           maxsat_formula->nHard());
+    printf("c |  Number of soft clauses:    %7d                                "
+                   "                                   |\n",
+           maxsat_formula->nSoft());
+    printf("c |  Number of cardinality:     %7d                                "
+                   "                                   |\n",
+           maxsat_formula->nCard());
+    printf("c |  Number of PB :             %7d                                "
+                   "                                   |\n",
+           maxsat_formula->nPB());
+    printf("c |  Avg CLause size :             %7f                                "
+                   "                                   |\n",
+           maxsat_formula->avgClauseSize());
+    double parsed_time = cpuTime();
+
+    printf("c |  Parse time:           %12.2f s                                "
+                   "                                 |\n",
+           parsed_time - initial_time);
+    printf("c |                                                                "
+                   "                                       |\n");
+
+}
 
 
 
