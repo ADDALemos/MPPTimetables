@@ -436,7 +436,7 @@ int main(int argc, char **argv) {
             S->loadFormula(maxsat_formula);
 
             printSolverStats(maxsat_formula,
-                            );
+                            getTimeSpent());
 
             std::cout << S->search() << std::endl;
 
