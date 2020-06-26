@@ -9,6 +9,7 @@
 #include <sstream>
 #include <set>
 #include <list>
+#include <chrono>
 #include <string>
 #include "problem/Lecture.h"
 #include "problem/Room.h"
