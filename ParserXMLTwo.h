@@ -1118,7 +1118,7 @@ namespace openwbo {
                     block(instance->getDist()["MaxBlock"].at(y)->getClasses(),
                           instance->getDist()["MaxBlock"].at(y)->getParameter1(),
                           instance->getDist()["MaxBlock"].at(y)->getParameter2(),
-                          instance->getDist()["MaxBlock"].at(y)->getWeight());
+                          instance->getDist()["MaxBlock"].at(y)->getWeight(),y);
                 }
             }
             if(instance->getDist().find("MaxDayLoad") != instance->getDist().end()){
@@ -2317,149 +2317,122 @@ namespace openwbo {
 
 
         }
-        
+
         /*Block generation */
 
 
-        bool check(std::vector<Class *> cont,int r, int s, double weight) {
-            std::vector<int> start;
-            std::vector<int> end;
-            start.push_back((*queue->begin())->start);
-            end.push_back((*queue->begin())->end);
 
-            for (std::list<State*>::iterator it=queue->begin(); it != queue->end(); ++it){
-                for(int i=0; i< start.size();++i){
-                    if((*it)->start>start[i]) {
-                        if (end[i] + s > (*it)->start) {
-                            end[i] = (*it)->end;
+        std::vector<int> combination;
+        std::vector<std::set<int>> com;
+        void print(const std::vector<int>& v) {
+            for (int i = 0; i < v.size(); ++i) { std::cout << v[i] << " "; }
+            std::cout<<std::endl;
+        }
+
+        void go(int offset, int k, std::set<int> times) {
+            if (k == 0) {
+                std::set<int> tSet;
+                for (int i = 0; i < combination.size(); ++i) {
+                    tSet.insert(combination[i]);
+                }
+                com.push_back(tSet);
+
+
+                //print(combination);
+                return;
+            }
+            for (int i = offset; i <= (times.size() - k); ++i) {
+                combination.push_back(*std::next(times.begin(), i));
+                go(i+1, k-1,times);
+                combination.pop_back();
+            }
+        }
+
+        void block(std::vector<Class *> cont, int R, int S, double weight,int b) {
+            std::set<int> times;
+            int len=0;
+            for(Class *c: cont){
+                for (std::pair<int,int> ti : c->getHours()) {
+                    int time = ti.first;
+                    vec<Lit> temp;
+                    len=ti.second-ti.first;
+                    temp.push(~mkLit(getVariableID("h_"+std::to_string(c->getOrderID())+"_"+
+                    std::to_string(time))));
+                    temp.push(mkLit(getVariableID("MaxBlocktemp_"+std::to_string(b)+"_"+
+                                                   std::to_string(time))));
+
+                    maxsat_formula->addHardClause(temp);
+                    temp.clear();
+                    times.insert(time);
+
+                }
+            }
+
+            vec<Lit> *block= new vec<Lit>;
+            if(cont.size()>times.size())
+                go(0, times.size(),times);
+            else
+                go(0, cont.size(),times);
+
+            for (std::set<int> timev: com) {
+                block->clear();
+                std::cout<<"new"<<std::endl;
+                bool isBlock= false;
+                int size=0;
+                int start=0,first=0;
+                for (int time: timev) {
+
+                    if (isBlock) {
+                        if (start + len + S < time) {
+                            size = len;
+                            start = time;
+                            first=time;
+                            std::cout<<"new"<<std::endl;
+                            block->clear();
+                            std::cout<<("MaxBlocktemp_" + std::to_string(b) + "_" +
+                                       std::to_string(time))<<std::endl;
+
+
+                            block->push(~mkLit(getVariableID("MaxBlocktemp_" + std::to_string(b) + "_" +
+                                                             std::to_string(time))));
+
                         } else {
-                            start.push_back((*it)->start);
-                            end.push_back((*it)->end);
+                            size = time - first;
+                            std::cout<<size<<std::endl;
+
+                            start=time;
+                            std::cout<<("MaxBlocktemp_" + std::to_string(b) + "_" +
+                                        std::to_string(time))<<std::endl;
+
+                           block->push(~mkLit(getVariableID("MaxBlocktemp_" + std::to_string(b) + "_" +
+                                                             std::to_string(time))));
+
+                            if (size+S > R) {
+                                std::cout<<"push"<<std::endl;
+                                maxsat_formula->addHardClause(*block);
+                            }
                         }
+
+
                     } else {
-                        if ((*it)->end + s > end[i]) {
-                            start[i] = (*it)->start;
-                        } else {
-                            start.push_back((*it)->start);
-                            end.push_back((*it)->end);
-                        }
-                    }
-                }
+                        block->clear();
+                        std::cout<<("MaxBlocktemp_" + std::to_string(b) + "_" +
+                                    std::to_string(time))<<std::endl;
 
-            }
-            if(start.size()>r){
-                vec<Lit> t;
-                for (std::list<State*>::iterator it=queue->begin(); it != queue->end(); ++it) {
-                    t.push(~mkLit(getVariableID("t_" + std::to_string(cont[(*it)->cClass]->getOrderID()) + "_"
-                                                + std::to_string((*it)->time))));
-
-                }
-                if(weight==-1) {
-                    maxsat_formula->addHardClause(t);
-                    return true;
-                }
-
-
-            }
-            return false;
-        }
-
-        void block(std::vector<Class *> cont, int R, int S, double weight) {
-            bool isSearch=true;
-            queue = new std::list<State*>();
-            classCount=0;
-            currentClass=0;
-            currentT=0;
-            while(isSearch){
-                if(classCount< cont.size()){
-                    queue->push_back(new State(classCount, cont[classCount]->getLectures()[0]->getStart(),cont[classCount]->getLectures()[0]->getEnd()));
-                    classCount++;
-                    currentClass++;
-                    currentT=0;
-                    if(check(cont,R,S,weight))
-                        isSearch=false;
-                } else if(currentT<cont[currentClass-1]->getLectures().size()){
-                    classCount=currentClass;
-                    queue->back()->update(currentT,cont[classCount-1]->getLectures()[currentT]->getStart(),cont[classCount-1]->getLectures()[currentT]->getEnd());
-                    currentT++;
-                    if(check(cont,R,S,weight))
-                        isSearch=false;
-                } else if(queue->size()>0){
-                    currentT=queue->back()->time;
-                    currentClass=queue->back()->cClass;
-                    queue->pop_back();
-                } else {
-                    isSearch = false;
-                }
-            }
-
-        }
-
-        std::list<Block *> genPair(std::vector<Class *> cont) {
-            std::cout<<"PARIS"<<std::endl;
-            std::list<Block *> *blocks= new std::list<Block *>();
-            for (Class *c :cont) {
-                if (blocks->size() != 0) {
-                    std::list<Block *> *b1= new std::list<Block *>();
-                    for (std::list<Block *>::iterator it = blocks->begin(); it != blocks->end(); ++it) {
-                        for (int i = 0; i < c->getLectures().size(); ++i) {
-                            Block* v=new Vars("t_"+std::to_string(c->getOrderID())+"_"+
-                                            std::to_string(i),
-                                            c->getLectures()[i]->getStart(), c->getLectures()[i]->getEnd());
-                            v->add(*it);
-                            b1->push_back(v);
-                            std::cout<<c->getId()<<" "<<*c->getLectures()[i]<<" "<<"t_"+std::to_string(c->getOrderID())+"_"+
-                                                                                   std::to_string(i)<<std::endl;
-                        }
-                    }
-                    delete blocks;
-                    blocks=b1;
-
-                } else {
-                    for (int i = 0; i < c->getLectures().size(); ++i) {
-                        std::cout<<c->getId()<<" "<<*c->getLectures()[i]<<" "<<"t_"+std::to_string(c->getOrderID())+"_"+
-                                                                               std::to_string(i)<<std::endl;
-                        blocks->push_back(new Vars("t_"+std::to_string(c->getOrderID())+"_"+
-                                                  std::to_string(i),
-                                                  c->getLectures()[i]->getStart(), c->getLectures()[i]->getEnd()));
-                    }
-                }
-
-            }
-            return *blocks;
-
-        }
-
-        Block *makeBlock(int S, Block *block) {
-            bool change = true;
-            while (change) {
-                change = false;
-                for (int i = 0; i < block->vars.size(); i++) {
-                    for (int y = i + 1; y < block->vars.size(); y++) {
-                        if (merge(block->vars[i], i, block->vars[y], y, S, block))
-                            change = true;
-
+                        block->push(~mkLit(getVariableID("MaxBlocktemp_" + std::to_string(b) + "_" +
+                                                         std::to_string(time))));
+                        isBlock = true;
+                        size = len;
+                        start = time;
+                        first=time;
                     }
 
                 }
             }
-            return block;
+
         }
 
-        bool merge(Block *b1, int b1i, Block *b2, int b2i, int S, Block *blocks) {
-            if ((b2->start - b1->end < S && b1->end < b2->start) ||
-                (b1->start - b2->end < S && b2->end < b1->start)) {
-                blocks->vars.erase(blocks->vars.begin() + b1i);
-                if (b1i < b2i)
-                    b2i--; //correct pointer
-                blocks->vars.erase(blocks->vars.begin() + b2i);
-                blocks->vars.push_back(
-                        new Block(std::min(b2->start, b1->start), std::max(b2->end, b1->end), b1->vars, b2->vars));
-                return true;
-            }
-            return false;
-        }
-        
+
         /*MPP method: invalid time disruption*/
 
         void una() {
