@@ -192,7 +192,7 @@ uint64_t LinearSUMod::computeOriginalCost(vec<lbool> &currentModel,
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void LinearSUMod::bmoSearch() {
+void LinearSUMod::bmoSearch() throw(int){
   assert(orderWeights.size() > 0);
   lbool res = l_True;
 
@@ -338,7 +338,7 @@ void LinearSUMod::bmoSearch() {
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void LinearSUMod::normalSearch() {
+void LinearSUMod::normalSearch() throw(int){
 
   lbool res = l_True;
 
@@ -446,7 +446,7 @@ void LinearSUMod::normalSearch() {
 }
 
 // Public search method
-bool LinearSUMod::search() {
+bool LinearSUMod::search() throw(int){
 
   MaxSATFormulaExtended *maxsat_formula_extended =
       static_cast<MaxSATFormulaExtended *>(maxsat_formula);

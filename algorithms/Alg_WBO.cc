@@ -794,7 +794,7 @@ void WBO::symmetryBreaking() {
   |     by 1. Otherwise, 'nbCores' is increased by 1.
   |
   |________________________________________________________________________________________________@*/
-void WBO::unsatSearch() {
+void WBO::unsatSearch() throw(int) {
 
   assert(assumptions.size() == 0);
 
@@ -843,7 +843,7 @@ void WBO::unsatSearch() {
   |    * 'nbSatisfiable' is updated.
   |    * 'nbCores' is updated.
   |________________________________________________________________________________________________@*/
-void WBO::weightSearch() {
+void WBO::weightSearch() throw(int){
 
   assert(weightStrategy == _WEIGHT_NORMAL_ ||
          weightStrategy == _WEIGHT_DIVERSIFY_);
@@ -926,7 +926,7 @@ void WBO::weightSearch() {
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void WBO::normalSearch() {
+void WBO::normalSearch() throw(int){
 
   unsatSearch();
 
@@ -971,7 +971,7 @@ void WBO::normalSearch() {
 }
 
 // Public search method
-bool WBO::search() {
+bool WBO::search() throw(int){
   //  nbInitialVariables = maxsat_formula->nVars();
 
   // If the maximum weight of the soft clauses is 1 then the problem is

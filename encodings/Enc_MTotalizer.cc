@@ -53,7 +53,7 @@ using namespace openwbo;
   |    * 'S' is updated with the clauses that encode the cardinality constraint.
   |
   |________________________________________________________________________________________________@*/
-void MTotalizer::encode(Solver *S, vec<Lit> &lits, int64_t rhs) {
+void MTotalizer::encode(Solver *S, vec<Lit> &lits, int64_t rhs) throw(int) {
   assert(lits.size() > 0);
   hasEncoding = false;
 
@@ -65,10 +65,13 @@ void MTotalizer::encode(Solver *S, vec<Lit> &lits, int64_t rhs) {
       addUnitClause(S, ~lits[i]);
     return;
   }
+  if(!(rhs >= 1 && rhs <= lits.size()))
+      throw 42;
 
-  assert(rhs >= 1 && rhs <= lits.size());
 
-  if (rhs == lits.size()) {
+
+
+    if (rhs == lits.size()) {
     return;
   }
 

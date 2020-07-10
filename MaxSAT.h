@@ -105,7 +105,7 @@ namespace openwbo {
         }
 
         virtual ~MaxSAT() {
-            if (maxsat_formula != NULL)
+            if(maxsat_formula!=NULL)
                 delete maxsat_formula;
         }
 
@@ -114,6 +114,8 @@ namespace openwbo {
         // Print configuration of the MaxSAT solver.
         // virtual void printConfiguration();
         void printConfiguration();
+
+
 
         // Encoding information.
         void print_AMO_configuration(int encoding);
@@ -125,7 +127,7 @@ namespace openwbo {
         // Incremental information.
         void print_Incremental_configuration(int incremental);
 
-        virtual bool search();      // MaxSAT search.
+        virtual bool search() throw(int);      // MaxSAT search.
         void printAnswer(int type); // Print the answer.
 
         // Tests if a MaxSAT formula has a lexicographical optimization criterion.
@@ -202,13 +204,14 @@ namespace openwbo {
         void setLB(int);
 
         virtual Solver *getSolver() { throw "Not implemented"; };
+        Solver *newSATSolver(); // Creates a SAT solver.
 
 
     protected:
 
         // Interface with the SAT solver
         //
-        Solver *newSATSolver(); // Creates a SAT solver.
+
         // Solves the formula that is currently loaded in the SAT solver.
         lbool searchSATSolver(Solver *S, vec <Lit> &assumptions, bool pre = false);
 

@@ -229,7 +229,7 @@ uint64_t OBV::ums_obv_bs(Solver * solver, std::vector<Lit>& outputs, uint64_t ub
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void OBV::normalSearch() {
+void OBV::normalSearch() throw(int){
 
   lbool res = l_True;
 
@@ -318,7 +318,7 @@ void OBV::normalSearch() {
 }
 
 // Public search method
-bool OBV::search() {
+bool OBV::search() throw(int){
 
   assert (maxsat_formula->getProblemType() == _UNWEIGHTED_);
 

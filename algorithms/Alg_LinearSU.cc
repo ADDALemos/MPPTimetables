@@ -58,7 +58,7 @@ using namespace openwbo;
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void LinearSU::bmoSearch() {
+void LinearSU::bmoSearch() throw(int){
   assert(orderWeights.size() > 0);
   lbool res = l_True;
 
@@ -196,7 +196,7 @@ void LinearSU::bmoSearch() {
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void LinearSU::normalSearch() {
+void LinearSU::normalSearch() throw(int){
 
   lbool res = l_True;
 
@@ -277,7 +277,7 @@ void LinearSU::normalSearch() {
 }
 
 // Public search method
-bool LinearSU::search() {
+bool LinearSU::search() throw(int){
 
   if (maxsat_formula->getProblemType() == _WEIGHTED_)
     is_bmo = isBMO();

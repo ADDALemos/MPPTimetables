@@ -195,7 +195,7 @@ uint64_t LinearSUClustering::computeOriginalCost(vec<lbool> &currentModel,
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-bool LinearSUClustering::bmoSearch() throw() {
+bool LinearSUClustering::bmoSearch() throw(int){
   assert(orderWeights.size() > 0);
   lbool res = l_True;
 
@@ -580,7 +580,7 @@ bool LinearSUClustering::bmoSearch() throw() {
 }
 
 // Public search method
-bool LinearSUClustering::search() {
+bool LinearSUClustering::search() throw(int) {
 
 
   MaxSATFormulaExtended *maxsat_formula_extended =

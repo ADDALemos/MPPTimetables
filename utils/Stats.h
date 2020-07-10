@@ -247,6 +247,168 @@ inline  void worstCost(Instance *instance){
     std::cout<<cost<<std::endl;
 }
 
+inline void blocks(Instance *instance){//        bet-fal17
+
+    int max=0,duration=0;
+    for (std::pair<std::string, std::vector<ConstraintShort *>> c : instance->getDist()) {
+        if(strcmp(c.first.substr(0,8).c_str(),"MaxBlock")==0||strcmp(c.first.substr(0,8).c_str(),"MaxBreak")==0){
+            for (ConstraintShort * con: c.second) {
+                duration=0;
+                for(Class *cl: con->getClasses()){
+                    duration+=cl->getHour().size();
+                    if(max<cl->getHour().size())
+                        max=cl->getHour().size();
+
+
+                }
+                std::cout<<con->getClasses().size()<<" "<<duration<<" "<<max<<std::endl;
+
+
+
+
+            }
+        }
+    }
+
+
+
+    std::exit(1);
+
+
+}
+
+inline void overlpacont(Instance *instance){
+    int count=0;
+    for (int s = 0; s < instance->getClusterStudent().size(); ++s) {
+        std::vector<std::vector<Class *>> classes;
+        bool t0=false;
+        for (int c = 0; c < instance->getClusterStudent()[s]->getCourses().size(); ++c) {
+            bool t=true;
+            for (int conf = 0;
+                 conf < instance->getClusterStudent()[s]->getCourses()[c]->getNumConfig(); ++conf) {
+
+                for (int part = 0; part < instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
+                        conf).size(); ++part) {
+                    bool t1=false,t2= false;
+
+                    for (int cla = 0;
+                         cla < instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
+                                 conf)[part]->getClasses().size(); ++cla) {
+
+                        for (int cla1 = cla + 1;
+                             cla1 < instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
+                                     conf)[part]->getClasses().size(); ++cla1) {
+                            for (std::pair<std::string, std::vector<ConstraintShort *>> cs : instance->getDist()) {
+                                for (ConstraintShort * con: cs.second) {
+                                    for (Class *ck: con->getClasses()) {
+                                        if(ck->getOrderID()==instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
+                                                conf)[part]->getClasses()[cla]->getOrderID())
+                                            t1=true;
+                                        if(ck->getOrderID()==instance->getClusterStudent()[s]->getCourses()[c]->getSubpart(
+                                                conf)[part]->getClasses()[cla1]->getOrderID())
+                                            t2=true;
+
+                                    }
+                                    if(t1&&!t2||!t1&&t2)
+                                        t1=t2=false;
+                                }
+
+                            }
+
+
+                        }
+
+
+
+                    }
+
+                    t= t1&&t2;
+
+
+
+
+
+                }
+                if(!t)
+                    break;
+
+            }
+            if(t)
+                t0= true;
+
+
+
+        }
+        if(t0)
+            count++;
+
+    }
+    std::cout<<count<<std::endl;
+    std::cout<<instance->getClusterStudent().size()<<std::endl;
+
+    std::exit(0);
+
+
+}
+
+inline void domainreduction(Instance *instance){
+    int zero=0,one=1;
+    for (Class *c: instance->getClasses()) {
+        bool test=true;
+
+
+        for (std::pair<Room*, int> p : c->getPossibleRooms()) {
+            if(p.first->getSlots().size()!=c->getFirstPossibleRoom()->getSlots().size()) {
+                test=false;
+            } else {
+                for (int i = 0; i < p.first->getSlots().size(); ++i) {
+                    if (strcmp(c->getFirstPossibleRoom()->getSlots()[i].getDays().c_str(),
+                               p.first->getSlots()[i].getDays().c_str()) != 0
+                        || strcmp(c->getFirstPossibleRoom()->getSlots()[i].getWeeks().c_str(),
+                                  p.first->getSlots()[i].getWeeks().c_str()) != 0
+                        || c->getFirstPossibleRoom()->getSlots()[i].getStart() != p.first->getSlots()[i].getStart()
+                        || c->getFirstPossibleRoom()->getSlots()[i].getLenght() != p.first->getSlots()[i].getLenght()) {
+                        test = false;
+                        break;
+                    }
+
+                }
+            }
+            if(!test) {
+                zero++;
+                break;
+            }
+
+        }
+        if(test && c->getPossibleRooms().size()>0){
+            one++;
+            if(c->getPossibleRooms().size()>1)
+                std::cout<<c->getId()<<std::endl;
+        }
+
+
+    }
+    std::cout<<zero<<std::endl;
+    std::cout<<one<<std::endl;
+
+    std::exit(0);
+
+}
+
+inline void penTime(Instance *i){
+    std::set<int> pen;
+    for (Class *c: i->getClasses()) {
+        for(Lecture *l: c->getLectures()){
+            pen.insert(l->getPenalty());
+        }
+
+    }
+    std::cout<<pen.size()<<std::endl;
+    for(int p: pen)
+        std::cout<<p<<std::endl;
+    std::exit(1);
+}
+
 
 
 #endif //PROJECT_STATS_H

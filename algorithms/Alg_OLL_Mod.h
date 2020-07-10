@@ -68,7 +68,7 @@ public:
       delete solver;
   }
 
-    bool search();
+    bool search() throw(int);
 
   void initializeCluster();
 

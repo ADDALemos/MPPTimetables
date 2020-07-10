@@ -189,7 +189,7 @@ void BLS::LSU() {
 
 // Always consider all clauses by adding assumption var to each soft clause.
 
-void BLS::basicSearch(int maxMCS = 30) {
+void BLS::basicSearch(int maxMCS = 30) throw(int){
   printConfiguration();
 
   // Init Structures
@@ -328,7 +328,7 @@ bool BLS::findNextMCS() {
 
 
 // Public search method
-bool BLS::search() {
+bool BLS::search() throw(int){
 
   basicSearch(_maxMCS);
 

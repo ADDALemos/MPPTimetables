@@ -675,7 +675,7 @@ protected:
         return 0;
 
     }
-
+public:
     void stuAlloc() {
         for (std::map<int, Student>::iterator it = instance->getStudent().begin();
              it != instance->getStudent().end(); ++it) {

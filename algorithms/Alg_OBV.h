@@ -68,7 +68,7 @@ public:
     coeffs.clear();
   }
 
-    bool search(); // Linear search.
+    bool search() throw(int); // Linear search.
 
   // Print solver configuration.
   void printConfiguration() {
@@ -105,8 +105,8 @@ protected:
 
   // Linear search algorithms.
   //
-  void normalSearch(); // Classic linear search algorithm.
-  void bmoSearch();    // Linear search algorithm with lexicographical order.
+  void normalSearch() throw(int); // Classic linear search algorithm.
+  void bmoSearch() throw(int);    // Linear search algorithm with lexicographical order.
 
   // Other
   void initRelaxation(); // Relaxes soft clauses.

@@ -54,8 +54,8 @@ public:
   }
   ~Totalizer() {}
 
-  void build(Solver *S, vec<Lit> &lits, int64_t rhs);
-  void join(Solver *S, vec<Lit> &lits, int64_t rhs);
+  void build(Solver *S, vec<Lit> &lits, int64_t rhs) throw(int);
+  void join(Solver *S, vec<Lit> &lits, int64_t rhs)throw(int);
   void update(Solver *S, int64_t rhs, vec<Lit> &lits, vec<Lit> &assumptions);
   void update(Solver *S, int64_t rhs) {
     vec<Lit> lits;

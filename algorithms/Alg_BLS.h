@@ -69,7 +69,7 @@ namespace openwbo {
         delete solver;
     }
 
-      bool search();                                      // BLS search.
+      bool search() throw(int);                                      // BLS search.
     void printAnswer(int type);                         // Print the answer.
     
         
@@ -102,7 +102,7 @@ namespace openwbo {
     
     // BLS search
     //
-    void basicSearch(int maxMCS);
+    void basicSearch(int maxMCS) throw(int);
     
     bool findNextMCS();
     void addMCSClause(vec<int>& unsatClauses);

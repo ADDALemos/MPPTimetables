@@ -72,7 +72,7 @@ public:
     all_weights = false;
   }
 
-  ~LinearSUClustering() {
+    virtual ~LinearSUClustering() {
     if (solver != NULL)
       delete solver;
 
@@ -82,7 +82,7 @@ public:
 
   void initializeCluster();
 
-    bool search(); // Linear search.
+    bool search() throw(int); // Linear search.
 
   // Print solver configuration.
   void printConfiguration(bool bmo, int ptype) {
@@ -112,8 +112,8 @@ protected:
 
   // Linear search algorithms.
   //
-  void normalSearch() throw(); // Classic linear search algorithm.
-    bool bmoSearch() throw();    // Linear search algorithm with lexicographical order.
+  void normalSearch() throw(int); // Classic linear search algorithm.
+    bool bmoSearch() throw(int);    // Linear search algorithm with lexicographical order.
 
   // Greater than comparator.
   bool static greaterThan(int i, int j) { return (i > j); }

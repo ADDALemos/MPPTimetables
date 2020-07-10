@@ -58,6 +58,7 @@ namespace openwbo {
 class Encoder {
 
 public:
+
   Encoder(int incremental = _INCREMENTAL_NONE_,
           int cardinality = _CARD_TOTALIZER_, int amo = _AMO_LADDER_,
           int pb = _PB_SWC_) {
@@ -82,7 +83,7 @@ public:
   // Cardinality encodings:
   //
   // Encode cardinality constraint into CNF.
-  void encodeCardinality(Solver *S, vec<Lit> &lits, int64_t rhs);
+  void encodeCardinality(Solver *S, vec<Lit> &lits, int64_t rhs)throw(int);
 
   // Update the rhs of an already existent cardinality constraint
   void updateCardinality(Solver *S, int64_t rhs);
@@ -93,7 +94,7 @@ public:
   // No restriction is made on the value of 'rhs'.
   // buildCardinality + updateCardinality is equivalent to encodeCardinality.
   // Useful for incremental encodings.
-  void buildCardinality(Solver *S, vec<Lit> &lits, int64_t rhs);
+  void buildCardinality(Solver *S, vec<Lit> &lits, int64_t rhs) throw(int);
 
   // Incremental update for cardinality constraints;
   void incUpdateCardinality(Solver *S, vec<Lit> &join, vec<Lit> &lits,
@@ -111,7 +112,7 @@ public:
   // PB encodings:
   //
   // Encode pseudo-Boolean constraint into CNF.
-  void encodePB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t rhs);
+  void encodePB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t rhs)throw(int);
   // Update the rhs of an already existent pseudo-Boolean constraint.
   void updatePB(Solver *S, uint64_t rhs);
 
@@ -134,7 +135,7 @@ public:
   // Joins a set of new literals, x_1 + ... + x_i, to an existing encoding of
   // the type
   // y_1 + ... + y_j <= k. It also updates 'k' to 'rhs'.
-  void joinEncoding(Solver *S, vec<Lit> &lits, int64_t rhs);
+  void joinEncoding(Solver *S, vec<Lit> &lits, int64_t rhs) throw(int);
 
   // Other:
   //

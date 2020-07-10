@@ -172,7 +172,7 @@ void MSU3::MSU3_iterative() {
 }
 
 // Public search method
-bool MSU3::search() {
+bool MSU3::search() throw(int){
 
   if (maxsat_formula->getProblemType() == _WEIGHTED_) {
     printf("Error: Currently algorithm MSU3 does not support weighted MaxSAT "

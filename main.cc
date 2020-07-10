@@ -111,6 +111,7 @@ void readOutputXML(std::string filename, Instance *instance);
 
 
 
+
 static void SIGINT_exit(int signum) {
     mxsolver->printAnswer(_UNKNOWN_);
     exit(_UNKNOWN_);
@@ -138,8 +139,6 @@ int main(int argc, char **argv) {
         printf(
             "c WARNING: for repeatability, setting FPU to use double precision\n");
 #endif
-
-
         BoolOption printmodel("Open-WBO", "print-model", "Print model.\n", true);
 
         IntOption num_tests("Test", "num_tests", "Number of tests\n", 0,
@@ -167,8 +166,8 @@ int main(int argc, char **argv) {
         IntOption algorithm("Open-WBO", "algorithm",
                             "Search algorithm "
                                     "(_ALGORITHM_WBO_ = 0,_ALGORITHM_LINEAR_SU_,_ALGORITHM_MSU3_,"
-                "_ALGORITHM_PART_MSU3_,_ALGORITHM_OLL_,_ALGORITHM_BEST_,_ALGORITHM_LSU_CLUSTER_,"
-                "_ALGORITHM_LSU_MRSBEAVER_,_ALGORITHM_LSU_MCS_\n",
+                                    "_ALGORITHM_PART_MSU3_,_ALGORITHM_OLL_,_ALGORITHM_BEST_,_ALGORITHM_LSU_CLUSTER_,"
+                                    "_ALGORITHM_LSU_MRSBEAVER_,_ALGORITHM_LSU_MCS_\n",
                             6, IntRange(0, 8));
 
         IntOption partition_strategy("PartMSU3", "partition-strategy",
@@ -296,131 +295,164 @@ int main(int argc, char **argv) {
         Torc::Instance()->SetBumpRelWeights(targetVarsBumpRelWeights);
         Torc::Instance()->SetTargetBumpMaxRandVal(targetVarsBumpMaxRandVal);
 
-        MaxSAT *S = NULL;
 
         Statistics rounding_statistic =
                 static_cast<Statistics>((int) rounding_strategy);
 
-        switch ((int) algorithm) {
-            case _ALGORITHM_WBO_:
-                S = new WBO(verbosity, weight, symmetry, symmetry_lim);
-                break;
 
-            case _ALGORITHM_LINEAR_SU_:
-                if ((int) (cluster_algorithm) == 1) {
-                    S = new LinearSUMod(verbosity, bmo, cardinality, pb,
-                                        ClusterAlg::_DIVISIVE_, rounding_statistic,
-                                        (int) (num_clusters));
-                } else {
-                    S = new LinearSU(verbosity, bmo, cardinality, pb);
-                }
-                break;
-
-            case _ALGORITHM_PART_MSU3_:
-                S = new PartMSU3(verbosity, partition_strategy, graph_type, cardinality);
-                break;
-
-            case _ALGORITHM_MSU3_:
-                S = new MSU3(verbosity);
-                break;
-
-            case _ALGORITHM_LSU_CLUSTER_:
-                S = new LinearSUClustering(verbosity, bmo, cardinality, pb,
-                                           ClusterAlg::_DIVISIVE_, rounding_statistic,
-                                           (int) (num_clusters));
-                break;
-
-            case _ALGORITHM_LSU_MRSBEAVER_:
-                S = new OBV(verbosity, cardinality, num_conflicts, num_iterations, local);
-                break;
-
-            case _ALGORITHM_LSU_MCS_:
-                S = new BLS(verbosity, cardinality, num_conflicts, num_iterations, local);
-                break;
-
-            case _ALGORITHM_OLL_:
-                if ((int) (cluster_algorithm) == 1) {
-                    S = new OLLMod(verbosity, cardinality, ClusterAlg::_DIVISIVE_,
-                                   rounding_statistic, (int) (num_clusters));
-                } else {
-                    S = new OLL(verbosity, cardinality);
-                }
-                break;
-
-            case _ALGORITHM_BEST_:
-                break;
-
-            default:
-                printf("c Error: Invalid MaxSAT algorithm.\n");
-                printf("s UNKNOWN\n");
-                exit(_ERROR_);
-        }
         signal(SIGXCPU, SIGINT_exit);
         signal(SIGTERM, SIGINT_exit);
 
-        MaxSATFormula *maxsat_formula = new MaxSATFormula();
-        maxsat_formula->setFormat(_FORMAT_PB_);
-        ParserXMLTwo *parserXML = new ParserXMLTwo(maxsat_formula, optC1,
-                                                   optC2, optC3);
-
-        parserXML->parse(argv[1]);
-
-
-        parserXML->aux();
-        parserXML->room();
-
-
-        if (cpu_lim != 0) parserXML->getInstance()->setTime(cpu_lim);
-
-
-        parserXML->getInstance()->setAlgo((int) algorithm, optC1? "true" : "false",
-                                          optC2? "true" : "false", optC3?"true" : "false");
-
-        parserXML->genConstraint();
-        if (dRoom) {
-            Perturbation *p = new Perturbation();
-            p->randomCloseRoom(parserXML->getInstance(), dRoomp);
-            parserXML->closeroom();
-        }
-        if (dTime) {
-            Perturbation *p = new Perturbation();
-            p->randomSlotClose(parserXML->getInstance(), dTime);
-            parserXML->una();
-
-        }
-        if (dRoom || dTime) {
-            readOutputXML("data/output/ITC-2019/solution-" + parserXML->getInstance()->getName() + ".xml",
-                          parserXML->getInstance());
-            parserXML->distanceToSolutionLectures();
-        }
+        ParserXMLTwo *parserXML=NULL;
+        MaxSAT *S = NULL;
+        MaxSATFormula *maxsat_formula=NULL;
+        for (int j = 0; j < 10000000; ++j) {
+            std::cout<<j<<std::endl;
 
 
 
-        S->setInstance(parserXML->getInstance());
 
-
-        S->loadFormula(maxsat_formula);
-        printSolverStats(maxsat_formula,initial_time);
-
-     
-        if ((int) (cluster_algorithm) == 1) {
             switch ((int) algorithm) {
+                case _ALGORITHM_WBO_:
+                    S = new WBO(verbosity, weight, symmetry, symmetry_lim);
+                    break;
+
                 case _ALGORITHM_LINEAR_SU_:
-                    static_cast<LinearSUMod *>(S)->initializeCluster();
+                    if ((int) (cluster_algorithm) == 1) {
+                        S = new LinearSUMod(verbosity, bmo, cardinality, pb,
+                                            ClusterAlg::_DIVISIVE_, rounding_statistic,
+                                            (int) (num_clusters));
+                    } else {
+                        S = new LinearSU(verbosity, bmo, cardinality, pb);
+                    }
                     break;
-                case _ALGORITHM_OLL_:
-                    static_cast<OLLMod *>(S)->initializeCluster();
+
+                case _ALGORITHM_PART_MSU3_:
+                    S = new PartMSU3(verbosity, partition_strategy, graph_type, cardinality);
                     break;
+
+                case _ALGORITHM_MSU3_:
+                    S = new MSU3(verbosity);
+                    break;
+
                 case _ALGORITHM_LSU_CLUSTER_:
-                    static_cast<LinearSUClustering *>(S)->initializeCluster();
+                    S = new LinearSUClustering(verbosity, bmo, cardinality, pb,
+                                               ClusterAlg::_DIVISIVE_, rounding_statistic,
+                                               (int) (num_clusters));
                     break;
+
+                case _ALGORITHM_LSU_MRSBEAVER_:
+                    S = new OBV(verbosity, cardinality, num_conflicts, num_iterations, local);
+                    break;
+
+                case _ALGORITHM_LSU_MCS_:
+                    S = new BLS(verbosity, cardinality, num_conflicts, num_iterations, local);
+                    break;
+
+                case _ALGORITHM_OLL_:
+                    if ((int) (cluster_algorithm) == 1) {
+                        S = new OLLMod(verbosity, cardinality, ClusterAlg::_DIVISIVE_,
+                                       rounding_statistic, (int) (num_clusters));
+                    } else {
+                        S = new OLL(verbosity, cardinality);
+                    }
+                    break;
+
+                case _ALGORITHM_BEST_:
+                    break;
+
+                default:
+                    printf("c Error: Invalid MaxSAT algorithm.\n");
+                    printf("s UNKNOWN\n");
+                    exit(_ERROR_);
             }
+
+
+
+
+            maxsat_formula = new MaxSATFormula();
+            maxsat_formula->setFormat(_FORMAT_PB_);
+            parserXML = new ParserXMLTwo(maxsat_formula, optC1,
+                                                       optC2, optC3,j);
+
+            parserXML->parse(argv[1]);
+
+
+            parserXML->aux();
+            parserXML->room();
+
+
+            if (cpu_lim != 0) parserXML->getInstance()->setTime(cpu_lim);
+
+
+            parserXML->getInstance()->setAlgo((int) algorithm, optC1 ? "true" : "false",
+                                              optC2 ? "true" : "false", optC3 ? "true" : "false");
+
+            parserXML->genConstraint();
+            if (dRoom) {
+                Perturbation *p = new Perturbation();
+                p->randomCloseRoom(parserXML->getInstance(), dRoomp);
+                parserXML->closeroom();
+            }
+            if (dTime) {
+                Perturbation *p = new Perturbation();
+                p->randomSlotClose(parserXML->getInstance(), dTime);
+                parserXML->una();
+
+            }
+            if (dRoom || dTime) {
+                readOutputXML("data/output/ITC-2019/solution-" + parserXML->getInstance()->getName() + ".xml",
+                              parserXML->getInstance());
+                parserXML->distanceToSolutionLectures();
+            }
+
+
+            S->setInstance(parserXML->getInstance());
+
+
+            S->loadFormula(maxsat_formula);
+            printSolverStats(maxsat_formula, initial_time);
+
+
+            if ((int) (cluster_algorithm) == 1) {
+                switch ((int) algorithm) {
+                    case _ALGORITHM_LINEAR_SU_:
+                        static_cast<LinearSUMod *>(S)->initializeCluster();
+                        break;
+                    case _ALGORITHM_OLL_:
+                        static_cast<OLLMod *>(S)->initializeCluster();
+                        break;
+                    case _ALGORITHM_LSU_CLUSTER_:
+                        static_cast<LinearSUClustering *>(S)->initializeCluster();
+                        break;
+                }
+            }
+            try {
+                S->search();
+                //if(S->search())
+                  //  break;
+            } catch(int e){
+
+            }
+            if(S!=NULL)
+                delete  S;
+            delete parserXML;
+
+
+
+            //
+
+
+
         }
-
-
-        std::cout << S->search() << std::endl;
 
         if(parserXML->getInstance()->getStudent().size()) {
+
+            /*LocalSearch *l = new LocalSearch(parserXML->getInstance());
+            l->stuAlloc();
+            writeXMLOutput("data/output/ITC-2019/" + parserXML->getInstance()->getName() + ".xml", parserXML->getInstance());
+*/
+
 
 
             maxsat_formula = new MaxSATFormula();
@@ -546,7 +578,7 @@ void readOutputXML(std::string filename, Instance *instance) {
     std::stringstream buffer;
     buffer << file.rdbuf();
     file.close();
-    std::__1::string content(buffer.str());
+    std::string content(buffer.str());
     doc.parse<0>(&content[0]);
     xml_node<> *pRoot = doc.first_node();
     for (const xml_attribute<> *a = pRoot->first_attribute(); a; a = a->next_attribute()) {

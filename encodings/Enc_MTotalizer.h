@@ -49,7 +49,7 @@ public:
   }
   ~MTotalizer() {}
 
-  void encode(Solver *S, vec<Lit> &lits, int64_t rhs);
+  void encode(Solver *S, vec<Lit> &lits, int64_t rhs) throw(int);
   void update(Solver *S, int64_t rhs);
   void setModulo(int m) { modulo = m; }
 

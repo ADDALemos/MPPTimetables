@@ -62,7 +62,7 @@ public:
           delete instance;
   }
 
-    bool search();
+    bool search() throw(int);
 
 
   // Print solver configuration.

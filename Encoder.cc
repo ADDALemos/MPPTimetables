@@ -58,7 +58,7 @@ void Encoder::encodeAMO(Solver *S, vec<Lit> &lits) {
  ************************************************************************************************/
 //
 // Manages the encoding of cardinality encodings.
-void Encoder::encodeCardinality(Solver *S, vec<Lit> &lits, int64_t rhs) {
+void Encoder::encodeCardinality(Solver *S, vec<Lit> &lits, int64_t rhs)throw(int) {
 
   vec<Lit> lits_copy;
   lits.copyTo(lits_copy);
@@ -123,7 +123,7 @@ void Encoder::updateCardinality(Solver *S, int64_t rhs) {
 //
 // Manages the building of cardinality encodings.
 // Currently is only used for incremental solving.
-void Encoder::buildCardinality(Solver *S, vec<Lit> &lits, int64_t rhs) {
+void Encoder::buildCardinality(Solver *S, vec<Lit> &lits, int64_t rhs) throw(int){
   assert(incremental_strategy != _INCREMENTAL_NONE_);
 
   vec<Lit> lits_copy;
@@ -169,7 +169,7 @@ void Encoder::incUpdateCardinality(Solver *S, vec<Lit> &join, vec<Lit> &lits,
   }
 }
 
-void Encoder::joinEncoding(Solver *S, vec<Lit> &lits, int64_t rhs) {
+void Encoder::joinEncoding(Solver *S, vec<Lit> &lits, int64_t rhs) throw(int){
 
   switch (cardinality_encoding) {
   case _CARD_TOTALIZER_:
@@ -191,7 +191,7 @@ void Encoder::joinEncoding(Solver *S, vec<Lit> &lits, int64_t rhs) {
 //
 // Manages the encoding of PB encodings.
 void Encoder::encodePB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
-                       uint64_t rhs) {
+                       uint64_t rhs) throw(int){
 
   vec<Lit> lits_copy;
   lits.copyTo(lits_copy);

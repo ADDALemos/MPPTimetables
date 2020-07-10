@@ -95,7 +95,10 @@ namespace openwbo {
 
         }
 
-        virtual ~ParserXML() {}
+        virtual ~ParserXML() {
+            //if(maxsat_formula!=NULL)
+              //  delete maxsat_formula;
+        }
 
 
         void parse(std::string fileName) {

@@ -91,16 +91,18 @@ namespace openwbo {
 
 
     public:
+        int  n_iter=0;
         //-------------------------------------------------------------------------
         // Constructor/destructor.
         //-------------------------------------------------------------------------
 
-        ParserXMLTwo(MaxSATFormula *maxsat_formula, bool optAlloction, bool optStud, bool optSoft) :
-                ParserXML(maxsat_formula, optAlloction, optStud, optSoft) {
+        ParserXMLTwo(MaxSATFormula *maxsat_formula, bool optAlloction, bool optStud, bool optSoft, int i) :
+                ParserXML(maxsat_formula, optAlloction, optStud, optSoft),n_iter(i) {
 
         }
 
-        virtual ~ParserXMLTwo() {}
+        virtual ~ParserXMLTwo() {
+        }
 
         void parse(std::string fileName) {
 
@@ -244,188 +246,208 @@ namespace openwbo {
 
 
                                             }
-                                            vec <Lit> *l1 = new vec<Lit>;
-                                            l1->push(mkLit(getVariableID(
-                                                    "h_" + std::to_string(orderID) + "_" + std::to_string(start))));
-                                            l1->push(
-                                                    ~mkLit(getVariableID(
-                                                            "t_" + std::to_string(orderID) + "_" + std::to_string(max))));
-                                            maxsat_formula->addHardClause(*l1);
-                                            delete l1;
+                                            if (penalty <= n_iter || lecv.size()==0) {
 
-                                            if(hour.find(start)!=hour.end()){
-                                                hour[start].push_back(mkLit(getVariableID("t_" + std::to_string(orderID) + "_" + std::to_string(max))));
-                                            } else {
-                                                std::vector<Lit> temp;
-                                                temp.push_back(~mkLit(getVariableID(
+                                                vec <Lit> *l1 = new vec<Lit>;
+                                                l1->push(mkLit(getVariableID(
                                                         "h_" + std::to_string(orderID) + "_" + std::to_string(start))));
-                                                temp.push_back(mkLit(getVariableID("t_" + std::to_string(orderID) + "_" + std::to_string(max))));
-                                                hour.insert(std::pair<int,std::vector<Lit>>(start,temp));
-                                            }
-                                            l1 = new vec<Lit>;
-                                            l1->push(mkLit(getVariableID(
-                                                    "w_" + std::to_string(orderID) + "_" + weeks)));
-                                            l1->push(
-                                                    ~mkLit(getVariableID(
-                                                            "t_" + std::to_string(orderID) + "_" + std::to_string(max))));
-                                            maxsat_formula->addHardClause(*l1);
-                                            delete l1;
+                                                l1->push(
+                                                        ~mkLit(getVariableID(
+                                                                "t_" + std::to_string(orderID) + "_" +
+                                                                std::to_string(max))));
+                                                maxsat_formula->addHardClause(*l1);
+                                                delete l1;
 
-                                            if(week.find(weeks)!=week.end()){
-                                                week[weeks].push_back(mkLit(getVariableID("t_" + std::to_string(orderID) + "_" + std::to_string(max))));
-                                            } else {
-                                                std::vector<Lit> temp;
-                                                temp.push_back(~mkLit(getVariableID(
+                                                if (hour.find(start) != hour.end()) {
+                                                    hour[start].push_back(mkLit(getVariableID(
+                                                            "t_" + std::to_string(orderID) + "_" +
+                                                            std::to_string(max))));
+                                                } else {
+                                                    std::vector <Lit> temp;
+                                                    temp.push_back(~mkLit(getVariableID(
+                                                            "h_" + std::to_string(orderID) + "_" +
+                                                            std::to_string(start))));
+                                                    temp.push_back(mkLit(getVariableID(
+                                                            "t_" + std::to_string(orderID) + "_" +
+                                                            std::to_string(max))));
+                                                    hour.insert(std::pair < int, std::vector < Lit >> (start, temp));
+                                                }
+                                                l1 = new vec<Lit>;
+                                                l1->push(mkLit(getVariableID(
                                                         "w_" + std::to_string(orderID) + "_" + weeks)));
-                                                temp.push_back(mkLit(getVariableID("t_" + std::to_string(orderID) + "_" + std::to_string(max))));
-                                                week.insert(std::pair<std::string,std::vector<Lit>>(weeks,temp));
-                                            }
+                                                l1->push(
+                                                        ~mkLit(getVariableID(
+                                                                "t_" + std::to_string(orderID) + "_" +
+                                                                std::to_string(max))));
+                                                maxsat_formula->addHardClause(*l1);
+                                                delete l1;
 
-                                            l1 = new vec<Lit>;
-                                            l1->push(mkLit(getVariableID(
-                                                    "d_" + std::to_string(orderID) + "_" + days)));
-                                            l1->push(
-                                                    ~mkLit(getVariableID(
-                                                            "t_" + std::to_string(orderID) + "_" + std::to_string(max))));
-                                            maxsat_formula->addHardClause(*l1);
-                                            delete l1;
+                                                if (week.find(weeks) != week.end()) {
+                                                    week[weeks].push_back(mkLit(getVariableID(
+                                                            "t_" + std::to_string(orderID) + "_" +
+                                                            std::to_string(max))));
+                                                } else {
+                                                    std::vector <Lit> temp;
+                                                    temp.push_back(~mkLit(getVariableID(
+                                                            "w_" + std::to_string(orderID) + "_" + weeks)));
+                                                    temp.push_back(mkLit(getVariableID(
+                                                            "t_" + std::to_string(orderID) + "_" +
+                                                            std::to_string(max))));
+                                                    week.insert(std::pair < std::string,
+                                                                std::vector < Lit >> (weeks, temp));
+                                                }
 
-                                            if(day.find(days)!=day.end()){
-                                                day[days].push_back(mkLit(getVariableID("t_" + std::to_string(orderID) + "_" + std::to_string(max))));
-                                            } else {
-                                                std::vector<Lit> temp;
-                                                temp.push_back(~mkLit(getVariableID(
+                                                l1 = new vec<Lit>;
+                                                l1->push(mkLit(getVariableID(
                                                         "d_" + std::to_string(orderID) + "_" + days)));
-                                                temp.push_back(mkLit(getVariableID("t_" + std::to_string(orderID) + "_" + std::to_string(max))));
-                                                day.insert(std::pair<std::string,std::vector<Lit>>(days,temp));
-                                            }
+                                                l1->push(
+                                                        ~mkLit(getVariableID(
+                                                                "t_" + std::to_string(orderID) + "_" +
+                                                                std::to_string(max))));
+                                                maxsat_formula->addHardClause(*l1);
+                                                delete l1;
 
-                                            hours.insert(std::pair<int,int>(start,start+lenght));
-                                            daysSet.insert(days);
-                                            weeksSet.insert(weeks);
+                                                if (day.find(days) != day.end()) {
+                                                    day[days].push_back(mkLit(getVariableID(
+                                                            "t_" + std::to_string(orderID) + "_" +
+                                                            std::to_string(max))));
+                                                } else {
+                                                    std::vector <Lit> temp;
+                                                    temp.push_back(~mkLit(getVariableID(
+                                                            "d_" + std::to_string(orderID) + "_" + days)));
+                                                    temp.push_back(mkLit(getVariableID(
+                                                            "t_" + std::to_string(orderID) + "_" +
+                                                            std::to_string(max))));
+                                                    day.insert(std::pair < std::string,
+                                                               std::vector < Lit >> (days, temp));
+                                                }
+
+                                                hours.insert(std::pair<int, int>(start, start + lenght));
+                                                daysSet.insert(days);
+                                                weeksSet.insert(weeks);
 
 
-                                            Lecture *l = new Lecture(lenght, start, weeks, days, penalty);
-                                            lecv.push_back(l);
-                                            l->setOrderID(max);
+                                                Lecture *l = new Lecture(lenght, start, weeks, days, penalty);
+                                                lecv.push_back(l);
+                                                l->setOrderID(max);
 
 
-
-                                            time->addProduct(mkLit(getVariableID(
-                                                    "t_" + std::to_string(orderID) + "_" + std::to_string(max))), 1);
-
-
-
-
-
-                                            if (penalty != 0 && optAlloction)
-                                                of->addProduct(mkLit(getVariableID(
+                                                time->addProduct(mkLit(getVariableID(
                                                         "t_" + std::to_string(orderID) + "_" + std::to_string(max))),
-                                                               instance->getTimePen() * penalty);
+                                                                 1);
 
 
-                                            if (roomsv.size() > 0) {
-                                                for (std::map<Room *, int>::iterator j = roomsv.begin();
-                                                     j != roomsv.end(); ++j) {
-
-                                                    std::string week1 = l->getWeeks();
-                                                    std::string day1 = l->getDays();
-                                                    int startTime = l->getStart();
-                                                    int duration = l->getLenght();
-                                                    bool isNotAddableTime = false;
-                                                    for (int una = 0; una < j->first->getSlots().size(); ++una) {
-                                                        for (int weeki = 0; weeki < instance->getNweek(); ++weeki) {
-                                                            if (week1[weeki] ==
-                                                                j->first->getSlots()[una].getWeeks()[weeki] &&
-                                                                j->first->getSlots()[una].getWeeks()[weeki] == '1') {
-                                                                for (int d = 0; d < instance->getNdays(); ++d) {
-                                                                    if (day1[d] ==
-                                                                        j->first->getSlots()[una].getDays()[d] &&
-                                                                        day1[d] == '1') {
-
-                                                                        if (startTime >=
-                                                                            j->first->getSlots()[una].getStart() &&
-                                                                            startTime <
-                                                                            j->first->getSlots()[una].getStart() +
-                                                                            j->first->getSlots()[una].getLenght()) {
-
-                                                                            isNotAddableTime = true;
-                                                                        } else if (
-                                                                                j->first->getSlots()[una].getStart() >=
-                                                                                startTime &&
-                                                                                j->first->getSlots()[una].getStart() <
-                                                                                startTime + duration) {
+                                                if (penalty != 0 && optAlloction)
+                                                    of->addProduct(mkLit(getVariableID(
+                                                            "t_" + std::to_string(orderID) + "_" +
+                                                            std::to_string(max))),
+                                                                   instance->getTimePen() * penalty);
 
 
-                                                                            isNotAddableTime = true;
+                                                if (roomsv.size() > 0) {
+                                                    for (std::map<Room *, int>::iterator j = roomsv.begin();
+                                                         j != roomsv.end(); ++j) {
 
+                                                        std::string week1 = l->getWeeks();
+                                                        std::string day1 = l->getDays();
+                                                        int startTime = l->getStart();
+                                                        int duration = l->getLenght();
+                                                        bool isNotAddableTime = false;
+                                                        for (int una = 0; una < j->first->getSlots().size(); ++una) {
+                                                            for (int weeki = 0; weeki < instance->getNweek(); ++weeki) {
+                                                                if (week1[weeki] ==
+                                                                    j->first->getSlots()[una].getWeeks()[weeki] &&
+                                                                    j->first->getSlots()[una].getWeeks()[weeki] ==
+                                                                    '1') {
+                                                                    for (int d = 0; d < instance->getNdays(); ++d) {
+                                                                        if (day1[d] ==
+                                                                            j->first->getSlots()[una].getDays()[d] &&
+                                                                            day1[d] == '1') {
+
+                                                                            if (startTime >=
+                                                                                j->first->getSlots()[una].getStart() &&
+                                                                                startTime <
+                                                                                j->first->getSlots()[una].getStart() +
+                                                                                j->first->getSlots()[una].getLenght()) {
+
+                                                                                isNotAddableTime = true;
+                                                                            } else if (
+                                                                                    j->first->getSlots()[una].getStart() >=
+                                                                                    startTime &&
+                                                                                    j->first->getSlots()[una].getStart() <
+                                                                                    startTime + duration) {
+
+
+                                                                                isNotAddableTime = true;
+
+                                                                            }
                                                                         }
-                                                                    }
-                                                                    if (isNotAddableTime)
-                                                                        break;
+                                                                        if (isNotAddableTime)
+                                                                            break;
 
+                                                                    }
                                                                 }
+                                                                if (isNotAddableTime)
+                                                                    break;
                                                             }
                                                             if (isNotAddableTime)
                                                                 break;
+
                                                         }
-                                                        if (isNotAddableTime)
-                                                            break;
-
-                                                    }
-                                                    vec <Lit> *l1 = new vec<Lit>;
-                                                    l1->push(~mkLit(getVariableID(
-                                                            "y_" + std::to_string(orderID) + "_" +
-                                                            std::to_string(max) + "_" +
-                                                            std::to_string(j->first->getId()))));
-                                                    l1->push(mkLit(getVariableID(
-                                                            "r_" + std::to_string(orderID) + "_" +
-                                                            std::to_string(j->first->getId()))));
-                                                    maxsat_formula->addHardClause(*l1);
-                                                    delete l1;
-                                                    l1 = new vec<Lit>;
-                                                    l1->push(~mkLit(getVariableID(
-                                                            "y_" + std::to_string(orderID) + "_" +
-                                                            std::to_string(max) + "_" +
-                                                            std::to_string(j->first->getId()))));
-                                                    l1->push(mkLit(getVariableID(
-                                                            "t_" + std::to_string(orderID) + "_" +
-                                                            std::to_string(max))));
-                                                    maxsat_formula->addHardClause(*l1);
-                                                    delete l1;
-                                                    l1 = new vec<Lit>;
-                                                    l1->push(mkLit(getVariableID(
-                                                            "y_" + std::to_string(orderID) + "_" +
-                                                            std::to_string(max) + "_" +
-                                                            std::to_string(j->first->getId()))));
-                                                    l1->push(~mkLit(getVariableID(
-                                                            "t_" + std::to_string(orderID) + "_" +
-                                                            std::to_string(max))));
-                                                    l1->push(~mkLit(getVariableID(
-                                                            "r_" + std::to_string(orderID) + "_" +
-                                                            std::to_string(j->first->getId()))));
-                                                    maxsat_formula->addHardClause(*l1);
-
-                                                    delete l1;
-
-                                                    if (isNotAddableTime) {
                                                         vec <Lit> *l1 = new vec<Lit>;
                                                         l1->push(~mkLit(getVariableID(
                                                                 "y_" + std::to_string(orderID) + "_" +
                                                                 std::to_string(max) + "_" +
                                                                 std::to_string(j->first->getId()))));
-
-
+                                                        l1->push(mkLit(getVariableID(
+                                                                "r_" + std::to_string(orderID) + "_" +
+                                                                std::to_string(j->first->getId()))));
                                                         maxsat_formula->addHardClause(*l1);
                                                         delete l1;
+                                                        l1 = new vec<Lit>;
+                                                        l1->push(~mkLit(getVariableID(
+                                                                "y_" + std::to_string(orderID) + "_" +
+                                                                std::to_string(max) + "_" +
+                                                                std::to_string(j->first->getId()))));
+                                                        l1->push(mkLit(getVariableID(
+                                                                "t_" + std::to_string(orderID) + "_" +
+                                                                std::to_string(max))));
+                                                        maxsat_formula->addHardClause(*l1);
+                                                        delete l1;
+                                                        l1 = new vec<Lit>;
+                                                        l1->push(mkLit(getVariableID(
+                                                                "y_" + std::to_string(orderID) + "_" +
+                                                                std::to_string(max) + "_" +
+                                                                std::to_string(j->first->getId()))));
+                                                        l1->push(~mkLit(getVariableID(
+                                                                "t_" + std::to_string(orderID) + "_" +
+                                                                std::to_string(max))));
+                                                        l1->push(~mkLit(getVariableID(
+                                                                "r_" + std::to_string(orderID) + "_" +
+                                                                std::to_string(j->first->getId()))));
+                                                        maxsat_formula->addHardClause(*l1);
+
+                                                        delete l1;
+
+                                                        if (isNotAddableTime) {
+                                                            vec <Lit> *l1 = new vec<Lit>;
+                                                            l1->push(~mkLit(getVariableID(
+                                                                    "y_" + std::to_string(orderID) + "_" +
+                                                                    std::to_string(max) + "_" +
+                                                                    std::to_string(j->first->getId()))));
+
+
+                                                            maxsat_formula->addHardClause(*l1);
+                                                            delete l1;
+                                                        }
                                                     }
                                                 }
+
+
+                                                max++;
+
+
                                             }
-
-
-                                            max++;
-
-
                                         }
 
 
@@ -450,7 +472,6 @@ namespace openwbo {
                                     time->addRHS(1);
 
 
-                                    PB *time2 = new PB(time->_lits, time->_coeffs, time->_rhs, true);
                                     if (roomsv.size() != 0) {
                                         room->addRHS(1);
                                         PB *room2 = new PB(room->_lits, room->_coeffs, room->_rhs, true);
@@ -460,7 +481,12 @@ namespace openwbo {
                                     }
 
 
+
+
+
+
                                     maxsat_formula->addPBConstraint(time);
+                                    PB *time2 = new PB(time->_lits, time->_coeffs, time->_rhs, true);
                                     maxsat_formula->addPBConstraint(time2);
                                     delete time;
                                     delete time2;
@@ -492,7 +518,7 @@ namespace openwbo {
 
             }
             file.close();
-            if (optAlloction) {
+            if (optAlloction && of->_lits.size()>0) {
                 maxsat_formula->addObjFunction(of);
                 delete of;
             }
@@ -2411,6 +2437,7 @@ namespace openwbo {
                             if (size+S > R) {
                                 std::cout<<"push"<<std::endl;
                                 maxsat_formula->addHardClause(*block);
+                                break;
                             }
                         }
 

@@ -858,7 +858,7 @@ void OLLMod::weighted() {
   }
 }
 
-bool OLLMod::search() {
+bool OLLMod::search() throw(int){
 
   MaxSATFormulaExtended *maxsat_formula_extended =
       static_cast<MaxSATFormulaExtended *>(maxsat_formula);

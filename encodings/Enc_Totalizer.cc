@@ -65,7 +65,7 @@ void Totalizer::incremental(Solver *S, int64_t rhs) {
   }
 }
 
-void Totalizer::join(Solver *S, vec<Lit> &lits, int64_t rhs) {
+void Totalizer::join(Solver *S, vec<Lit> &lits, int64_t rhs)throw(int) {
 
   assert(incremental_strategy == _INCREMENTAL_ITERATIVE_);
 
@@ -296,7 +296,7 @@ void Totalizer::add(Solver *S, Totalizer &tot, int64_t rhs) {
   |    * hasEncoding is set to 'true'.
   |
   |________________________________________________________________________________________________@*/
-void Totalizer::build(Solver *S, vec<Lit> &lits, int64_t rhs) {
+void Totalizer::build(Solver *S, vec<Lit> &lits, int64_t rhs) throw(int){
 
   cardinality_outlits.clear();
   hasEncoding = false;
@@ -307,7 +307,8 @@ void Totalizer::build(Solver *S, vec<Lit> &lits, int64_t rhs) {
     return;
   }
 
-  assert(rhs >= 1 && rhs <= lits.size());
+  if(!(rhs >= 1 && rhs <= lits.size()))
+    throw 42;
 
   if (incremental_strategy == _INCREMENTAL_NONE_ && rhs == lits.size()) {
     return;
