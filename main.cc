@@ -109,7 +109,7 @@ void printClusterofStudents(Instance *instance);
 //Read ITC-2019 output file for MPP problems
 void readOutputXML(std::string filename, Instance *instance);
 
-
+std::vector<int> setDomain;
 
 
 static void SIGINT_exit(int signum) {
@@ -197,7 +197,7 @@ int main(int argc, char **argv) {
         IntOption formula("Open-WBO", "formula",
                           "Type of formula (0=WCNF, 1=OPB).\n", 0, IntRange(0, 1));
         IntOption cpu_lim("Open-WBO", "cpu-lim",
-                          "Limit on CPU time allowed in seconds.\n", 0,
+                          "Limit on CPU time allowed in seconds.\n", 6000,
                           IntRange(0, INT_MAX));
 
         IntOption weight(
@@ -306,7 +306,11 @@ int main(int argc, char **argv) {
         ParserXMLTwo *parserXML=NULL;
         MaxSAT *S = NULL;
         MaxSATFormula *maxsat_formula=NULL;
-        for (int j = 0; j < 10000000; ++j) {
+        int ITE=1;
+        int j = 0;
+        for (; j < ITE; ++j) {
+
+
             std::cout<<j<<std::endl;
 
 
@@ -372,7 +376,11 @@ int main(int argc, char **argv) {
 
             maxsat_formula = new MaxSATFormula();
             maxsat_formula->setFormat(_FORMAT_PB_);
-            parserXML = new ParserXMLTwo(maxsat_formula, optC1,
+            if(ITE!=1)
+                parserXML = new ParserXMLTwo(maxsat_formula, optC1,
+                                             optC2, optC3,setDomain[j]);
+            else
+                parserXML = new ParserXMLTwo(maxsat_formula, optC1,
                                                        optC2, optC3,j);
 
             parserXML->parse(argv[1]);
@@ -381,6 +389,8 @@ int main(int argc, char **argv) {
             parserXML->aux();
             parserXML->room();
 
+            setDomain=parserXML->getInstance()->getDomain();
+            ITE=setDomain.size()+1;
 
             if (cpu_lim != 0) parserXML->getInstance()->setTime(cpu_lim);
 
@@ -434,6 +444,8 @@ int main(int argc, char **argv) {
             } catch(int e){
 
             }
+            if (cpuTime() > cpu_lim && cpu_lim!=-1)
+                break;
             if(S!=NULL)
                 delete  S;
             delete parserXML;
@@ -448,13 +460,13 @@ int main(int argc, char **argv) {
 
         if(parserXML->getInstance()->getStudent().size()) {
 
-            /*LocalSearch *l = new LocalSearch(parserXML->getInstance());
+ /*           LocalSearch *l = new LocalSearch(parserXML->getInstance());
             l->stuAlloc();
-            writeXMLOutput("data/output/ITC-2019/" + parserXML->getInstance()->getName() + ".xml", parserXML->getInstance());
+            writeXMLOutput("data/output/ITC-2019/" + parserXML->getInstance()->getName() +"_"+std::to_string(j)+ ".xml", parserXML->getInstance());
+
+
+
 */
-
-
-
             maxsat_formula = new MaxSATFormula();
             parserXML->genStudents(maxsat_formula);
             parserXML->sameTime();

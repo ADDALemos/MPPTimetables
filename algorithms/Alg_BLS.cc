@@ -53,7 +53,7 @@ using namespace openwbo;
   |    * 'nbSatisfiable' is increased by 1.
   |
   |________________________________________________________________________________________________@*/
-void BLS::saveModel(vec <lbool> &currentModel) throw() {
+bool BLS::saveModel(vec <lbool> &currentModel) throw() {
   //assert (n_initial_vars != 0);
   assert (currentModel.size() != 0);
   
@@ -65,6 +65,9 @@ void BLS::saveModel(vec <lbool> &currentModel) throw() {
   
   nbSatisfiable++;
   print();
+  if (cpuTime() > instance->getTime() && instance->getTime()!=-1)
+    return false;
+  return true;
 }
 
 
@@ -131,7 +134,7 @@ void BLS::initUndefClauses(vec<int>& undefClauses) {
     undefClauses.push(i);
 }
 
-void BLS::LSU() {
+bool BLS::LSU() {
 
   printf("c Warn: changing to LSU algorithm.\n");
 
@@ -153,7 +156,8 @@ void BLS::LSU() {
     if (res == l_True) {
       nbSatisfiable++;
       newCost = computeCostModel(solver->model);
-      saveModel(solver->model);
+      if(!saveModel(solver->model))
+        return false;
       printf("o %" PRId64 "\n", newCost + off_set); 
 
       if (newCost == 0) {
@@ -185,6 +189,7 @@ void BLS::LSU() {
       }
     }
   }
+  return true;
 }
 
 // Always consider all clauses by adding assumption var to each soft clause.
@@ -241,7 +246,9 @@ bool BLS::findNextMCS() {
   else if (res == l_True) {
   	uint64_t newCost = computeCostModel(solver->model);
   	if (newCost < _smallestMCS){
-  		saveModel(solver->model);	
+      if(!
+  		saveModel(solver->model))
+        return false;
   		printf("o %" PRId64 "\n", newCost);
   		_smallestMCS = newCost;
   	}
@@ -275,7 +282,8 @@ bool BLS::findNextMCS() {
       
       if (costModel < _smallestMCS) {
 	       //saveSmallestModel(solver->model);
-      	   saveModel(solver->model);
+      	   if(!saveModel(solver->model))
+             return false;
 	       printf("o %" PRId64 "\n", costModel);
 	       _smallestMCS = costModel;
       }
@@ -301,7 +309,8 @@ bool BLS::findNextMCS() {
       costModel -= maxsat_formula->getSoftClause(satClauses.last()).weight;
       if (undefClauses.size() == 0 && costModel < _smallestMCS){
         printf("o %" PRId64 "\n", costModel);
-        saveModel(solver->model);
+        if(!saveModel(solver->model))
+          return false;
         _smallestMCS = costModel;
       }
     }
@@ -336,8 +345,7 @@ bool BLS::search() throw(int){
   solver->budgetOff();  
   local_limit = false;
 
-  LSU();
-    return true;
+    return LSU();
 }
 
 

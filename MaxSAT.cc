@@ -722,8 +722,7 @@ void MaxSAT::print() {
             }
         }
     }
-    writeXMLOutput("data/output/ITC-2019/" + instance->getName() + "_" +
-                   std::to_string(modelS) + "_" + instance->getAlgo() + ".xml", instance);
+    writeXMLOutput("data/output/ITC-2019/" + instance->getName()  + "_" + instance->getAlgo() + ".xml", instance);
 
 
 }

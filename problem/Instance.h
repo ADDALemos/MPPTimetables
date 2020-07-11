@@ -21,6 +21,7 @@
 class Instance {
 private:
     int timeLimit=-1;
+    std::vector<int> domain;
     std::map<std::string,std::vector<ConstraintShort*>> dist;
     std::map<std::string,std::vector<ConstraintShort*>> soft;
     std::vector<Curriculum *> problem;
@@ -46,6 +47,15 @@ private:
     std::set<int> incorrentAssignments;
 
 public:
+
+    void setDomain(std::vector<int> t){
+        domain=t;
+    }
+
+    std::vector<int>  getDomain(){
+        return domain;
+    }
+
     void setTime(int t) {
         timeLimit = t;
     }

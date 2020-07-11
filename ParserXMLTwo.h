@@ -109,6 +109,7 @@ namespace openwbo {
             PBObjFunction *of;
             if (optAlloction)
                 of = new PBObjFunction();
+            std::set<int> domain;
 
 
             xml_document<> doc;
@@ -246,6 +247,8 @@ namespace openwbo {
 
 
                                             }
+                                            domain.insert(penalty);
+
                                             if (penalty <= n_iter || lecv.size()==0) {
 
                                                 vec <Lit> *l1 = new vec<Lit>;
@@ -522,6 +525,10 @@ namespace openwbo {
                 maxsat_formula->addObjFunction(of);
                 delete of;
             }
+            std::vector<int> temp;
+            for(int time: domain)
+                temp.push_back(time);
+            instance->setDomain(temp);
 
 
         }

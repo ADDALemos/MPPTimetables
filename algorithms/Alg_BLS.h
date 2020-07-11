@@ -87,13 +87,13 @@ namespace openwbo {
     //
     Solver * buildSolver();
 
-    void LSU();
+    bool LSU();
     
     lbool solve();                                      // SAT solver call
     
     // Utils for model management
     //
-    void saveModel(vec <lbool> &currentModel) throw();             // Saves a Model.
+    bool saveModel(vec <lbool> &currentModel) throw();             // Saves a Model.
     void saveSmallestModel(vec<lbool> &currentModel);     // Saves the smallest model found until now.
     
     // init methods
