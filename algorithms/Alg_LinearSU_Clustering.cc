@@ -272,6 +272,9 @@ bool LinearSUClustering::bmoSearch() throw(int){
     sat:
 
     res = searchSATSolver(solver, assumptions);
+    if (cpuTime() > instance->getTime() && instance->getTime()!=-1) {
+      return false;
+    }
     if (res == l_True) {
       if (!repair){
         nbSatisfiable++;
