@@ -352,46 +352,46 @@ inline void overlpacont(Instance *instance){
 }
 
 inline void domainreduction(Instance *instance){
-    int zero=0,one=1;
+    int zero=0,one=0;
     for (Class *c: instance->getClasses()) {
         bool test=true;
 
 
         for (std::pair<Room*, int> p : c->getPossibleRooms()) {
-            if(p.first->getSlots().size()!=c->getFirstPossibleRoom()->getSlots().size()) {
+            if(p.first->getSlots().size()==0||c->getFirstPossibleRoom()->getSlots().size()==0) {
                 test=false;
-            } else {
-                for (int i = 0; i < p.first->getSlots().size(); ++i) {
-                    if (strcmp(c->getFirstPossibleRoom()->getSlots()[i].getDays().c_str(),
-                               p.first->getSlots()[i].getDays().c_str()) != 0
-                        || strcmp(c->getFirstPossibleRoom()->getSlots()[i].getWeeks().c_str(),
-                                  p.first->getSlots()[i].getWeeks().c_str()) != 0
-                        || c->getFirstPossibleRoom()->getSlots()[i].getStart() != p.first->getSlots()[i].getStart()
-                        || c->getFirstPossibleRoom()->getSlots()[i].getLenght() != p.first->getSlots()[i].getLenght()) {
-                        test = false;
-                        break;
-                    }
+            } else if(p.first->getSlots().size()!=c->getFirstPossibleRoom()->getSlots().size()) {
+                    test=false;
+                } else {
+                    for (int i = 0; i < p.first->getSlots().size(); ++i) {
+                        if (strcmp(c->getFirstPossibleRoom()->getSlots()[i].getDays().c_str(),
+                                   p.first->getSlots()[i].getDays().c_str()) != 0
+                            || strcmp(c->getFirstPossibleRoom()->getSlots()[i].getWeeks().c_str(),
+                                      p.first->getSlots()[i].getWeeks().c_str()) != 0
+                            || c->getFirstPossibleRoom()->getSlots()[i].getStart() != p.first->getSlots()[i].getStart()
+                            || c->getFirstPossibleRoom()->getSlots()[i].getLenght() != p.first->getSlots()[i].getLenght()) {
+                            test = false;
+                            break;
+                        }
 
+                    }
                 }
-            }
+
             if(!test) {
                 zero++;
                 break;
             }
 
         }
-        if(test && c->getPossibleRooms().size()>0){
+        if(test && c->getPossibleRooms().size()>0  ){
             one++;
-            if(c->getPossibleRooms().size()>1)
-                std::cout<<c->getId()<<std::endl;
+
         }
 
 
     }
-    std::cout<<zero<<std::endl;
-    std::cout<<one<<std::endl;
+    std::cout<<zero<<", "<<one<<std::endl;
 
-    std::exit(0);
 
 }
 
